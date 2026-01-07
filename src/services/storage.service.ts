@@ -32,3 +32,4 @@ export function clearState(): void {
     localStorage.removeItem(STORAGE_KEY);
   } catch {}
 }
+

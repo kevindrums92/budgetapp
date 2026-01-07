@@ -12,17 +12,21 @@ type AddTxInput = {
 };
 
 type BudgetStore = BudgetState & {
+  // UI
   selectedMonth: string; // YYYY-MM
   setSelectedMonth: (monthKey: string) => void;
 
+  // CRUD
   addTransaction: (input: AddTxInput) => void;
-
   updateTransaction: (
     id: string,
     patch: Partial<Omit<Transaction, "id" | "createdAt">>
   ) => void;
-
   deleteTransaction: (id: string) => void;
+
+  // 🔑 Sync helpers
+  getSnapshot: () => BudgetState;
+  replaceAllData: (data: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
@@ -37,15 +41,17 @@ function uniqSorted(arr: string[]) {
   );
 }
 
-export const useBudgetStore = create<BudgetStore>((set) => {
+export const useBudgetStore = create<BudgetStore>((set, get) => {
   const hydrated = loadState() ?? defaultState;
 
   return {
+    // ---------- STATE ----------
     ...hydrated,
 
     selectedMonth: currentMonthKey(),
     setSelectedMonth: (monthKey) => set({ selectedMonth: monthKey }),
 
+    // ---------- CRUD ----------
     addTransaction: (input) => {
       const name = input.name.trim();
       const categoryRaw = input.category.trim();
@@ -59,7 +65,7 @@ export const useBudgetStore = create<BudgetStore>((set) => {
         type: input.type,
         name,
         category,
-        amount: Math.round(input.amount), // si quieres decimales, quita el round
+        amount: Math.round(input.amount),
         date: input.date,
         createdAt: Date.now(),
       };
@@ -70,6 +76,8 @@ export const useBudgetStore = create<BudgetStore>((set) => {
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
         };
+
+        // persistencia local (guest o cache)
         saveState(next);
         return next;
       });
@@ -125,10 +133,38 @@ export const useBudgetStore = create<BudgetStore>((set) => {
         const next: BudgetState = {
           schemaVersion: 1,
           transactions: state.transactions.filter((t) => t.id !== id),
-          categories: state.categories, // opcional: limpiar huérfanas luego
+          categories: state.categories,
         };
+
         saveState(next);
         return next;
+      });
+    },
+
+    // ---------- SYNC HELPERS ----------
+    /**
+     * Snapshot limpio del estado actual
+     * (esto es lo que se sube a Supabase)
+     */
+    getSnapshot: () => {
+      const s = get();
+      return {
+        schemaVersion: 1,
+        transactions: s.transactions,
+        categories: s.categories,
+      };
+    },
+
+    /**
+     * Reemplaza todo el estado (viene de la nube)
+     * y lo guarda como cache local
+     */
+    replaceAllData: (data) => {
+      saveState(data); // cache local
+      set({
+        schemaVersion: 1,
+        transactions: data.transactions,
+        categories: data.categories,
       });
     },
   };

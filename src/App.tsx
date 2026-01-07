@@ -4,6 +4,7 @@ import TransactionList from "@/components/TransactionList";
 import FabAdd from "@/components/FabAdd";
 import AddTransactionModal from "@/components/AddTransactionModal";
 import AuthBar from "@/components/AuthBar";
+import CloudSyncGate from "@/components/CloudSyncGate";
 
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
     <div className="min-h-screen bg-gray-100">
       <HeaderBalance />
       <AuthBar />
+      <CloudSyncGate />
       <TransactionList />
 
       <FabAdd onClick={() => setOpen(true)} />
