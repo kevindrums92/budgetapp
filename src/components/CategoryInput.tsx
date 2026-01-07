@@ -7,6 +7,7 @@ type Props = {
   placeholder?: string;
   hint?: string;
   disabled?: boolean;
+  label?: string;
 };
 
 export default function CategoryInput({
@@ -16,6 +17,7 @@ export default function CategoryInput({
   placeholder = "Ej: Mercado, Arriendo, Netflix…",
   hint = "Puedes escribir libremente. Lo que escribas quedará guardado como categoría.",
   disabled,
+  label = "Categoría"
 }: Props) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -92,49 +94,53 @@ export default function CategoryInput({
   }
 
   return (
-    <div ref={rootRef} className="relative">
-      <input
-        ref={inputRef}
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-          setOpen(true);
-          setActive(0);
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={onKeyDown}
-        placeholder={placeholder}
-        disabled={disabled}
-        autoCorrect="off"
-        autoCapitalize="sentences"
-        className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
-      />
+    <div>
+      <label className="mb-1 block text-sm font-medium">{label}</label>
 
-      <p className="mt-1 text-[11px] text-gray-500">{hint}</p>
+      <div ref={rootRef} className="relative">
+        <input
+          ref={inputRef}
+          value={value}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setOpen(true);
+            setActive(0);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={onKeyDown}
+          placeholder={placeholder}
+          disabled={disabled}
+          autoCorrect="off"
+          autoCapitalize="sentences"
+          className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
+        />
 
-      {open && filtered.length > 0 && (
-        <div className="absolute left-0 right-0 top-[42px] z-50 border bg-white shadow-sm">
-          <ul className="max-h-52 overflow-auto py-1">
-            {filtered.map((item, idx) => {
-              const isActive = idx === active;
-              return (
-                <li key={item}>
-                  <button
-                    type="button"
-                    className={`w-full px-3 py-2 text-left text-sm ${
-                      isActive ? "bg-gray-100" : "bg-white"
-                    }`}
-                    onMouseDown={(e) => e.preventDefault()} // evita blur antes del click
-                    onClick={() => selectItem(item)}
-                  >
-                    {item}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
+        <p className="mt-1 text-[11px] text-gray-500">{hint}</p>
+
+        {open && filtered.length > 0 && (
+          <div className="absolute left-0 right-0 top-[42px] z-50 border bg-white shadow-sm">
+            <ul className="max-h-52 overflow-auto py-1">
+              {filtered.map((item, idx) => {
+                const isActive = idx === active;
+                return (
+                  <li key={item}>
+                    <button
+                      type="button"
+                      className={`w-full px-3 py-2 text-left text-sm ${isActive ? "bg-gray-100" : "bg-white"
+                        }`}
+                      onMouseDown={(e) => e.preventDefault()} // evita blur antes del click
+                      onClick={() => selectItem(item)}
+                    >
+                      {item}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
+
   );
 }

@@ -162,7 +162,7 @@ export default function AddTransactionModal({ open, onClose, transactionToEdit =
             <CategoryInput
               value={category}
               onChange={setCategory}
-              suggestions={categories}
+              suggestions={sortedCategories}
             />
 
             {/* Valor + Fecha */}
