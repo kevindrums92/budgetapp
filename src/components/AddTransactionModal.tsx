@@ -131,18 +131,16 @@ export default function AddTransactionModal({ open, onClose, transactionToEdit =
                 <button
                   type="button"
                   onClick={() => setType("expense")}
-                  className={`rounded-xl border px-3 py-2 text-sm font-medium ${
-                    type === "expense" ? "bg-black text-white" : "bg-white"
-                  }`}
+                  className={`rounded-xl border px-3 py-2 text-sm font-medium ${type === "expense" ? "bg-black text-white" : "bg-white"
+                    }`}
                 >
                   Gasto
                 </button>
                 <button
                   type="button"
                   onClick={() => setType("income")}
-                  className={`rounded-xl border px-3 py-2 text-sm font-medium ${
-                    type === "income" ? "bg-black text-white" : "bg-white"
-                  }`}
+                  className={`rounded-xl border px-3 py-2 text-sm font-medium ${type === "income" ? "bg-black text-white" : "bg-white"
+                    }`}
                 >
                   Ingreso
                 </button>
@@ -161,7 +159,11 @@ export default function AddTransactionModal({ open, onClose, transactionToEdit =
             </div>
 
             {/* Categoría */}
-            <CategoryInput value={category} onChange={setCategory} categories={sortedCategories} />
+            <CategoryInput
+              value={category}
+              onChange={setCategory}
+              suggestions={categories}
+            />
 
             {/* Valor + Fecha */}
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
