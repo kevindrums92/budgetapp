@@ -5,6 +5,7 @@ import FabAdd from "@/components/FabAdd";
 import AddTransactionModal from "@/components/AddTransactionModal";
 import AuthBar from "@/components/AuthBar";
 import CloudSyncGate from "@/components/CloudSyncGate";
+import WelcomeGate from "@/components/WelcomeGate";
 
 
 export default function App() {
@@ -12,6 +13,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <WelcomeGate />
+
       <HeaderBalance />
       <AuthBar />
       <CloudSyncGate />

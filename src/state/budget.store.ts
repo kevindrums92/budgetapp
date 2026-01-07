@@ -27,6 +27,8 @@ type BudgetStore = BudgetState & {
   // 🔑 Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (data: BudgetState) => void;
+  welcomeSeen: boolean;
+  setWelcomeSeen: (v: boolean) => void;
 };
 
 const defaultState: BudgetState = {
@@ -47,6 +49,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
   return {
     // ---------- STATE ----------
     ...hydrated,
+
+    welcomeSeen: false,
+    setWelcomeSeen: (v) => set({ welcomeSeen: v }),
 
     selectedMonth: currentMonthKey(),
     setSelectedMonth: (monthKey) => set({ selectedMonth: monthKey }),
