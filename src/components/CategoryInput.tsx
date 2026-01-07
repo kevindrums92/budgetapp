@@ -112,13 +112,14 @@ export default function CategoryInput({
           disabled={disabled}
           autoCorrect="off"
           autoCapitalize="sentences"
-          className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
+          className="w-full rounded-xl border bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-black/20"
+
         />
 
         <p className="mt-1 text-[11px] text-gray-500">{hint}</p>
 
         {open && filtered.length > 0 && (
-          <div className="absolute left-0 right-0 top-[42px] z-50 border bg-white shadow-sm">
+          <div className="absolute left-0 right-0 top-[42px] z-50 overflow-hidden rounded-xl border bg-white shadow-sm">
             <ul className="max-h-52 overflow-auto py-1">
               {filtered.map((item, idx) => {
                 const isActive = idx === active;
