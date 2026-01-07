@@ -3,6 +3,8 @@ import HeaderBalance from "@/components/HeaderBalance";
 import TransactionList from "@/components/TransactionList";
 import FabAdd from "@/components/FabAdd";
 import AddTransactionModal from "@/components/AddTransactionModal";
+import AuthBar from "@/components/AuthBar";
+
 
 export default function App() {
   const [open, setOpen] = useState(false);
@@ -10,6 +12,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <HeaderBalance />
+      <AuthBar />
       <TransactionList />
 
       <FabAdd onClick={() => setOpen(true)} />

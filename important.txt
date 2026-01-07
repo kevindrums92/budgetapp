@@ -1,0 +1,11 @@
+Callback URL (for OAuth)
+https://plvuebqjwjcheyxprlmg.supabase.co/auth/v1/callback
+
+
+Client ID
+70766750478-1m6741d3137b8pb75empi3tq61c8kpee.apps.googleusercontent.com
+Secret
+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
+
+Heroku Web app URL
+https://finanzapp-3fdebe7ccb68.herokuapp.com/
