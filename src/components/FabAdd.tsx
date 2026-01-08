@@ -1,17 +1,16 @@
-type Props = {
-  onClick: () => void;
-};
+import { useNavigate } from "react-router-dom";
 
-export default function FabAdd({ onClick }: Props) {
+export default function FabAdd() {
+  const navigate = useNavigate();
+
   return (
     <button
       type="button"
-      onClick={onClick}
-      className="fixed bottom-5 right-5 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-black text-white shadow-lg active:scale-95"
+      onClick={() => navigate("/add")}
+      className="fixed bottom-20 right-6 z-40 h-14 w-14 rounded-full bg-black text-2xl text-white shadow-lg active:scale-95"
       aria-label="Agregar movimiento"
-      title="Agregar"
     >
-      <span className="text-3xl leading-none">+</span>
+      +
     </button>
   );
 }

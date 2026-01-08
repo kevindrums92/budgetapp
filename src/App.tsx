@@ -1,27 +1,48 @@
-import { useState } from "react";
-import HeaderBalance from "@/components/HeaderBalance";
-import TransactionList from "@/components/TransactionList";
-import FabAdd from "@/components/FabAdd";
-import AddTransactionModal from "@/components/AddTransactionModal";
-import AuthBar from "@/components/AuthBar";
-import CloudSyncGate from "@/components/CloudSyncGate";
-import WelcomeGate from "@/components/WelcomeGate";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 
+import BottomBar from "@/components/BottomBar";
 
-export default function App() {
-  const [open, setOpen] = useState(false);
+import HomePage from "@/pages/HomePage";
+import BudgetPage from "@/pages/BudgetPage";
+import StatsPage from "@/pages/StatsPage";
+import SettingsPage from "@/pages/SettingsPage";
+import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
+import CloudSyncGate from "./components/CloudSyncGate";
+
+function AppFrame() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isFormRoute =
+    location.pathname === "/add" || location.pathname.startsWith("/edit/");
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <WelcomeGate />
+    <div className="min-h-dvh bg-white">
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/budget" element={<BudgetPage />} />
+        <Route path="/stats" element={<StatsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
 
-      <HeaderBalance />
-      <AuthBar />
-      <CloudSyncGate />
-      <TransactionList />
+        {/* Add / Edit pages */}
+        <Route path="/add" element={<AddEditTransactionPage />} />
+        <Route path="/edit/:id" element={<AddEditTransactionPage />} />
 
-      <FabAdd onClick={() => setOpen(true)} />
-      <AddTransactionModal open={open} onClose={() => setOpen(false)} />
+        {/* fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {/* Bottom navigation (no mostrar en add/edit) */}
+      {!isFormRoute && <BottomBar onAdd={() => navigate("/add")} />}
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <CloudSyncGate />
+      <AppFrame />
+    </BrowserRouter>
   );
 }
