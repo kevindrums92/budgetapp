@@ -3,9 +3,13 @@ import { supabase } from "@/lib/supabaseClient";
 import { getCloudState, upsertCloudState } from "@/services/cloudState.service";
 import { useBudgetStore } from "@/state/budget.store";
 import { clearState } from "@/services/storage.service";
+import {
+  getPendingSnapshot,
+  setPendingSnapshot,
+  clearPendingSnapshot,
+} from "@/services/pendingSync.service";
 
-const SEEN_KEY = "budget.welcomeSeen.v1"; // 👈 misma key
-
+const SEEN_KEY = "budget.welcomeSeen.v1";
 
 function isNetworkError(err: unknown) {
   const msg = String((err as any)?.message ?? err ?? "");
@@ -24,97 +28,121 @@ export default function CloudSyncGate() {
   const setCloudMode = useBudgetStore((s) => s.setCloudMode);
   const setCloudStatus = useBudgetStore((s) => s.setCloudStatus);
 
+  const setWelcomeSeen = useBudgetStore((s) => s.setWelcomeSeen);
+
   const transactions = useBudgetStore((s) => s.transactions);
   const categories = useBudgetStore((s) => s.categories);
 
   const initializedRef = useRef(false);
-  const pendingRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
 
-  const setWelcomeSeen = useBudgetStore((s) => s.setWelcomeSeen);
+  async function pushSnapshot(snapshot: ReturnType<typeof getSnapshot>) {
+    if (!navigator.onLine) {
+      setCloudStatus("offline");
+      setPendingSnapshot(snapshot);
+      return;
+    }
 
+    try {
+      setCloudStatus("syncing");
+      await upsertCloudState(snapshot);
+      clearPendingSnapshot();
+      setCloudStatus("ok");
+    } catch (err) {
+      setCloudStatus(isNetworkError(err) ? "offline" : "error");
+      setPendingSnapshot(snapshot);
+    }
+  }
 
   async function initForSession() {
     const { data } = await supabase.auth.getSession();
     const session = data.session;
 
     if (!session) {
-      // si estás deslogueado, por tu regla: limpiar cache local
+      // Regla tuya: deslogueado => no queda data local
+      clearPendingSnapshot();
       clearState();
       replaceAllData({ schemaVersion: 1, transactions: [], categories: [] });
 
-      // ✅ RESET landing para que vuelva a salir en modo guest
-      try { localStorage.removeItem(SEEN_KEY); } catch { }
+      // Reset welcome para que vuelva a salir en guest
+      try {
+        localStorage.removeItem(SEEN_KEY);
+      } catch {}
       setWelcomeSeen(false);
 
       setCloudMode("guest");
       setCloudStatus("idle");
       initializedRef.current = false;
-      pendingRef.current = false;
       return;
     }
 
     setCloudMode("cloud");
 
+    // Si inicia offline: marcamos offline y guardamos snapshot como pendiente
     if (!navigator.onLine) {
       setCloudStatus("offline");
-      initializedRef.current = true; // estás en modo cloud pero sin red
-      pendingRef.current = true;
+      setPendingSnapshot(getSnapshot());
+      initializedRef.current = true;
       return;
     }
 
     try {
       setCloudStatus("syncing");
 
+      // ✅ 1) Si hay cambios pendientes locales, PUSH primero y NO hacer PULL
+      const pending = getPendingSnapshot();
+      if (pending) {
+        await pushSnapshot(pending);
+        initializedRef.current = true;
+        return;
+      }
+
+      // ✅ 2) No hay pendientes: flujo normal (pull)
       const cloud = await getCloudState();
 
       if (cloud) {
         replaceAllData(cloud);
       } else {
-        // cuenta nueva: subimos snapshot local actual
-        const local = getSnapshot();
-        await upsertCloudState(local);
+        // cuenta nueva => subimos lo local actual como primer estado
+        await upsertCloudState(getSnapshot());
       }
 
       setCloudStatus("ok");
       initializedRef.current = true;
-      pendingRef.current = false;
     } catch (err) {
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
+      // dejamos pendiente el snapshot actual para reintentar
+      setPendingSnapshot(getSnapshot());
       initializedRef.current = true;
-      pendingRef.current = true;
     }
   }
 
   async function pushNow() {
-    if (!navigator.onLine) {
-      setCloudStatus("offline");
-      pendingRef.current = true;
-      return;
-    }
-
-    try {
-      setCloudStatus("syncing");
-      await upsertCloudState(getSnapshot());
-      setCloudStatus("ok");
-      pendingRef.current = false;
-    } catch (err) {
-      setCloudStatus(isNetworkError(err) ? "offline" : "error");
-      pendingRef.current = true;
-    }
+    // siempre empuja el snapshot actual
+    await pushSnapshot(getSnapshot());
   }
 
   // online/offline listeners
   useEffect(() => {
-    function onOnline() {
+    async function onOnline() {
       if (!initializedRef.current) return;
-      if (pendingRef.current) pushNow();
+
+      // ✅ Si hay pending, push de inmediato
+      const pending = getPendingSnapshot();
+      if (pending) {
+        await pushSnapshot(pending);
+      }
     }
+
     function onOffline() {
       setCloudStatus("offline");
+      // ✅ guardamos snapshot por si cierran la app offline
+      setPendingSnapshot(getSnapshot());
     }
+
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
+
     return () => {
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
@@ -128,23 +156,24 @@ export default function CloudSyncGate() {
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
+        clearPendingSnapshot();
         clearState();
         replaceAllData({ schemaVersion: 1, transactions: [], categories: [] });
 
-         // ✅ RESET landing al desloguear
-        try { localStorage.removeItem(SEEN_KEY); } catch {}
+        // Reset welcome
+        try {
+          localStorage.removeItem(SEEN_KEY);
+        } catch {}
         setWelcomeSeen(false);
 
         setCloudMode("guest");
         setCloudStatus("idle");
         initializedRef.current = false;
-        pendingRef.current = false;
         return;
       }
 
       if (event === "SIGNED_IN") {
         initializedRef.current = false;
-        pendingRef.current = false;
         initForSession();
       }
     });
@@ -157,6 +186,13 @@ export default function CloudSyncGate() {
   useEffect(() => {
     const mode = useBudgetStore.getState().cloudMode;
     if (mode !== "cloud" || !initializedRef.current) return;
+
+    // si estás offline, solo marca pendiente y no intentes push
+    if (!navigator.onLine) {
+      setCloudStatus("offline");
+      setPendingSnapshot(getSnapshot());
+      return;
+    }
 
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
 
