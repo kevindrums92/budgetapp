@@ -66,8 +66,17 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     setCloudStatus: (s) => set({ cloudStatus: s }),
 
     // Landing flag (se guarda en localStorage aparte o dentro del mismo state, como lo tengas)
-    welcomeSeen: false,
-    setWelcomeSeen: (v) => set({ welcomeSeen: v }),
+    welcomeSeen: (() => {
+      try { return localStorage.getItem("budget.welcomeSeen.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setWelcomeSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("budget.welcomeSeen.v1", "1");
+        else localStorage.removeItem("budget.welcomeSeen.v1");
+      } catch { }
+      set({ welcomeSeen: v });
+    },
 
     // UI month
     selectedMonth: currentMonthKey(),

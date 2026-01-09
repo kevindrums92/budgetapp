@@ -18,6 +18,7 @@ import StatsPage from "@/pages/StatsPage";
 import SettingsPage from "@/pages/SettingsPage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
 import CloudSyncGate from "@/components/CloudSyncGate";
+import WelcomeGate from "./components/WelcomeGate";
 
 function AppFrame() {
   const location = useLocation();
@@ -66,6 +67,7 @@ export default function App() {
     <BrowserRouter>
       <CloudSyncGate />
       <AppFrame />
+      <WelcomeGate />
     </BrowserRouter>
   );
 }

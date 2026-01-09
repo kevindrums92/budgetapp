@@ -4,6 +4,9 @@ import { getCloudState, upsertCloudState } from "@/services/cloudState.service";
 import { useBudgetStore } from "@/state/budget.store";
 import { clearState } from "@/services/storage.service";
 
+const SEEN_KEY = "budget.welcomeSeen.v1"; // 👈 misma key
+
+
 function isNetworkError(err: unknown) {
   const msg = String((err as any)?.message ?? err ?? "");
   return (
@@ -28,6 +31,9 @@ export default function CloudSyncGate() {
   const pendingRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
 
+  const setWelcomeSeen = useBudgetStore((s) => s.setWelcomeSeen);
+
+
   async function initForSession() {
     const { data } = await supabase.auth.getSession();
     const session = data.session;
@@ -36,6 +42,10 @@ export default function CloudSyncGate() {
       // si estás deslogueado, por tu regla: limpiar cache local
       clearState();
       replaceAllData({ schemaVersion: 1, transactions: [], categories: [] });
+
+      // ✅ RESET landing para que vuelva a salir en modo guest
+      try { localStorage.removeItem(SEEN_KEY); } catch { }
+      setWelcomeSeen(false);
 
       setCloudMode("guest");
       setCloudStatus("idle");
@@ -120,6 +130,10 @@ export default function CloudSyncGate() {
       if (event === "SIGNED_OUT") {
         clearState();
         replaceAllData({ schemaVersion: 1, transactions: [], categories: [] });
+
+         // ✅ RESET landing al desloguear
+        try { localStorage.removeItem(SEEN_KEY); } catch {}
+        setWelcomeSeen(false);
 
         setCloudMode("guest");
         setCloudStatus("idle");
