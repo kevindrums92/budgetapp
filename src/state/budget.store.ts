@@ -3,6 +3,9 @@ import type { BudgetState, Transaction, TransactionType } from "@/types/budget.t
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey } from "@/services/dates.service";
 
+type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
+type CloudMode = "guest" | "cloud";
+
 type AddTxInput = {
   type: TransactionType;
   name: string;
@@ -24,13 +27,18 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteTransaction: (id: string) => void;
 
-  // 🔑 Sync helpers (NO opcionales)
-  getSnapshot: () => BudgetState;
-  replaceAllData: (data: BudgetState) => void;
-
   // Landing
   welcomeSeen: boolean;
   setWelcomeSeen: (v: boolean) => void;
+
+  cloudMode: CloudMode;
+  cloudStatus: CloudStatus;
+  setCloudMode: (m: CloudMode) => void;
+  setCloudStatus: (s: CloudStatus) => void;
+
+  // (ya los tienes)
+  getSnapshot: () => BudgetState;
+  replaceAllData: (next: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
@@ -51,6 +59,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
   return {
     // ---------- STATE ----------
     ...hydrated,
+
+    cloudMode: "guest",
+    cloudStatus: "idle",
+    setCloudMode: (m) => set({ cloudMode: m }),
+    setCloudStatus: (s) => set({ cloudStatus: s }),
 
     // Landing flag (se guarda en localStorage aparte o dentro del mismo state, como lo tengas)
     welcomeSeen: false,
