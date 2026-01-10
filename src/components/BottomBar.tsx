@@ -33,13 +33,13 @@ function Tab({
 
 export default function BottomBar({ onAdd }: Props) {
     return (
-        <div className="fixed left-0 right-0 bottom-0 z-50">
+        <div className="fixed inset-x-0 -bottom-1 z-50 bg-white pt-1">
             {/* iOS-ish: blur + borde sutil + sombra hacia arriba */}
             <div
                 className={[
                     "relative",
                     "border-t border-gray-200/70",
-                    "bg-white/75 backdrop-blur-xl",
+                    "bg-white/99 backdrop-blur-xl",
                     "shadow-[0_-10px_30px_rgba(0,0,0,0.10)]",
                     "pt-3 pb-[calc(env(safe-area-inset-bottom)+10px)]",
                 ].join(" ")}
