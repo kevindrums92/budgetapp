@@ -4,10 +4,10 @@ import CloudStatusMini from "@/components/CloudStatusMini";
 
 type Props = {
   title: string;
-  onOpenMenu: () => void;
+  onOpenUserDrawer: () => void;
 };
 
-export default function TopHeader({ title, onOpenMenu }: Props) {
+export default function TopHeader({ title, onOpenUserDrawer }: Props) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,11 +16,8 @@ export default function TopHeader({ title, onOpenMenu }: Props) {
     async function load() {
       const { data } = await supabase.auth.getSession();
       const user = data.session?.user ?? null;
-
-      // Google suele venir como user_metadata.avatar_url o picture
-      const meta: any = user?.user_metadata ?? {};
-      const url = meta.avatar_url || meta.picture || null;
-
+      const meta: Record<string, unknown> = user?.user_metadata ?? {};
+      const url = (meta.avatar_url as string) || (meta.picture as string) || null;
       if (mounted) setAvatarUrl(url);
     }
 
@@ -28,8 +25,8 @@ export default function TopHeader({ title, onOpenMenu }: Props) {
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
-      const meta: any = user?.user_metadata ?? {};
-      const url = meta.avatar_url || meta.picture || null;
+      const meta: Record<string, unknown> = user?.user_metadata ?? {};
+      const url = (meta.avatar_url as string) || (meta.picture as string) || null;
       setAvatarUrl(url);
     });
 
@@ -51,8 +48,7 @@ export default function TopHeader({ title, onOpenMenu }: Props) {
       );
     }
     return (
-      <div className="grid h-9 w-9 place-items-center rounded-full border bg-white text-xs font-semibold text-gray-700">
-        {/* placeholder */}
+      <div className="grid h-9 w-9 place-items-center rounded-full border bg-gray-100 text-xs font-semibold text-gray-600">
         U
       </div>
     );
@@ -62,19 +58,17 @@ export default function TopHeader({ title, onOpenMenu }: Props) {
     <header className="sticky top-0 z-20 border-b bg-white/100 backdrop-blur">
       <div className="mx-auto max-w-xl px-4 py-3">
         <div className="relative flex items-center justify-between">
-          {/* Left: hamburger */}
+          {/* Left: avatar + status (clickeable) */}
           <button
             type="button"
-            onClick={onOpenMenu}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 active:scale-95"
-            aria-label="Abrir menú"
+            onClick={onOpenUserDrawer}
+            className="flex flex-col items-start rounded-full hover:bg-gray-50 active:scale-95"
+            aria-label="Abrir perfil"
           >
-            {/* simple hamburger */}
-            <span className="block h-5 w-5">
-              <span className="block h-[2px] w-full bg-gray-900" />
-              <span className="mt-[5px] block h-[2px] w-full bg-gray-900" />
-              <span className="mt-[5px] block h-[2px] w-full bg-gray-900" />
-            </span>
+            <div className="h-10 w-10 flex items-center justify-center">
+              {Avatar}
+            </div>
+            <CloudStatusMini />
           </button>
 
           {/* Center: title */}
@@ -82,11 +76,8 @@ export default function TopHeader({ title, onOpenMenu }: Props) {
             <div className="text-sm font-semibold text-gray-900">{title}</div>
           </div>
 
-          {/* Right: avatar + status */}
-          <div className="flex flex-col items-end">
-            <div className="h-10 w-10">{Avatar}</div>
-            <CloudStatusMini />
-          </div>
+          {/* Right: empty space for balance */}
+          <div className="h-10 w-10" />
         </div>
       </div>
     </header>

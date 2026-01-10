@@ -10,7 +10,7 @@ import {
 
 import BottomBar from "@/components/BottomBar";
 import TopHeader from "@/components/TopHeader";
-import SideMenu from "@/components/SideMenu";
+import UserDrawer from "@/components/UserDrawer";
 
 import HomePage from "@/pages/HomePage";
 import BudgetPage from "@/pages/BudgetPage";
@@ -23,7 +23,7 @@ import WelcomeGate from "./components/WelcomeGate";
 function AppFrame() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [userDrawerOpen, setUserDrawerOpen] = useState(false);
 
   const isFormRoute =
     location.pathname === "/add" || location.pathname.startsWith("/edit/");
@@ -40,8 +40,14 @@ function AppFrame() {
     <div className="min-h-dvh bg-white">
       {!isFormRoute && (
         <>
-          <TopHeader title={title} onOpenMenu={() => setMenuOpen(true)} />
-          <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+          <TopHeader
+            title={title}
+            onOpenUserDrawer={() => setUserDrawerOpen(true)}
+          />
+          <UserDrawer
+            open={userDrawerOpen}
+            onClose={() => setUserDrawerOpen(false)}
+          />
         </>
       )}
 
