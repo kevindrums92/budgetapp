@@ -33,10 +33,6 @@ export default function ConfirmDialog({
 
   if (!open) return null;
 
-  // 👇 Ajusta este número si cambiaste altura del BottomBar.
-  // 92 suele quedar bien con tu bar (pt-3 + pb safe-area + iconos).
-  const BOTTOM_BAR_APPROX = 92;
-
   return (
     <div className="fixed inset-0 z-[60]">
       {/* Backdrop */}
