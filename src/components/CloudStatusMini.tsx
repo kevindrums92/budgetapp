@@ -19,7 +19,7 @@ export default function CloudStatusMini() {
     }
 
     // ok por defecto
-    return { text: "Nube", dot: "bg-green-500", textClass: "text-gray-600" };
+    return { text: "online", dot: "bg-green-500", textClass: "text-gray-600" };
   }, [mode, status]);
 
   return (
