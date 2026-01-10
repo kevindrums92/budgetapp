@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -11,6 +11,7 @@ import {
 import BottomBar from "@/components/BottomBar";
 import TopHeader from "@/components/TopHeader";
 import SideMenu from "@/components/SideMenu";
+import { useEdgeSwipe } from "@/hooks/useEdgeSwipe";
 
 import HomePage from "@/pages/HomePage";
 import BudgetPage from "@/pages/BudgetPage";
@@ -28,6 +29,14 @@ function AppFrame() {
   const isFormRoute =
     location.pathname === "/add" || location.pathname.startsWith("/edit/");
 
+  const handleOpenMenu = useCallback(() => setMenuOpen(true), []);
+
+  // Edge swipe para abrir el menú desde el borde izquierdo
+  const { swipeProgress, isSwiping } = useEdgeSwipe({
+    onOpen: handleOpenMenu,
+    disabled: isFormRoute || menuOpen,
+  });
+
   const title = useMemo(() => {
     if (location.pathname === "/") return "Home";
     if (location.pathname === "/budget") return "Budget";
@@ -38,9 +47,20 @@ function AppFrame() {
 
   return (
     <div className="min-h-dvh bg-white">
+      {/* Indicador visual de edge swipe */}
+      {isSwiping && (
+        <div
+          className="fixed left-0 top-0 bottom-0 w-1 bg-blue-500 z-50 origin-left"
+          style={{
+            transform: `scaleX(${swipeProgress * 4})`,
+            opacity: swipeProgress,
+          }}
+        />
+      )}
+
       {!isFormRoute && (
         <>
-          <TopHeader title={title} onOpenMenu={() => setMenuOpen(true)} />
+          <TopHeader title={title} onOpenMenu={handleOpenMenu} />
           <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
         </>
       )}

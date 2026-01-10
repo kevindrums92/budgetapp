@@ -59,7 +59,7 @@ export default function TopHeader({ title, onOpenMenu }: Props) {
   }, [avatarUrl]);
 
   return (
-    <header className="sticky top-0 z-20 border-b bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b bg-white/100 backdrop-blur">
       <div className="mx-auto max-w-xl px-4 py-3">
         <div className="relative flex items-center justify-between">
           {/* Left: hamburger */}
