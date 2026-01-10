@@ -24,7 +24,7 @@ export default function HeaderBalance() {
     totals.balance > 0 ? "text-green-600" : totals.balance < 0 ? "text-red-600" : "text-gray-900";
 
   return (
-    <header className="sticky top-0 z-10 bg-white">
+    <header className="sticky top-[83px] z-10 bg-white">
       {/* Top header */}
       <div className="mx-auto max-w-xl px-4 pt-3 pb-2">
         <div className="flex items-center justify-between">
