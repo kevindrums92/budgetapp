@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import CloudStatusMini from "@/components/CloudStatusMini";
+import { User } from "lucide-react";
 
 type Props = {
   title: string;
@@ -48,8 +49,8 @@ export default function TopHeader({ title, onOpenUserDrawer }: Props) {
       );
     }
     return (
-      <div className="grid h-9 w-9 place-items-center rounded-full border bg-gray-100 text-xs font-semibold text-gray-600">
-        U
+      <div className="grid h-9 w-9 place-items-center rounded-full border bg-gray-100 text-gray-500">
+        <User size={20} strokeWidth={1.8} />
       </div>
     );
   }, [avatarUrl]);

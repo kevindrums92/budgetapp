@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { User } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -245,8 +246,8 @@ export default function UserDrawer({ open, onClose }: Props) {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-gray-200 text-lg font-semibold text-gray-600">
-                {user.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || "U"}
+              <div className="grid h-14 w-14 place-items-center rounded-full bg-gray-200 text-gray-500">
+                <User size={28} strokeWidth={1.8} />
               </div>
             )}
           </div>
