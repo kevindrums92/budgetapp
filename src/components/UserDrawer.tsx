@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import CloudStatusMini from "@/components/CloudStatusMini";
 
 type Props = {
   open: boolean;
