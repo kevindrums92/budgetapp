@@ -44,6 +44,18 @@ export default function SideMenu({ open, onClose }: Props) {
   const startXRef = useRef(0);
   const currentXRef = useRef(0);
 
+  // Bloquear scroll del body cuando el menú está abierto
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   // Manejar apertura/cierre con animación
   useEffect(() => {
     if (open) {
