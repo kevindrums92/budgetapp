@@ -3,6 +3,9 @@ import type { BudgetState, Transaction, TransactionType } from "@/types/budget.t
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey } from "@/services/dates.service";
 
+type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
+type CloudMode = "guest" | "cloud";
+
 type AddTxInput = {
   type: TransactionType;
   name: string;
@@ -24,11 +27,18 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteTransaction: (id: string) => void;
 
-  // 🔑 Sync helpers
-  getSnapshot: () => BudgetState;
-  replaceAllData: (data: BudgetState) => void;
+  // Landing
   welcomeSeen: boolean;
   setWelcomeSeen: (v: boolean) => void;
+
+  cloudMode: CloudMode;
+  cloudStatus: CloudStatus;
+  setCloudMode: (m: CloudMode) => void;
+  setCloudStatus: (s: CloudStatus) => void;
+
+  // (ya los tienes)
+  getSnapshot: () => BudgetState;
+  replaceAllData: (next: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
@@ -50,9 +60,25 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     // ---------- STATE ----------
     ...hydrated,
 
-    welcomeSeen: false,
-    setWelcomeSeen: (v) => set({ welcomeSeen: v }),
+    cloudMode: "guest",
+    cloudStatus: "idle",
+    setCloudMode: (m) => set({ cloudMode: m }),
+    setCloudStatus: (s) => set({ cloudStatus: s }),
 
+    // Landing flag (se guarda en localStorage aparte o dentro del mismo state, como lo tengas)
+    welcomeSeen: (() => {
+      try { return localStorage.getItem("budget.welcomeSeen.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setWelcomeSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("budget.welcomeSeen.v1", "1");
+        else localStorage.removeItem("budget.welcomeSeen.v1");
+      } catch { }
+      set({ welcomeSeen: v });
+    },
+
+    // UI month
     selectedMonth: currentMonthKey(),
     setSelectedMonth: (monthKey) => set({ selectedMonth: monthKey }),
 
@@ -82,7 +108,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: uniqSorted([...state.categories, category]),
         };
 
-        // persistencia local (guest o cache)
+        // cache local (guest o cloud cache)
         saveState(next);
         return next;
       });
@@ -147,10 +173,6 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     },
 
     // ---------- SYNC HELPERS ----------
-    /**
-     * Snapshot limpio del estado actual
-     * (esto es lo que se sube a Supabase)
-     */
     getSnapshot: () => {
       const s = get();
       return {
@@ -160,12 +182,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
     },
 
-    /**
-     * Reemplaza todo el estado (viene de la nube)
-     * y lo guarda como cache local
-     */
     replaceAllData: (data) => {
-      saveState(data); // cache local
+      // guarda como cache local (cloud cache)
+      saveState(data);
+
+      // set explícito (NO meter funciones del store dentro)
       set({
         schemaVersion: 1,
         transactions: data.transactions,

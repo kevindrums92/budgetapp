@@ -1,22 +1,20 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/features/transactions/transactions.utils";
-import AddTransactionModal from "@/components/AddTransactionModal";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import RowMenu from "@/components/RowMenu";
 import type { Transaction } from "@/types/budget.types";
 
 export default function TransactionList() {
+  const navigate = useNavigate();
+
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const deleteTransaction = useBudgetStore((s) => s.deleteTransaction);
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const isCurrent = selectedMonth === currentMonth;
-
-  // Edit modal
-  const [editOpen, setEditOpen] = useState(false);
-  const [txToEdit, setTxToEdit] = useState<Transaction | null>(null);
 
   // Confirm delete
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -32,8 +30,7 @@ export default function TransactionList() {
   }, [transactions, selectedMonth]);
 
   function onEdit(tx: Transaction) {
-    setTxToEdit(tx);
-    setEditOpen(true);
+    navigate(`/edit/${tx.id}`);
   }
 
   function onAskDelete(tx: Transaction) {
@@ -51,13 +48,13 @@ export default function TransactionList() {
   return (
     <div className="mx-auto max-w-xl p-4">
       {!isCurrent && (
-        <div className="mb-3 rounded-2xl border bg-white p-3 text-xs text-gray-600">
+        <div className="mb-3 border bg-white p-3 text-xs text-gray-600">
           Estás viendo un mes diferente al actual. Puedes agregar movimientos igual, pero revisa la fecha.
         </div>
       )}
 
       {list.length === 0 ? (
-        <div className="rounded-2xl border bg-white p-6 text-center text-sm text-gray-600">
+        <div className="border bg-white p-6 text-center text-sm text-gray-600">
           Aún no tienes movimientos este mes.
         </div>
       ) : (
@@ -65,7 +62,7 @@ export default function TransactionList() {
           {list.map((t) => (
             <div
               key={t.id}
-              className="flex items-center justify-between gap-3 rounded-xl border bg-white p-3"
+              className="flex items-center justify-between gap-3 border bg-white p-3"
             >
               <div className="min-w-0">
                 <p className="truncate font-medium">{t.name}</p>
@@ -89,13 +86,6 @@ export default function TransactionList() {
           ))}
         </div>
       )}
-
-      {/* Edit modal */}
-      <AddTransactionModal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        transactionToEdit={txToEdit}
-      />
 
       {/* Confirm delete dialog */}
       <ConfirmDialog
