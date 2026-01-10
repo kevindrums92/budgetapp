@@ -267,10 +267,6 @@ export default function UserDrawer({ open, onClose }: Props) {
             </>
           )}
 
-          {/* Cloud status */}
-          <div className="mt-2">
-            <CloudStatusMini />
-          </div>
 
           {/* Actions */}
           <div className="mt-6">
