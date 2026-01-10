@@ -3,3 +3,8 @@
 @tailwind utilities;
 
 html, body, #root { height: 100%; }
+
+/* Deshabilitar el gesto nativo de swipe back/forward del navegador */
+html {
+  overscroll-behavior-x: none;
+}
