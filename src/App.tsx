@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -20,13 +20,23 @@ import TripDetailPage from "@/pages/TripDetailPage";
 import AddEditTripPage from "@/pages/AddEditTripPage";
 import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
+
 import CloudSyncGate from "@/components/CloudSyncGate";
-import WelcomeGate from "./components/WelcomeGate";
+import WelcomeGate from "@/components/WelcomeGate";
+import SplashScreen from "@/components/SplashScreen";
 
 function AppFrame() {
   const location = useLocation();
   const navigate = useNavigate();
   const [userDrawerOpen, setUserDrawerOpen] = useState(false);
+
+  // Splash: visible solo al inicio (luego puedes reemplazar el timeout por "store hydrated")
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setShowSplash(false), 900);
+    return () => window.clearTimeout(t);
+  }, []);
 
   const isFormRoute =
     location.pathname === "/add" ||
@@ -42,39 +52,51 @@ function AppFrame() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-dvh bg-white">
-      {!isFormRoute && (
-        <>
-          <TopHeader
-            title={title}
-            onOpenUserDrawer={() => setUserDrawerOpen(true)}
+    <>
+      {/* Splash overlay (fade out por CSS/transition) */}
+      <SplashScreen visible={showSplash} />
+
+      {/* App */}
+      <div className={`min-h-dvh bg-white ${showSplash ? "pointer-events-none" : ""}`}>
+        {!isFormRoute && (
+          <>
+            <TopHeader
+              title={title}
+              onOpenUserDrawer={() => setUserDrawerOpen(true)}
+            />
+            <UserDrawer
+              open={userDrawerOpen}
+              onClose={() => setUserDrawerOpen(false)}
+            />
+          </>
+        )}
+
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/budget" element={<BudgetPage />} />
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/trips" element={<TripsPage />} />
+          <Route path="/trips/new" element={<AddEditTripPage />} />
+          <Route path="/trips/:id" element={<TripDetailPage />} />
+          <Route path="/trips/:id/edit" element={<AddEditTripPage />} />
+          <Route
+            path="/trips/:id/expense/new"
+            element={<AddEditTripExpensePage />}
           />
-          <UserDrawer
-            open={userDrawerOpen}
-            onClose={() => setUserDrawerOpen(false)}
+          <Route
+            path="/trips/:id/expense/:expenseId/edit"
+            element={<AddEditTripExpensePage />}
           />
-        </>
-      )}
 
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/budget" element={<BudgetPage />} />
-        <Route path="/stats" element={<StatsPage />} />
-        <Route path="/trips" element={<TripsPage />} />
-        <Route path="/trips/new" element={<AddEditTripPage />} />
-        <Route path="/trips/:id" element={<TripDetailPage />} />
-        <Route path="/trips/:id/edit" element={<AddEditTripPage />} />
-        <Route path="/trips/:id/expense/new" element={<AddEditTripExpensePage />} />
-        <Route path="/trips/:id/expense/:expenseId/edit" element={<AddEditTripExpensePage />} />
+          <Route path="/add" element={<AddEditTransactionPage />} />
+          <Route path="/edit/:id" element={<AddEditTransactionPage />} />
 
-        <Route path="/add" element={<AddEditTransactionPage />} />
-        <Route path="/edit/:id" element={<AddEditTransactionPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-
-      {!isFormRoute && <BottomBar onAdd={() => navigate("/add")} />}
-    </div>
+        {!isFormRoute && <BottomBar onAdd={() => navigate("/add")} />}
+      </div>
+    </>
   );
 }
 

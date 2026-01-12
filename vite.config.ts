@@ -3,7 +3,6 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import path from "path";
 
-
 export default defineConfig({
   resolve: {
     alias: {
@@ -14,44 +13,56 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+
+      // Estos archivos deben existir en /public (en este caso /public/icons/*)
       includeAssets: [
-        "favicon.ico",
-        "apple-touch-icon.png",
-        "pwa-192.png",
-        "pwa-512.png",
-        "pwa-512-maskable.png",
+        "icons/icon-16.png",
+        "icons/icon-32.png",
+        "icons/icon-180.png",
+        "icons/icon-192.png",
+        "icons/icon-512.png",
+        "icons/maskable-192.png",
+        "icons/maskable-512.png",
       ],
+
       manifest: {
-        name: "Presupuesto",
-        short_name: "Presupuesto",
-        description: "App de presupuesto personal (local-first).",
-        theme_color: "#18B7B0",
-        background_color: "#ffffff",
+        name: "SmartSpend",
+        short_name: "SmartSpend",
+        description: "Gasta inteligente. Controla ingresos y gastos con claridad.",
+        theme_color: "#3ED598",
+        background_color: "#FFFFFF",
         display: "standalone",
         scope: "/",
         start_url: "/",
         icons: [
           {
-            src: "pwa-192.png",
+            src: "/icons/icon-192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "pwa-512.png",
+            src: "/icons/icon-512.png",
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "pwa-512-maskable.png",
+            src: "/icons/maskable-192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "maskable",
+          },
+          {
+            src: "/icons/maskable-512.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable",
           },
         ],
       },
+
       workbox: {
-        // Cacheo básico para app shell
-        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+        // App shell + assets
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest}"],
       },
     }),
   ],
