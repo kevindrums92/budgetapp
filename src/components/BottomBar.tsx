@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Wallet, BarChart3, Settings, Plus } from "lucide-react";
+import { Home, Wallet, BarChart3, Plane, Plus } from "lucide-react";
 
 type Props = { onAdd: () => void };
 
@@ -57,7 +57,7 @@ export default function BottomBar({ onAdd }: Props) {
             </div>
 
             <Tab to="/stats" label="Stats" icon={BarChart3} />
-            <Tab to="/settings" label="Settings" icon={Settings} />
+            <Tab to="/trips" label="Trips" icon={Plane} />
           </div>
 
           {/* FAB: un poco más iOS (sombra suave, ring) */}

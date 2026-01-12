@@ -32,6 +32,8 @@ export default function CloudSyncGate() {
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categories = useBudgetStore((s) => s.categories);
+  const trips = useBudgetStore((s) => s.trips);
+  const tripExpenses = useBudgetStore((s) => s.tripExpenses);
 
   const initializedRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
@@ -62,7 +64,7 @@ export default function CloudSyncGate() {
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
-      replaceAllData({ schemaVersion: 1, transactions: [], categories: [] });
+      replaceAllData({ schemaVersion: 1, transactions: [], categories: [], trips: [], tripExpenses: [] });
 
       // Reset welcome para que vuelva a salir en guest
       try {
@@ -158,7 +160,7 @@ export default function CloudSyncGate() {
       if (event === "SIGNED_OUT") {
         clearPendingSnapshot();
         clearState();
-        replaceAllData({ schemaVersion: 1, transactions: [], categories: [] });
+        replaceAllData({ schemaVersion: 1, transactions: [], categories: [], trips: [], tripExpenses: [] });
 
         // Reset welcome
         try {
@@ -201,7 +203,7 @@ export default function CloudSyncGate() {
     }, 1200);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories]);
+  }, [transactions, categories, trips, tripExpenses]);
 
   return null;
 }

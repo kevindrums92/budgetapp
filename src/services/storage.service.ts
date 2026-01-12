@@ -13,6 +13,14 @@ export function loadState(): BudgetState | null {
     if (parsed.schemaVersion !== 1) return null;
     if (!Array.isArray(parsed.transactions) || !Array.isArray(parsed.categories)) return null;
 
+    // Migración: agregar trips y tripExpenses si no existen
+    if (!Array.isArray(parsed.trips)) {
+      parsed.trips = [];
+    }
+    if (!Array.isArray(parsed.tripExpenses)) {
+      parsed.tripExpenses = [];
+    }
+
     return parsed;
   } catch {
     return null;

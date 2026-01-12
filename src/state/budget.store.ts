@@ -1,5 +1,13 @@
 import { create } from "zustand";
-import type { BudgetState, Transaction, TransactionType } from "@/types/budget.types";
+import type {
+  BudgetState,
+  Transaction,
+  TransactionType,
+  Trip,
+  TripExpense,
+  TripStatus,
+  TripExpenseCategory,
+} from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey } from "@/services/dates.service";
 
@@ -14,18 +22,49 @@ type AddTxInput = {
   date: string; // YYYY-MM-DD
 };
 
+type AddTripInput = {
+  name: string;
+  destination: string;
+  budget: number;
+  startDate: string;
+  endDate: string | null;
+  status: TripStatus;
+};
+
+type AddTripExpenseInput = {
+  tripId: string;
+  category: TripExpenseCategory;
+  name: string;
+  amount: number;
+  date: string;
+  notes?: string;
+};
+
 type BudgetStore = BudgetState & {
   // UI
   selectedMonth: string; // YYYY-MM
   setSelectedMonth: (monthKey: string) => void;
 
-  // CRUD
+  // CRUD Transactions
   addTransaction: (input: AddTxInput) => void;
   updateTransaction: (
     id: string,
     patch: Partial<Omit<Transaction, "id" | "createdAt">>
   ) => void;
   deleteTransaction: (id: string) => void;
+
+  // CRUD Trips
+  addTrip: (input: AddTripInput) => void;
+  updateTrip: (id: string, patch: Partial<Omit<Trip, "id" | "createdAt">>) => void;
+  deleteTrip: (id: string) => void;
+
+  // CRUD Trip Expenses
+  addTripExpense: (input: AddTripExpenseInput) => void;
+  updateTripExpense: (
+    id: string,
+    patch: Partial<Omit<TripExpense, "id" | "tripId" | "createdAt">>
+  ) => void;
+  deleteTripExpense: (id: string) => void;
 
   // Landing
   welcomeSeen: boolean;
@@ -36,7 +75,7 @@ type BudgetStore = BudgetState & {
   setCloudMode: (m: CloudMode) => void;
   setCloudStatus: (s: CloudStatus) => void;
 
-  // (ya los tienes)
+  // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
 };
@@ -45,6 +84,8 @@ const defaultState: BudgetState = {
   schemaVersion: 1,
   transactions: [],
   categories: [],
+  trips: [],
+  tripExpenses: [],
 };
 
 function uniqSorted(arr: string[]) {
@@ -106,6 +147,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           schemaVersion: 1,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
         };
 
         // cache local (guest o cloud cache)
@@ -152,6 +195,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           schemaVersion: 1,
           transactions: nextTransactions,
           categories: nextCategories,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
         };
 
         saveState(next);
@@ -165,6 +210,144 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           schemaVersion: 1,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    // ---------- CRUD TRIPS ----------
+    addTrip: (input) => {
+      const name = input.name.trim();
+      const destination = input.destination.trim();
+
+      if (!name) return;
+      if (!Number.isFinite(input.budget) || input.budget < 0) return;
+
+      const trip: Trip = {
+        id: crypto.randomUUID(),
+        name,
+        destination,
+        budget: Math.round(input.budget),
+        startDate: input.startDate,
+        endDate: input.endDate,
+        status: input.status,
+        createdAt: Date.now(),
+      };
+
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 1,
+          transactions: state.transactions,
+          categories: state.categories,
+          trips: [trip, ...state.trips],
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    updateTrip: (id, patch) => {
+      set((state) => {
+        const nextTrips = state.trips.map((t) => {
+          if (t.id !== id) return t;
+          return { ...t, ...patch };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 1,
+          transactions: state.transactions,
+          categories: state.categories,
+          trips: nextTrips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    deleteTrip: (id) => {
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 1,
+          transactions: state.transactions,
+          categories: state.categories,
+          trips: state.trips.filter((t) => t.id !== id),
+          // También eliminar los gastos asociados al viaje
+          tripExpenses: state.tripExpenses.filter((e) => e.tripId !== id),
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    // ---------- CRUD TRIP EXPENSES ----------
+    addTripExpense: (input) => {
+      const name = input.name.trim();
+
+      if (!name) return;
+      if (!Number.isFinite(input.amount) || input.amount <= 0) return;
+
+      const expense: TripExpense = {
+        id: crypto.randomUUID(),
+        tripId: input.tripId,
+        category: input.category,
+        name,
+        amount: Math.round(input.amount),
+        date: input.date,
+        notes: input.notes?.trim() || undefined,
+        createdAt: Date.now(),
+      };
+
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 1,
+          transactions: state.transactions,
+          categories: state.categories,
+          trips: state.trips,
+          tripExpenses: [expense, ...state.tripExpenses],
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    updateTripExpense: (id, patch) => {
+      set((state) => {
+        const nextExpenses = state.tripExpenses.map((e) => {
+          if (e.id !== id) return e;
+          return { ...e, ...patch };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 1,
+          transactions: state.transactions,
+          categories: state.categories,
+          trips: state.trips,
+          tripExpenses: nextExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    deleteTripExpense: (id) => {
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 1,
+          transactions: state.transactions,
+          categories: state.categories,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses.filter((e) => e.id !== id),
         };
 
         saveState(next);
@@ -179,6 +362,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         schemaVersion: 1,
         transactions: s.transactions,
         categories: s.categories,
+        trips: s.trips ?? [],
+        tripExpenses: s.tripExpenses ?? [],
       };
     },
 
@@ -191,6 +376,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         schemaVersion: 1,
         transactions: data.transactions,
         categories: data.categories,
+        trips: data.trips ?? [],
+        tripExpenses: data.tripExpenses ?? [],
       });
     },
   };

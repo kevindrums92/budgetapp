@@ -15,7 +15,10 @@ import UserDrawer from "@/components/UserDrawer";
 import HomePage from "@/pages/HomePage";
 import BudgetPage from "@/pages/BudgetPage";
 import StatsPage from "@/pages/StatsPage";
-import SettingsPage from "@/pages/SettingsPage";
+import TripsPage from "@/pages/TripsPage";
+import TripDetailPage from "@/pages/TripDetailPage";
+import AddEditTripPage from "@/pages/AddEditTripPage";
+import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
 import CloudSyncGate from "@/components/CloudSyncGate";
 import WelcomeGate from "./components/WelcomeGate";
@@ -26,13 +29,15 @@ function AppFrame() {
   const [userDrawerOpen, setUserDrawerOpen] = useState(false);
 
   const isFormRoute =
-    location.pathname === "/add" || location.pathname.startsWith("/edit/");
+    location.pathname === "/add" ||
+    location.pathname.startsWith("/edit/") ||
+    location.pathname.startsWith("/trips/");
 
   const title = useMemo(() => {
     if (location.pathname === "/") return "Home";
     if (location.pathname === "/budget") return "Budget";
     if (location.pathname === "/stats") return "Stats";
-    if (location.pathname === "/settings") return "Settings";
+    if (location.pathname === "/trips") return "Trips";
     return "Home";
   }, [location.pathname]);
 
@@ -55,7 +60,12 @@ function AppFrame() {
         <Route path="/" element={<HomePage />} />
         <Route path="/budget" element={<BudgetPage />} />
         <Route path="/stats" element={<StatsPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/trips" element={<TripsPage />} />
+        <Route path="/trips/new" element={<AddEditTripPage />} />
+        <Route path="/trips/:id" element={<TripDetailPage />} />
+        <Route path="/trips/:id/edit" element={<AddEditTripPage />} />
+        <Route path="/trips/:id/expense/new" element={<AddEditTripExpensePage />} />
+        <Route path="/trips/:id/expense/:expenseId/edit" element={<AddEditTripExpensePage />} />
 
         <Route path="/add" element={<AddEditTransactionPage />} />
         <Route path="/edit/:id" element={<AddEditTransactionPage />} />
