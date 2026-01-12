@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import CloudStatusMini from "@/components/CloudStatusMini";
+import LogoMark from "@/components/LogoMark";
 import { User } from "lucide-react";
 
 type Props = {
@@ -77,8 +78,10 @@ export default function TopHeader({ title, onOpenUserDrawer }: Props) {
             <div className="text-sm font-semibold text-gray-900">{title}</div>
           </div>
 
-          {/* Right: empty space for balance */}
-          <div className="h-10 w-10" />
+          {/* Right: logo */}
+          <div className="flex h-10 w-10 items-center justify-center">
+            <LogoMark size={28} />
+          </div>
         </div>
       </div>
     </header>
