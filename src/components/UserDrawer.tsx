@@ -203,7 +203,7 @@ export default function UserDrawer({ open, onClose }: Props) {
   const isLoggedIn = !!user.email;
 
   return (
-    <div className="fixed inset-0 z-40">
+    <div className="fixed inset-0 z-[60]">
       {/* Backdrop */}
       <button
         type="button"
@@ -268,11 +268,37 @@ export default function UserDrawer({ open, onClose }: Props) {
           )}
 
 
-          {/* Actions */}
-          <div className="mt-6">
-            {!isOnline ? (
-              <p className="text-sm text-gray-500">Sin conexión</p>
-            ) : isLoggedIn ? (
+          {/* Login button (solo cuando no está logueado) */}
+          {!isLoggedIn && (
+            <div className="mt-6">
+              {!isOnline ? (
+                <p className="text-sm text-gray-500">Sin conexión</p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={signInWithGoogle}
+                  disabled={loading}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 active:scale-[0.98] disabled:opacity-50"
+                >
+                  {loading ? "Cargando..." : "Entrar con Google"}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-auto">
+          {/* Version */}
+          <div className="px-4 py-2">
+            <p className="text-xs text-gray-400 text-right">
+              v{__APP_VERSION__} ({__GIT_HASH__})
+            </p>
+          </div>
+
+          {/* Logout button (solo cuando está logueado) */}
+          {isLoggedIn && isOnline && (
+            <div className="border-t px-4 py-3">
               <button
                 type="button"
                 onClick={signOut}
@@ -281,17 +307,8 @@ export default function UserDrawer({ open, onClose }: Props) {
               >
                 {loading ? "Cerrando..." : "Cerrar sesión"}
               </button>
-            ) : (
-              <button
-                type="button"
-                onClick={signInWithGoogle}
-                disabled={loading}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 active:scale-[0.98] disabled:opacity-50"
-              >
-                {loading ? "Cargando..." : "Entrar con Google"}
-              </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
