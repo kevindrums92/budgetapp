@@ -52,7 +52,7 @@ export default function HeaderBalance() {
   const balanceColor = totals.balance >= 0 ? "text-emerald-600" : "text-red-500";
 
   return (
-    <div className="sticky top-[57px] z-10 bg-white border-b border-gray-100">
+    <div className="sticky top-[84px] z-10 bg-white border-b border-gray-100">
       <div className="mx-auto max-w-xl px-4 py-4">
         {/* Month selector row */}
         <div className="flex items-center justify-between mb-4">

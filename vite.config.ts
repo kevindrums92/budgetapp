@@ -6,8 +6,12 @@ import { execSync } from "child_process";
 
 // Get git commit hash at build time
 function getGitHash(): string {
+  // Heroku provides SOURCE_VERSION env var with full commit hash
+  if (process.env.SOURCE_VERSION) {
+    return process.env.SOURCE_VERSION.slice(0, 7);
+  }
   try {
-    return execSync("git rev-parse --short HEAD").toString().trim();
+    return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim();
   } catch {
     return "dev";
   }
