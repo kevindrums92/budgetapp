@@ -73,13 +73,45 @@ export function loadState(): BudgetState | null {
 
     // Ensure all arrays exist
     if (!Array.isArray(parsed.categories)) parsed.categories = [];
-    if (!Array.isArray(parsed.categoryDefinitions)) {
-      parsed.categoryDefinitions = createDefaultCategories();
-    }
     if (!Array.isArray(parsed.trips)) parsed.trips = [];
     if (!Array.isArray(parsed.tripExpenses)) parsed.tripExpenses = [];
 
-    return parsed as BudgetState;
+    // Ensure categoryDefinitions has default categories
+    // If empty or missing, add defaults. If exists but missing some defaults, merge them in.
+    let needsSave = false;
+    if (!Array.isArray(parsed.categoryDefinitions) || parsed.categoryDefinitions.length === 0) {
+      // No categories at all - create defaults plus any custom from old categories array
+      const defaults = createDefaultCategories();
+      const defaultNamesLower = new Set(defaults.map((c) => c.name.toLowerCase()));
+
+      // Convert any old string categories to Category objects
+      const customFromOld: Category[] = (parsed.categories || [])
+        .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
+        .map((name: string) => ({
+          id: crypto.randomUUID(),
+          name: name.trim(),
+          icon: DEFAULT_CATEGORY_ICON,
+          color: DEFAULT_CATEGORY_COLOR,
+          type: "expense" as const,
+          groupId: "miscellaneous" as const,
+          isDefault: false,
+          createdAt: Date.now(),
+        }));
+
+      parsed.categoryDefinitions = [...defaults, ...customFromOld];
+      needsSave = true;
+    }
+
+    const result = parsed as BudgetState;
+
+    // Persist the migration/fix to localStorage
+    if (needsSave) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+      } catch {}
+    }
+
+    return result;
   } catch {
     return null;
   }

@@ -8,6 +8,7 @@ import {
   setPendingSnapshot,
   clearPendingSnapshot,
 } from "@/services/pendingSync.service";
+import { createDefaultCategories } from "@/constants/default-categories";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 
@@ -64,7 +65,7 @@ export default function CloudSyncGate() {
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
-      replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: [], trips: [], tripExpenses: [] });
+      replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), trips: [], tripExpenses: [] });
 
       // Reset welcome para que vuelva a salir en guest
       try {
@@ -103,7 +104,15 @@ export default function CloudSyncGate() {
       const cloud = await getCloudState();
 
       if (cloud) {
-        replaceAllData(cloud);
+        // Check if cloud data has empty categoryDefinitions - inject defaults and push back
+        if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
+          cloud.categoryDefinitions = createDefaultCategories();
+          replaceAllData(cloud);
+          // Push the fixed data back to cloud
+          await upsertCloudState(cloud);
+        } else {
+          replaceAllData(cloud);
+        }
       } else {
         // cuenta nueva => subimos lo local actual como primer estado
         await upsertCloudState(getSnapshot());
@@ -160,7 +169,7 @@ export default function CloudSyncGate() {
       if (event === "SIGNED_OUT") {
         clearPendingSnapshot();
         clearState();
-        replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: [], trips: [], tripExpenses: [] });
+        replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), trips: [], tripExpenses: [] });
 
         // Reset welcome
         try {
