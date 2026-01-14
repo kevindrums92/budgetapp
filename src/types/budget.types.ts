@@ -4,10 +4,40 @@ export type Transaction = {
   id: string;
   type: TransactionType;
   name: string;
-  category: string;
-  amount: number;    // siempre positivo
-  date: string;      // YYYY-MM-DD
-  createdAt: number; // epoch ms
+  category: string;      // Category ID (or legacy string name)
+  amount: number;        // siempre positivo
+  date: string;          // YYYY-MM-DD
+  createdAt: number;     // epoch ms
+};
+
+// ==================== CATEGORIES ====================
+
+export type CategoryGroupId =
+  // Expense groups
+  | "food_drink"
+  | "home_utilities"
+  | "lifestyle"
+  | "transport"
+  | "miscellaneous"
+  // Income groups
+  | "primary_income"
+  | "other_income";
+
+export type CategoryGroup = {
+  id: CategoryGroupId;
+  name: string;
+  type: TransactionType;
+};
+
+export type Category = {
+  id: string;
+  name: string;
+  icon: string;           // lucide icon name (e.g., "shopping-basket")
+  color: string;          // hex color (e.g., "#10B981")
+  type: TransactionType;
+  groupId: CategoryGroupId;
+  isDefault: boolean;
+  createdAt: number;
 };
 
 // ==================== TRIPS ====================
@@ -47,9 +77,10 @@ export type Trip = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1;
+  schemaVersion: 1 | 2;
   transactions: Transaction[];
-  categories: string[];
+  categories: string[];              // Legacy: kept for backward compat
+  categoryDefinitions: Category[];   // New: full category objects
   // Trips
   trips: Trip[];
   tripExpenses: TripExpense[];

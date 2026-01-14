@@ -64,7 +64,7 @@ export default function CloudSyncGate() {
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
-      replaceAllData({ schemaVersion: 1, transactions: [], categories: [], trips: [], tripExpenses: [] });
+      replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: [], trips: [], tripExpenses: [] });
 
       // Reset welcome para que vuelva a salir en guest
       try {
@@ -160,7 +160,7 @@ export default function CloudSyncGate() {
       if (event === "SIGNED_OUT") {
         clearPendingSnapshot();
         clearState();
-        replaceAllData({ schemaVersion: 1, transactions: [], categories: [], trips: [], tripExpenses: [] });
+        replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: [], trips: [], tripExpenses: [] });
 
         // Reset welcome
         try {

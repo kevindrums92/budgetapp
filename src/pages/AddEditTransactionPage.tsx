@@ -1,10 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, MessageSquare, Calendar, Tag, FileText } from "lucide-react";
+import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/components/DatePicker";
+import CategoryPickerDrawer from "@/components/CategoryPickerDrawer";
 import type { TransactionType } from "@/types/budget.types";
+
+// Convert kebab-case to PascalCase for lucide-react icons
+function kebabToPascal(str: string): string {
+  return str
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
 
 export default function AddEditTransactionPage() {
   const navigate = useNavigate();
@@ -14,7 +24,7 @@ export default function AddEditTransactionPage() {
 
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
-  const categories = useBudgetStore((s) => s.categories);
+  const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const transactions = useBudgetStore((s) => s.transactions);
 
   const tx = useMemo(() => {
@@ -24,18 +34,24 @@ export default function AddEditTransactionPage() {
 
   const [type, setType] = useState<TransactionType>("expense");
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(todayISO());
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Get selected category object
+  const selectedCategory = useMemo(() => {
+    if (!categoryId) return null;
+    return categoryDefinitions.find((c) => c.id === categoryId) ?? null;
+  }, [categoryId, categoryDefinitions]);
 
   // Preload from URL param or existing transaction
   useEffect(() => {
     if (tx) {
       setType(tx.type);
       setName(tx.name);
-      setCategory(tx.category);
+      setCategoryId(tx.category); // Now stores category ID
       setAmount(String(tx.amount));
       setDate(tx.date);
       return;
@@ -48,7 +64,7 @@ export default function AddEditTransactionPage() {
       setType("expense");
     }
     setName("");
-    setCategory("");
+    setCategoryId(null);
     setAmount("");
     setDate(todayISO());
   }, [tx, searchParams]);
@@ -76,7 +92,7 @@ export default function AddEditTransactionPage() {
       updateTransaction(tx.id, {
         type,
         name: name.trim(),
-        category: category.trim(),
+        category: categoryId || "",
         amount: amountNumber,
         date,
       });
@@ -84,7 +100,7 @@ export default function AddEditTransactionPage() {
       addTransaction({
         type,
         name: name.trim(),
-        category: category.trim(),
+        category: categoryId || "",
         amount: amountNumber,
         date,
       });
@@ -192,8 +208,30 @@ export default function AddEditTransactionPage() {
           {/* Category */}
           <div className="py-4">
             <div className="flex items-start gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <Tag className="h-5 w-5 text-gray-500" />
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                style={{
+                  backgroundColor: selectedCategory
+                    ? selectedCategory.color + "20"
+                    : "#f3f4f6",
+                }}
+              >
+                {selectedCategory ? (
+                  (() => {
+                    const IconComponent =
+                      icons[kebabToPascal(selectedCategory.icon) as keyof typeof icons];
+                    return IconComponent ? (
+                      <IconComponent
+                        className="h-5 w-5"
+                        style={{ color: selectedCategory.color }}
+                      />
+                    ) : (
+                      <Tag className="h-5 w-5 text-gray-500" />
+                    );
+                  })()
+                ) : (
+                  <Tag className="h-5 w-5 text-gray-500" />
+                )}
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-gray-500">
@@ -201,43 +239,13 @@ export default function AddEditTransactionPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setShowCategoryPicker(!showCategoryPicker)}
+                  onClick={() => setShowCategoryDrawer(true)}
                   className="w-full text-left text-base text-gray-900"
                 >
-                  {category || (
+                  {selectedCategory?.name || (
                     <span className="text-gray-400">Seleccionar categoría</span>
                   )}
                 </button>
-                {showCategoryPicker && categories.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {categories.slice(0, 10).map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => {
-                          setCategory(cat);
-                          setShowCategoryPicker(false);
-                        }}
-                        className={`rounded-full px-3 py-1.5 text-sm transition-all ${
-                          category === cat
-                            ? "bg-gray-900 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {showCategoryPicker && (
-                  <input
-                    type="text"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    placeholder="O escribe una nueva..."
-                    className="mt-3 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-                  />
-                )}
               </div>
             </div>
           </div>
@@ -287,6 +295,18 @@ export default function AddEditTransactionPage() {
         onClose={() => setShowDatePicker(false)}
         value={date}
         onChange={setDate}
+      />
+
+      {/* Category Picker Drawer */}
+      <CategoryPickerDrawer
+        open={showCategoryDrawer}
+        onClose={() => setShowCategoryDrawer(false)}
+        transactionType={type}
+        value={categoryId}
+        onSelect={(id) => {
+          setCategoryId(id);
+          setShowCategoryDrawer(false);
+        }}
       />
     </div>
   );

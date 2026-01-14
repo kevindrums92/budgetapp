@@ -1,17 +1,32 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/features/transactions/transactions.utils";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import RowMenu from "@/components/RowMenu";
-import type { Transaction } from "@/types/budget.types";
+import type { Transaction, Category } from "@/types/budget.types";
+
+// Convert kebab-case to PascalCase for lucide-react icons
+function kebabToPascal(str: string): string {
+  return str
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
 
 export default function TransactionList() {
   const navigate = useNavigate();
 
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
+  const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const deleteTransaction = useBudgetStore((s) => s.deleteTransaction);
+
+  // Helper to get category by ID
+  const getCategoryById = (id: string): Category | undefined => {
+    return categoryDefinitions.find((c) => c.id === id);
+  };
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const isCurrent = selectedMonth === currentMonth;
@@ -59,22 +74,46 @@ export default function TransactionList() {
         </div>
       ) : (
         <div className="space-y-2">
-          {list.map((t) => (
-            <div
-              key={t.id}
-              className="flex items-center justify-between gap-3 border bg-white p-3"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-medium">{t.name}</p>
-                <p className="text-xs text-gray-600">
-                  {t.category} • {t.date}
-                </p>
-              </div>
+          {list.map((t) => {
+            const category = getCategoryById(t.category);
+            const IconComponent = category
+              ? icons[kebabToPascal(category.icon) as keyof typeof icons]
+              : null;
 
-              <div className="flex items-center gap-3">
+            return (
+              <div
+                key={t.id}
+                className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm"
+              >
+                {/* Category Icon */}
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                  style={{
+                    backgroundColor: category ? category.color + "20" : "#f3f4f6",
+                  }}
+                >
+                  {IconComponent ? (
+                    <IconComponent
+                      className="h-5 w-5"
+                      style={{ color: category?.color }}
+                    />
+                  ) : (
+                    <div className="h-5 w-5 rounded-full bg-gray-300" />
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium text-gray-900">{t.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {category?.name || t.category} • {t.date}
+                  </p>
+                </div>
+
+                {/* Amount */}
                 <div
                   className={`whitespace-nowrap font-semibold ${
-                    t.type === "income" ? "text-green-600" : "text-red-600"
+                    t.type === "income" ? "text-emerald-600" : "text-red-500"
                   }`}
                 >
                   {t.type === "income" ? "+" : "-"} {formatCOP(t.amount)}
@@ -82,8 +121,8 @@ export default function TransactionList() {
 
                 <RowMenu onEdit={() => onEdit(t)} onDelete={() => onAskDelete(t)} />
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

@@ -20,6 +20,7 @@ import TripDetailPage from "@/pages/TripDetailPage";
 import AddEditTripPage from "@/pages/AddEditTripPage";
 import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
+import AddEditCategoryPage from "@/pages/AddEditCategoryPage";
 
 import CloudSyncGate from "@/components/CloudSyncGate";
 import WelcomeGate from "@/components/WelcomeGate";
@@ -41,7 +42,8 @@ function AppFrame() {
   const isFormRoute =
     location.pathname === "/add" ||
     location.pathname.startsWith("/edit/") ||
-    location.pathname.startsWith("/trips/");
+    location.pathname.startsWith("/trips/") ||
+    location.pathname.startsWith("/category/");
 
   const title = useMemo(() => {
     if (location.pathname === "/") return "Home";
@@ -94,6 +96,9 @@ function AppFrame() {
 
           <Route path="/add" element={<AddEditTransactionPage />} />
           <Route path="/edit/:id" element={<AddEditTransactionPage />} />
+
+          <Route path="/category/new" element={<AddEditCategoryPage />} />
+          <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
