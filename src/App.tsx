@@ -5,12 +5,12 @@ import {
   Route,
   Navigate,
   useLocation,
-  useNavigate,
 } from "react-router-dom";
 
 import BottomBar from "@/components/BottomBar";
 import TopHeader from "@/components/TopHeader";
 import UserDrawer from "@/components/UserDrawer";
+import AddActionSheet from "@/components/AddActionSheet";
 
 import HomePage from "@/pages/HomePage";
 import BudgetPage from "@/pages/BudgetPage";
@@ -27,10 +27,10 @@ import SplashScreen from "@/components/SplashScreen";
 
 function AppFrame() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [userDrawerOpen, setUserDrawerOpen] = useState(false);
+  const [addSheetOpen, setAddSheetOpen] = useState(false);
 
-  // Splash: visible solo al inicio (luego puedes reemplazar el timeout por "store hydrated")
+  // Splash: visible solo al inicio
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -68,6 +68,10 @@ function AppFrame() {
               open={userDrawerOpen}
               onClose={() => setUserDrawerOpen(false)}
             />
+            <AddActionSheet
+              open={addSheetOpen}
+              onClose={() => setAddSheetOpen(false)}
+            />
           </>
         )}
 
@@ -94,7 +98,7 @@ function AppFrame() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
-        {!isFormRoute && <BottomBar onAdd={() => navigate("/add")} />}
+        {!isFormRoute && <BottomBar onAdd={() => setAddSheetOpen(true)} />}
       </div>
     </>
   );
