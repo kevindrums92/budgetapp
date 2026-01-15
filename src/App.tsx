@@ -10,7 +10,6 @@ import {
 import BottomBar from "@/components/BottomBar";
 import TopHeader from "@/components/TopHeader";
 import UserDrawer from "@/components/UserDrawer";
-import AddActionSheet from "@/components/AddActionSheet";
 
 import HomePage from "@/pages/HomePage";
 import BudgetPage from "@/pages/BudgetPage";
@@ -29,7 +28,6 @@ import SplashScreen from "@/components/SplashScreen";
 function AppFrame() {
   const location = useLocation();
   const [userDrawerOpen, setUserDrawerOpen] = useState(false);
-  const [addSheetOpen, setAddSheetOpen] = useState(false);
 
   // Splash: visible solo al inicio
   const [showSplash, setShowSplash] = useState(true);
@@ -70,10 +68,6 @@ function AppFrame() {
               open={userDrawerOpen}
               onClose={() => setUserDrawerOpen(false)}
             />
-            <AddActionSheet
-              open={addSheetOpen}
-              onClose={() => setAddSheetOpen(false)}
-            />
           </>
         )}
 
@@ -103,7 +97,7 @@ function AppFrame() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
-        {!isFormRoute && <BottomBar onAdd={() => setAddSheetOpen(true)} />}
+        {!isFormRoute && <BottomBar />}
       </div>
     </>
   );

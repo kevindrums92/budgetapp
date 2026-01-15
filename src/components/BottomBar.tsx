@@ -1,7 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Wallet, BarChart3, Plane, Plus } from "lucide-react";
-
-type Props = { onAdd: () => void };
+import { Home, Wallet, BarChart3, Plane } from "lucide-react";
 
 function Tab({
   to,
@@ -32,7 +30,7 @@ function Tab({
   );
 }
 
-export default function BottomBar({ onAdd }: Props) {
+export default function BottomBar() {
   return (
     <div className="fixed inset-x-0 -bottom-1 z-50 bg-white pt-1">
       {/* iOS-ish: blur + borde sutil + sombra hacia arriba */}
@@ -45,38 +43,11 @@ export default function BottomBar({ onAdd }: Props) {
           "pt-3 pb-[calc(env(safe-area-inset-bottom)+10px)]",
         ].join(" ")}
       >
-        {/* "notch"/cutout visual leve para el FAB */}
-        <div className="relative">
-          <div className="grid grid-cols-5">
-            <Tab to="/" label="Home" icon={Home} />
-            <Tab to="/budget" label="Budget" icon={Wallet} />
-
-            {/* Slot central */}
-            <div className="flex items-center justify-center py-2">
-              <span className="h-7 w-7" />
-            </div>
-
-            <Tab to="/stats" label="Stats" icon={BarChart3} />
-            <Tab to="/trips" label="Trips" icon={Plane} />
-          </div>
-
-          {/* FAB: un poco más iOS (sombra suave, ring) */}
-          <button
-            type="button"
-            onClick={onAdd}
-            className={[
-              "absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[55%]",
-              "grid h-14 w-14 place-items-center rounded-full",
-              "bg-black text-white",
-              "shadow-[0_12px_28px_rgba(0,0,0,0.22)]",
-              "ring-4 ring-white/70",
-              "active:scale-[0.98]",
-            ].join(" ")}
-            aria-label="Agregar movimiento"
-            title="Agregar"
-          >
-            <Plus size={26} strokeWidth={2.2} />
-          </button>
+        <div className="grid grid-cols-4">
+          <Tab to="/" label="Home" icon={Home} />
+          <Tab to="/budget" label="Budget" icon={Wallet} />
+          <Tab to="/stats" label="Stats" icon={BarChart3} />
+          <Tab to="/trips" label="Trips" icon={Plane} />
         </div>
       </div>
     </div>
