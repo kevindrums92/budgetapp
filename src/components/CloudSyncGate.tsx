@@ -33,6 +33,7 @@ export default function CloudSyncGate() {
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categories = useBudgetStore((s) => s.categories);
+  const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
 
@@ -212,7 +213,7 @@ export default function CloudSyncGate() {
     }, 1200);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, trips, tripExpenses]);
+  }, [transactions, categories, categoryDefinitions, trips, tripExpenses]);
 
   return null;
 }
