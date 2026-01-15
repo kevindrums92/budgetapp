@@ -7,8 +7,7 @@ import { CATEGORY_GROUPS, getGroupsByType } from "@/constants/category-groups";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/category-icons";
 import { DEFAULT_CATEGORY_COLOR } from "@/constants/category-colors";
 import type { TransactionType, CategoryGroupId } from "@/types/budget.types";
-import IconPicker from "@/components/IconPicker";
-import ColorPicker from "@/components/ColorPicker";
+import IconColorPicker from "@/components/IconColorPicker";
 
 // Convert kebab-case to PascalCase for lucide-react icons
 function kebabToPascal(str: string): string {
@@ -38,8 +37,7 @@ export default function AddEditCategoryPage() {
   const [groupId, setGroupId] = useState<CategoryGroupId>("miscellaneous");
 
   // Modal state
-  const [showIconPicker, setShowIconPicker] = useState(false);
-  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showIconColorPicker, setShowIconColorPicker] = useState(false);
   const [showGroupPicker, setShowGroupPicker] = useState(false);
 
   // Load existing category if editing
@@ -104,7 +102,7 @@ export default function AddEditCategoryPage() {
         <div className="mb-6 flex justify-center">
           <button
             type="button"
-            onClick={() => setShowIconPicker(true)}
+            onClick={() => setShowIconColorPicker(true)}
             className="relative"
           >
             <div
@@ -135,42 +133,6 @@ export default function AddEditCategoryPage() {
               placeholder="Nombre de la categoría"
               className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
-          </div>
-
-          {/* Icon & Color Row */}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => setShowIconPicker(true)}
-              className="flex-1 rounded-2xl bg-white p-4 shadow-sm"
-            >
-              <label className="mb-1 block text-xs font-medium text-gray-500">
-                Icono
-              </label>
-              <div className="flex items-center gap-2">
-                {IconComponent && (
-                  <IconComponent className="h-5 w-5" style={{ color }} />
-                )}
-                <span className="text-sm text-gray-600">Cambiar</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowColorPicker(true)}
-              className="flex-1 rounded-2xl bg-white p-4 shadow-sm"
-            >
-              <label className="mb-1 block text-xs font-medium text-gray-500">
-                Color
-              </label>
-              <div className="flex items-center gap-2">
-                <div
-                  className="h-5 w-5 rounded-full"
-                  style={{ backgroundColor: color }}
-                />
-                <span className="text-sm text-gray-600">Cambiar</span>
-              </div>
-            </button>
           </div>
 
           {/* Type */}
@@ -261,22 +223,14 @@ export default function AddEditCategoryPage() {
         </button>
       </div>
 
-      {/* Icon Picker Modal */}
-      <IconPicker
-        open={showIconPicker}
-        onClose={() => setShowIconPicker(false)}
-        value={icon}
-        color={color}
-        onChange={setIcon}
-      />
-
-      {/* Color Picker Modal */}
-      <ColorPicker
-        open={showColorPicker}
-        onClose={() => setShowColorPicker(false)}
-        value={color}
+      {/* Icon & Color Picker Modal */}
+      <IconColorPicker
+        open={showIconColorPicker}
+        onClose={() => setShowIconColorPicker(false)}
         icon={icon}
-        onChange={setColor}
+        color={color}
+        onIconChange={setIcon}
+        onColorChange={setColor}
       />
     </div>
   );
