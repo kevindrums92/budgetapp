@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import CloudStatusMini from "@/components/CloudStatusMini";
 import LogoMark from "@/components/LogoMark";
@@ -6,10 +7,10 @@ import { User } from "lucide-react";
 
 type Props = {
   title: string;
-  onOpenUserDrawer: () => void;
 };
 
-export default function TopHeader({ title, onOpenUserDrawer }: Props) {
+export default function TopHeader({ title }: Props) {
+  const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function TopHeader({ title, onOpenUserDrawer }: Props) {
           {/* Left: avatar + status (clickeable) */}
           <button
             type="button"
-            onClick={onOpenUserDrawer}
+            onClick={() => navigate("/profile")}
             className="flex flex-col items-start rounded-full hover:bg-gray-50 active:scale-95"
             aria-label="Abrir perfil"
           >

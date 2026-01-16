@@ -108,7 +108,7 @@ export default function CategoriesPage() {
       </header>
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-white px-4 pb-4">
+      <div className="flex gap-2 bg-white px-4 pt-3 pb-4">
         <button
           type="button"
           onClick={() => setActiveTab("expense")}
