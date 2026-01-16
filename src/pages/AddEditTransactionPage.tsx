@@ -215,7 +215,7 @@ export default function AddEditTransactionPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="¿En qué gastaste?"
+                  placeholder={type === "income" ? "¿De dónde proviene?" : "¿En qué gastaste?"}
                   className="w-full border-0 p-0 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
                 />
               </div>

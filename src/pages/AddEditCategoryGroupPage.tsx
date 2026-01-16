@@ -58,12 +58,7 @@ export default function AddEditCategoryGroupPage() {
   }
 
   function handleDelete() {
-    if (categoriesInGroup > 0) {
-      setConfirmDelete(true);
-    } else if (id) {
-      deleteCategoryGroup(id);
-      navigate(-1);
-    }
+    setConfirmDelete(true);
   }
 
   function confirmDeleteGroup() {
@@ -104,17 +99,17 @@ export default function AddEditCategoryGroupPage() {
       {/* Content */}
       <div className="flex-1 p-4">
         {/* Color Preview */}
-        <div className="mb-6 flex justify-center">
+        <div className="mb-6 flex flex-col items-center">
           <button
             type="button"
             onClick={() => setShowColorPicker(true)}
-            className="relative"
+            className="flex flex-col items-center"
           >
             <div
               className="h-20 w-20 rounded-2xl shadow-sm"
               style={{ backgroundColor: color }}
             />
-            <div className="mt-2 text-center text-xs text-gray-500">
+            <div className="mt-2 text-xs text-gray-500">
               Toca para cambiar color
             </div>
           </button>
@@ -238,9 +233,18 @@ export default function AddEditCategoryGroupPage() {
               Eliminar grupo
             </h3>
             <p className="text-gray-600 mb-4">
-              Este grupo tiene{" "}
-              <span className="font-medium">{categoriesInGroup}</span>{" "}
-              categoría(s). Al eliminarlo, estas categorías se moverán automáticamente al grupo "Otros".
+              {categoriesInGroup > 0 ? (
+                <>
+                  Este grupo tiene{" "}
+                  <span className="font-medium">{categoriesInGroup}</span>{" "}
+                  categoría(s). Al eliminarlo, estas categorías se moverán automáticamente al grupo "Otros".
+                </>
+              ) : (
+                <>
+                  ¿Estás seguro de que deseas eliminar el grupo "{name}"?
+                  Esta acción no se puede deshacer.
+                </>
+              )}
             </p>
             <div className="flex gap-3">
               <button
