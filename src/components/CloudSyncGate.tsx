@@ -107,14 +107,26 @@ export default function CloudSyncGate() {
       const cloud = await getCloudState();
 
       if (cloud) {
-        // Check if cloud data has empty categoryDefinitions - inject defaults and push back
+        let needsPush = false;
+
+        // Check if cloud data has empty categoryDefinitions - inject defaults
         if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
           cloud.categoryDefinitions = createDefaultCategories();
-          replaceAllData(cloud);
-          // Push the fixed data back to cloud
+          needsPush = true;
+        }
+
+        // Check if cloud data has empty categoryGroups - inject defaults (migration to v3)
+        if (!Array.isArray(cloud.categoryGroups) || cloud.categoryGroups.length === 0) {
+          cloud.categoryGroups = createDefaultCategoryGroups();
+          cloud.schemaVersion = 3;
+          needsPush = true;
+        }
+
+        replaceAllData(cloud);
+
+        // Push the fixed data back to cloud if we added defaults
+        if (needsPush) {
           await upsertCloudState(cloud);
-        } else {
-          replaceAllData(cloud);
         }
       } else {
         // cuenta nueva => subimos lo local actual como primer estado
