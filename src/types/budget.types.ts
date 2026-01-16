@@ -38,6 +38,7 @@ export type Category = {
   groupId: CategoryGroupId;
   isDefault: boolean;
   createdAt: number;
+  monthlyLimit?: number;  // Monthly budget limit (undefined = no limit)
 };
 
 // ==================== TRIPS ====================

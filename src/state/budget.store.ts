@@ -85,6 +85,7 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteCategory: (id: string) => void;
   getCategoryById: (id: string) => Category | undefined;
+  setCategoryLimit: (id: string, limit: number | null) => void;
 
   // Landing
   welcomeSeen: boolean;
@@ -457,6 +458,27 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     getCategoryById: (id) => {
       return get().categoryDefinitions.find((c) => c.id === id);
+    },
+
+    setCategoryLimit: (id, limit) => {
+      set((state) => {
+        const nextCategoryDefinitions = state.categoryDefinitions.map((c) => {
+          if (c.id !== id) return c;
+          return { ...c, monthlyLimit: limit ?? undefined };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 2,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: nextCategoryDefinitions,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
     },
 
     // ---------- SYNC HELPERS ----------
