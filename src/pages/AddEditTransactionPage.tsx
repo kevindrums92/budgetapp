@@ -75,6 +75,9 @@ export default function AddEditTransactionPage() {
       return;
     }
 
+    // Check if returning from category creation with a new category
+    const newCategoryId = searchParams.get("newCategoryId");
+
     // Check for saved draft first (for when returning from category creation)
     const savedDraft = sessionStorage.getItem(FORM_STORAGE_KEY);
     if (savedDraft) {
@@ -82,14 +85,10 @@ export default function AddEditTransactionPage() {
         const draft = JSON.parse(savedDraft);
         setType(draft.type || "expense");
         setName(draft.name || "");
-        setCategoryId(draft.categoryId);
+        // Use new category if provided, otherwise use draft's category
+        setCategoryId(newCategoryId || draft.categoryId);
         setAmount(draft.amount || "");
         setDate(draft.date || todayISO());
-        // Check if a new category was just created and select it
-        const newCategoryId = searchParams.get("newCategoryId");
-        if (newCategoryId) {
-          setCategoryId(newCategoryId);
-        }
         clearFormDraft();
         setInitialized(true);
         return;
@@ -98,7 +97,7 @@ export default function AddEditTransactionPage() {
       }
     }
 
-    // New transaction - check URL param
+    // New transaction - check URL params
     const typeParam = searchParams.get("type");
     if (typeParam === "income" || typeParam === "expense") {
       setType(typeParam);
@@ -106,7 +105,8 @@ export default function AddEditTransactionPage() {
       setType("expense");
     }
     setName("");
-    setCategoryId(null);
+    // If we have a new category but no draft, still select it
+    setCategoryId(newCategoryId);
     setAmount("");
     setDate(todayISO());
     setInitialized(true);
