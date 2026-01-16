@@ -2,6 +2,35 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+## [0.4.0] - 2026-01-15
+
+### Added
+- **Budget Page**: New page with category limits and progress tracking
+  - Set monthly limits per category
+  - Visual progress bars showing spending vs budget
+  - Real-time budget status indicators
+- **Full Category Management**: Complete CRUD for categories and groups
+  - Create, edit, and delete custom categories
+  - Create, edit, and delete category groups
+  - Categories can be reassigned between groups
+- **Profile Page**: Modern full-page profile replacing the side drawer
+  - Clean, DolarApp-inspired design
+  - Quick access to categories management
+  - Logout button at bottom for logged-in users
+
+### Changed
+- Category groups now fully customizable (add, edit, delete)
+- Simplified category and group list views (removed context menus, kept only chevron navigation)
+- Improved form UX with proper placeholder text for income vs expense transactions
+
+### Fixed
+- Form data now persists when creating a new category from transaction form
+- Confirmation modal always appears when deleting categories or groups
+- Default categories can now be deleted
+- FAB button positioning on iOS devices with safe area insets
+- Category groups properly migrate when loading from cloud
+- Margin spacing between headers and tab controls
+
 ## [0.3.0] - 2026-01-15
 
 ### Added
