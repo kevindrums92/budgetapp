@@ -1,8 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { icons, ChevronLeft, Plus, FolderOpen, ChevronRight, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { icons, ChevronLeft, Plus, FolderOpen, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import type { Category } from "@/types/budget.types";
 
 type Tab = "expense" | "income";
 
@@ -18,12 +17,8 @@ export default function CategoriesPage() {
   const navigate = useNavigate();
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
-  const deleteCategory = useBudgetStore((s) => s.deleteCategory);
-  const transactions = useBudgetStore((s) => s.transactions);
 
   const [activeTab, setActiveTab] = useState<Tab>("expense");
-  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<Category | null>(null);
 
   // Group categories by their group
   const categoriesByGroup = useMemo(() => {
@@ -47,32 +42,6 @@ export default function CategoriesPage() {
 
     return result;
   }, [categoryDefinitions, categoryGroups, activeTab]);
-
-  // Count transactions per category
-  const transactionsPerCategory = useMemo(() => {
-    const count: Record<string, number> = {};
-    for (const t of transactions) {
-      count[t.category] = (count[t.category] || 0) + 1;
-    }
-    return count;
-  }, [transactions]);
-
-  function handleDelete(category: Category) {
-    const count = transactionsPerCategory[category.id] || 0;
-    if (count > 0) {
-      setConfirmDelete(category);
-    } else {
-      deleteCategory(category.id);
-    }
-    setMenuOpenId(null);
-  }
-
-  function confirmDeleteCategory() {
-    if (confirmDelete) {
-      deleteCategory(confirmDelete.id);
-      setConfirmDelete(null);
-    }
-  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
@@ -152,9 +121,11 @@ export default function CategoriesPage() {
                 const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons];
 
                 return (
-                  <div
+                  <button
                     key={category.id}
-                    className="relative flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm"
+                    type="button"
+                    onClick={() => navigate(`/category/${category.id}/edit`)}
+                    className="flex w-full items-center gap-3 rounded-xl bg-white p-4 shadow-sm hover:bg-gray-50 transition-colors"
                   >
                     {/* Icon */}
                     <div
@@ -167,51 +138,13 @@ export default function CategoriesPage() {
                     </div>
 
                     {/* Content */}
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/category/${category.id}/edit`)}
-                      className="flex flex-1 items-center justify-between"
-                    >
-                      <span className="font-medium text-gray-900">{category.name}</span>
-                      <ChevronRight className="h-5 w-5 text-gray-300" />
-                    </button>
+                    <span className="flex-1 text-left font-medium text-gray-900">
+                      {category.name}
+                    </span>
 
-                    {/* Menu Button */}
-                    <button
-                      type="button"
-                      onClick={() => setMenuOpenId(menuOpenId === category.id ? null : category.id)}
-                      className="rounded-full p-1 hover:bg-gray-100"
-                    >
-                      <MoreVertical className="h-5 w-5 text-gray-400" />
-                    </button>
-
-                    {/* Dropdown Menu */}
-                    {menuOpenId === category.id && (
-                      <div className="absolute right-4 top-14 z-20 w-40 rounded-xl bg-white py-2 shadow-lg ring-1 ring-black/5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigate(`/category/${category.id}/edit`);
-                            setMenuOpenId(null);
-                          }}
-                          className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          Editar
-                        </button>
-                        {!category.isDefault && (
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(category)}
-                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            Eliminar
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                    {/* Chevron */}
+                    <ChevronRight className="h-5 w-5 text-gray-300" />
+                  </button>
                 );
               })}
             </div>
@@ -234,51 +167,6 @@ export default function CategoriesPage() {
         )}
       </div>
 
-      {/* Click outside to close menu */}
-      {menuOpenId && (
-        <div
-          className="fixed inset-0 z-10"
-          onClick={() => setMenuOpenId(null)}
-        />
-      )}
-
-      {/* Confirm Delete Modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setConfirmDelete(null)}
-          />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Eliminar categoría
-            </h3>
-            <p className="mb-4 text-gray-600">
-              La categoría "{confirmDelete.name}" tiene{" "}
-              <span className="font-medium">
-                {transactionsPerCategory[confirmDelete.id]}
-              </span>{" "}
-              transacción(es) asociadas. Si la eliminas, estas transacciones quedarán sin categoría.
-            </p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setConfirmDelete(null)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={confirmDeleteCategory}
-                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

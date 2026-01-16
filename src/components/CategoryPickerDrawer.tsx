@@ -12,6 +12,7 @@ type Props = {
   transactionType: TransactionType;
   value: string | null;
   onSelect: (categoryId: string) => void;
+  onNavigateToNewCategory?: () => void;
 };
 
 const SHEET_HEIGHT = 500;
@@ -31,6 +32,7 @@ export default function CategoryPickerDrawer({
   transactionType,
   value,
   onSelect,
+  onNavigateToNewCategory,
 }: Props) {
   const navigate = useNavigate();
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -154,8 +156,9 @@ export default function CategoryPickerDrawer({
   }, [isDragging, handleDragMove, handleDragEnd]);
 
   function handleNewCategory() {
+    onNavigateToNewCategory?.();
     onClose();
-    navigate(`/category/new?type=${transactionType}`);
+    navigate(`/category/new?type=${transactionType}&returnTo=transaction`);
   }
 
   if (!isVisible) return null;

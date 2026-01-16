@@ -79,22 +79,24 @@ export default function AddEditCategoryPage() {
   function handleSave() {
     if (!name.trim()) return;
 
+    const returnTo = searchParams.get("returnTo");
+
     if (isEditing && id) {
       updateCategory(id, { name: name.trim(), icon, color, type, groupId });
+      navigate(-1);
     } else {
-      addCategory({ name: name.trim(), icon, color, type, groupId });
+      const newId = addCategory({ name: name.trim(), icon, color, type, groupId });
+      // If coming from transaction form, go back there with the new category selected
+      if (returnTo === "transaction" && newId) {
+        navigate(`/add?newCategoryId=${newId}`, { replace: true });
+      } else {
+        navigate(-1);
+      }
     }
-
-    navigate(-1);
   }
 
   function handleDelete() {
-    if (transactionsCount > 0) {
-      setConfirmDelete(true);
-    } else if (id) {
-      deleteCategory(id);
-      navigate(-1);
-    }
+    setConfirmDelete(true);
   }
 
   function confirmDeleteCategory() {
@@ -123,7 +125,7 @@ export default function AddEditCategoryPage() {
             {isEditing ? "Editar Categoría" : "Nueva Categoría"}
           </h1>
         </div>
-        {isEditing && currentCategory && !currentCategory.isDefault && (
+        {isEditing && currentCategory && (
           <button
             type="button"
             onClick={handleDelete}
@@ -283,9 +285,19 @@ export default function AddEditCategoryPage() {
               Eliminar categoría
             </h3>
             <p className="mb-4 text-gray-600">
-              La categoría "{name}" tiene{" "}
-              <span className="font-medium">{transactionsCount}</span>{" "}
-              transacción(es) asociadas. Si la eliminas, estas transacciones quedarán sin categoría.
+              {transactionsCount > 0 ? (
+                <>
+                  La categoría "{name}" tiene{" "}
+                  <span className="font-medium">{transactionsCount}</span>{" "}
+                  transacción(es) asociadas. Si la eliminas, estas transacciones
+                  quedarán sin categoría.
+                </>
+              ) : (
+                <>
+                  ¿Estás seguro de que deseas eliminar la categoría "{name}"?
+                  Esta acción no se puede deshacer.
+                </>
+              )}
             </p>
             <div className="flex gap-3">
               <button

@@ -19,12 +19,13 @@ export default function HomePage() {
         type="button"
         onClick={() => setAddSheetOpen(true)}
         className={[
-          "fixed bottom-24 right-4 z-40",
+          "fixed right-4 z-40",
           "grid h-14 w-14 place-items-center rounded-full",
           "bg-black text-white",
           "shadow-[0_8px_24px_rgba(0,0,0,0.25)]",
           "active:scale-95 transition-transform",
         ].join(" ")}
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
         aria-label="Agregar movimiento"
       >
         <Plus size={26} strokeWidth={2.2} />

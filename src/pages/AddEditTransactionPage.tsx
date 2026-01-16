@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, MessageSquare, Calendar, Tag, FileText } from "lucide-react";
 import { icons } from "lucide-react";
@@ -7,6 +7,8 @@ import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/components/DatePicker";
 import CategoryPickerDrawer from "@/components/CategoryPickerDrawer";
 import type { TransactionType } from "@/types/budget.types";
+
+const FORM_STORAGE_KEY = "transaction_form_draft";
 
 // Convert kebab-case to PascalCase for lucide-react icons
 function kebabToPascal(str: string): string {
@@ -39,6 +41,7 @@ export default function AddEditTransactionPage() {
   const [date, setDate] = useState(todayISO());
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   // Get selected category object
   const selectedCategory = useMemo(() => {
@@ -46,16 +49,55 @@ export default function AddEditTransactionPage() {
     return categoryDefinitions.find((c) => c.id === categoryId) ?? null;
   }, [categoryId, categoryDefinitions]);
 
-  // Preload from URL param or existing transaction
+  // Save form draft to sessionStorage
+  const saveFormDraft = useCallback(() => {
+    if (isEdit) return; // Don't save drafts when editing
+    const draft = { type, name, categoryId, amount, date };
+    sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(draft));
+  }, [type, name, categoryId, amount, date, isEdit]);
+
+  // Clear form draft
+  const clearFormDraft = useCallback(() => {
+    sessionStorage.removeItem(FORM_STORAGE_KEY);
+  }, []);
+
+  // Preload from URL param, existing transaction, or saved draft
   useEffect(() => {
+    if (initialized) return;
+
     if (tx) {
       setType(tx.type);
       setName(tx.name);
-      setCategoryId(tx.category); // Now stores category ID
+      setCategoryId(tx.category);
       setAmount(String(tx.amount));
       setDate(tx.date);
+      setInitialized(true);
       return;
     }
+
+    // Check for saved draft first (for when returning from category creation)
+    const savedDraft = sessionStorage.getItem(FORM_STORAGE_KEY);
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        setType(draft.type || "expense");
+        setName(draft.name || "");
+        setCategoryId(draft.categoryId);
+        setAmount(draft.amount || "");
+        setDate(draft.date || todayISO());
+        // Check if a new category was just created and select it
+        const newCategoryId = searchParams.get("newCategoryId");
+        if (newCategoryId) {
+          setCategoryId(newCategoryId);
+        }
+        clearFormDraft();
+        setInitialized(true);
+        return;
+      } catch {
+        // Invalid draft, continue with normal initialization
+      }
+    }
+
     // New transaction - check URL param
     const typeParam = searchParams.get("type");
     if (typeParam === "income" || typeParam === "expense") {
@@ -67,7 +109,8 @@ export default function AddEditTransactionPage() {
     setCategoryId(null);
     setAmount("");
     setDate(todayISO());
-  }, [tx, searchParams]);
+    setInitialized(true);
+  }, [tx, searchParams, initialized, clearFormDraft]);
 
   // Redirect if editing non-existent transaction
   useEffect(() => {
@@ -307,6 +350,7 @@ export default function AddEditTransactionPage() {
           setCategoryId(id);
           setShowCategoryDrawer(false);
         }}
+        onNavigateToNewCategory={saveFormDraft}
       />
     </div>
   );
