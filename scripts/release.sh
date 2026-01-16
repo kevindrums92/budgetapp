@@ -49,9 +49,9 @@ log "Versión actual: $CURRENT_VERSION"
 # Preguntar tipo de release
 echo ""
 echo "¿Qué tipo de release quieres hacer?"
-echo "1) patch (bug fixes) - $CURRENT_VERSION -> $(npm version patch --no-git-tag-version -s && node -p "require('./package.json').version" && npm version patch --no-git-tag-version -s > /dev/null 2>&1)"
-echo "2) minor (new features) - $CURRENT_VERSION -> $(npm version minor --no-git-tag-version -s && node -p "require('./package.json').version" && npm version minor --no-git-tag-version -s > /dev/null 2>&1)"
-echo "3) major (breaking changes) - $CURRENT_VERSION -> $(npm version major --no-git-tag-version -s && node -p "require('./package.json').version" && npm version major --no-git-tag-version -s > /dev/null 2>&1)"
+echo "1) patch - Bug fixes (X.X.Z)"
+echo "2) minor - New features (X.Y.0)"
+echo "3) major - Breaking changes (X.0.0)"
 read -p "Selecciona (1/2/3): " release_type
 
 case $release_type in
