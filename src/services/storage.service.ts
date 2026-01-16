@@ -1,5 +1,6 @@
 import type { BudgetState, Category } from "@/types/budget.types";
 import { createDefaultCategories } from "@/constants/default-categories";
+import { createDefaultCategoryGroups } from "@/constants/default-category-groups";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/category-icons";
 import { DEFAULT_CATEGORY_COLOR } from "@/constants/category-colors";
 
@@ -19,7 +20,7 @@ function migrateCategoriesToDefinitions(oldCategories: string[]): Category[] {
       icon: DEFAULT_CATEGORY_ICON,
       color: DEFAULT_CATEGORY_COLOR,
       type: "expense" as const, // Assume expense (most common)
-      groupId: "miscellaneous" as const,
+      groupId: "miscellaneous",
       isDefault: false,
       createdAt: Date.now(),
     }));
@@ -42,8 +43,7 @@ function migrateTransactionCategories(
       return { ...tx, category: matchingCategory.id };
     }
 
-    // If no match found, create a new category for this transaction
-    // This shouldn't happen often since migrateCategoriesToDefinitions handles custom categories
+    // If no match found, keep original
     return tx;
   });
 }
@@ -58,6 +58,8 @@ export function loadState(): BudgetState | null {
     // Validación mínima
     if (!Array.isArray(parsed.transactions)) return null;
 
+    let needsSave = false;
+
     // Handle legacy v1 or missing schema version
     if (parsed.schemaVersion === 1 || !parsed.schemaVersion) {
       // Ensure categories array exists for migration
@@ -69,6 +71,14 @@ export function loadState(): BudgetState | null {
       parsed.categoryDefinitions = migrateCategoriesToDefinitions(parsed.categories);
       parsed.transactions = migrateTransactionCategories(parsed.transactions, parsed.categoryDefinitions);
       parsed.schemaVersion = 2;
+      needsSave = true;
+    }
+
+    // Migrate v2 to v3: Add categoryGroups
+    if (parsed.schemaVersion === 2) {
+      parsed.categoryGroups = createDefaultCategoryGroups();
+      parsed.schemaVersion = 3;
+      needsSave = true;
     }
 
     // Ensure all arrays exist
@@ -76,9 +86,13 @@ export function loadState(): BudgetState | null {
     if (!Array.isArray(parsed.trips)) parsed.trips = [];
     if (!Array.isArray(parsed.tripExpenses)) parsed.tripExpenses = [];
 
+    // Ensure categoryGroups exists (for any edge cases)
+    if (!Array.isArray(parsed.categoryGroups) || parsed.categoryGroups.length === 0) {
+      parsed.categoryGroups = createDefaultCategoryGroups();
+      needsSave = true;
+    }
+
     // Ensure categoryDefinitions has default categories
-    // If empty or missing, add defaults. If exists but missing some defaults, merge them in.
-    let needsSave = false;
     if (!Array.isArray(parsed.categoryDefinitions) || parsed.categoryDefinitions.length === 0) {
       // No categories at all - create defaults plus any custom from old categories array
       const defaults = createDefaultCategories();
@@ -93,7 +107,7 @@ export function loadState(): BudgetState | null {
           icon: DEFAULT_CATEGORY_ICON,
           color: DEFAULT_CATEGORY_COLOR,
           type: "expense" as const,
-          groupId: "miscellaneous" as const,
+          groupId: "miscellaneous",
           isDefault: false,
           createdAt: Date.now(),
         }));
@@ -130,4 +144,3 @@ export function clearState(): void {
     localStorage.removeItem(STORAGE_KEY);
   } catch {}
 }
-

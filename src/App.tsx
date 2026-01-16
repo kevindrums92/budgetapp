@@ -20,6 +20,9 @@ import AddEditTripPage from "@/pages/AddEditTripPage";
 import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
 import AddEditCategoryPage from "@/pages/AddEditCategoryPage";
+import CategoriesPage from "@/pages/CategoriesPage";
+import CategoryGroupsPage from "@/pages/CategoryGroupsPage";
+import AddEditCategoryGroupPage from "@/pages/AddEditCategoryGroupPage";
 
 import CloudSyncGate from "@/components/CloudSyncGate";
 import WelcomeGate from "@/components/WelcomeGate";
@@ -41,7 +44,8 @@ function AppFrame() {
     location.pathname === "/add" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname.startsWith("/trips/") ||
-    location.pathname.startsWith("/category/");
+    location.pathname.startsWith("/category") ||
+    location.pathname.startsWith("/categories");
 
   const title = useMemo(() => {
     if (location.pathname === "/") return "Home";
@@ -93,6 +97,11 @@ function AppFrame() {
 
           <Route path="/category/new" element={<AddEditCategoryPage />} />
           <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
+
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/category-groups" element={<CategoryGroupsPage />} />
+          <Route path="/category-group/new" element={<AddEditCategoryGroupPage />} />
+          <Route path="/category-group/:id/edit" element={<AddEditCategoryGroupPage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

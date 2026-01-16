@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
-import { User } from "lucide-react";
+import { User, FolderOpen } from "lucide-react";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,7 @@ const DRAWER_WIDTH = 320;
 const DRAG_THRESHOLD = 0.4;
 
 export default function UserDrawer({ open, onClose }: Props) {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
@@ -285,6 +287,21 @@ export default function UserDrawer({ open, onClose }: Props) {
               )}
             </div>
           )}
+        </div>
+
+        {/* Menu */}
+        <div className="border-b px-4 py-3">
+          <button
+            type="button"
+            onClick={() => {
+              navigate("/categories");
+              onClose();
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <FolderOpen className="h-5 w-5 text-gray-500" />
+            <span className="font-medium">Categorías</span>
+          </button>
         </div>
 
         {/* Footer */}
