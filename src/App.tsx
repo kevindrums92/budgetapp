@@ -9,7 +9,6 @@ import {
 
 import BottomBar from "@/components/BottomBar";
 import TopHeader from "@/components/TopHeader";
-import UserDrawer from "@/components/UserDrawer";
 
 import HomePage from "@/pages/HomePage";
 import BudgetPage from "@/pages/BudgetPage";
@@ -20,6 +19,10 @@ import AddEditTripPage from "@/pages/AddEditTripPage";
 import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
 import AddEditCategoryPage from "@/pages/AddEditCategoryPage";
+import CategoriesPage from "@/pages/CategoriesPage";
+import CategoryGroupsPage from "@/pages/CategoryGroupsPage";
+import AddEditCategoryGroupPage from "@/pages/AddEditCategoryGroupPage";
+import ProfilePage from "@/pages/ProfilePage";
 
 import CloudSyncGate from "@/components/CloudSyncGate";
 import WelcomeGate from "@/components/WelcomeGate";
@@ -27,7 +30,6 @@ import SplashScreen from "@/components/SplashScreen";
 
 function AppFrame() {
   const location = useLocation();
-  const [userDrawerOpen, setUserDrawerOpen] = useState(false);
 
   // Splash: visible solo al inicio
   const [showSplash, setShowSplash] = useState(true);
@@ -39,9 +41,11 @@ function AppFrame() {
 
   const isFormRoute =
     location.pathname === "/add" ||
+    location.pathname === "/profile" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname.startsWith("/trips/") ||
-    location.pathname.startsWith("/category/");
+    location.pathname.startsWith("/category") ||
+    location.pathname.startsWith("/categories");
 
   const title = useMemo(() => {
     if (location.pathname === "/") return "Home";
@@ -58,18 +62,7 @@ function AppFrame() {
 
       {/* App */}
       <div className={`min-h-dvh bg-white ${showSplash ? "pointer-events-none" : ""}`}>
-        {!isFormRoute && (
-          <>
-            <TopHeader
-              title={title}
-              onOpenUserDrawer={() => setUserDrawerOpen(true)}
-            />
-            <UserDrawer
-              open={userDrawerOpen}
-              onClose={() => setUserDrawerOpen(false)}
-            />
-          </>
-        )}
+        {!isFormRoute && <TopHeader title={title} />}
 
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -93,6 +86,13 @@ function AppFrame() {
 
           <Route path="/category/new" element={<AddEditCategoryPage />} />
           <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
+
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/category-groups" element={<CategoryGroupsPage />} />
+          <Route path="/category-group/new" element={<AddEditCategoryGroupPage />} />
+          <Route path="/category-group/:id/edit" element={<AddEditCategoryGroupPage />} />
+
+          <Route path="/profile" element={<ProfilePage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

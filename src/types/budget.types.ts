@@ -12,21 +12,13 @@ export type Transaction = {
 
 // ==================== CATEGORIES ====================
 
-export type CategoryGroupId =
-  // Expense groups
-  | "food_drink"
-  | "home_utilities"
-  | "lifestyle"
-  | "transport"
-  | "miscellaneous"
-  // Income groups
-  | "primary_income"
-  | "other_income";
-
 export type CategoryGroup = {
-  id: CategoryGroupId;
+  id: string;
   name: string;
   type: TransactionType;
+  color: string;          // hex color for group icon
+  isDefault: boolean;     // true for built-in groups
+  createdAt: number;      // epoch ms
 };
 
 export type Category = {
@@ -35,9 +27,10 @@ export type Category = {
   icon: string;           // lucide icon name (e.g., "shopping-basket")
   color: string;          // hex color (e.g., "#10B981")
   type: TransactionType;
-  groupId: CategoryGroupId;
+  groupId: string;        // Reference to CategoryGroup.id
   isDefault: boolean;
   createdAt: number;
+  monthlyLimit?: number;  // Monthly budget limit (undefined = no limit)
 };
 
 // ==================== TRIPS ====================
@@ -77,10 +70,11 @@ export type Trip = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2;
+  schemaVersion: 1 | 2 | 3;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
-  categoryDefinitions: Category[];   // New: full category objects
+  categoryDefinitions: Category[];   // Full category objects
+  categoryGroups: CategoryGroup[];   // Dynamic category groups
   // Trips
   trips: Trip[];
   tripExpenses: TripExpense[];

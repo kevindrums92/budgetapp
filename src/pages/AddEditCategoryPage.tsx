@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronDown, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { CATEGORY_GROUPS, getGroupsByType } from "@/constants/category-groups";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/category-icons";
 import { DEFAULT_CATEGORY_COLOR } from "@/constants/category-colors";
-import type { TransactionType, CategoryGroupId } from "@/types/budget.types";
+import type { TransactionType } from "@/types/budget.types";
 import IconColorPicker from "@/components/IconColorPicker";
 
 // Convert kebab-case to PascalCase for lucide-react icons
@@ -24,8 +23,11 @@ export default function AddEditCategoryPage() {
   const isEditing = Boolean(id);
 
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+  const categoryGroups = useBudgetStore((s) => s.categoryGroups);
+  const transactions = useBudgetStore((s) => s.transactions);
   const addCategory = useBudgetStore((s) => s.addCategory);
   const updateCategory = useBudgetStore((s) => s.updateCategory);
+  const deleteCategory = useBudgetStore((s) => s.deleteCategory);
 
   // Form state
   const [name, setName] = useState("");
@@ -34,11 +36,12 @@ export default function AddEditCategoryPage() {
   const [type, setType] = useState<TransactionType>(
     (searchParams.get("type") as TransactionType) || "expense"
   );
-  const [groupId, setGroupId] = useState<CategoryGroupId>("miscellaneous");
+  const [groupId, setGroupId] = useState("miscellaneous");
 
   // Modal state
   const [showIconColorPicker, setShowIconColorPicker] = useState(false);
   const [showGroupPicker, setShowGroupPicker] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Load existing category if editing
   useEffect(() => {
@@ -56,26 +59,52 @@ export default function AddEditCategoryPage() {
 
   // Update groupId when type changes
   useEffect(() => {
-    const validGroups = getGroupsByType(type);
+    const validGroups = categoryGroups.filter((g) => g.type === type);
     const currentGroupValid = validGroups.some((g) => g.id === groupId);
     if (!currentGroupValid && validGroups.length > 0) {
       setGroupId(validGroups[0].id);
     }
-  }, [type, groupId]);
+  }, [type, groupId, categoryGroups]);
 
-  const availableGroups = getGroupsByType(type);
-  const currentGroup = CATEGORY_GROUPS.find((g) => g.id === groupId);
+  const availableGroups = useMemo(() => {
+    return categoryGroups
+      .filter((g) => g.type === type)
+      .sort((a, b) => a.name.localeCompare(b.name, "es"));
+  }, [categoryGroups, type]);
+
+  const currentGroup = categoryGroups.find((g) => g.id === groupId);
+  const currentCategory = categoryDefinitions.find((c) => c.id === id);
+  const transactionsCount = transactions.filter((t) => t.category === id).length;
 
   function handleSave() {
     if (!name.trim()) return;
 
+    const returnTo = searchParams.get("returnTo");
+
     if (isEditing && id) {
       updateCategory(id, { name: name.trim(), icon, color, type, groupId });
+      navigate(-1);
     } else {
-      addCategory({ name: name.trim(), icon, color, type, groupId });
+      const newId = addCategory({ name: name.trim(), icon, color, type, groupId });
+      // If coming from transaction form, go back there with the new category selected
+      if (returnTo === "transaction" && newId) {
+        navigate(`/add?newCategoryId=${newId}`, { replace: true });
+      } else {
+        navigate(-1);
+      }
     }
+  }
 
-    navigate(-1);
+  function handleDelete() {
+    setConfirmDelete(true);
+  }
+
+  function confirmDeleteCategory() {
+    if (id) {
+      deleteCategory(id);
+      setConfirmDelete(false);
+      navigate(-1);
+    }
   }
 
   const IconComponent = icons[kebabToPascal(icon) as keyof typeof icons];
@@ -83,17 +112,28 @@ export default function AddEditCategoryPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center gap-3 bg-white px-4 py-4 shadow-sm">
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="rounded-full p-1 hover:bg-gray-100"
-        >
-          <ChevronLeft className="h-6 w-6 text-gray-700" />
-        </button>
-        <h1 className="text-lg font-semibold text-gray-900">
-          {isEditing ? "Editar Categoría" : "Nueva Categoría"}
-        </h1>
+      <header className="sticky top-0 z-10 flex items-center justify-between bg-white px-4 py-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="rounded-full p-1 hover:bg-gray-100"
+          >
+            <ChevronLeft className="h-6 w-6 text-gray-700" />
+          </button>
+          <h1 className="text-lg font-semibold text-gray-900">
+            {isEditing ? "Editar Categoría" : "Nueva Categoría"}
+          </h1>
+        </div>
+        {isEditing && currentCategory && (
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="rounded-full p-2 hover:bg-red-50"
+          >
+            <Trash2 className="h-5 w-5 text-red-500" />
+          </button>
+        )}
       </header>
 
       {/* Content */}
@@ -232,6 +272,52 @@ export default function AddEditCategoryPage() {
         onIconChange={setIcon}
         onColorChange={setColor}
       />
+
+      {/* Confirm Delete Modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setConfirmDelete(false)}
+          />
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Eliminar categoría
+            </h3>
+            <p className="mb-4 text-gray-600">
+              {transactionsCount > 0 ? (
+                <>
+                  La categoría "{name}" tiene{" "}
+                  <span className="font-medium">{transactionsCount}</span>{" "}
+                  transacción(es) asociadas. Si la eliminas, estas transacciones
+                  quedarán sin categoría.
+                </>
+              ) : (
+                <>
+                  ¿Estás seguro de que deseas eliminar la categoría "{name}"?
+                  Esta acción no se puede deshacer.
+                </>
+              )}
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteCategory}
+                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

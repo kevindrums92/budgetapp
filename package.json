@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -12,7 +12,13 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server.js",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "npm run build",
+    "release": "bash scripts/release.sh",
+    "dev:sync": "git pull origin develop",
+    "dev:save": "git add . && git commit && git push origin develop",
+    "dev:update-from-main": "git checkout develop && git merge main && git push origin develop",
+    "diff:main": "git diff main..develop",
+    "pre-release": "git checkout develop && git pull && npm run build && npm run lint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",

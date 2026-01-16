@@ -1,21 +1,16 @@
-import type { CategoryGroup } from "@/types/budget.types";
+import type { CategoryGroup, TransactionType } from "@/types/budget.types";
+import { createDefaultCategoryGroups } from "./default-category-groups";
 
-export const CATEGORY_GROUPS: CategoryGroup[] = [
-  // Expense groups
-  { id: "food_drink", name: "Comida y Bebida", type: "expense" },
-  { id: "home_utilities", name: "Hogar y Servicios", type: "expense" },
-  { id: "lifestyle", name: "Estilo de Vida", type: "expense" },
-  { id: "transport", name: "Transporte", type: "expense" },
-  { id: "miscellaneous", name: "Otros", type: "expense" },
-  // Income groups
-  { id: "primary_income", name: "Ingresos Principales", type: "income" },
-  { id: "other_income", name: "Otros Ingresos", type: "income" },
-];
+// Legacy export for backward compatibility during migration
+// Components should prefer reading from store.categoryGroups
+export const CATEGORY_GROUPS: CategoryGroup[] = createDefaultCategoryGroups();
 
-export function getGroupName(groupId: string): string {
-  return CATEGORY_GROUPS.find((g) => g.id === groupId)?.name ?? groupId;
+export function getGroupName(groupId: string, groups?: CategoryGroup[]): string {
+  const searchGroups = groups ?? CATEGORY_GROUPS;
+  return searchGroups.find((g) => g.id === groupId)?.name ?? groupId;
 }
 
-export function getGroupsByType(type: "income" | "expense"): CategoryGroup[] {
-  return CATEGORY_GROUPS.filter((g) => g.type === type);
+export function getGroupsByType(type: TransactionType, groups?: CategoryGroup[]): CategoryGroup[] {
+  const searchGroups = groups ?? CATEGORY_GROUPS;
+  return searchGroups.filter((g) => g.type === type);
 }

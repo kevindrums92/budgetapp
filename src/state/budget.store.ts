@@ -8,11 +8,12 @@ import type {
   TripStatus,
   TripExpenseCategory,
   Category,
-  CategoryGroupId,
+  CategoryGroup,
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey } from "@/services/dates.service";
 import { createDefaultCategories } from "@/constants/default-categories";
+import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/default-category-groups";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
 type CloudMode = "guest" | "cloud";
@@ -48,7 +49,13 @@ type AddCategoryInput = {
   icon: string;
   color: string;
   type: TransactionType;
-  groupId: CategoryGroupId;
+  groupId: string;
+};
+
+type AddCategoryGroupInput = {
+  name: string;
+  type: TransactionType;
+  color: string;
 };
 
 type BudgetStore = BudgetState & {
@@ -85,6 +92,16 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteCategory: (id: string) => void;
   getCategoryById: (id: string) => Category | undefined;
+  setCategoryLimit: (id: string, limit: number | null) => void;
+
+  // CRUD Category Groups
+  addCategoryGroup: (input: AddCategoryGroupInput) => string; // Returns new group ID
+  updateCategoryGroup: (
+    id: string,
+    patch: Partial<Omit<CategoryGroup, "id" | "createdAt" | "isDefault">>
+  ) => void;
+  deleteCategoryGroup: (id: string) => void;
+  getCategoryGroupById: (id: string) => CategoryGroup | undefined;
 
   // Landing
   welcomeSeen: boolean;
@@ -101,10 +118,11 @@ type BudgetStore = BudgetState & {
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   transactions: [],
   categories: [],
   categoryDefinitions: createDefaultCategories(),
+  categoryGroups: createDefaultCategoryGroups(),
   trips: [],
   tripExpenses: [],
 };
@@ -165,10 +183,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -214,10 +233,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -230,10 +250,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -264,10 +285,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: [trip, ...state.trips],
           tripExpenses: state.tripExpenses,
         };
@@ -285,10 +307,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: nextTrips,
           tripExpenses: state.tripExpenses,
         };
@@ -301,10 +324,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips.filter((t) => t.id !== id),
           // También eliminar los gastos asociados al viaje
           tripExpenses: state.tripExpenses.filter((e) => e.tripId !== id),
@@ -335,10 +359,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: [expense, ...state.tripExpenses],
         };
@@ -356,10 +381,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: nextExpenses,
         };
@@ -372,10 +398,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: state.tripExpenses.filter((e) => e.id !== id),
         };
@@ -403,10 +430,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -426,10 +454,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -442,10 +471,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
+          categoryGroups: state.categoryGroups,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -459,14 +489,126 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       return get().categoryDefinitions.find((c) => c.id === id);
     },
 
+    setCategoryLimit: (id, limit) => {
+      set((state) => {
+        const nextCategoryDefinitions = state.categoryDefinitions.map((c) => {
+          if (c.id !== id) return c;
+          return { ...c, monthlyLimit: limit ?? undefined };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 3,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: nextCategoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    // ---------- CRUD CATEGORY GROUPS ----------
+    addCategoryGroup: (input) => {
+      const name = input.name.trim();
+      if (!name) return "";
+
+      const newGroup: CategoryGroup = {
+        id: crypto.randomUUID(),
+        name,
+        type: input.type,
+        color: input.color,
+        isDefault: false,
+        createdAt: Date.now(),
+      };
+
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 3,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: [...state.categoryGroups, newGroup],
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+
+      return newGroup.id;
+    },
+
+    updateCategoryGroup: (id, patch) => {
+      set((state) => {
+        const nextCategoryGroups = state.categoryGroups.map((g) => {
+          if (g.id !== id) return g;
+          return { ...g, ...patch };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 3,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: nextCategoryGroups,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    deleteCategoryGroup: (id) => {
+      set((state) => {
+        // Find which fallback group to use based on the group being deleted
+        const groupToDelete = state.categoryGroups.find((g) => g.id === id);
+        const fallbackGroupId = groupToDelete?.type === "income"
+          ? OTHER_INCOME_GROUP_ID
+          : MISCELLANEOUS_GROUP_ID;
+
+        // Reassign categories from deleted group to fallback group
+        const nextCategoryDefinitions = state.categoryDefinitions.map((c) => {
+          if (c.groupId === id) {
+            return { ...c, groupId: fallbackGroupId };
+          }
+          return c;
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 3,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: nextCategoryDefinitions,
+          categoryGroups: state.categoryGroups.filter((g) => g.id !== id),
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    getCategoryGroupById: (id) => {
+      return get().categoryGroups.find((g) => g.id === id);
+    },
+
     // ---------- SYNC HELPERS ----------
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 2,
+        schemaVersion: 3,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
+        categoryGroups: s.categoryGroups ?? [],
         trips: s.trips ?? [],
         tripExpenses: s.tripExpenses ?? [],
       };
@@ -478,10 +620,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       // set explícito (NO meter funciones del store dentro)
       set({
-        schemaVersion: 2,
+        schemaVersion: 3,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
+        categoryGroups: data.categoryGroups ?? [],
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
       });

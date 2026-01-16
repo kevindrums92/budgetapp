@@ -9,6 +9,7 @@ import {
   clearPendingSnapshot,
 } from "@/services/pendingSync.service";
 import { createDefaultCategories } from "@/constants/default-categories";
+import { createDefaultCategoryGroups } from "@/constants/default-category-groups";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 
@@ -34,6 +35,7 @@ export default function CloudSyncGate() {
   const transactions = useBudgetStore((s) => s.transactions);
   const categories = useBudgetStore((s) => s.categories);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+  const categoryGroups = useBudgetStore((s) => s.categoryGroups);
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
 
@@ -66,7 +68,7 @@ export default function CloudSyncGate() {
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
-      replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), trips: [], tripExpenses: [] });
+      replaceAllData({ schemaVersion: 3, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), categoryGroups: createDefaultCategoryGroups(), trips: [], tripExpenses: [] });
 
       // Reset welcome para que vuelva a salir en guest
       try {
@@ -105,14 +107,26 @@ export default function CloudSyncGate() {
       const cloud = await getCloudState();
 
       if (cloud) {
-        // Check if cloud data has empty categoryDefinitions - inject defaults and push back
+        let needsPush = false;
+
+        // Check if cloud data has empty categoryDefinitions - inject defaults
         if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
           cloud.categoryDefinitions = createDefaultCategories();
-          replaceAllData(cloud);
-          // Push the fixed data back to cloud
+          needsPush = true;
+        }
+
+        // Check if cloud data has empty categoryGroups - inject defaults (migration to v3)
+        if (!Array.isArray(cloud.categoryGroups) || cloud.categoryGroups.length === 0) {
+          cloud.categoryGroups = createDefaultCategoryGroups();
+          cloud.schemaVersion = 3;
+          needsPush = true;
+        }
+
+        replaceAllData(cloud);
+
+        // Push the fixed data back to cloud if we added defaults
+        if (needsPush) {
           await upsertCloudState(cloud);
-        } else {
-          replaceAllData(cloud);
         }
       } else {
         // cuenta nueva => subimos lo local actual como primer estado
@@ -170,7 +184,7 @@ export default function CloudSyncGate() {
       if (event === "SIGNED_OUT") {
         clearPendingSnapshot();
         clearState();
-        replaceAllData({ schemaVersion: 2, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), trips: [], tripExpenses: [] });
+        replaceAllData({ schemaVersion: 3, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), categoryGroups: createDefaultCategoryGroups(), trips: [], tripExpenses: [] });
 
         // Reset welcome
         try {
@@ -213,7 +227,7 @@ export default function CloudSyncGate() {
     }, 1200);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, trips, tripExpenses]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, trips, tripExpenses]);
 
   return null;
 }
