@@ -4,7 +4,7 @@ import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/features/transactions/transactions.utils";
-import { formatDateGroupHeader, formatTime } from "@/services/dates.service";
+import { formatDateGroupHeader } from "@/services/dates.service";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import type { Category } from "@/types/budget.types";
 

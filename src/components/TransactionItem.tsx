@@ -1,6 +1,5 @@
 import { icons } from "lucide-react";
 import { formatCOP } from "@/features/transactions/transactions.utils";
-import { formatTime } from "@/services/dates.service";
 import type { Transaction, Category } from "@/types/budget.types";
 
 // Convert kebab-case to PascalCase for lucide-react icons
