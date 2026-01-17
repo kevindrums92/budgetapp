@@ -106,6 +106,8 @@ type BudgetStore = BudgetState & {
   // Landing
   welcomeSeen: boolean;
   setWelcomeSeen: (v: boolean) => void;
+  budgetOnboardingSeen: boolean;
+  setBudgetOnboardingSeen: (v: boolean) => void;
 
   cloudMode: CloudMode;
   cloudStatus: CloudStatus;
@@ -156,6 +158,18 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         else localStorage.removeItem("budget.welcomeSeen.v1");
       } catch { }
       set({ welcomeSeen: v });
+    },
+
+    budgetOnboardingSeen: (() => {
+      try { return localStorage.getItem("budget.budgetOnboardingSeen.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setBudgetOnboardingSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
+        else localStorage.removeItem("budget.budgetOnboardingSeen.v1");
+      } catch { }
+      set({ budgetOnboardingSeen: v });
     },
 
     // UI month

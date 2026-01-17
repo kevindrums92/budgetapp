@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { icons, Plus, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/features/transactions/transactions.utils";
 import SetLimitModal from "@/components/SetLimitModal";
+import BudgetOnboardingWizard from "@/components/BudgetOnboardingWizard";
 import type { Category } from "@/types/budget.types";
 
 // Convert kebab-case to PascalCase for lucide-react icons
@@ -36,8 +37,23 @@ export default function BudgetPage() {
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const setCategoryLimit = useBudgetStore((s) => s.setCategoryLimit);
+  const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
+  const setBudgetOnboardingSeen = useBudgetStore((s) => s.setBudgetOnboardingSeen);
 
   const [modalCategory, setModalCategory] = useState<Category | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check onboarding on mount
+  useEffect(() => {
+    if (!budgetOnboardingSeen) {
+      setShowOnboarding(true);
+    }
+  }, [budgetOnboardingSeen]);
+
+  const handleCloseOnboarding = () => {
+    setBudgetOnboardingSeen(true);
+    setShowOnboarding(false);
+  };
 
   // Calculate spent per category for current month
   const spentByCategory = useMemo(() => {
@@ -149,90 +165,98 @@ export default function BudgetPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl px-4 pt-4 pb-28">
-      {/* Summary Card */}
-      <div className="rounded-2xl bg-white p-5 shadow-sm mb-6">
-        <h2 className="text-sm font-medium text-gray-500 mb-4">Resumen del Mes</h2>
+    <>
+      <div className="mx-auto max-w-xl px-4 pt-4 pb-28">
+        {/* Summary Card */}
+        <div className="rounded-2xl bg-white p-5 shadow-sm mb-6">
+          <h2 className="text-sm font-medium text-gray-500 mb-4">Resumen del Mes</h2>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <p className="text-xs text-gray-400">Presupuestado</p>
-            <p className="text-lg font-semibold text-gray-900">
-              {formatCOP(totals.totalBudgeted)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-400">Gastado</p>
-            <p
-              className={`text-lg font-semibold ${
-                totals.totalSpent > totals.totalBudgeted && totals.totalBudgeted > 0
-                  ? "text-red-600"
-                  : "text-gray-900"
-              }`}
-            >
-              {formatCOP(totals.totalSpent)}
-            </p>
-          </div>
-        </div>
-
-        {/* Overall Progress */}
-        {totals.totalBudgeted > 0 && (
-          <div className="space-y-2">
-            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-300 ${getProgressColor(
-                  totals.totalSpent,
-                  totals.totalBudgeted
-                )}`}
-                style={{ width: `${overallProgress}%` }}
-              />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-xs text-gray-400">Presupuestado</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {formatCOP(totals.totalBudgeted)}
+              </p>
             </div>
-            <p className="text-xs text-gray-500 text-right">
-              {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}% del presupuesto
-            </p>
+            <div>
+              <p className="text-xs text-gray-400">Gastado</p>
+              <p
+                className={`text-lg font-semibold ${
+                  totals.totalSpent > totals.totalBudgeted && totals.totalBudgeted > 0
+                    ? "text-red-600"
+                    : "text-gray-900"
+                }`}
+              >
+                {formatCOP(totals.totalSpent)}
+              </p>
+            </div>
           </div>
-        )}
 
-        {totals.totalBudgeted === 0 && (
-          <p className="text-sm text-gray-400 text-center py-2">
-            Establece límites en tus categorías para ver tu progreso
-          </p>
-        )}
-      </div>
+          {/* Overall Progress */}
+          {totals.totalBudgeted > 0 && (
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full transition-all duration-300 ${getProgressColor(
+                    totals.totalSpent,
+                    totals.totalBudgeted
+                  )}`}
+                  style={{ width: `${overallProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 text-right">
+                {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}% del presupuesto
+              </p>
+            </div>
+          )}
 
-      {/* Expense Categories */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">Gastos</h3>
-        <div className="space-y-2">
-          {expenseCategories.map((cat) => renderCategoryRow(cat, true))}
+          {totals.totalBudgeted === 0 && (
+            <p className="text-sm text-gray-400 text-center py-2">
+              Establece límites en tus categorías para ver tu progreso
+            </p>
+          )}
         </div>
-      </div>
 
-      {/* Income Categories */}
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">Ingresos</h3>
-        <div className="space-y-2">
-          {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
+        {/* Expense Categories */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">Gastos</h3>
+          <div className="space-y-2">
+            {expenseCategories.map((cat) => renderCategoryRow(cat, true))}
+          </div>
         </div>
+
+        {/* Income Categories */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">Ingresos</h3>
+          <div className="space-y-2">
+            {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
+          </div>
+        </div>
+
+        {/* Add Category Button */}
+        <button
+          type="button"
+          onClick={() => navigate("/category/new")}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm font-medium text-gray-500 hover:border-emerald-300 hover:text-emerald-600 transition-colors"
+        >
+          <Plus className="h-5 w-5" />
+          Nueva Categoría
+        </button>
+
+        {/* Set Limit Modal */}
+        <SetLimitModal
+          open={!!modalCategory}
+          onClose={() => setModalCategory(null)}
+          category={modalCategory}
+          onSave={handleSaveLimit}
+        />
       </div>
 
-      {/* Add Category Button */}
-      <button
-        type="button"
-        onClick={() => navigate("/category/new")}
-        className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm font-medium text-gray-500 hover:border-emerald-300 hover:text-emerald-600 transition-colors"
-      >
-        <Plus className="h-5 w-5" />
-        Nueva Categoría
-      </button>
-
-      {/* Set Limit Modal */}
-      <SetLimitModal
-        open={!!modalCategory}
-        onClose={() => setModalCategory(null)}
-        category={modalCategory}
-        onSave={handleSaveLimit}
+      {/* Onboarding Wizard */}
+      <BudgetOnboardingWizard
+        open={showOnboarding}
+        onClose={handleCloseOnboarding}
       />
-    </div>
+    </>
   );
 }

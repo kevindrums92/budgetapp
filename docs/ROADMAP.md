@@ -10,10 +10,10 @@
 | Tab | Ruta | Estado | Descripción |
 |-----|------|--------|-------------|
 | Home | `/` | Implementado | Control de presupuesto mensual, lista de transacciones |
-| Budget | `/budget` | Esqueleto | Pendiente de implementar |
+| Budget | `/budget` | Implementado | Gestión de categorías y límites de presupuesto |
 | FAB (+) | `/add` | Implementado | Agregar nueva transacción |
-| Stats | `/stats` | Esqueleto | Pendiente de implementar |
-| Settings | `/settings` | Placeholder | **Será reemplazado por Travel Planner** |
+| Stats | `/stats` | Implementado | Visualización de datos y estadísticas con gráficos |
+| Trips | `/trips` | Implementado | Travel Planner para planificar y trackear gastos de viajes |
 
 ---
 
@@ -82,18 +82,23 @@ type TripExpenseCategory =
 
 ### P1 - Prioridad Media
 
-#### Budget Page
+#### Budget Page - COMPLETADO
 > Gestión de categorías y límites de presupuesto mensual
 
-**Funcionalidades:**
-- [ ] Lista de todas las categorías
-- [ ] Agregar/editar/eliminar categorías personalizadas
-- [ ] Establecer límite mensual por categoría
-- [ ] Barra de progreso: gastado vs límite
-- [ ] Alertas visuales cuando te acercas/superas el límite
+**Funcionalidades core:**
+- [x] Lista de todas las categorías
+- [x] Agregar/editar/eliminar categorías personalizadas
+- [x] Establecer límite mensual por categoría
+- [x] Barra de progreso: gastado vs límite
+- [x] Alertas visuales cuando te acercas/superas el límite (verde/amarillo/rojo)
+- [x] Iconos personalizados por categoría
+- [x] Presupuesto mensual global (suma de todas las categorías)
+- [x] Wizard de onboarding en primera visita (pantalla completa con Embla Carousel)
+
+**Ideas para futuras mejoras:**
 - [ ] Arrastrar para reordenar categorías
-- [ ] Iconos personalizados por categoría
-- [ ] Presupuesto mensual global (suma de todas las categorías)
+- [ ] Copiar límites de mes anterior
+- [ ] Plantillas de presupuesto predefinidas
 
 **Modelo de datos propuesto:**
 ```typescript
@@ -110,22 +115,26 @@ interface CategoryBudget {
 
 ### P2 - Prioridad Baja
 
-#### Stats Page
+#### Stats Page - COMPLETADO
 > Visualización de datos y estadísticas
 
-**Funcionalidades:**
-- [ ] Gráfico de gastos por categoría (pie/donut chart)
-- [ ] Gráfico de ingresos vs gastos por mes (bar chart)
-- [ ] Tendencia de gastos últimos 6-12 meses (line chart)
-- [ ] Top categorías donde más gastas
-- [ ] Comparativa mes actual vs mes anterior
-- [ ] Promedio diario de gastos
-- [ ] Día de la semana donde más gastas
-- [ ] Filtros por rango de fechas
+**Funcionalidades core:**
+- [x] Gráfico de gastos por categoría (donut chart con Recharts)
+- [x] Gráfico de ingresos vs gastos últimos 6 meses (bar chart)
+- [x] Tendencia de gastos últimos 12 meses (line chart)
+- [x] Quick Stats cards:
+  - [x] Promedio de gasto diario
+  - [x] Categoría top (con icono y color)
+  - [x] Día de la semana donde más gastas
+  - [x] Comparativa vs mes anterior (% con indicador visual)
+- [x] Banner de presupuesto diario (solo mes actual con presupuestos configurados)
+- [x] Estados vacíos para gráficos sin datos
 
-**Librerías sugeridas:**
-- Recharts (ligera, buen soporte React)
-- Chart.js con react-chartjs-2
+**Ideas para futuras mejoras:**
+- [ ] Filtros por rango de fechas personalizado
+- [ ] Exportar gráficos como imagen
+- [ ] Comparativa entre múltiples meses seleccionables
+- [ ] Proyecciones de gasto basadas en tendencias
 
 ---
 
@@ -152,7 +161,44 @@ interface CategoryBudget {
 
 ## Changelog
 
-### v0.2.0 (Actual)
+### v0.5.0 (Actual)
+- **Budget Onboarding Wizard**
+  - Wizard de bienvenida pantalla completa con Embla Carousel (~5KB)
+  - 4 slides educativos explicando funcionalidad del módulo Budget:
+    - Slide 1: Bienvenida e introducción general (Target icon)
+    - Slide 2: Cómo establecer límites mensuales (PiggyBank icon)
+    - Slide 3: Sistema de monitoreo con barras de progreso (TrendingUp icon)
+    - Slide 4: Diferencia entre Balance y Budget (CheckCircle2 icon)
+  - Navegación fluida por swipe, dots clicables, y botones
+  - Botón "Saltar" en slides intermedios
+  - Se muestra solo en primera visita (flag en localStorage: `budget.budgetOnboardingSeen.v1`)
+  - Animaciones suaves con fade transitions (300ms)
+  - Diseño minimalista de pantalla completa
+  - Integrado en BudgetPage con estado Zustand
+  - Iconos grandes con fondos de color con alpha 20%
+  - Progress dots animados (8px → 32px cuando activo)
+
+### v0.4.0
+- **Stats Page completada**
+  - Donut chart de gastos por categoría
+  - Bar chart de ingresos vs gastos (últimos 6 meses)
+  - Line chart de tendencia de gastos (últimos 12 meses)
+  - Quick Stats: promedio diario, categoría top, día que más gastas, comparativa mes anterior
+  - Banner de presupuesto diario recomendado
+  - Estados vacíos para gráficos sin datos
+- **Budget Page completada**
+  - Gestión completa de categorías y grupos
+  - Límites mensuales por categoría
+  - Sistema de colores (verde/amarillo/rojo) para alertas visuales
+  - Resumen mensual con progreso global
+
+### v0.3.0
+- **Infraestructura de testing**
+  - Configuración de Vitest + React Testing Library
+  - Tests para storage service
+  - Setup de test utilities
+
+### v0.2.0
 - **Travel Planner implementado**
   - Lista de viajes con card destacado para viaje activo
   - Crear/editar/eliminar viajes
@@ -173,6 +219,8 @@ interface CategoryBudget {
 
 ## Notas
 
-- **Prioridad actual**: Travel Planner para trackear el viaje a San Andrés
-- **Arquitectura**: Mantener patrón local-first, sync opcional a Supabase
-- **UI**: Mantener estilo iOS-like consistente con el resto de la app
+- **Estado del proyecto**: Funcionalidades core completadas (Home, Budget, Stats, Trips)
+- **Prioridad actual**: Pulir UX y preparar para siguientes features del backlog
+- **Arquitectura**: Patrón local-first mantenido, sync opcional a Supabase
+- **UI**: Estilo iOS-like consistente en toda la app
+- **Librerías visuales**: Recharts para gráficos, Embla Carousel para onboarding
