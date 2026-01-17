@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import CloudStatusMini from "@/components/CloudStatusMini";
 import LogoMark from "@/components/LogoMark";
+import MonthSelector from "@/components/MonthSelector";
 import { User } from "lucide-react";
 
 type Props = {
   title: string;
+  showMonthSelector?: boolean;
 };
 
-export default function TopHeader({ title }: Props) {
+export default function TopHeader({ title, showMonthSelector = false }: Props) {
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
@@ -74,9 +76,15 @@ export default function TopHeader({ title }: Props) {
             <CloudStatusMini />
           </button>
 
-          {/* Center: title */}
+          {/* Center: title or month selector */}
           <div className="pointer-events-none absolute left-0 right-0 flex justify-center">
-            <div className="text-sm font-semibold text-gray-900">{title}</div>
+            {showMonthSelector ? (
+              <div className="pointer-events-auto">
+                <MonthSelector />
+              </div>
+            ) : (
+              <div className="text-sm font-semibold text-gray-900">{title}</div>
+            )}
           </div>
 
           {/* Right: logo */}

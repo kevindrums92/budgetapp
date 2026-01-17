@@ -6,6 +6,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ### Fixed
 - **Recurring Transactions**: Fixed bug where modified amounts during replication caused transactions to still appear as pending. Detection now matches by name, category, and type only (ignoring amount).
+- **Month Selector**: Moved month selector to global header, now accessible from Home, Budget, and Stats pages.
+- **Category Picker**: Fixed bug where newly created categories didn't appear in transaction form. CategoryPickerDrawer now reads from dynamic store instead of static constant.
 
 ## [0.6.0] - 2026-01-17
 
