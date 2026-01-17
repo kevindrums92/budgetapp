@@ -12,6 +12,8 @@ import { createDefaultCategories } from "@/constants/default-categories";
 import { createDefaultCategoryGroups } from "@/constants/default-category-groups";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
+const SYNC_LOCK_KEY = "budget.syncLock";
+const SYNC_LOCK_TIMEOUT = 5000; // 5 seconds
 
 function isNetworkError(err: unknown) {
   const msg = String((err as any)?.message ?? err ?? "");
@@ -21,6 +23,34 @@ function isNetworkError(err: unknown) {
     msg.includes("ERR_NAME_NOT_RESOLVED") ||
     msg.includes("NetworkError")
   );
+}
+
+function acquireSyncLock(): boolean {
+  try {
+    const now = Date.now();
+    const existingLock = localStorage.getItem(SYNC_LOCK_KEY);
+
+    if (existingLock) {
+      const lockTime = parseInt(existingLock, 10);
+      if (now - lockTime < SYNC_LOCK_TIMEOUT) {
+        console.warn("[CloudSync] ⚠️ Sync already in progress in another tab/window");
+        return false;
+      }
+    }
+
+    localStorage.setItem(SYNC_LOCK_KEY, String(now));
+    return true;
+  } catch {
+    return true; // If localStorage fails, proceed anyway
+  }
+}
+
+function releaseSyncLock() {
+  try {
+    localStorage.removeItem(SYNC_LOCK_KEY);
+  } catch {
+    // ignore
+  }
 }
 
 export default function CloudSyncGate() {
@@ -49,12 +79,33 @@ export default function CloudSyncGate() {
       return;
     }
 
+    // ⚠️ CRITICAL SAFEGUARD: Verify snapshot before pushing
+    const hasData = snapshot.transactions.length > 0 ||
+                   snapshot.trips.length > 0;
+
+    if (!hasData) {
+      console.warn("[CloudSync] ⚠️ Attempting to push empty snapshot. Blocking to prevent data loss.");
+      console.warn("[CloudSync] Snapshot details:", {
+        transactions: snapshot.transactions.length,
+        trips: snapshot.trips.length,
+        categoryDefinitions: snapshot.categoryDefinitions.length,
+      });
+      setCloudStatus("error");
+      return;
+    }
+
     try {
       setCloudStatus("syncing");
+      console.log("[CloudSync] Pushing snapshot:", {
+        transactions: snapshot.transactions.length,
+        trips: snapshot.trips.length,
+        schemaVersion: snapshot.schemaVersion,
+      });
       await upsertCloudState(snapshot);
       clearPendingSnapshot();
       setCloudStatus("ok");
     } catch (err) {
+      console.error("[CloudSync] Push failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
       setPendingSnapshot(snapshot);
     }
@@ -65,6 +116,7 @@ export default function CloudSyncGate() {
     const session = data.session;
 
     if (!session) {
+      console.log("[CloudSync] No session found, switching to guest mode");
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
@@ -82,6 +134,8 @@ export default function CloudSyncGate() {
       return;
     }
 
+    console.log("[CloudSync] Session found, user:", session.user.id);
+
     setCloudMode("cloud");
 
     // Si inicia offline: marcamos offline y guardamos snapshot como pendiente
@@ -92,31 +146,52 @@ export default function CloudSyncGate() {
       return;
     }
 
+    // ⚠️ Acquire sync lock to prevent race conditions from multiple tabs
+    if (!acquireSyncLock()) {
+      console.warn("[CloudSync] Could not acquire sync lock, another sync in progress");
+      setCloudStatus("ok");
+      initializedRef.current = true;
+      return;
+    }
+
     try {
       setCloudStatus("syncing");
 
       // ✅ 1) Si hay cambios pendientes locales, PUSH primero y NO hacer PULL
       const pending = getPendingSnapshot();
       if (pending) {
+        console.log("[CloudSync] Found pending snapshot, pushing first:", {
+          transactions: pending.transactions.length,
+          trips: pending.trips.length,
+        });
         await pushSnapshot(pending);
         initializedRef.current = true;
         return;
       }
 
       // ✅ 2) No hay pendientes: flujo normal (pull)
+      console.log("[CloudSync] No pending changes, pulling from cloud...");
       const cloud = await getCloudState();
 
       if (cloud) {
+        console.log("[CloudSync] Cloud data found:", {
+          transactions: cloud.transactions.length,
+          trips: cloud.trips?.length ?? 0,
+          schemaVersion: cloud.schemaVersion,
+        });
+
         let needsPush = false;
 
         // Check if cloud data has empty categoryDefinitions - inject defaults
         if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
+          console.log("[CloudSync] Cloud missing categoryDefinitions, injecting defaults");
           cloud.categoryDefinitions = createDefaultCategories();
           needsPush = true;
         }
 
         // Check if cloud data has empty categoryGroups - inject defaults (migration to v3)
         if (!Array.isArray(cloud.categoryGroups) || cloud.categoryGroups.length === 0) {
+          console.log("[CloudSync] Cloud missing categoryGroups, injecting defaults (migration to v3)");
           cloud.categoryGroups = createDefaultCategoryGroups();
           cloud.schemaVersion = 3;
           needsPush = true;
@@ -126,20 +201,44 @@ export default function CloudSyncGate() {
 
         // Push the fixed data back to cloud if we added defaults
         if (needsPush) {
+          console.log("[CloudSync] Pushing migrated data back to cloud");
           await upsertCloudState(cloud);
         }
       } else {
-        // cuenta nueva => subimos lo local actual como primer estado
-        await upsertCloudState(getSnapshot());
+        // ⚠️ CRITICAL SAFEGUARD: NEVER overwrite cloud with empty state
+        // This prevents data loss if there's a race condition or auth issue
+        const localSnapshot = getSnapshot();
+        const hasData = localSnapshot.transactions.length > 0 ||
+                       localSnapshot.trips.length > 0;
+
+        if (hasData) {
+          // Safe to push: local has actual user data
+          console.log("[CloudSync] New account detected, pushing local data to cloud:", {
+            transactions: localSnapshot.transactions.length,
+            trips: localSnapshot.trips.length,
+            categoryDefinitions: localSnapshot.categoryDefinitions.length,
+          });
+          await upsertCloudState(localSnapshot);
+        } else {
+          // WARNING: Local is empty, do NOT overwrite cloud
+          // This could be a SIGNED_OUT->SIGNED_IN race condition
+          console.warn("[CloudSync] ⚠️ Cloud is null but local is also empty. NOT pushing to prevent data loss.");
+          console.warn("[CloudSync] If this is truly a new account, defaults will be used.");
+          // Keep the defaults that were hydrated from defaultState
+        }
       }
 
       setCloudStatus("ok");
       initializedRef.current = true;
     } catch (err) {
+      console.error("[CloudSync] Init failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
       // dejamos pendiente el snapshot actual para reintentar
       setPendingSnapshot(getSnapshot());
       initializedRef.current = true;
+    } finally {
+      // Always release the sync lock when done
+      releaseSyncLock();
     }
   }
 
