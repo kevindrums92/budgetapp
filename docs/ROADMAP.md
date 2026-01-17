@@ -208,24 +208,30 @@ interface CategoryBudget {
 
 ## Changelog
 
-### v0.6.0 (Próxima)
+### v0.5.1 (Actual)
 - **Transaction List UX Refactor**
-  - Eliminación de menú contextual (long press)
+  - Eliminación de menú contextual (long press) en favor de navegación directa
   - Nueva pantalla de detalle de transacción (`/transaction/:id`)
   - Botones de Editar y Eliminar en header de pantalla de detalle
-  - Agrupación temporal de transacciones:
+  - Agrupación temporal de transacciones con headers inteligentes:
     - "Hoy" para transacciones del día actual
     - "Ayer" para transacciones de ayer
     - Formato "Viernes, 12 Abr" para fechas anteriores
-  - Rediseño visual de TransactionItem:
-    - Icono de categoría más prominente
-    - Monto destacado
-    - Hora más discreta
-    - Mejor uso del espacio vertical
-  - Navegación mejorada: tap en transacción → ver detalle
+  - Rediseño visual de TransactionItem inspirado en apps modernas:
+    - Fondo gris para mejor jerarquía visual
+    - Cards blancos redondeados con sombras sutiles
+    - Icono de categoría más compacto (40x40px)
+    - Layout reorganizado: nombre + categoría a la izquierda, monto a la derecha
+    - Sin líneas divisorias entre items
+    - Altura reducida para mostrar más items en pantalla
+  - Navegación mejorada: tap en transacción → ver detalle completo
   - Performance optimizada con agrupación usando `useMemo`
+  - Soporte completo para campo de notas en transacciones:
+    - Input de notas en formulario de crear/editar
+    - Persistencia en localStorage y cloud sync
+    - Visualización en pantalla de detalle
 
-### v0.5.0 (Actual)
+### v0.5.0
 - **Budget Onboarding Wizard**
   - Wizard de bienvenida pantalla completa con Embla Carousel (~5KB)
   - 4 slides educativos explicando funcionalidad del módulo Budget:
