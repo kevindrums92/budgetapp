@@ -2,6 +2,9 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+## [unreleased] - {relase date}
+
+
 ## [0.6.0] - 2026-01-17
 
 ### Added

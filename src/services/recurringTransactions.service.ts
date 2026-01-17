@@ -30,12 +30,12 @@ export function detectPendingRecurring(
   );
 
   // Filtrar las que NO tienen una copia en el mes actual
-  // Una transacción se considera "replicada" si existe otra con el mismo nombre y monto en el mes actual
+  // Una transacción se considera "replicada" si existe otra con el mismo nombre, categoría y tipo
+  // (el monto puede variar, ya que el usuario puede ajustarlo al replicar)
   const pending = prevMonthRecurring.filter((prevTx) => {
     const exists = currentMonthTransactions.some(
       (currTx) =>
         currTx.name === prevTx.name &&
-        currTx.amount === prevTx.amount &&
         currTx.category === prevTx.category &&
         currTx.type === prevTx.type
     );
