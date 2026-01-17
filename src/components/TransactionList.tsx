@@ -1,18 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/transactions.utils";
-import ConfirmDialog from "@/components/ConfirmDialog";
-import RowMenu from "@/components/RowMenu";
+import { formatDateGroupHeader } from "@/services/dates.service";
+import TransactionItem from "@/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
 
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
+interface GroupedTransactions {
+  date: string;
+  dateLabel: string;
+  transactions: Transaction[];
 }
 
 export default function TransactionList() {
@@ -21,7 +17,6 @@ export default function TransactionList() {
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
-  const deleteTransaction = useBudgetStore((s) => s.deleteTransaction);
 
   // Helper to get category by ID
   const getCategoryById = (id: string): Category | undefined => {
@@ -31,119 +26,77 @@ export default function TransactionList() {
   const currentMonth = new Date().toISOString().slice(0, 7);
   const isCurrent = selectedMonth === currentMonth;
 
-  // Confirm delete
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [txToDelete, setTxToDelete] = useState<Transaction | null>(null);
-
-  const list = useMemo(() => {
-    return transactions
+  // Agrupar transacciones por fecha
+  const groupedList = useMemo<GroupedTransactions[]>(() => {
+    const filtered = transactions
       .filter((t) => t.date.slice(0, 7) === selectedMonth)
       .sort((a, b) => {
         if (a.date !== b.date) return a.date < b.date ? 1 : -1;
         return b.createdAt - a.createdAt;
       });
+
+    // Agrupar por fecha
+    const groups: Record<string, Transaction[]> = {};
+    for (const tx of filtered) {
+      const dateKey = tx.date.slice(0, 10); // YYYY-MM-DD
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(tx);
+    }
+
+    // Convertir a array y ordenar por fecha descendente
+    return Object.entries(groups)
+      .map(([date, txs]) => ({
+        date,
+        dateLabel: formatDateGroupHeader(date),
+        transactions: txs,
+      }))
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
   }, [transactions, selectedMonth]);
 
-  function onEdit(tx: Transaction) {
-    navigate(`/edit/${tx.id}`);
-  }
-
-  function onAskDelete(tx: Transaction) {
-    setTxToDelete(tx);
-    setConfirmOpen(true);
-  }
-
-  function onConfirmDelete() {
-    if (!txToDelete) return;
-    deleteTransaction(txToDelete.id);
-    setConfirmOpen(false);
-    setTxToDelete(null);
+  function onTransactionClick(tx: Transaction) {
+    navigate(`/transaction/${tx.id}`);
   }
 
   return (
-    <div className="mx-auto max-w-xl p-4">
+    <div className="mx-auto max-w-xl">
       {!isCurrent && (
-        <div className="mb-3 border bg-white p-3 text-xs text-gray-600">
+        <div className="mb-3 mx-4 border bg-white p-3 text-xs text-gray-600 rounded-lg">
           Estás viendo un mes diferente al actual. Puedes agregar movimientos igual, pero revisa la fecha.
         </div>
       )}
 
-      {list.length === 0 ? (
-        <div className="border bg-white p-6 text-center text-sm text-gray-600">
+      {groupedList.length === 0 ? (
+        <div className="mx-4 bg-white p-6 text-center text-sm text-gray-600 rounded-xl shadow-sm">
           Aún no tienes movimientos este mes.
         </div>
       ) : (
-        <div className="space-y-2">
-          {list.map((t) => {
-            const category = getCategoryById(t.category);
-            const IconComponent = category
-              ? icons[kebabToPascal(category.icon) as keyof typeof icons]
-              : null;
-
-            return (
-              <div
-                key={t.id}
-                className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm"
-              >
-                {/* Category Icon */}
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                  style={{
-                    backgroundColor: category ? category.color + "20" : "#f3f4f6",
-                  }}
-                >
-                  {IconComponent ? (
-                    <IconComponent
-                      className="h-5 w-5"
-                      style={{ color: category?.color }}
-                    />
-                  ) : (
-                    <div className="h-5 w-5 rounded-full bg-gray-300" />
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-gray-900">{t.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {category?.name || t.category} • {t.date}
-                  </p>
-                </div>
-
-                {/* Amount */}
-                <div
-                  className={`whitespace-nowrap font-semibold ${
-                    t.type === "income" ? "text-emerald-600" : "text-red-500"
-                  }`}
-                >
-                  {t.type === "income" ? "+" : "-"} {formatCOP(t.amount)}
-                </div>
-
-                <RowMenu onEdit={() => onEdit(t)} onDelete={() => onAskDelete(t)} />
+        <div className="space-y-3">
+          {groupedList.map((group) => (
+            <div key={group.date}>
+              {/* Date Header - fondo gris */}
+              <div className="px-4 pb-1.5">
+                <h3 className="text-xs font-semibold text-gray-600">
+                  {group.dateLabel}
+                </h3>
               </div>
-            );
-          })}
+
+              {/* Transactions - card blanco con bordes redondeados */}
+              <div className="mx-4 bg-white rounded-xl shadow-sm overflow-hidden">
+                {group.transactions.map((tx) => (
+                  <TransactionItem
+                    key={tx.id}
+                    transaction={tx}
+                    category={getCategoryById(tx.category)}
+                    onClick={() => onTransactionClick(tx)}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
-
-      {/* Confirm delete dialog */}
-      <ConfirmDialog
-        open={confirmOpen}
-        title="Eliminar movimiento"
-        message={
-          txToDelete
-            ? `¿Seguro que deseas eliminar "${txToDelete.name}" por ${formatCOP(txToDelete.amount)}?`
-            : "¿Seguro que deseas eliminar este movimiento?"
-        }
-        confirmText="Eliminar"
-        cancelText="Cancelar"
-        destructive
-        onConfirm={onConfirmDelete}
-        onClose={() => {
-          setConfirmOpen(false);
-          setTxToDelete(null);
-        }}
-      />
     </div>
   );
 }

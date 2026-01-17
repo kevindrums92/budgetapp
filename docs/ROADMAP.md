@@ -82,6 +82,53 @@ type TripExpenseCategory =
 
 ### P1 - Prioridad Media
 
+#### Transaction List UX Refactor - COMPLETADO
+> Rediseño completo de la interfaz de lista de transacciones con navegación a pantalla de detalle
+
+**Motivación:**
+Mejorar la experiencia de usuario al interactuar con transacciones, eliminando el menú contextual actual y adoptando un patrón más común de "tap para ver detalle" que facilite las acciones de edición y eliminación.
+
+**Cambios principales:**
+
+1. **Navegación a pantalla de detalle**
+   - [x] Eliminar menú contextual (long press)
+   - [x] Al hacer tap en una transacción → navegar a `/transaction/:id`
+   - [x] Pantalla de detalle muestra toda la información de la transacción
+   - [x] Botones de Editar y Eliminar en el header de la pantalla de detalle
+   - [x] Al editar → reutilizar formulario existente de `/edit/:id` en modo modal o full-screen
+
+2. **Agrupación temporal de transacciones**
+   - [x] Agrupar transacciones por fecha con headers:
+     - **Hoy** → transacciones de hoy
+     - **Ayer** → transacciones de ayer
+     - **Fecha formateada** → para el resto (ej: "Viernes, 12 Abr")
+   - [x] Mantener orden descendente (más reciente primero)
+
+3. **Rediseño visual del Transaction Item**
+   - [x] Inspiración en diseño de referencia (ver screenshot)
+   - [x] Mantener guideline actual: colores, tipografía, espaciado
+   - [x] Considerar:
+     - Icono de categoría más prominente
+     - Monto destacado visualmente
+     - Hora más discreta
+     - Mejor uso del espacio vertical
+     - Bordes/sombras sutiles según design system
+
+**Archivos involucrados:**
+- `src/pages/HomePage.tsx` - Implementar agrupación por fecha
+- `src/components/TransactionList.tsx` - Remover menú contextual, agregar navegación
+- `src/components/TransactionItem.tsx` - Rediseñar componente visual
+- `src/pages/TransactionDetailPage.tsx` - NUEVO - Vista de detalle
+- `src/services/dates.service.ts` - Helper para formateo de fechas agrupadas
+
+**Consideraciones técnicas:**
+- Mantener performance al agrupar (usar `useMemo` si es necesario)
+- Animaciones suaves al navegar a detalle (React Router transitions)
+- Accesibilidad: asegurar que los headers de fecha sean semánticamente correctos
+- Mantener compatibilidad con PWA y gestos táctiles
+
+---
+
 #### Budget Page - COMPLETADO
 > Gestión de categorías y límites de presupuesto mensual
 
@@ -160,6 +207,23 @@ interface CategoryBudget {
 ---
 
 ## Changelog
+
+### v0.6.0 (Próxima)
+- **Transaction List UX Refactor**
+  - Eliminación de menú contextual (long press)
+  - Nueva pantalla de detalle de transacción (`/transaction/:id`)
+  - Botones de Editar y Eliminar en header de pantalla de detalle
+  - Agrupación temporal de transacciones:
+    - "Hoy" para transacciones del día actual
+    - "Ayer" para transacciones de ayer
+    - Formato "Viernes, 12 Abr" para fechas anteriores
+  - Rediseño visual de TransactionItem:
+    - Icono de categoría más prominente
+    - Monto destacado
+    - Hora más discreta
+    - Mejor uso del espacio vertical
+  - Navegación mejorada: tap en transacción → ver detalle
+  - Performance optimizada con agrupación usando `useMemo`
 
 ### v0.5.0 (Actual)
 - **Budget Onboarding Wizard**
