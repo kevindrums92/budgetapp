@@ -57,6 +57,12 @@ function AppFrame() {
     return "Home";
   }, [location.pathname]);
 
+  const showMonthSelector = useMemo(() => {
+    return location.pathname === "/" ||
+           location.pathname === "/budget" ||
+           location.pathname === "/stats";
+  }, [location.pathname]);
+
   return (
     <>
       {/* Splash overlay (fade out por CSS/transition) */}
@@ -64,7 +70,7 @@ function AppFrame() {
 
       {/* App */}
       <div className={`min-h-dvh bg-white ${showSplash ? "pointer-events-none" : ""}`}>
-        {!isFormRoute && <TopHeader title={title} />}
+        {!isFormRoute && <TopHeader title={title} showMonthSelector={showMonthSelector} />}
 
         <Routes>
           <Route path="/" element={<HomePage />} />

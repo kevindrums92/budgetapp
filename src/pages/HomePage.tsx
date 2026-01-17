@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
-import HeaderBalance from "@/components/HeaderBalance";
+import BalanceCard from "@/components/BalanceCard";
 import TransactionList from "@/components/TransactionList";
 import AddActionSheet from "@/components/AddActionSheet";
 import RecurringBanner from "@/components/RecurringBanner";
@@ -67,7 +67,7 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <HeaderBalance />
+      <BalanceCard />
       <main className="pb-28 pt-4">
         {showBanner && (
           <RecurringBanner

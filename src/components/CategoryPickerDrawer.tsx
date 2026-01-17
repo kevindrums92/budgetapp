@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { X, Search, Plus } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { CATEGORY_GROUPS } from "@/constants/category-groups";
 import type { TransactionType, Category } from "@/types/budget.types";
 
 type Props = {
@@ -36,6 +35,7 @@ export default function CategoryPickerDrawer({
 }: Props) {
   const navigate = useNavigate();
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+  const categoryGroups = useBudgetStore((s) => s.categoryGroups);
 
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -56,7 +56,7 @@ export default function CategoryPickerDrawer({
 
   // Group categories
   const groupedCategories = useMemo(() => {
-    const groups = CATEGORY_GROUPS.filter((g) => g.type === transactionType);
+    const groups = categoryGroups.filter((g) => g.type === transactionType);
     const result: { group: typeof groups[0]; categories: Category[] }[] = [];
 
     for (const group of groups) {
@@ -67,7 +67,7 @@ export default function CategoryPickerDrawer({
     }
 
     return result;
-  }, [filteredCategories, transactionType]);
+  }, [filteredCategories, transactionType, categoryGroups]);
 
   // Handle open/close animation
   useEffect(() => {
