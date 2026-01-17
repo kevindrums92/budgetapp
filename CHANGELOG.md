@@ -2,6 +2,41 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+## [0.5.0] - 2026-01-17
+
+### Added
+- **Budget Onboarding Wizard**: Interactive full-screen carousel for first-time users
+  - 4 educational slides explaining Budget module functionality
+  - Embla Carousel integration (~5KB, touch-friendly)
+  - Slides cover: Welcome, Setting Limits, Progress Monitoring, Balance vs Budget
+  - Shows only once per user (localStorage flag: `budget.budgetOnboardingSeen.v1`)
+  - Smooth fade transitions (300ms) with animated progress dots
+  - Skip button on intermediate slides, "¡Entendido!" on final slide
+  - Swipe navigation, clickable dots, and button controls
+  - Minimalist full-screen design with large colorful icons
+- **Stats Page**: Comprehensive data visualization module
+  - Donut chart showing expense distribution by category (Recharts)
+  - Bar chart comparing income vs expenses for last 6 months
+  - Line chart showing expense trends over last 12 months
+  - Quick Stats cards:
+    - Daily average spending
+    - Top spending category (with icon and color)
+    - Day of week with most expenses
+    - Month-over-month comparison (% with visual indicator)
+  - Daily budget banner for current month (when budgets are set)
+  - Empty states for charts with no data
+  - All visualizations use Recharts library
+
+### Changed
+- Budget Page now shows onboarding wizard on first visit
+- Stats tab now fully functional with real data visualizations
+
+### Technical
+- Added dependencies: `embla-carousel`, `embla-carousel-react`, `recharts`
+- New Zustand state: `budgetOnboardingSeen` with localStorage persistence
+- BudgetOnboardingWizard component with z-index 85
+- Stats calculations optimized with useMemo hooks
+
 ## [0.4.0] - 2026-01-15
 
 ### Added
