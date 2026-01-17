@@ -86,14 +86,14 @@ type TripExpenseCategory =
 > Gestión de categorías y límites de presupuesto mensual
 
 **Funcionalidades:**
-- [ ] Lista de todas las categorías
-- [ ] Agregar/editar/eliminar categorías personalizadas
-- [ ] Establecer límite mensual por categoría
-- [ ] Barra de progreso: gastado vs límite
-- [ ] Alertas visuales cuando te acercas/superas el límite
+- [x] Lista de todas las categorías
+- [x] Agregar/editar/eliminar categorías personalizadas
+- [x] Establecer límite mensual por categoría
+- [x] Barra de progreso: gastado vs límite
+- [x] Alertas visuales cuando te acercas/superas el límite
 - [ ] Arrastrar para reordenar categorías
-- [ ] Iconos personalizados por categoría
-- [ ] Presupuesto mensual global (suma de todas las categorías)
+- [x] Iconos personalizados por categoría
+- [x] Presupuesto mensual global (suma de todas las categorías)
 
 **Modelo de datos propuesto:**
 ```typescript
