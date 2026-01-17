@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.6.1] - 2026-01-17
+
 ### Fixed
 - **Recurring Transactions**: Fixed bug where modified amounts during replication caused transactions to still appear as pending. Detection now matches by name, category, and type only (ignoring amount).
 - **Month Selector**: Moved month selector to global header, now accessible from Home, Budget, and Stats pages.
