@@ -42,6 +42,27 @@ fi
 log "Actualizando rama develop..."
 git pull origin develop || error "No se pudo actualizar develop"
 
+# Ejecutar validaciones (lint, tests, build)
+echo ""
+log "Ejecutando validaciones antes del release..."
+echo ""
+
+log "1/3 Ejecutando linter..."
+npm run lint || error "El linter encontró errores. Corrígelos antes de continuar."
+success "Linter pasó ✓"
+
+log "2/3 Ejecutando tests..."
+npm run test:run || error "Los tests fallaron. Corrígelos antes de continuar."
+success "Tests pasaron ✓"
+
+log "3/3 Verificando que el build funciona..."
+npm run build || error "El build falló. Corrígelo antes de continuar."
+success "Build exitoso ✓"
+
+echo ""
+success "Todas las validaciones pasaron correctamente"
+echo ""
+
 # Mostrar versión actual
 CURRENT_VERSION=$(node -p "require('./package.json').version")
 log "Versión actual: $CURRENT_VERSION"

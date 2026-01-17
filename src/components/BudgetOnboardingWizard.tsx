@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronRight, Target, TrendingUp, PiggyBank, CheckCircle2 } from "lucide-react";
+import { Target, TrendingUp, PiggyBank, CheckCircle2 } from "lucide-react";
 
 type Props = {
   open: boolean;
