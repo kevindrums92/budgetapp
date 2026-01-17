@@ -9,8 +9,10 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  LineChart,
+  Line,
 } from "recharts";
-import { icons, PieChart as PieChartIcon, BarChart3 } from "lucide-react";
+import { icons, PieChart as PieChartIcon, BarChart3, TrendingUp } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { monthLabelES } from "@/services/dates.service";
 import { formatCOP } from "@/features/transactions/transactions.utils";
@@ -59,6 +61,12 @@ type MonthlyData = {
   month: string;
   label: string;
   income: number;
+  expense: number;
+};
+
+type TrendData = {
+  month: string;
+  label: string;
   expense: number;
 };
 
@@ -120,6 +128,28 @@ export default function StatsPage() {
   }, [transactions]);
 
   const hasMonthlyData = monthlyData.some((d) => d.income > 0 || d.expense > 0);
+
+  // Trend chart data (expenses for last 12 months)
+  const trendData = useMemo<TrendData[]>(() => {
+    const months = getLastMonths(12);
+
+    return months.map((monthKey) => {
+      let expense = 0;
+
+      for (const t of transactions) {
+        if (t.date.slice(0, 7) !== monthKey) continue;
+        if (t.type === "expense") expense += t.amount;
+      }
+
+      return {
+        month: monthKey,
+        label: shortMonthLabel(monthKey),
+        expense,
+      };
+    });
+  }, [transactions]);
+
+  const hasTrendData = trendData.some((d) => d.expense > 0);
 
   return (
     <div className="mx-auto max-w-xl px-4 pt-6 pb-28">
@@ -264,6 +294,51 @@ export default function StatsPage() {
               </div>
             </div>
           </>
+        )}
+      </div>
+
+      {/* Trend Chart Section */}
+      <div className="mt-8">
+        <h3 className="mb-4 text-sm font-medium text-gray-700">
+          Tendencia de Gastos
+        </h3>
+
+        {!hasTrendData ? (
+          <div className="py-12 text-center text-gray-500">
+            <TrendingUp className="mx-auto mb-2 h-12 w-12 opacity-50" />
+            <p>No hay datos de gastos</p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={trendData}>
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: "#6B7280" }}
+                interval={1}
+              />
+              <YAxis hide />
+              <Tooltip
+                formatter={(value) => formatCOP(Number(value))}
+                labelFormatter={(label) => String(label)}
+                contentStyle={{
+                  borderRadius: "8px",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="expense"
+                name="Gastos"
+                stroke="#EF4444"
+                strokeWidth={2}
+                dot={{ fill: "#EF4444", strokeWidth: 0, r: 3 }}
+                activeDot={{ r: 5, fill: "#EF4444" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         )}
       </div>
     </div>
