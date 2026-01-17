@@ -94,19 +94,35 @@ success "Nueva versión: v$NEW_VERSION"
 
 # 2. Actualizar CHANGELOG
 echo ""
-log "Ahora debes actualizar el CHANGELOG.md con los cambios de esta versión"
-warning "Agrega una sección para la versión v$NEW_VERSION en CHANGELOG.md"
-echo ""
-read -p "Presiona Enter cuando hayas actualizado el CHANGELOG..."
+log "Actualizando CHANGELOG.md automáticamente..."
 
-# Validar que CHANGELOG fue modificado
-if ! git diff --name-only | grep -q "CHANGELOG.md"; then
-    warning "No se detectaron cambios en CHANGELOG.md"
-    read -p "¿Continuar de todas formas? (s/n): " continue_without_changelog
-    if [ "$continue_without_changelog" != "s" ]; then
-        error "Release cancelado"
-    fi
+# Obtener fecha actual en formato YYYY-MM-DD
+RELEASE_DATE=$(date +%Y-%m-%d)
+
+# Reemplazar [unreleased] con la nueva versión y {relase date} con la fecha actual
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS requiere -i '' para sed
+    sed -i '' "s/\[unreleased\]/[$NEW_VERSION]/g" CHANGELOG.md
+    sed -i '' "s/{relase date}/$RELEASE_DATE/g" CHANGELOG.md
+else
+    # Linux/Windows Git Bash
+    sed -i "s/\[unreleased\]/[$NEW_VERSION]/g" CHANGELOG.md
+    sed -i "s/{relase date}/$RELEASE_DATE/g" CHANGELOG.md
 fi
+
+# Crear nueva sección [unreleased] al inicio del changelog (después del header)
+# Buscar la línea que contiene "## [$NEW_VERSION]" y agregar la sección unreleased antes
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "/## \[$NEW_VERSION\]/i\\
+\\
+## [unreleased] - {relase date}\\
+" CHANGELOG.md
+else
+    sed -i "/## \[$NEW_VERSION\]/i\\## [unreleased] - {relase date}\n" CHANGELOG.md
+fi
+
+success "CHANGELOG.md actualizado: [$NEW_VERSION] - $RELEASE_DATE"
+success "Nueva sección [unreleased] creada para próximos cambios"
 
 # 3. Commit de los cambios de versión
 echo ""

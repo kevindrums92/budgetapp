@@ -60,7 +60,7 @@ Cambios: !`git diff --name-only`
    - !`git diff --staged --name-only`
 
 3) Si ves algo sensible, quítalo del stage:
-   - !`git restore --staged <archivo>`
+   - !`git restore --staged FILENAME`
 
 ---
 
