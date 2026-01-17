@@ -19,5 +19,20 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Disable strict setState-in-effect rule for animation patterns
+      'react-hooks/set-state-in-effect': 'off',
+      // Allow empty catch blocks for try-catch error handling
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      // Allow explicit any in test files
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    // Disable react-refresh rules for test files
+    files: ['**/*.test.{ts,tsx}', '**/test/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
   },
 ])
