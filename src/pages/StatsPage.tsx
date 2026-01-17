@@ -151,11 +151,195 @@ export default function StatsPage() {
 
   const hasTrendData = trendData.some((d) => d.expense > 0);
 
+  // Quick stats for selected month
+  const quickStats = useMemo(() => {
+    const currentMonthExpenses = transactions.filter(
+      (t) => t.type === "expense" && t.date.slice(0, 7) === selectedMonth
+    );
+
+    // Total expenses this month
+    const totalExpensesCurrent = currentMonthExpenses.reduce(
+      (sum, t) => sum + t.amount,
+      0
+    );
+
+    // Days in current month
+    const [year, month] = selectedMonth.split("-");
+    const daysInMonth = new Date(Number(year), Number(month), 0).getDate();
+
+    // Daily average (total spent / days in month)
+    const dailyAverage = totalExpensesCurrent / daysInMonth;
+
+    // Total monthly budget (sum of all category limits)
+    const totalBudget = categoryDefinitions
+      .filter((c) => c.type === "expense" && c.monthlyLimit)
+      .reduce((sum, c) => sum + (c.monthlyLimit ?? 0), 0);
+
+    // Days remaining in month
+    const today = new Date();
+    const isCurrentMonth = selectedMonth === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
+    const currentDay = isCurrentMonth ? today.getDate() : daysInMonth;
+    const daysRemaining = daysInMonth - currentDay;
+
+    // Budget remaining
+    const budgetRemaining = totalBudget - totalExpensesCurrent;
+    const dailyBudget = daysRemaining > 0 ? budgetRemaining / daysRemaining : 0;
+
+    // Top category
+    const byCategory: Record<string, number> = {};
+    for (const t of currentMonthExpenses) {
+      byCategory[t.category] = (byCategory[t.category] ?? 0) + t.amount;
+    }
+    const topCategoryId = Object.entries(byCategory).sort(
+      ([, a], [, b]) => b - a
+    )[0]?.[0];
+    const topCategory = categoryDefinitions.find((c) => c.id === topCategoryId);
+
+    // Day of week with most expenses
+    const byDayOfWeek: Record<number, number> = {};
+    for (const t of currentMonthExpenses) {
+      const date = new Date(t.date);
+      const dayOfWeek = date.getDay();
+      byDayOfWeek[dayOfWeek] = (byDayOfWeek[dayOfWeek] ?? 0) + t.amount;
+    }
+    const topDayOfWeek = Object.entries(byDayOfWeek).sort(
+      ([, a], [, b]) => b - a
+    )[0]?.[0];
+    const dayNames = [
+      "Domingo",
+      "Lunes",
+      "Martes",
+      "Miércoles",
+      "Jueves",
+      "Viernes",
+      "Sábado",
+    ];
+    const topDayName = topDayOfWeek !== undefined ? dayNames[Number(topDayOfWeek)] : null;
+
+    // Previous month comparison
+    const [yearNum, monthNum] = selectedMonth.split("-").map(Number);
+    const prevDate = new Date(yearNum, monthNum - 2, 1);
+    const prevMonth = `${prevDate.getFullYear()}-${String(
+      prevDate.getMonth() + 1
+    ).padStart(2, "0")}`;
+
+    const prevMonthExpenses = transactions
+      .filter((t) => t.type === "expense" && t.date.slice(0, 7) === prevMonth)
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const monthDiff = totalExpensesCurrent - prevMonthExpenses;
+    const monthDiffPercent =
+      prevMonthExpenses > 0 ? (monthDiff / prevMonthExpenses) * 100 : 0;
+
+    return {
+      dailyAverage,
+      topCategory,
+      topDayName,
+      monthDiff,
+      monthDiffPercent,
+      hasData: currentMonthExpenses.length > 0,
+      totalBudget,
+      budgetRemaining,
+      dailyBudget,
+      daysRemaining,
+      isCurrentMonth,
+    };
+  }, [transactions, selectedMonth, categoryDefinitions]);
+
   return (
     <div className="mx-auto max-w-xl px-4 pt-6 pb-28">
       {/* Header */}
       <h2 className="text-base font-semibold">Estadísticas</h2>
       <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
+
+      {/* Daily Budget Banner - Only for current month with budget */}
+      {quickStats.isCurrentMonth &&
+        quickStats.totalBudget > 0 &&
+        quickStats.daysRemaining > 0 && (
+          <div className="mt-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 text-white shadow-lg">
+            <p className="text-sm">
+              Tu presupuesto para los próximos{" "}
+              <span className="font-bold">{quickStats.daysRemaining} días</span> es{" "}
+              <span className="text-lg font-bold">
+                {formatCOP(quickStats.dailyBudget)}
+              </span>{" "}
+              por día. ¡Gasta sabiamente!
+            </p>
+          </div>
+        )}
+
+      {/* Quick Stats */}
+      {quickStats.hasData && (
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {/* Daily Average */}
+          <div className="rounded-xl bg-white p-4 shadow-sm">
+            <p className="text-xs text-gray-500">Promedio de Gasto Diario</p>
+            <p className="mt-1 text-lg font-semibold">
+              {formatCOP(quickStats.dailyAverage)}
+            </p>
+          </div>
+
+          {/* Top Category */}
+          {quickStats.topCategory && (
+            <div className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-xs text-gray-500">Categoría Top</p>
+              <div className="mt-1 flex items-center gap-2">
+                {(() => {
+                  const IconComponent =
+                    icons[
+                      kebabToPascal(quickStats.topCategory.icon) as keyof typeof icons
+                    ];
+                  return (
+                    IconComponent && (
+                      <IconComponent
+                        className="h-4 w-4"
+                        style={{ color: quickStats.topCategory.color }}
+                      />
+                    )
+                  );
+                })()}
+                <span className="text-sm font-medium">
+                  {quickStats.topCategory.name}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Top Day of Week */}
+          {quickStats.topDayName && (
+            <div className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-xs text-gray-500">Día que más gastas</p>
+              <p className="mt-1 text-sm font-medium">{quickStats.topDayName}</p>
+            </div>
+          )}
+
+          {/* Month Comparison */}
+          <div className="rounded-xl bg-white p-4 shadow-sm">
+            <p className="text-xs text-gray-500">vs Mes Anterior</p>
+            <div className="mt-1 flex items-center gap-1">
+              {quickStats.monthDiff > 0 ? (
+                <icons.TrendingUp className="h-4 w-4 text-red-500" />
+              ) : quickStats.monthDiff < 0 ? (
+                <icons.TrendingDown className="h-4 w-4 text-emerald-500" />
+              ) : (
+                <icons.Minus className="h-4 w-4 text-gray-400" />
+              )}
+              <span
+                className={`text-sm font-medium ${
+                  quickStats.monthDiff > 0
+                    ? "text-red-600"
+                    : quickStats.monthDiff < 0
+                    ? "text-emerald-600"
+                    : "text-gray-600"
+                }`}
+              >
+                {quickStats.monthDiff > 0 ? "+" : ""}
+                {quickStats.monthDiffPercent.toFixed(0)}%
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Donut Chart Section */}
       <div className="mt-6">
