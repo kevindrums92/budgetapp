@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi} from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { saveState, loadState, clearState } from './storage.service';
 import type { BudgetState } from '@/types/budget.types';
 
@@ -19,7 +19,7 @@ describe('storage.service', () => {
             category: 'food',
             amount: 100,
             date: '2026-01-15',
-            createdAt: '2026-01-15T12:00:00Z',
+            createdAt: Date.now(),
           },
         ],
       };
@@ -46,7 +46,7 @@ describe('storage.service', () => {
             category: 'food',
             amount: 100,
             date: '2026-01-15',
-            createdAt: '2026-01-15T12:00:00Z',
+            createdAt: Date.now(),
           },
         ],
       };
@@ -60,7 +60,7 @@ describe('storage.service', () => {
             category: 'salary',
             amount: 1000,
             date: '2026-01-15',
-            createdAt: '2026-01-15T12:00:00Z',
+            createdAt: Date.now(),
           },
         ],
       };
@@ -92,7 +92,7 @@ describe('storage.service', () => {
             category: 'food',
             amount: 200,
             date: '2026-01-15',
-            createdAt: '2026-01-15T12:00:00Z',
+            createdAt: Date.now(),
           },
         ],
       };

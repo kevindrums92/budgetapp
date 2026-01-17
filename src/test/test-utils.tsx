@@ -1,6 +1,6 @@
-import { render, RenderOptions } from '@testing-library/react';
+import { render, type RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 // Custom render function that includes common providers
 function AllTheProviders({ children }: { children: ReactNode }) {
