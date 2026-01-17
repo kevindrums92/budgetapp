@@ -1,4 +1,4 @@
-import { icons } from "lucide-react";
+import { icons, Repeat } from "lucide-react";
 import { formatCOP } from "@/features/transactions/transactions.utils";
 import type { Transaction, Category } from "@/types/budget.types";
 
@@ -50,9 +50,14 @@ export default function TransactionItem({
 
       {/* Info */}
       <div className="min-w-0 flex-1 text-left">
-        <p className="truncate font-semibold text-gray-900 text-sm">
-          {transaction.name}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <p className="truncate font-semibold text-gray-900 text-sm">
+            {transaction.name}
+          </p>
+          {transaction.isRecurring && (
+            <Repeat className="h-3 w-3 shrink-0 text-gray-400" />
+          )}
+        </div>
         <p className="text-xs text-gray-500">
           {category?.name || transaction.category}
         </p>
