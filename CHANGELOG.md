@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.6.2] - 2026-01-17
+
 ### Fixed
 - **Critical Cloud Sync**: Prevent catastrophic data loss on re-login by implementing 4-layer protection:
   - Block push if snapshot is empty (0 transactions and 0 trips)
