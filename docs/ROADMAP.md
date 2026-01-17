@@ -196,10 +196,55 @@ interface CategoryBudget {
 - [ ] Gestión de cuenta (si está logueado)
 - [ ] Backup manual a la nube
 
+### Transacciones Recurrentes ✅
+> Sistema simplificado para replicar gastos/ingresos mensuales - **COMPLETADO en v0.6.0**
+
+**Funcionalidades core:**
+- [x] Campo `isRecurring: boolean` en modelo Transaction
+- [x] Toggle/checkbox "Gasto recurrente mensual" en formulario crear/editar
+- [x] Detección automática al inicio de mes:
+  - Buscar transacciones del mes anterior con `isRecurring: true`
+  - Verificar si ya existen copias en mes actual
+  - Mostrar banner si hay pendientes de replicar
+- [x] Banner de acción con diseño mobile-first:
+  - Tap en banner → modal con lista de transacciones a replicar
+  - Botón X para cerrar/omitir
+  - "Ignorar" → guarda en localStorage flag `recurring.ignored.YYYY-MM`
+- [x] Modal de detalles:
+  - Lista de transacciones recurrentes con checkboxes
+  - Input editable de monto para ajustar antes de replicar
+  - Botón "Replicar (N)" con contador
+- [x] Lógica de replicación:
+  - Mismos datos: nombre, categoría, monto, `isRecurring: true`
+  - Fecha: mismo día del mes anterior pero en mes actual (ej: 2025-01-15 → 2025-02-15)
+  - Nuevo `id` y `createdAt`
+- [x] Indicador visual en TransactionItem para transacciones recurrentes
+
+**Decisiones de diseño:**
+- Editar una transacción recurrente solo afecta esa instancia (no propagación a futuro)
+- Banner se muestra solo una vez por mes (localStorage evita spam)
+- Sin lógica de "fin de recurrencia" - el usuario desmarca manualmente cuando ya no aplique
+
+**Modelo de datos:**
+```typescript
+export type Transaction = {
+  id: string;
+  type: TransactionType;
+  name: string;
+  category: string;
+  amount: number;
+  date: string;
+  notes?: string;
+  isRecurring?: boolean;        // ← IMPLEMENTADO en v0.6.0
+  createdAt: number;
+};
+```
+
+---
+
 ### Mejoras Generales
 - [ ] Búsqueda de transacciones
 - [ ] Filtros avanzados (por fecha, categoría, monto)
-- [ ] Transacciones recurrentes
 - [ ] Tags/etiquetas personalizadas
 - [ ] Múltiples cuentas/billeteras
 - [ ] Widget para home screen (PWA)
@@ -208,7 +253,33 @@ interface CategoryBudget {
 
 ## Changelog
 
-### v0.5.1 (Actual)
+### v0.6.0 (Actual)
+- **Transacciones Recurrentes**
+  - Sistema completo para gestionar gastos e ingresos recurrentes mensuales
+  - Migración de schema v3→v4: nuevo campo `isRecurring?: boolean` en Transaction
+  - Toggle "Gasto recurrente mensual" en formulario de crear/editar transacciones
+  - Detección automática de transacciones recurrentes del mes anterior no replicadas
+  - Banner de notificación con diseño mobile-first:
+    - Gradiente emerald con iconografía moderna
+    - Botón X para omitir/cerrar banner
+    - Tap en banner abre modal de selección
+    - Flag en localStorage para evitar spam (`recurring.ignored.YYYY-MM`)
+  - Modal bottom sheet para revisar y replicar:
+    - Diseño tipo iOS nativo deslizando desde abajo
+    - Lista de transacciones estilo TransactionItem
+    - Checkboxes circulares a la izquierda
+    - Input editable de monto para ajustar antes de replicar
+    - Botón "Replicar (N)" con contador de seleccionadas
+  - Lógica de replicación inteligente:
+    - Preserva día del mes (ej: 2025-01-15 → 2025-02-15)
+    - Maneja edge cases (31 en febrero → 28/29)
+    - Genera nuevo `id` y `createdAt`
+    - Mantiene `isRecurring: true` para siguiente mes
+  - Indicador visual discreto (ícono Repeat) en TransactionItem
+  - Integración completa con HomePage
+  - Cloud sync automático (Supabase maneja campo JSON)
+
+### v0.5.1
 - **Transaction List UX Refactor**
   - Eliminación de menú contextual (long press) en favor de navegación directa
   - Nueva pantalla de detalle de transacción (`/transaction/:id`)

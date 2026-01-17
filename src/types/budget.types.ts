@@ -8,6 +8,7 @@ export type Transaction = {
   amount: number;        // siempre positivo
   date: string;          // YYYY-MM-DD
   notes?: string;        // Optional notes
+  isRecurring?: boolean; // Marca si es una transacción recurrente mensual
   createdAt: number;     // epoch ms
 };
 
@@ -71,7 +72,7 @@ export type Trip = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3;
+  schemaVersion: 1 | 2 | 3 | 4;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects

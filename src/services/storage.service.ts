@@ -81,6 +81,16 @@ export function loadState(): BudgetState | null {
       needsSave = true;
     }
 
+    // Migrate v3 to v4: Add isRecurring field to transactions
+    if (parsed.schemaVersion === 3) {
+      parsed.transactions = parsed.transactions.map((tx: any) => ({
+        ...tx,
+        isRecurring: tx.isRecurring ?? false,
+      }));
+      parsed.schemaVersion = 4;
+      needsSave = true;
+    }
+
     // Ensure all arrays exist
     if (!Array.isArray(parsed.categories)) parsed.categories = [];
     if (!Array.isArray(parsed.trips)) parsed.trips = [];

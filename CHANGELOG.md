@@ -2,6 +2,32 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+## [0.6.0] - 2026-01-17
+
+### Added
+- **Recurring Transactions System**: Complete monthly recurring transaction management
+  - Mark transactions as recurring with toggle in create/edit form
+  - Automatic detection of recurring transactions from previous month not yet replicated
+  - Mobile-first banner notification with emerald gradient design
+  - Bottom sheet modal for reviewing and selecting which transactions to replicate
+  - Editable amount inputs for adjusting values before replication
+  - Visual indicator (Repeat icon) on recurring transaction items
+  - Smart replication logic preserving day of month with edge case handling (e.g., Feb 31 → Feb 28)
+  - localStorage-based ignore functionality per month to prevent spam
+  - Full cloud sync support via Supabase
+
+### Changed
+- Schema migration from v3 to v4: added optional `isRecurring` field to Transaction model
+- RecurringBanner uses X button to dismiss instead of separate action buttons
+- Modal design changed to bottom sheet pattern for better mobile UX
+
+### Technical
+- New service: `recurringTransactions.service.ts` with detection and replication logic
+- New components: `RecurringBanner.tsx`, `RecurringModal.tsx`
+- Updated `TransactionItem.tsx` with recurring indicator
+- Migration logic in `storage.service.ts` for schema v3→v4
+- Updated all BudgetState references to schemaVersion 4
+
 ## [0.5.1] - 2026-01-17
 
 ### Added

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, MessageSquare, Calendar, Tag, FileText } from "lucide-react";
+import { ChevronLeft, MessageSquare, Calendar, Tag, FileText, Repeat } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
@@ -40,6 +40,7 @@ export default function AddEditTransactionPage() {
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(todayISO());
   const [notes, setNotes] = useState("");
+  const [isRecurring, setIsRecurring] = useState(false);
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -53,9 +54,9 @@ export default function AddEditTransactionPage() {
   // Save form draft to sessionStorage
   const saveFormDraft = useCallback(() => {
     if (isEdit) return; // Don't save drafts when editing
-    const draft = { type, name, categoryId, amount, date, notes };
+    const draft = { type, name, categoryId, amount, date, notes, isRecurring };
     sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(draft));
-  }, [type, name, categoryId, amount, date, notes, isEdit]);
+  }, [type, name, categoryId, amount, date, notes, isRecurring, isEdit]);
 
   // Clear form draft
   const clearFormDraft = useCallback(() => {
@@ -73,6 +74,7 @@ export default function AddEditTransactionPage() {
       setAmount(String(tx.amount));
       setDate(tx.date);
       setNotes(tx.notes || "");
+      setIsRecurring(tx.isRecurring || false);
       setInitialized(true);
       return;
     }
@@ -92,6 +94,7 @@ export default function AddEditTransactionPage() {
         setAmount(draft.amount || "");
         setDate(draft.date || todayISO());
         setNotes(draft.notes || "");
+        setIsRecurring(draft.isRecurring || false);
         clearFormDraft();
         setInitialized(true);
         return;
@@ -144,6 +147,7 @@ export default function AddEditTransactionPage() {
         amount: amountNumber,
         date,
         notes: trimmedNotes || undefined,
+        isRecurring,
       });
     } else {
       addTransaction({
@@ -153,6 +157,7 @@ export default function AddEditTransactionPage() {
         amount: amountNumber,
         date,
         notes: trimmedNotes || undefined,
+        isRecurring,
       });
     }
     goBack();
@@ -319,6 +324,42 @@ export default function AddEditTransactionPage() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Recurring Toggle */}
+          <div className="py-4">
+            <button
+              type="button"
+              onClick={() => setIsRecurring(!isRecurring)}
+              className="flex w-full items-center gap-4 active:bg-gray-50 rounded-lg -mx-2 px-2 py-1"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                <Repeat className="h-5 w-5 text-gray-500" />
+              </div>
+              <div className="flex-1 text-left">
+                <p
+                  className={`text-sm font-medium transition-colors ${
+                    isRecurring ? "text-gray-900" : "text-gray-700"
+                  }`}
+                >
+                  Gasto recurrente mensual
+                </p>
+                <p className="mt-0.5 text-xs text-gray-500">
+                  Se te recordará replicarlo cada mes
+                </p>
+              </div>
+              <div
+                className={`relative h-8 w-14 shrink-0 rounded-full transition-all duration-200 ${
+                  isRecurring ? "bg-emerald-500" : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${
+                    isRecurring ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </div>
+            </button>
           </div>
         </div>
       </div>
