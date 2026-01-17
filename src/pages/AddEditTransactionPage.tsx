@@ -39,6 +39,7 @@ export default function AddEditTransactionPage() {
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(todayISO());
+  const [notes, setNotes] = useState("");
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -52,9 +53,9 @@ export default function AddEditTransactionPage() {
   // Save form draft to sessionStorage
   const saveFormDraft = useCallback(() => {
     if (isEdit) return; // Don't save drafts when editing
-    const draft = { type, name, categoryId, amount, date };
+    const draft = { type, name, categoryId, amount, date, notes };
     sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(draft));
-  }, [type, name, categoryId, amount, date, isEdit]);
+  }, [type, name, categoryId, amount, date, notes, isEdit]);
 
   // Clear form draft
   const clearFormDraft = useCallback(() => {
@@ -71,6 +72,7 @@ export default function AddEditTransactionPage() {
       setCategoryId(tx.category);
       setAmount(String(tx.amount));
       setDate(tx.date);
+      setNotes(tx.notes || "");
       setInitialized(true);
       return;
     }
@@ -89,6 +91,7 @@ export default function AddEditTransactionPage() {
         setCategoryId(newCategoryId || draft.categoryId);
         setAmount(draft.amount || "");
         setDate(draft.date || todayISO());
+        setNotes(draft.notes || "");
         clearFormDraft();
         setInitialized(true);
         return;
@@ -131,6 +134,8 @@ export default function AddEditTransactionPage() {
   function handleSave() {
     if (!canSave) return;
 
+    const trimmedNotes = notes.trim();
+
     if (tx) {
       updateTransaction(tx.id, {
         type,
@@ -138,6 +143,7 @@ export default function AddEditTransactionPage() {
         category: categoryId || "",
         amount: amountNumber,
         date,
+        notes: trimmedNotes || undefined,
       });
     } else {
       addTransaction({
@@ -146,6 +152,7 @@ export default function AddEditTransactionPage() {
         category: categoryId || "",
         amount: amountNumber,
         date,
+        notes: trimmedNotes || undefined,
       });
     }
     goBack();
@@ -305,6 +312,8 @@ export default function AddEditTransactionPage() {
                 </label>
                 <input
                   type="text"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                   placeholder="Agregar notas... (opcional)"
                   className="w-full border-0 p-0 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
                 />

@@ -7,6 +7,7 @@ export type Transaction = {
   category: string;      // Category ID (or legacy string name)
   amount: number;        // siempre positivo
   date: string;          // YYYY-MM-DD
+  notes?: string;        // Optional notes
   createdAt: number;     // epoch ms
 };
 

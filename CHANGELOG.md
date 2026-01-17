@@ -2,6 +2,48 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+## [0.5.1] - 2026-01-17
+
+### Added
+- **Transaction Detail Page**: New full-screen detail view for transactions
+  - Navigate to transaction detail by tapping any transaction in the list
+  - View all transaction information (name, category, amount, type, date, notes)
+  - Edit and Delete buttons in header for quick actions
+  - Clean, card-based layout with rounded corners and shadows
+  - Automatic redirect if transaction doesn't exist
+- **Transaction Notes Support**: Optional notes field for transactions
+  - Input field in create/edit transaction form
+  - Persists to localStorage and cloud sync
+  - Displays in transaction detail page when present
+  - Draft support when navigating away from form
+- **Date Grouping Helpers**: Smart date formatting for transaction groups
+  - "Hoy" for today's transactions
+  - "Ayer" for yesterday's transactions
+  - "Viernes, 12 Abr" format for older dates
+  - `formatDateGroupHeader()` and `formatTime()` utilities in dates.service
+
+### Changed
+- **Transaction List Redesign**: Complete UX overhaul inspired by modern finance apps
+  - Removed context menu (long press) in favor of direct navigation
+  - Gray background (`bg-gray-50`) for better visual hierarchy
+  - Transactions grouped by date with semantic headers
+  - White rounded cards (`rounded-xl`) with subtle shadows
+  - Compact transaction items (40x40px icons, smaller text)
+  - Layout: name + category on left, amount on right
+  - No dividing lines between transactions
+  - Reduced item height to show more transactions on screen
+  - Performance optimized with `useMemo` for grouping logic
+- HomePage background changed to gray for consistency
+- Transaction type definition now includes optional `notes` field
+
+### Technical
+- New component: `TransactionItem.tsx` (extracted from TransactionList)
+- New page: `TransactionDetailPage.tsx` with detail view
+- New route: `/transaction/:id`
+- Updated `AddTxInput` type to include optional notes
+- Transaction grouping logic in TransactionList using `useMemo`
+- TypeScript errors fixed (unused imports removed)
+
 ## [0.5.0] - 2026-01-17
 
 ### Added

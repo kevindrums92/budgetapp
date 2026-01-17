@@ -42,11 +42,7 @@ export default function HeaderBalance() {
       else expense += t.amount;
     }
 
-    // Calculate percentage for progress bar
-    const total = income + expense;
-    const incomePercent = total > 0 ? (income / total) * 100 : 50;
-
-    return { income, expense, balance: income - expense, incomePercent };
+    return { income, expense, balance: income - expense };
   }, [transactions, selectedMonth]);
 
   const balanceColor = totals.balance >= 0 ? "text-emerald-600" : "text-red-500";
@@ -87,22 +83,11 @@ export default function HeaderBalance() {
           <p className="text-xs text-gray-400 mt-1">balance</p>
         </div>
 
-        {/* Progress bar */}
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-3">
-          <div
-            className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-300"
-            style={{ width: `${totals.incomePercent}%` }}
-          />
-        </div>
-
         {/* Income / Expense cards */}
         <div className="grid grid-cols-2 gap-3">
           {/* Income Card */}
           <div className="bg-emerald-50 rounded-xl px-3 py-2.5 border border-emerald-100">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center">
-                <ChevronRight size={12} className="text-emerald-600 -rotate-90" />
-              </div>
               <span className="text-xs text-emerald-700">Ingresos</span>
             </div>
             <p className="text-base font-bold text-emerald-700">
@@ -113,9 +98,6 @@ export default function HeaderBalance() {
           {/* Expense Card */}
           <div className="bg-red-50 rounded-xl px-3 py-2.5 border border-red-100">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <div className="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center">
-                <ChevronRight size={12} className="text-red-600 rotate-90" />
-              </div>
               <span className="text-xs text-red-700">Gastos</span>
             </div>
             <p className="text-base font-bold text-red-700">

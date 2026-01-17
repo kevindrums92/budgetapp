@@ -8,9 +8,9 @@ export default function HomePage() {
   const [addSheetOpen, setAddSheetOpen] = useState(false);
 
   return (
-    <div>
+    <div className="bg-gray-50 min-h-screen">
       <HeaderBalance />
-      <main className="mx-auto max-w-xl px-4 pb-28">
+      <main className="pb-28 pt-4">
         <TransactionList />
       </main>
 

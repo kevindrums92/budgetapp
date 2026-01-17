@@ -24,6 +24,7 @@ type AddTxInput = {
   category: string;
   amount: number;
   date: string; // YYYY-MM-DD
+  notes?: string;
 };
 
 type AddTripInput = {
@@ -192,6 +193,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         category,
         amount: Math.round(input.amount),
         date: input.date,
+        notes: input.notes,
         createdAt: Date.now(),
       };
 
