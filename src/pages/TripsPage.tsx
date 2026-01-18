@@ -28,7 +28,6 @@ export default function TripsPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<Trip | null>(null);
 
-  // Separar viaje activo del resto
   const { activeTrip, otherTrips } = useMemo(() => {
     const active = trips.find((t) => t.status === "active") ?? null;
     const others = trips
@@ -37,7 +36,6 @@ export default function TripsPage() {
     return { activeTrip: active, otherTrips: others };
   }, [trips]);
 
-  // Calcular gastos por viaje
   function getTripSpent(tripId: string) {
     return tripExpenses
       .filter((e) => e.tripId === tripId)
@@ -75,82 +73,89 @@ export default function TripsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-4 pt-4 pb-28">
-      {/* Header con botón agregar */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-lg font-semibold">Mis Viajes</h2>
-          <p className="text-xs text-gray-500">Planifica y trackea tus gastos</p>
+    <div className="bg-gray-50 min-h-screen">
+      <main className="pb-28">
+        <div className="mx-auto max-w-xl px-4">
+          {/* Header con título (siempre visible cuando hay viajes) */}
+          {trips.length > 0 && (
+            <div className="pt-6 pb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Mis Viajes</h2>
+              <p className="text-xs text-gray-500">Planifica y trackea tus gastos</p>
+            </div>
+          )}
+
+          {/* Viaje activo destacado */}
+          {activeTrip && (
+            <div className="mb-6">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+                Viaje actual
+              </p>
+              <ActiveTripCard
+                trip={activeTrip}
+                spent={getTripSpent(activeTrip.id)}
+                formatDateRange={formatDateRange}
+                onView={() => navigate(`/trips/${activeTrip.id}`)}
+                onEdit={() => navigate(`/trips/${activeTrip.id}/edit`)}
+                onDelete={() => onAskDelete(activeTrip)}
+              />
+            </div>
+          )}
+
+          {/* Lista de otros viajes */}
+          {otherTrips.length > 0 && (
+            <div className={activeTrip ? "" : "mt-0"}>
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+                {activeTrip ? "Otros viajes" : "Próximos viajes"}
+              </p>
+              <div className="space-y-2">
+                {otherTrips.map((trip) => (
+                  <TripCard
+                    key={trip.id}
+                    trip={trip}
+                    spent={getTripSpent(trip.id)}
+                    formatDateRange={formatDateRange}
+                    onView={() => navigate(`/trips/${trip.id}`)}
+                    onEdit={() => navigate(`/trips/${trip.id}/edit`)}
+                    onDelete={() => onAskDelete(trip)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {trips.length === 0 && (
+            <div className="rounded-xl bg-white p-8 text-center shadow-sm mt-6">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                <Plane size={24} className="text-gray-400" />
+              </div>
+              <p className="font-medium text-gray-700">No tienes viajes</p>
+              <p className="mt-1 text-sm text-gray-500">
+                Crea tu primer viaje para empezar a trackear gastos
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate("/trips/new")}
+                className="mt-4 rounded-full bg-black px-6 py-2 text-sm font-medium text-white active:scale-[0.98] transition-transform"
+              >
+                Crear viaje
+              </button>
+            </div>
+          )}
         </div>
+      </main>
+
+      {/* FAB para agregar viajes (solo cuando ya existen viajes) */}
+      {trips.length > 0 && (
         <button
           type="button"
           onClick={() => navigate("/trips/new")}
-          className="flex items-center gap-1.5 rounded-full bg-black px-4 py-2 text-sm font-medium text-white active:scale-[0.98]"
+          className="fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-black text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] active:scale-95 transition-transform"
+          style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+          aria-label="Nuevo viaje"
         >
-          <Plus size={16} />
-          Nuevo
+          <Plus size={26} strokeWidth={2.2} />
         </button>
-      </div>
-
-      {/* Viaje activo destacado */}
-      {activeTrip && (
-        <div className="mb-6">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-            Viaje actual
-          </p>
-          <ActiveTripCard
-            trip={activeTrip}
-            spent={getTripSpent(activeTrip.id)}
-            formatDateRange={formatDateRange}
-            onView={() => navigate(`/trips/${activeTrip.id}`)}
-            onEdit={() => navigate(`/trips/${activeTrip.id}/edit`)}
-            onDelete={() => onAskDelete(activeTrip)}
-          />
-        </div>
-      )}
-
-      {/* Lista de otros viajes */}
-      {otherTrips.length > 0 && (
-        <div>
-          {activeTrip && (
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-              Otros viajes
-            </p>
-          )}
-          <div className="space-y-2">
-            {otherTrips.map((trip) => (
-              <TripCard
-                key={trip.id}
-                trip={trip}
-                spent={getTripSpent(trip.id)}
-                formatDateRange={formatDateRange}
-                onView={() => navigate(`/trips/${trip.id}`)}
-                onEdit={() => navigate(`/trips/${trip.id}/edit`)}
-                onDelete={() => onAskDelete(trip)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Empty state */}
-      {trips.length === 0 && (
-        <div className="border bg-white p-8 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-            <Plane size={24} className="text-gray-400" />
-          </div>
-          <p className="font-medium text-gray-700">No tienes viajes</p>
-          <p className="mt-1 text-sm text-gray-500">
-            Crea tu primer viaje para empezar a trackear gastos
-          </p>
-          <button
-            type="button"
-            onClick={() => navigate("/trips/new")}
-            className="mt-4 rounded-full bg-black px-6 py-2 text-sm font-medium text-white active:scale-[0.98]"
-          >
-            Crear viaje
-          </button>
-        </div>
       )}
 
       {/* Confirm delete dialog */}
@@ -175,7 +180,6 @@ export default function TripsPage() {
   );
 }
 
-// Card destacado para viaje activo
 function ActiveTripCard({
   trip,
   spent,
@@ -197,7 +201,7 @@ function ActiveTripCard({
 
   return (
     <div
-      className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl cursor-pointer active:scale-[0.99] transition-transform"
+      className="rounded-xl border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 cursor-pointer active:scale-[0.99] transition-transform shadow-sm"
       onClick={onView}
     >
       <div className="flex items-start justify-between mb-3">
@@ -251,7 +255,6 @@ function ActiveTripCard({
   );
 }
 
-// Card normal para otros viajes
 function TripCard({
   trip,
   spent,
@@ -271,7 +274,7 @@ function TripCard({
 
   return (
     <div
-      className="border bg-white p-3 cursor-pointer active:scale-[0.99] transition-transform"
+      className="rounded-xl bg-white p-3 cursor-pointer active:scale-[0.99] transition-transform shadow-sm"
       onClick={onView}
     >
       <div className="flex items-start justify-between">

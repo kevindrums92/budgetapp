@@ -4,6 +4,8 @@ import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 import type { TripStatus } from "@/types/budget.types";
 import PageHeader from "@/components/PageHeader";
+import DatePicker from "@/components/DatePicker";
+import { Calendar } from "lucide-react";
 
 const STATUS_OPTIONS: { value: TripStatus; label: string }[] = [
   { value: "planning", label: "Planificando" },
@@ -32,7 +34,9 @@ export default function AddEditTripPage() {
   const [endDate, setEndDate] = useState<string>("");
   const [status, setStatus] = useState<TripStatus>("active");
 
-  // Precarga / Reset
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+
   useEffect(() => {
     if (trip) {
       setName(trip.name);
@@ -43,7 +47,6 @@ export default function AddEditTripPage() {
       setStatus(trip.status);
       return;
     }
-    // creando
     setName("");
     setDestination("");
     setBudget("");
@@ -52,7 +55,6 @@ export default function AddEditTripPage() {
     setStatus("active");
   }, [trip]);
 
-  // Si intentan entrar a /trips/:id/edit que no existe => volvemos
   useEffect(() => {
     if (isEdit && !trip) navigate("/trips", { replace: true });
   }, [isEdit, trip, navigate]);
@@ -97,98 +99,119 @@ export default function AddEditTripPage() {
     navigate("/trips", { replace: true });
   }
 
+  function formatDate(dateStr: string) {
+    if (!dateStr) return "";
+    const date = new Date(dateStr + "T12:00:00");
+    return date.toLocaleDateString("es-CO", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
   return (
-    <div className="min-h-[100dvh] bg-white">
-      {/* Top bar */}
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <PageHeader
-        title={
-          <div className="flex flex-col -mt-1">
-            <span className="font-semibold text-gray-900">
-              {trip ? "Editar viaje" : "Nuevo viaje"}
-            </span>
-            <span className="text-[11px] text-gray-500">
-              {trip ? "Actualiza los datos" : "Crea un viaje para trackear gastos"}
-            </span>
-          </div>
-        }
+        title={trip ? "Editar viaje" : "Nuevo viaje"}
         onBack={goBack}
       />
 
-      {/* Content */}
-      <div className="mx-auto max-w-xl px-4 py-4 pb-36">
+      <div className="flex-1 px-4 pt-6 pb-8">
         <div className="space-y-4">
           {/* Nombre */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Nombre del viaje</label>
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            <label className="mb-1 block text-xs font-medium text-gray-500">
+              Nombre del viaje
+            </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ej: San Andrés 2026, Europa Verano..."
-              className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
+              className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
 
           {/* Destino */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Destino</label>
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            <label className="mb-1 block text-xs font-medium text-gray-500">
+              Destino
+            </label>
             <input
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
               placeholder="Ej: San Andrés, Colombia"
-              className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
+              className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
 
           {/* Presupuesto */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Presupuesto</label>
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            <label className="mb-1 block text-xs font-medium text-gray-500">
+              Presupuesto
+            </label>
             <input
               value={budget}
               onChange={(e) => setBudget(e.target.value)}
               inputMode="numeric"
               placeholder="Ej: 2000000"
-              className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
+              className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
-            <p className="mt-1 text-[11px] text-gray-500">
+            <p className="mt-1 text-xs text-gray-400">
               Cuánto planeas gastar en total (sin puntos ni comas).
             </p>
           </div>
 
           {/* Fechas */}
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm font-medium">Fecha inicio</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
-              />
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowStartDatePicker(true)}
+              className="rounded-2xl bg-white p-4 shadow-sm text-left"
+            >
+              <label className="mb-1 block text-xs font-medium text-gray-500">
+                Fecha inicio
+              </label>
+              <div className="flex items-center gap-2">
+                <Calendar size={18} className="text-gray-400" />
+                <span className="text-base text-gray-900">
+                  {formatDate(startDate)}
+                </span>
+              </div>
+            </button>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium">Fecha fin</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full border px-3 py-2 text-sm outline-none focus:border-[#18B7B0]"
-              />
-              <p className="mt-1 text-[11px] text-gray-500">Opcional</p>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowEndDatePicker(true)}
+              className="rounded-2xl bg-white p-4 shadow-sm text-left"
+            >
+              <label className="mb-1 block text-xs font-medium text-gray-500">
+                Fecha fin
+              </label>
+              <div className="flex items-center gap-2">
+                <Calendar size={18} className="text-gray-400" />
+                <span className={`text-base ${endDate ? "text-gray-900" : "text-gray-400"}`}>
+                  {endDate ? formatDate(endDate) : "Opcional"}
+                </span>
+              </div>
+            </button>
           </div>
 
           {/* Estado */}
           <div>
-            <label className="mb-1 block text-sm font-medium">Estado</label>
-            <div className="grid grid-cols-3 gap-2">
+            <label className="mb-2 block text-xs font-medium text-gray-500">
+              Estado
+            </label>
+            <div className="flex gap-2">
               {STATUS_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
                   onClick={() => setStatus(opt.value)}
-                  className={`border px-3 py-2 text-sm font-medium ${
-                    status === opt.value ? "bg-black text-white" : "bg-white text-gray-900"
+                  className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+                    status === opt.value
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-600"
                   }`}
                 >
                   {opt.label}
@@ -200,28 +223,33 @@ export default function AddEditTripPage() {
       </div>
 
       {/* Footer actions */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-white">
-        <div className="mx-auto max-w-xl px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={goBack}
-              className="w-full border px-4 py-2 text-sm font-semibold"
-            >
-              Cancelar
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!canSave}
-              className="w-full bg-black px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
-            >
-              {trip ? "Guardar cambios" : "Crear viaje"}
-            </button>
-          </div>
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <div className="mx-auto max-w-xl px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!canSave}
+            className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300"
+          >
+            {trip ? "Guardar cambios" : "Crear viaje"}
+          </button>
         </div>
       </div>
+
+      {/* Date pickers */}
+      <DatePicker
+        open={showStartDatePicker}
+        onClose={() => setShowStartDatePicker(false)}
+        value={startDate}
+        onChange={setStartDate}
+      />
+
+      <DatePicker
+        open={showEndDatePicker}
+        onClose={() => setShowEndDatePicker(false)}
+        value={endDate || todayISO()}
+        onChange={setEndDate}
+      />
     </div>
   );
 }

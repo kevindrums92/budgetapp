@@ -38,6 +38,33 @@ All notable changes to SmartSpend will be documented in this file.
   - Delete button moved to edit page header with ConfirmDialog
   - Removed TransactionDetailPage.tsx and `/transaction/:id` route
   - Streamlined navigation flow: tap transaction → edit immediately
+- **Trips Module Refactoring**: Complete redesign following CLAUDE.md guidelines
+  - **DatePicker Component**: All date inputs now use custom DatePicker modal instead of native `<input type="date">`
+    - Spanish locale (es-CO) with readable format
+    - Mobile-optimized calendar UI with year picker
+    - Consistent UX across AddEditTripPage and AddEditTripExpensePage
+    - CLAUDE.md updated with DatePicker pattern and usage guidelines
+  - **TripsPage Layout**: Improved visual hierarchy
+    - Added persistent "Mis Viajes" header when trips exist
+    - Dynamic section titles: "Viaje actual" / "Próximos viajes" / "Otros viajes"
+    - FAB (Floating Action Button) appears only when trips exist
+    - Empty state shows centered "Crear viaje" button
+  - **TripDetailPage UX**: Aligned with TransactionList pattern
+    - Expense items now clickable buttons (navigate to edit on tap)
+    - Removed 3-dot menu (RowMenu) from expense list
+    - Delete button moved to PageHeader in AddEditTripExpensePage
+    - FAB appears only when expenses exist (empty state shows centered button)
+    - Section header "GASTOS (n)" only visible when expenses exist
+  - **AddEditTripExpensePage**: Delete functionality in header
+    - Trash icon button in PageHeader rightActions (edit mode only)
+    - ConfirmDialog for delete confirmation
+    - Consistent with AddEditTransactionPage pattern
+  - **Design System Compliance**: All pages now follow CLAUDE.md specifications
+    - Correct page structure: `flex min-h-screen flex-col bg-gray-50`
+    - Proper content padding: `flex-1 px-4 pt-6 pb-8`
+    - FAB specs: z-40, safe-area-inset, correct shadow
+    - Border radius: rounded-xl for cards, rounded-2xl for buttons
+    - Spanish locale (es-CO) for all date formatting
 
 ## [0.6.2] - 2026-01-17
 

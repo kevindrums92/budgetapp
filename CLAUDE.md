@@ -473,6 +473,73 @@ Used for action selection, pickers (AddActionSheet, CategoryPickerDrawer).
 </div>
 ```
 
+**Date Input (ALWAYS use DatePicker component)**:
+
+CRITICAL: NEVER use native `<input type="date">`. Always use the custom `DatePicker` component for all date selections.
+
+**Pattern**:
+```tsx
+import DatePicker from "@/components/DatePicker";
+import { Calendar } from "lucide-react";
+import { useState } from "react";
+
+// In component:
+const [date, setDate] = useState(todayISO());
+const [showDatePicker, setShowDatePicker] = useState(false);
+
+// Helper to format date for display
+function formatDate(dateStr: string) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr + "T12:00:00");
+  return date.toLocaleDateString("es-CO", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+// Date button (clickable card)
+<button
+  type="button"
+  onClick={() => setShowDatePicker(true)}
+  className="rounded-2xl bg-white p-4 shadow-sm text-left"
+>
+  <label className="mb-1 block text-xs font-medium text-gray-500">
+    Fecha
+  </label>
+  <div className="flex items-center gap-2">
+    <Calendar size={18} className="text-gray-400" />
+    <span className="text-base text-gray-900">
+      {formatDate(date)}
+    </span>
+  </div>
+</button>
+
+// DatePicker component (at end of component, before closing div)
+<DatePicker
+  open={showDatePicker}
+  onClose={() => setShowDatePicker(false)}
+  value={date}
+  onChange={setDate}
+/>
+```
+
+**DatePicker Props**:
+- `open`: boolean - Controls visibility
+- `onClose`: () => void - Close handler
+- `value`: string - Date in YYYY-MM-DD format
+- `onChange`: (date: string) => void - Returns date in YYYY-MM-DD format
+
+**DatePicker Features**:
+- Custom modal calendar UI (not native datepicker)
+- Spanish locale (es-CO)
+- Year picker with scroll
+- Month/day grid navigation
+- Mobile-optimized touch targets
+- Automatic animation on open/close
+- Z-index: `z-[80]` (higher than modals)
+
 #### Cards & Containers
 
 **Page Background**: `bg-gray-50` (NEVER use `bg-white` for pages)

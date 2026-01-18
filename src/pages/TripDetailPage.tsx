@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/features/transactions/transactions.utils";
@@ -13,9 +13,7 @@ import {
   Ticket,
   HelpCircle,
 } from "lucide-react";
-import type { TripExpense, TripExpenseCategory } from "@/types/budget.types";
-import ConfirmDialog from "@/components/ConfirmDialog";
-import RowMenu from "@/components/RowMenu";
+import type { TripExpenseCategory } from "@/types/budget.types";
 import PageHeader from "@/components/PageHeader";
 
 const CATEGORY_CONFIG: Record<
@@ -36,10 +34,6 @@ export default function TripDetailPage() {
 
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
-  const deleteTripExpense = useBudgetStore((s) => s.deleteTripExpense);
-
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [expenseToDelete, setExpenseToDelete] = useState<TripExpense | null>(null);
 
   const trip = useMemo(() => {
     if (!params.id) return null;
@@ -68,22 +62,9 @@ export default function TripDetailPage() {
     return map;
   }, [expenses]);
 
-  // Si el viaje no existe => volvemos
   useEffect(() => {
     if (!trip && params.id) navigate("/trips", { replace: true });
   }, [trip, params.id, navigate]);
-
-  function onAskDelete(expense: TripExpense) {
-    setExpenseToDelete(expense);
-    setConfirmOpen(true);
-  }
-
-  function onConfirmDelete() {
-    if (!expenseToDelete) return;
-    deleteTripExpense(expenseToDelete.id);
-    setConfirmOpen(false);
-    setExpenseToDelete(null);
-  }
 
   if (!trip) return null;
 
@@ -101,8 +82,7 @@ export default function TripDetailPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-white">
-      {/* Top bar */}
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <PageHeader
         title={
           <div className="flex flex-col -mt-1">
@@ -116,9 +96,9 @@ export default function TripDetailPage() {
         onBack={() => navigate("/trips")}
       />
 
-      {/* Budget summary */}
-      <div className="border-b bg-gray-50">
-        <div className="mx-auto max-w-xl px-4 py-4">
+      <div className="flex-1 px-4 pt-6 pb-8">
+        {/* Budget summary */}
+        <div className="rounded-xl bg-white p-4 shadow-sm mb-6">
           {/* Progress */}
           <div className="mb-3">
             <div className="flex justify-between text-sm mb-1">
@@ -160,12 +140,10 @@ export default function TripDetailPage() {
             </span>
           </div>
         </div>
-      </div>
 
-      {/* Category breakdown */}
-      {Object.keys(spentByCategory).length > 0 && (
-        <div className="border-b">
-          <div className="mx-auto max-w-xl px-4 py-3">
+        {/* Category breakdown */}
+        {Object.keys(spentByCategory).length > 0 && (
+          <div className="mb-6">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
               Por categoría
             </p>
@@ -177,7 +155,7 @@ export default function TripDetailPage() {
                   return (
                     <div
                       key={cat}
-                      className="flex items-center gap-1.5 rounded-full bg-gray-50 px-2.5 py-1"
+                      className="flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 shadow-sm"
                     >
                       <div className={`rounded-full p-1 ${config.color}`}>
                         <Icon size={10} />
@@ -189,104 +167,76 @@ export default function TripDetailPage() {
               )}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Expenses list */}
-      <div className="mx-auto max-w-xl px-4 py-4 pb-28">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-            Gastos ({expenses.length})
-          </p>
-          <button
-            type="button"
-            onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
-            className="flex items-center gap-1 text-xs font-medium text-[#18B7B0]"
-          >
-            <Plus size={14} />
-            Agregar
-          </button>
-        </div>
-
-        {expenses.length === 0 ? (
-          <div className="border bg-white p-6 text-center">
-            <p className="text-sm text-gray-500">
-              Aún no hay gastos registrados en este viaje.
+        {/* Expenses list */}
+        <div>
+          {expenses.length > 0 && (
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
+              Gastos ({expenses.length})
             </p>
-            <button
-              type="button"
-              onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
-              className="mt-3 rounded-full bg-black px-4 py-2 text-sm font-medium text-white active:scale-[0.98]"
-            >
-              Agregar gasto
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {expenses.map((e) => {
-              const config = CATEGORY_CONFIG[e.category];
-              const Icon = config.icon;
-              return (
-                <div
-                  key={e.id}
-                  className="flex items-center justify-between gap-3 border bg-white p-3"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={`shrink-0 rounded-full p-2 ${config.color}`}>
-                      <Icon size={16} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{e.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {config.label} • {formatDate(e.date)}
-                      </p>
-                    </div>
-                  </div>
+          )}
 
-                  <div className="flex items-center gap-2">
+          {expenses.length === 0 ? (
+            <div className="rounded-xl bg-white p-6 text-center shadow-sm">
+              <p className="text-sm text-gray-500">
+                Aún no hay gastos registrados en este viaje.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
+                className="mt-3 rounded-full bg-black px-4 py-2 text-sm font-medium text-white active:scale-[0.98] transition-transform"
+              >
+                Agregar gasto
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {expenses.map((e) => {
+                const config = CATEGORY_CONFIG[e.category];
+                const Icon = config.icon;
+                return (
+                  <button
+                    key={e.id}
+                    type="button"
+                    onClick={() => navigate(`/trips/${trip.id}/expense/${e.id}/edit`)}
+                    className="w-full flex items-center justify-between gap-3 rounded-xl bg-white p-3 shadow-sm active:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`shrink-0 rounded-full p-2 ${config.color}`}>
+                        <Icon size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-gray-900">{e.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {config.label} • {formatDate(e.date)}
+                        </p>
+                      </div>
+                    </div>
+
                     <span className="whitespace-nowrap font-semibold text-gray-900">
                       {formatCOP(e.amount)}
                     </span>
-                    <RowMenu
-                      onEdit={() => navigate(`/trips/${trip.id}/expense/${e.id}/edit`)}
-                      onDelete={() => onAskDelete(e)}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* FAB para agregar */}
-      <button
-        type="button"
-        onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
-        className="fixed bottom-24 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-black text-white shadow-lg active:scale-[0.98]"
-        aria-label="Agregar gasto"
-      >
-        <Plus size={24} />
-      </button>
-
-      {/* Confirm delete dialog */}
-      <ConfirmDialog
-        open={confirmOpen}
-        title="Eliminar gasto"
-        message={
-          expenseToDelete
-            ? `¿Seguro que deseas eliminar "${expenseToDelete.name}" por ${formatCOP(expenseToDelete.amount)}?`
-            : "¿Seguro que deseas eliminar este gasto?"
-        }
-        confirmText="Eliminar"
-        cancelText="Cancelar"
-        destructive
-        onConfirm={onConfirmDelete}
-        onClose={() => {
-          setConfirmOpen(false);
-          setExpenseToDelete(null);
-        }}
-      />
+      {/* FAB para agregar (solo cuando ya hay gastos) */}
+      {expenses.length > 0 && (
+        <button
+          type="button"
+          onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
+          className="fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-black text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] active:scale-95 transition-transform"
+          style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+          aria-label="Agregar gasto"
+        >
+          <Plus size={26} strokeWidth={2.2} />
+        </button>
+      )}
     </div>
   );
 }
