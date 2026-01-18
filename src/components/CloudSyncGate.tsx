@@ -11,6 +11,7 @@ import {
 import { createDefaultCategories } from "@/constants/default-categories";
 import { createDefaultCategoryGroups } from "@/constants/default-category-groups";
 import BackupScheduler from "@/components/BackupScheduler";
+import CloudBackupScheduler from "@/components/CloudBackupScheduler";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
@@ -329,5 +330,12 @@ export default function CloudSyncGate() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, categories, categoryDefinitions, categoryGroups, trips, tripExpenses]);
 
-  return <BackupScheduler />;
+  const mode = useBudgetStore.getState().cloudMode;
+
+  return (
+    <>
+      <BackupScheduler />
+      {mode === "cloud" && <CloudBackupScheduler />}
+    </>
+  );
 }

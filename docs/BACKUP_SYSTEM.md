@@ -899,12 +899,12 @@ async function handleRestore(backup: BackupFile) {
 - [x] BackupScheduler component integrated in CloudSyncGate
 - [x] LocalBackupList component in Settings page
 
-### Phase 3: Cloud (v0.8.0)
-- [ ] Supabase user_backups table
-- [ ] cloudBackup.service.ts
-- [ ] Weekly cloud backups
-- [ ] Cloud backup list UI
-- [ ] Pre-migration backups
+### Phase 3: Cloud (v0.8.0) ✅
+- [x] Supabase user_backups table
+- [x] cloudBackup.service.ts
+- [x] Weekly cloud backups
+- [x] Cloud backup list UI
+- [x] Pre-migration backups
 
 ### Phase 4: Advanced (v0.8.1)
 - [ ] Backup compression

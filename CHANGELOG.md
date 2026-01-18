@@ -18,6 +18,14 @@ All notable changes to SmartSpend will be documented in this file.
   - One-click restore from local backups with automatic safety backup
   - Smart backup pruning (keeps last 5, max 5MB total)
   - Visual feedback with formatted dates and file sizes
+- **Backup & Restore System (Phase 3 - Cloud)**: Cloud backup functionality
+  - CloudBackupScheduler component for automatic weekly cloud backups (every 7 days)
+  - CloudBackupList component showing all cloud backups with restore/delete actions
+  - Manual cloud backup creation via "Crear Backup" button
+  - Supabase user_backups table with RLS policies for secure storage
+  - Automatic cleanup of backups older than 30 days
+  - Cloud backups only visible for authenticated users (cloudMode === "cloud")
+  - Mobile-first modals for all confirmation dialogs
 
 ## [0.6.2] - 2026-01-17
 
