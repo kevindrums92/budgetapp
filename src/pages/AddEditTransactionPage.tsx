@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -25,6 +25,7 @@ export default function AddEditTransactionPage() {
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const isEdit = Boolean(params.id);
 
   const addTransaction = useBudgetStore((s) => s.addTransaction);
@@ -68,11 +69,12 @@ export default function AddEditTransactionPage() {
     sessionStorage.removeItem(FORM_STORAGE_KEY);
   }, []);
 
-  // Preload from URL param, existing transaction, or saved draft
+  // Load form data on mount
   useEffect(() => {
     if (initialized) return;
 
     if (tx) {
+      // Editing existing transaction
       setType(tx.type);
       setName(tx.name);
       setCategoryId(tx.category);
@@ -80,51 +82,61 @@ export default function AddEditTransactionPage() {
       setDate(tx.date);
       setNotes(tx.notes || "");
       setIsRecurring(tx.isRecurring || false);
-      setInitialized(true);
-      return;
+    } else {
+      // New transaction - check URL params
+      const typeParam = searchParams.get("type");
+      if (typeParam === "income" || typeParam === "expense") {
+        setType(typeParam);
+      }
     }
 
-    // Check if returning from category creation with a new category
+    setInitialized(true);
+  }, [initialized, tx, searchParams]);
+
+  // Check for draft/new category when returning from category creation
+  useEffect(() => {
+    if (isEdit || !initialized) return;
+
     const newCategoryId = sessionStorage.getItem("newCategoryId");
+    const savedDraft = sessionStorage.getItem(FORM_STORAGE_KEY);
+
     if (newCategoryId) {
       sessionStorage.removeItem("newCategoryId");
-    }
 
-    // Check for saved draft first (for when returning from category creation)
-    const savedDraft = sessionStorage.getItem(FORM_STORAGE_KEY);
-    if (savedDraft) {
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft);
+          setType(draft.type || "expense");
+          setName(draft.name || "");
+          setCategoryId(newCategoryId); // Use new category
+          setAmount(draft.amount || "");
+          setDate(draft.date || todayISO());
+          setNotes(draft.notes || "");
+          setIsRecurring(draft.isRecurring || false);
+        } catch {
+          // Invalid draft, just set new category
+          setCategoryId(newCategoryId);
+        }
+      } else {
+        // Only new category, no draft
+        setCategoryId(newCategoryId);
+      }
+    } else if (savedDraft) {
+      // No new category but there's a draft (user cancelled category creation)
       try {
         const draft = JSON.parse(savedDraft);
         setType(draft.type || "expense");
         setName(draft.name || "");
-        // Use new category if provided, otherwise use draft's category
-        setCategoryId(newCategoryId || draft.categoryId);
+        setCategoryId(draft.categoryId || null);
         setAmount(draft.amount || "");
         setDate(draft.date || todayISO());
         setNotes(draft.notes || "");
         setIsRecurring(draft.isRecurring || false);
-        clearFormDraft();
-        setInitialized(true);
-        return;
       } catch {
-        // Invalid draft, continue with normal initialization
+        // Invalid draft, ignore
       }
     }
-
-    // New transaction - check URL params
-    const typeParam = searchParams.get("type");
-    if (typeParam === "income" || typeParam === "expense") {
-      setType(typeParam);
-    } else {
-      setType("expense");
-    }
-    setName("");
-    // If we have a new category but no draft, still select it
-    setCategoryId(newCategoryId);
-    setAmount("");
-    setDate(todayISO());
-    setInitialized(true);
-  }, [tx, searchParams, initialized, clearFormDraft]);
+  }, [isEdit, initialized, location]); // Re-run when location changes (navigation back)
 
   // Redirect if editing non-existent transaction
   useEffect(() => {
@@ -139,6 +151,7 @@ export default function AddEditTransactionPage() {
     date.length === 10;
 
   function goBack() {
+    clearFormDraft(); // Clear draft when user cancels
     navigate(-1);
   }
 
@@ -168,6 +181,7 @@ export default function AddEditTransactionPage() {
         isRecurring,
       });
     }
+    clearFormDraft(); // Clear draft when user saves
     goBack();
   }
 
@@ -178,6 +192,7 @@ export default function AddEditTransactionPage() {
   function handleConfirmDelete() {
     if (!tx) return;
     deleteTransaction(tx.id);
+    clearFormDraft(); // Clear draft when deleting
     setConfirmDelete(false);
     navigate(-1);
   }
