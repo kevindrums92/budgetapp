@@ -85,7 +85,10 @@ export default function AddEditTransactionPage() {
     }
 
     // Check if returning from category creation with a new category
-    const newCategoryId = searchParams.get("newCategoryId");
+    const newCategoryId = sessionStorage.getItem("newCategoryId");
+    if (newCategoryId) {
+      sessionStorage.removeItem("newCategoryId");
+    }
 
     // Check for saved draft first (for when returning from category creation)
     const savedDraft = sessionStorage.getItem(FORM_STORAGE_KEY);

@@ -87,12 +87,12 @@ export default function AddEditCategoryPage() {
       navigate(-1);
     } else {
       const newId = addCategory({ name: name.trim(), icon, color, type, groupId });
-      // If coming from transaction form, go back there with the new category selected
+      // If coming from transaction form, store new category and go back
       if (returnTo === "transaction" && newId) {
-        navigate(`/add?newCategoryId=${newId}`, { replace: true });
-      } else {
-        navigate(-1);
+        // Store newCategoryId in session storage for the transaction form to pick up
+        sessionStorage.setItem("newCategoryId", newId);
       }
+      navigate(-1);
     }
   }
 

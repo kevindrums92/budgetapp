@@ -158,7 +158,7 @@ export default function CategoryPickerDrawer({
   function handleNewCategory() {
     onNavigateToNewCategory?.();
     onClose();
-    navigate(`/category/new?type=${transactionType}&returnTo=transaction`);
+    navigate(`/category/new?type=${transactionType}&returnTo=transaction`, { replace: true });
   }
 
   if (!isVisible) return null;
