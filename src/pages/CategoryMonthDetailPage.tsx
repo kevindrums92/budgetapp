@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { icons, Repeat } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -70,6 +70,11 @@ export default function CategoryMonthDetailPage() {
   const IconComponent = category
     ? icons[kebabToPascal(category.icon) as keyof typeof icons]
     : null;
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   if (!category || !categoryId || !month) {
     return (
