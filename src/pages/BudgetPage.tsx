@@ -166,90 +166,88 @@ export default function BudgetPage() {
 
   return (
     <>
-      <div className="mx-auto max-w-xl px-4 pt-4 pb-28">
-        {/* Summary Card */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm mb-6">
-          <h2 className="text-sm font-medium text-gray-500 mb-4">Resumen del Mes</h2>
+      <div className="bg-gray-50 min-h-screen">
+        <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
+          {/* Summary Section */}
+          <h2 className="text-base font-semibold mb-3">Resumen del Mes</h2>
+          <div className="rounded-2xl bg-white p-5 shadow-sm mb-6">
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <p className="text-xs text-gray-400">Presupuestado</p>
-              <p className="text-lg font-semibold text-gray-900">
-                {formatCOP(totals.totalBudgeted)}
-              </p>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-xs text-gray-400">Presupuestado</p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {formatCOP(totals.totalBudgeted)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Gastado</p>
+                <p
+                  className={`text-lg font-semibold ${
+                    totals.totalSpent > totals.totalBudgeted && totals.totalBudgeted > 0
+                      ? "text-red-600"
+                      : "text-gray-900"
+                  }`}
+                >
+                  {formatCOP(totals.totalSpent)}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-gray-400">Gastado</p>
-              <p
-                className={`text-lg font-semibold ${
-                  totals.totalSpent > totals.totalBudgeted && totals.totalBudgeted > 0
-                    ? "text-red-600"
-                    : "text-gray-900"
-                }`}
-              >
-                {formatCOP(totals.totalSpent)}
+
+            {/* Overall Progress */}
+            {totals.totalBudgeted > 0 && (
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full transition-all duration-300 ${getProgressColor(
+                      totals.totalSpent,
+                      totals.totalBudgeted
+                    )}`}
+                    style={{ width: `${overallProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 text-right">
+                  {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}% del presupuesto
+                </p>
+              </div>
+            )}
+
+            {totals.totalBudgeted === 0 && (
+              <p className="text-sm text-gray-400 text-center py-2">
+                Establece límites en tus categorías para ver tu progreso
               </p>
-            </div>
+            )}
           </div>
 
-          {/* Overall Progress */}
-          {totals.totalBudgeted > 0 && (
-            <div className="space-y-2">
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-300 ${getProgressColor(
-                    totals.totalSpent,
-                    totals.totalBudgeted
-                  )}`}
-                  style={{ width: `${overallProgress}%` }}
-                />
-              </div>
-              <p className="text-xs text-gray-500 text-right">
-                {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}% del presupuesto
-              </p>
-            </div>
-          )}
-
-          {totals.totalBudgeted === 0 && (
-            <p className="text-sm text-gray-400 text-center py-2">
-              Establece límites en tus categorías para ver tu progreso
-            </p>
-          )}
-        </div>
-
-        {/* Expense Categories */}
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">Gastos</h3>
-          <div className="space-y-2">
+          {/* Expense Categories */}
+          <h3 className="text-base font-semibold mb-3">Gastos</h3>
+          <div className="space-y-2 mb-8">
             {expenseCategories.map((cat) => renderCategoryRow(cat, true))}
           </div>
-        </div>
 
-        {/* Income Categories */}
-        <div className="mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">Ingresos</h3>
-          <div className="space-y-2">
+          {/* Income Categories */}
+          <h3 className="text-base font-semibold mb-3">Ingresos</h3>
+          <div className="space-y-2 mb-8">
             {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
           </div>
-        </div>
 
-        {/* Add Category Button */}
-        <button
-          type="button"
-          onClick={() => navigate("/category/new")}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm font-medium text-gray-500 hover:border-emerald-300 hover:text-emerald-600 transition-colors"
-        >
-          <Plus className="h-5 w-5" />
-          Nueva Categoría
-        </button>
+          {/* Add Category Button */}
+          <button
+            type="button"
+            onClick={() => navigate("/category/new")}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm font-medium text-gray-500 hover:border-emerald-300 hover:text-emerald-600 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            Nueva Categoría
+          </button>
 
-        {/* Set Limit Modal */}
-        <SetLimitModal
-          open={!!modalCategory}
-          onClose={() => setModalCategory(null)}
-          category={modalCategory}
-          onSave={handleSaveLimit}
-        />
+          {/* Set Limit Modal */}
+          <SetLimitModal
+            open={!!modalCategory}
+            onClose={() => setModalCategory(null)}
+            category={modalCategory}
+            onSave={handleSaveLimit}
+          />
+        </main>
       </div>
 
       {/* Onboarding Wizard */}
