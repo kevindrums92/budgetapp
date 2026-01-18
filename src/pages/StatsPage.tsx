@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  // PieChart,
-  // Pie,
-  // Cell,
+  PieChart,
+  Pie,
+  Cell,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -359,8 +359,8 @@ export default function StatsPage() {
           </div>
         ) : (
           <>
-            {/* Donut Chart - TEMPORARILY HIDDEN FOR iOS TESTING */}
-            {/* <div className="relative pointer-events-none">
+            {/* Donut Chart */}
+            <div className="relative pointer-events-none">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -373,6 +373,7 @@ export default function StatsPage() {
                     outerRadius={100}
                     paddingAngle={2}
                     stroke="none"
+                    isAnimationActive={false}
                   >
                     {categoryChartData.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
@@ -381,20 +382,13 @@ export default function StatsPage() {
                 </PieChart>
               </ResponsiveContainer>
 
+              {/* Center label */}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-2xl font-bold">
                   {formatCOP(totalExpenses)}
                 </span>
                 <span className="text-sm text-gray-500">gastado</span>
               </div>
-            </div> */}
-
-            {/* Total Summary */}
-            <div className="rounded-xl bg-white p-6 text-center shadow-sm mb-4">
-              <p className="text-sm text-gray-500 mb-2">Total gastado</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {formatCOP(totalExpenses)}
-              </p>
             </div>
 
             {/* Legend */}
@@ -474,12 +468,14 @@ export default function StatsPage() {
                   name="Ingresos"
                   fill="#10B981"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
                 />
                 <Bar
                   dataKey="expense"
                   name="Gastos"
                   fill="#EF4444"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -542,6 +538,7 @@ export default function StatsPage() {
                 strokeWidth={2}
                 dot={{ fill: "#EF4444", strokeWidth: 0, r: 3 }}
                 activeDot={{ r: 5, fill: "#EF4444" }}
+                isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
