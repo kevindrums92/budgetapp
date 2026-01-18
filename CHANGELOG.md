@@ -27,6 +27,18 @@ All notable changes to SmartSpend will be documented in this file.
   - Cloud backups only visible for authenticated users (cloudMode === "cloud")
   - Mobile-first modals for all confirmation dialogs
 
+### Changed
+- **PageHeader Standardization**: All pages now use centralized PageHeader component
+  - Refactored 6 pages: AddEditTransactionPage, AddEditCategoryPage, AddEditCategoryGroupPage, TripDetailPage, AddEditTripPage, AddEditTripExpensePage
+  - Removed 54 lines of duplicate header code
+  - PageHeader now supports React.ReactNode titles for custom multi-line headers
+  - Consistent back button behavior and rightActions prop across all pages
+- **Transaction Detail UX**: Removed intermediate detail page for faster editing
+  - Transactions in list now navigate directly to edit page
+  - Delete button moved to edit page header with ConfirmDialog
+  - Removed TransactionDetailPage.tsx and `/transaction/:id` route
+  - Streamlined navigation flow: tap transaction → edit immediately
+
 ## [0.6.2] - 2026-01-17
 
 ### Fixed
