@@ -20,6 +20,13 @@ html {
   touch-action: none !important;
 }
 
+/* iOS Safari touch optimization - prevent scroll interference */
+button {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .ss-bar {
     transform-origin: 50% 50%;

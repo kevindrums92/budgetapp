@@ -402,6 +402,7 @@ export default function StatsPage() {
                     type="button"
                     onClick={() => navigate(`/category/${item.id}/month/${selectedMonth}`)}
                     className="w-full flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm active:bg-gray-50 transition-colors"
+                    style={{ touchAction: "manipulation", WebkitTapHighlightColor: "rgba(0,0,0,0.05)" }}
                   >
                     <div className="flex items-center gap-3">
                       <span
