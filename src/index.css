@@ -9,24 +9,6 @@ html {
   overscroll-behavior-x: none;
 }
 
-/* Fix touch events on iOS for Recharts SVG elements */
-.recharts-surface,
-.recharts-wrapper,
-.recharts-layer,
-.recharts-pie,
-.recharts-bar,
-.recharts-line {
-  pointer-events: none !important;
-  touch-action: none !important;
-}
-
-/* iOS Safari touch optimization - prevent scroll interference */
-button {
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .ss-bar {
     transform-origin: 50% 50%;

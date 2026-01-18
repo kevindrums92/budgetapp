@@ -360,7 +360,7 @@ export default function StatsPage() {
         ) : (
           <>
             {/* Donut Chart */}
-            <div className="relative pointer-events-none">
+            <div className="relative">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -403,7 +403,6 @@ export default function StatsPage() {
                     type="button"
                     onClick={() => navigate(`/category/${item.id}/month/${selectedMonth}`)}
                     className="w-full flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm active:bg-gray-50 transition-colors"
-                    style={{ touchAction: "manipulation", WebkitTapHighlightColor: "rgba(0,0,0,0.05)" }}
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -442,9 +441,8 @@ export default function StatsPage() {
           </div>
         ) : (
           <>
-            <div className="pointer-events-none">
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={monthlyData} barGap={2}>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={monthlyData} barGap={2}>
                 <XAxis
                   dataKey="label"
                   axisLine={false}
@@ -459,9 +457,7 @@ export default function StatsPage() {
                     borderRadius: "8px",
                     border: "none",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    pointerEvents: "none",
                   }}
-                  wrapperStyle={{ pointerEvents: "none" }}
                 />
                 <Bar
                   dataKey="income"
@@ -479,7 +475,6 @@ export default function StatsPage() {
                 />
               </BarChart>
             </ResponsiveContainer>
-            </div>
 
             {/* Legend */}
             <div className="mt-4 flex justify-center gap-6">
@@ -508,9 +503,8 @@ export default function StatsPage() {
             <p>No hay datos de gastos</p>
           </div>
         ) : (
-          <div className="pointer-events-none">
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={trendData}>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={trendData}>
               <XAxis
                 dataKey="label"
                 axisLine={false}
@@ -526,9 +520,7 @@ export default function StatsPage() {
                   borderRadius: "8px",
                   border: "none",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                  pointerEvents: "none",
                 }}
-                wrapperStyle={{ pointerEvents: "none" }}
               />
               <Line
                 type="monotone"
@@ -542,7 +534,6 @@ export default function StatsPage() {
               />
             </LineChart>
           </ResponsiveContainer>
-          </div>
         )}
       </div>
       </main>
