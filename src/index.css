@@ -9,6 +9,16 @@ html {
   overscroll-behavior-x: none;
 }
 
+/* Disable hover effects on Recharts pie slices */
+.recharts-pie-sector {
+  pointer-events: none !important;
+}
+
+.recharts-pie-sector:hover {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .ss-bar {
     transform-origin: 50% 50%;
