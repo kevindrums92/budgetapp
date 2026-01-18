@@ -251,10 +251,11 @@ export default function StatsPage() {
   }, [transactions, selectedMonth, categoryDefinitions]);
 
   return (
-    <div className="mx-auto max-w-xl px-4 pt-6 pb-28">
-      {/* Header */}
-      <h2 className="text-base font-semibold">Estadísticas</h2>
-      <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
+    <div className="bg-gray-50 min-h-screen">
+      <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
+        {/* Header */}
+        <h2 className="text-base font-semibold">Estadísticas</h2>
+        <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
 
       {/* Daily Budget Banner - Only for current month with budget */}
       {quickStats.isCurrentMonth &&
@@ -539,6 +540,7 @@ export default function StatsPage() {
           </div>
         )}
       </div>
+      </main>
     </div>
   );
 }
