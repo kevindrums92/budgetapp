@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { icons } from "lucide-react";
+import { icons, Repeat } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/components/PageHeader";
 import { formatCOP } from "@/features/transactions/transactions.utils";
@@ -86,53 +86,41 @@ export default function CategoryMonthDetailPage() {
     <div className="flex min-h-screen flex-col bg-gray-50">
       <PageHeader title={category.name} />
 
-      <div className="flex-1 px-4 pt-6 pb-8">
-        {/* Category Info Card */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm mb-6">
-          <div className="flex items-center gap-4 mb-4">
-            {/* Icon */}
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
-              style={{ backgroundColor: category.color + "20" }}
-            >
-              {IconComponent && (
-                <IconComponent
-                  className="h-6 w-6"
-                  style={{ color: category.color }}
-                />
-              )}
-            </div>
-
-            {/* Info */}
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {category.name}
-              </h2>
-              <p className="text-sm text-gray-500 capitalize">{monthLabel}</p>
-            </div>
-          </div>
-
-          {/* Total */}
-          <div className="pt-4 border-t border-gray-100">
-            <p className="text-xs text-gray-500 mb-1">Total gastado</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {formatCOP(totalSpent)}
-            </p>
-          </div>
-
-          {/* Transaction Count */}
-          <div className="mt-3">
-            <p className="text-xs text-gray-500">
-              {filteredTransactions.length}{" "}
-              {filteredTransactions.length === 1 ? "transacción" : "transacciones"}
-            </p>
+      {/* Stats Header */}
+      <div className="bg-white px-4 pt-6 pb-5 text-center border-b border-gray-100">
+        {/* Icon */}
+        <div className="flex justify-center mb-4">
+          <div
+            className="flex h-14 w-14 items-center justify-center rounded-2xl"
+            style={{ backgroundColor: category.color + "20" }}
+          >
+            {IconComponent && (
+              <IconComponent
+                className="h-7 w-7"
+                style={{ color: category.color }}
+              />
+            )}
           </div>
         </div>
 
+        {/* Total */}
+        <p className="text-4xl font-bold text-gray-900 mb-2">
+          {formatCOP(totalSpent)}
+        </p>
+        <p className="text-sm text-gray-500">
+          {filteredTransactions.length}{" "}
+          {filteredTransactions.length === 1 ? "transacción" : "transacciones"}
+        </p>
+        <p className="text-xs text-gray-400 mt-1 capitalize">
+          {monthLabel}
+        </p>
+      </div>
+
+      <div className="flex-1 px-4 pt-4 pb-8">
         {/* Transactions List */}
         <div className="space-y-2">
           {filteredTransactions.length === 0 ? (
-            <div className="rounded-xl bg-gray-50 p-8 text-center">
+            <div className="rounded-xl bg-white p-8 text-center mt-4">
               <p className="text-sm text-gray-500">
                 No hay transacciones en esta categoría este mes
               </p>
@@ -145,24 +133,16 @@ export default function CategoryMonthDetailPage() {
                 onClick={() => navigate(`/edit/${transaction.id}`)}
                 className="w-full flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-sm active:bg-gray-50 transition-colors"
               >
-                {/* Icon */}
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                  style={{ backgroundColor: category.color + "20" }}
-                >
-                  {IconComponent && (
-                    <IconComponent
-                      className="h-5 w-5"
-                      style={{ color: category.color }}
-                    />
-                  )}
-                </div>
-
                 {/* Info */}
                 <div className="min-w-0 flex-1 text-left">
-                  <p className="truncate font-semibold text-gray-900 text-sm">
-                    {transaction.name}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="truncate font-semibold text-gray-900 text-sm">
+                      {transaction.name}
+                    </p>
+                    {transaction.isRecurring && (
+                      <Repeat className="h-3 w-3 shrink-0 text-gray-400" />
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500">
                     {formatDate(transaction.date)}
                   </p>
