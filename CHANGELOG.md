@@ -4,6 +4,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Backup & Restore System (Phase 1 - Core)**: Manual backup and restore functionality
+  - Export complete data snapshots to JSON files with metadata and checksum validation
+  - Import backups with preview modal showing stats and warnings
+  - Automatic safety backup created before restore operations
+  - Local auto-backup system (keeps last 5 backups, max 5MB)
+  - New Settings page accessible from Profile menu
+  - Comprehensive error handling and data integrity verification
+
 ## [0.6.2] - 2026-01-17
 
 ### Fixed

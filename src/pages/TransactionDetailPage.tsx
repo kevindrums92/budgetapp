@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/features/transactions/transactions.utils";
 import { formatDateGroupHeader } from "@/services/dates.service";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import PageHeader from "@/components/PageHeader";
 import type { Category } from "@/types/budget.types";
 
 // Convert kebab-case to PascalCase for lucide-react icons
@@ -66,33 +67,28 @@ export default function TransactionDetailPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-3">
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          className="flex items-center gap-1 text-sm font-medium text-gray-700 active:text-gray-900"
-        >
-          <ChevronLeft size={20} />
-          <span>Volver</span>
-        </button>
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onEdit}
-            className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 active:bg-gray-200"
-          >
-            <Pencil size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={onAskDelete}
-            className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 active:bg-red-100"
-          >
-            <Trash2 size={16} />
-          </button>
-        </div>
-      </header>
+      <PageHeader
+        title={transaction.name}
+        onBack={() => navigate("/")}
+        rightActions={
+          <>
+            <button
+              type="button"
+              onClick={onEdit}
+              className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 active:bg-gray-200"
+            >
+              <Pencil size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={onAskDelete}
+              className="flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 active:bg-red-100"
+            >
+              <Trash2 size={16} />
+            </button>
+          </>
+        }
+      />
 
       {/* Content */}
       <main className="mx-auto max-w-xl p-4">

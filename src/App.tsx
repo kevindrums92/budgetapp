@@ -24,6 +24,7 @@ import CategoriesPage from "@/pages/CategoriesPage";
 import CategoryGroupsPage from "@/pages/CategoryGroupsPage";
 import AddEditCategoryGroupPage from "@/pages/AddEditCategoryGroupPage";
 import ProfilePage from "@/pages/ProfilePage";
+import BackupPage from "@/pages/BackupPage";
 
 import CloudSyncGate from "@/components/CloudSyncGate";
 import WelcomeGate from "@/components/WelcomeGate";
@@ -43,6 +44,7 @@ function AppFrame() {
   const isFormRoute =
     location.pathname === "/add" ||
     location.pathname === "/profile" ||
+    location.pathname === "/backup" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname.startsWith("/transaction/") ||
     location.pathname.startsWith("/trips/") ||
@@ -102,6 +104,7 @@ function AppFrame() {
           <Route path="/category-group/:id/edit" element={<AddEditCategoryGroupPage />} />
 
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/backup" element={<BackupPage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
