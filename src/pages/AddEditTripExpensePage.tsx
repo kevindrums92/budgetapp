@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   HelpCircle,
 } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 
 const CATEGORY_OPTIONS: {
   value: TripExpenseCategory;
@@ -123,30 +124,19 @@ export default function AddEditTripExpensePage() {
   return (
     <div className="min-h-[100dvh] bg-white">
       {/* Top bar */}
-      <div className="sticky top-0 z-20 border-b bg-white">
-        <div className="mx-auto max-w-xl px-4 py-3">
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="text-sm font-medium text-gray-700"
-            >
-              Volver
-            </button>
-
-            <div className="text-center">
-              <p className="text-sm font-semibold">
-                {expense ? "Editar gasto" : "Nuevo gasto"}
-              </p>
-              <p className="text-[11px] text-gray-500 truncate max-w-[200px]">
-                {trip.name}
-              </p>
-            </div>
-
-            <div className="w-[52px]" />
+      <PageHeader
+        title={
+          <div className="flex flex-col -mt-1">
+            <span className="font-semibold text-gray-900">
+              {expense ? "Editar gasto" : "Nuevo gasto"}
+            </span>
+            <span className="text-[11px] text-gray-500 truncate max-w-[200px]">
+              {trip.name}
+            </span>
           </div>
-        </div>
-      </div>
+        }
+        onBack={goBack}
+      />
 
       {/* Content */}
       <div className="mx-auto max-w-xl px-4 py-4 pb-36">

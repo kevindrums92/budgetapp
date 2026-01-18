@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 
 type Props = {
-  title: string;
+  title: React.ReactNode;
   onBack?: () => void;
   rightActions?: React.ReactNode;
 };
@@ -28,7 +28,11 @@ export default function PageHeader({ title, onBack, rightActions }: Props) {
         >
           <ChevronLeft size={24} />
         </button>
-        <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+        {typeof title === "string" ? (
+          <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+        ) : (
+          title
+        )}
       </div>
 
       {rightActions && <div className="flex items-center gap-2">{rightActions}</div>}

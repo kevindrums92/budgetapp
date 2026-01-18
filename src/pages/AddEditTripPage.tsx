@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 import type { TripStatus } from "@/types/budget.types";
+import PageHeader from "@/components/PageHeader";
 
 const STATUS_OPTIONS: { value: TripStatus; label: string }[] = [
   { value: "planning", label: "Planificando" },
@@ -99,30 +100,19 @@ export default function AddEditTripPage() {
   return (
     <div className="min-h-[100dvh] bg-white">
       {/* Top bar */}
-      <div className="sticky top-0 z-20 border-b bg-white">
-        <div className="mx-auto max-w-xl px-4 py-3">
-          <div className="flex items-center justify-between">
-            <button
-              type="button"
-              onClick={goBack}
-              className="text-sm font-medium text-gray-700"
-            >
-              Volver
-            </button>
-
-            <div className="text-center">
-              <p className="text-sm font-semibold">
-                {trip ? "Editar viaje" : "Nuevo viaje"}
-              </p>
-              <p className="text-[11px] text-gray-500">
-                {trip ? "Actualiza los datos" : "Crea un viaje para trackear gastos"}
-              </p>
-            </div>
-
-            <div className="w-[52px]" />
+      <PageHeader
+        title={
+          <div className="flex flex-col -mt-1">
+            <span className="font-semibold text-gray-900">
+              {trip ? "Editar viaje" : "Nuevo viaje"}
+            </span>
+            <span className="text-[11px] text-gray-500">
+              {trip ? "Actualiza los datos" : "Crea un viaje para trackear gastos"}
+            </span>
           </div>
-        </div>
-      </div>
+        }
+        onBack={goBack}
+      />
 
       {/* Content */}
       <div className="mx-auto max-w-xl px-4 py-4 pb-36">

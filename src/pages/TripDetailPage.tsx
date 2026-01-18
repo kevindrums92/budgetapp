@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/features/transactions/transactions.utils";
 import {
-  ChevronLeft,
   Plus,
   MapPin,
   Calendar,
@@ -17,6 +16,7 @@ import {
 import type { TripExpense, TripExpenseCategory } from "@/types/budget.types";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import RowMenu from "@/components/RowMenu";
+import PageHeader from "@/components/PageHeader";
 
 const CATEGORY_CONFIG: Record<
   TripExpenseCategory,
@@ -103,26 +103,18 @@ export default function TripDetailPage() {
   return (
     <div className="min-h-[100dvh] bg-white">
       {/* Top bar */}
-      <div className="sticky top-0 z-20 border-b bg-white">
-        <div className="mx-auto max-w-xl px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate("/trips")}
-              className="p-1 text-gray-600"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <div className="min-w-0 flex-1">
-              <h1 className="truncate font-semibold">{trip.name}</h1>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <MapPin size={11} />
-                <span>{trip.destination}</span>
-              </div>
+      <PageHeader
+        title={
+          <div className="flex flex-col -mt-1">
+            <span className="font-semibold text-gray-900">{trip.name}</span>
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <MapPin size={11} />
+              <span>{trip.destination}</span>
             </div>
           </div>
-        </div>
-      </div>
+        }
+        onBack={() => navigate("/trips")}
+      />
 
       {/* Budget summary */}
       <div className="border-b bg-gray-50">

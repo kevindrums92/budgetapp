@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, MessageSquare, Calendar, Tag, FileText, Repeat } from "lucide-react";
+import { MessageSquare, Calendar, Tag, FileText, Repeat } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/components/DatePicker";
 import CategoryPickerDrawer from "@/components/CategoryPickerDrawer";
+import PageHeader from "@/components/PageHeader";
 import type { TransactionType } from "@/types/budget.types";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
@@ -174,22 +175,7 @@ export default function AddEditTransactionPage() {
   return (
     <div className="min-h-dvh bg-white">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white">
-        <div className="mx-auto max-w-xl px-4">
-          <div className="flex h-14 items-center gap-3">
-            <button
-              type="button"
-              onClick={goBack}
-              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 active:scale-95"
-            >
-              <ChevronLeft className="h-6 w-6 text-gray-700" />
-            </button>
-            <h1 className="text-base font-semibold text-gray-900">
-              {title}
-            </h1>
-          </div>
-        </div>
-      </div>
+      <PageHeader title={title} onBack={goBack} />
 
       {/* Amount Input */}
       <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
