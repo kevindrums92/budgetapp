@@ -456,7 +456,9 @@ export default function StatsPage() {
                     borderRadius: "8px",
                     border: "none",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    pointerEvents: "none",
                   }}
+                  wrapperStyle={{ pointerEvents: "none" }}
                 />
                 <Bar
                   dataKey="income"
@@ -519,7 +521,9 @@ export default function StatsPage() {
                   borderRadius: "8px",
                   border: "none",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                  pointerEvents: "none",
                 }}
+                wrapperStyle={{ pointerEvents: "none" }}
               />
               <Line
                 type="monotone"
