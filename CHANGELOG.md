@@ -7,16 +7,43 @@ All notable changes to SmartSpend will be documented in this file.
 ### Added
 - **Category Month Detail Page**: New drill-down view for category expenses
   - Navigate from Stats page category cards to see all transactions in that category for the month
-  - PageHeader pattern with category info, total spent, and transaction count
+  - PageHeader pattern with centered category icon, total spent, and transaction count
+  - Shows month label and transaction count with proper singular/plural handling
+  - Clean transaction list without redundant category icons
+  - Recurring transaction indicator (Repeat icon) on applicable items
   - Direct navigation to edit transaction from list
+  - Auto-scroll to top on mount
   - Route: `/category/:categoryId/month/:month`
 
 ### Changed
 - **Stats Page Categories**: Category cards now clickable for detailed view
   - Added navigation to CategoryMonthDetailPage on category card click
   - Enhanced user flow: Stats → Category Detail → Transaction Edit
+- **Stats Page Charts**: Disabled animations to fix iOS touch event issues
+  - All Recharts components now use `isAnimationActive={false}`
+  - Resolved issue where chart animations blocked touch interactions on iPhone
+  - Pie chart hover effects disabled with CSS to prevent visual glitches on tap
 
 ### Fixed
+- **iOS Touch Events**: Fixed severe touch responsiveness issues on iPhone
+  - Recharts animations were blocking touch events during animation
+  - Required multiple taps to interact with UI elements when scrolling near charts
+  - Solution: Disabled all chart animations across Pie, Bar, and Line charts
+- **CategoryMonthDetailPage Scroll**: Page now scrolls to top on mount for better UX
+- **Transaction Form Navigation**: Fixed double back press bug when creating categories from transaction form
+  - Proper navigation history: Home → Create Transaction → Create Category → Back to Transaction (with preserved data) → Back to Home
+  - Form data now preserved when navigating to/from category creation
+  - New category automatically selected when returning from successful creation
+  - Draft restoration works for both successful creation and cancellation scenarios
+- **WelcomeGate Google Login**: Added account selector prompt to OAuth flow
+  - `prompt: 'select_account'` forces Google to show account picker
+  - Prevents automatic re-login with cached account
+  - Applied to both ProfilePage and WelcomeGate components
+- **BudgetOnboardingWizard Layout**: Improved carousel layout and UX
+  - Extended carousel container to full height for better drag area
+  - Content properly centered vertically within the viewport
+  - Users can now swipe from anywhere on the screen, not just content area
+  - Optimized slide structure for better mobile touch response
 - **Transaction Delete Navigation**: Fixed bug where deleting a transaction would always navigate to home instead of going back to the previous page (e.g., CategoryMonthDetailPage)
 
 ### Changed
