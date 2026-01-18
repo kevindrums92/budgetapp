@@ -359,7 +359,7 @@ export default function StatsPage() {
         ) : (
           <>
             {/* Donut Chart */}
-            <div className="relative">
+            <div className="relative pointer-events-none">
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -439,8 +439,9 @@ export default function StatsPage() {
           </div>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={monthlyData} barGap={2}>
+            <div className="pointer-events-none">
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={monthlyData} barGap={2}>
                 <XAxis
                   dataKey="label"
                   axisLine={false}
@@ -471,6 +472,7 @@ export default function StatsPage() {
                 />
               </BarChart>
             </ResponsiveContainer>
+            </div>
 
             {/* Legend */}
             <div className="mt-4 flex justify-center gap-6">
@@ -499,8 +501,9 @@ export default function StatsPage() {
             <p>No hay datos de gastos</p>
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={trendData}>
+          <div className="pointer-events-none">
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={trendData}>
               <XAxis
                 dataKey="label"
                 axisLine={false}
@@ -529,6 +532,7 @@ export default function StatsPage() {
               />
             </LineChart>
           </ResponsiveContainer>
+          </div>
         )}
       </div>
     </div>
