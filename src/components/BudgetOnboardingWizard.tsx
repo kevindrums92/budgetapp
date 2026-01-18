@@ -117,7 +117,7 @@ export default function BudgetOnboardingWizard({ open, onClose }: Props) {
 
         {/* Carousel Container - Centered content */}
         <div className="flex flex-1 flex-col items-center justify-center">
-          <div className="w-full overflow-hidden" ref={emblaRef}>
+          <div className="w-full h-full overflow-hidden flex items-center" ref={emblaRef}>
             <div className="flex">
               {SLIDES.map((slide, idx) => {
                 const Icon = slide.icon;
