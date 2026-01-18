@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import BackupExportButton from "@/components/BackupExportButton";
 import BackupImportButton from "@/components/BackupImportButton";
+import LocalBackupList from "@/components/LocalBackupList";
 
 export default function BackupPage() {
   const [showDetails, setShowDetails] = useState(false);
@@ -41,6 +42,14 @@ export default function BackupPage() {
             </div>
             <BackupImportButton />
           </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 my-6"></div>
+
+        {/* Local Auto-Backups */}
+        <div className="mb-8">
+          <LocalBackupList />
         </div>
 
         {/* Divider */}

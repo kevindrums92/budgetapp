@@ -886,16 +886,18 @@ async function handleRestore(backup: BackupFile) {
 
 ## Roadmap
 
-### Phase 1: Core (v0.7.0)
+### Phase 1: Core (v0.7.0) ✅
 - [x] backup.service.ts implementation
-- [ ] Manual Export button
-- [ ] Manual Import with preview modal
-- [ ] Local auto-backup (before restore)
+- [x] Manual Export button
+- [x] Manual Import with preview modal
+- [x] Local auto-backup (before restore)
 
-### Phase 2: Auto-Local (v0.7.1)
-- [ ] Periodic local backups (7 days)
-- [ ] Local backup list UI
-- [ ] Restore from local backup
+### Phase 2: Auto-Local (v0.7.1) ✅
+- [x] Periodic local backups (7 days)
+- [x] Local backup list UI
+- [x] Restore from local backup
+- [x] BackupScheduler component integrated in CloudSyncGate
+- [x] LocalBackupList component in Settings page
 
 ### Phase 3: Cloud (v0.8.0)
 - [ ] Supabase user_backups table

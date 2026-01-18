@@ -17,6 +17,8 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
 
   const [isVisible, setIsVisible] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState<string | null>(null);
 
   const currentState = getSnapshot();
 
@@ -51,24 +53,22 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
 
       console.log("[Backup] Restore successful");
 
-      // Close modal and reload page
-      handleClose();
-
-      // Show success message and reload
-      setTimeout(() => {
-        alert("Backup restored successfully! The page will reload.");
-        window.location.reload();
-      }, 300);
+      // Show success modal
+      setShowSuccess(true);
     } catch (error) {
       console.error("[Backup] Restore failed:", error);
-      alert(`Failed to restore backup: ${error instanceof Error ? error.message : "Unknown error"}`);
+      setShowError(error instanceof Error ? error.message : "Unknown error");
       setIsRestoring(false);
     }
   }
 
+  function handleSuccessConfirm() {
+    window.location.reload();
+  }
+
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
-    return date.toLocaleString("en-US", {
+    return date.toLocaleString("es-CO", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -76,6 +76,55 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
       minute: "2-digit",
     });
   };
+
+  // Success modal
+  if (showSuccess) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            ✅ Backup Restaurado
+          </h3>
+          <p className="mb-4 text-sm text-gray-600">
+            El backup se restauró exitosamente. La página se recargará para aplicar los cambios.
+          </p>
+          <button
+            type="button"
+            onClick={handleSuccessConfirm}
+            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+          >
+            Recargar Página
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Error modal
+  if (showError) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+            ❌ Error al Restaurar
+          </h3>
+          <p className="mb-4 text-sm text-gray-600">
+            {showError}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setShowError(null);
+              handleClose();
+            }}
+            className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -93,7 +142,7 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">
-            📦 Restore Backup?
+            ¿Restaurar Backup?
           </h2>
           <button
             type="button"
@@ -110,12 +159,12 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Calendar size={16} />
-              <span>Created: {formatDate(backup.meta.createdAt)}</span>
+              <span>Creado: {formatDate(backup.meta.createdAt)}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <FileText size={16} />
               <span>
-                App Version: {backup.meta.appVersion} (Schema v{backup.data.schemaVersion})
+                Versión: {backup.meta.appVersion} (Schema v{backup.data.schemaVersion})
               </span>
             </div>
           </div>
@@ -123,29 +172,29 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
           {/* Stats */}
           <div className="bg-gray-50 rounded-lg p-3 space-y-1">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-              Backup Contents
+              Contenido del Backup
             </p>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <span className="text-gray-600">Transactions:</span>
+                <span className="text-gray-600">Transacciones:</span>
                 <span className="ml-2 font-semibold text-gray-900">
                   {backup.stats.totalTransactions}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Trips:</span>
+                <span className="text-gray-600">Viajes:</span>
                 <span className="ml-2 font-semibold text-gray-900">
                   {backup.stats.totalTrips}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Categories:</span>
+                <span className="text-gray-600">Categorías:</span>
                 <span className="ml-2 font-semibold text-gray-900">
                   {backup.stats.totalCategories}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Groups:</span>
+                <span className="text-gray-600">Grupos:</span>
                 <span className="ml-2 font-semibold text-gray-900">
                   {backup.stats.totalCategoryGroups}
                 </span>
@@ -155,7 +204,7 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
               <div className="flex items-center gap-2 text-sm text-gray-600 mt-2 pt-2 border-t border-gray-200">
                 <MapPin size={14} />
                 <span>
-                  Date range: {backup.stats.dateRange.from} to {backup.stats.dateRange.to}
+                  Rango: {backup.stats.dateRange.from} - {backup.stats.dateRange.to}
                 </span>
               </div>
             )}
@@ -166,16 +215,16 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
             <div className="flex gap-2">
               <AlertTriangle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-semibold text-amber-900 mb-1">Warning</p>
+                <p className="font-semibold text-amber-900 mb-1">Advertencia</p>
                 <p className="text-amber-800">
-                  This will replace your current data:
+                  Esto reemplazará tus datos actuales:
                 </p>
                 <ul className="mt-1 space-y-0.5 text-amber-700">
-                  <li>• Current transactions: {currentState.transactions.length}</li>
-                  <li>• Current trips: {currentState.trips?.length ?? 0}</li>
+                  <li>• Transacciones actuales: {currentState.transactions.length}</li>
+                  <li>• Viajes actuales: {currentState.trips?.length ?? 0}</li>
                 </ul>
                 <p className="text-amber-800 mt-2">
-                  An automatic backup of your current data will be created before restoring.
+                  Se creará un backup automático de tus datos actuales antes de restaurar.
                 </p>
               </div>
             </div>
@@ -183,22 +232,22 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 p-4 border-t border-gray-200">
+        <div className="flex gap-3 p-4 border-t border-gray-200">
           <button
             type="button"
             onClick={handleClose}
             disabled={isRestoring}
-            className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 active:scale-95 transition-all disabled:opacity-50"
+            className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 active:scale-95 transition-all disabled:opacity-50"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             type="button"
             onClick={handleRestore}
             disabled={isRestoring}
-            className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 active:scale-95 transition-all disabled:opacity-50"
+            className="flex-1 rounded-xl bg-blue-500 py-3 text-sm font-medium text-white hover:bg-blue-600 active:scale-95 transition-all disabled:opacity-50"
           >
-            {isRestoring ? "Restoring..." : "Restore"}
+            {isRestoring ? "Restaurando..." : "Restaurar"}
           </button>
         </div>
       </div>

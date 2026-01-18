@@ -12,6 +12,12 @@ All notable changes to SmartSpend will be documented in this file.
   - Local auto-backup system (keeps last 5 backups, max 5MB)
   - New Settings page accessible from Profile menu
   - Comprehensive error handling and data integrity verification
+- **Backup & Restore System (Phase 2 - Auto-Local)**: Automatic periodic backups
+  - BackupScheduler component for automatic local backups every 24 hours
+  - LocalBackupList component showing all auto-backups with restore/delete actions
+  - One-click restore from local backups with automatic safety backup
+  - Smart backup pruning (keeps last 5, max 5MB total)
+  - Visual feedback with formatted dates and file sizes
 
 ## [0.6.2] - 2026-01-17
 
