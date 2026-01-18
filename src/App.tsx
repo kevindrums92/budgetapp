@@ -18,7 +18,6 @@ import TripDetailPage from "@/pages/TripDetailPage";
 import AddEditTripPage from "@/pages/AddEditTripPage";
 import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
-import TransactionDetailPage from "@/pages/TransactionDetailPage";
 import AddEditCategoryPage from "@/pages/AddEditCategoryPage";
 import CategoriesPage from "@/pages/CategoriesPage";
 import CategoryGroupsPage from "@/pages/CategoryGroupsPage";
@@ -46,7 +45,6 @@ function AppFrame() {
     location.pathname === "/profile" ||
     location.pathname === "/backup" ||
     location.pathname.startsWith("/edit/") ||
-    location.pathname.startsWith("/transaction/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
     location.pathname.startsWith("/categories");
@@ -93,7 +91,6 @@ function AppFrame() {
 
           <Route path="/add" element={<AddEditTransactionPage />} />
           <Route path="/edit/:id" element={<AddEditTransactionPage />} />
-          <Route path="/transaction/:id" element={<TransactionDetailPage />} />
 
           <Route path="/category/new" element={<AddEditCategoryPage />} />
           <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />

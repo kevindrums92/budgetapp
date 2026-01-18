@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatDateGroupHeader } from "@/services/dates.service";
 import TransactionItem from "@/components/TransactionItem";
@@ -12,8 +11,6 @@ interface GroupedTransactions {
 }
 
 export default function TransactionList() {
-  const navigate = useNavigate();
-
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -55,10 +52,6 @@ export default function TransactionList() {
       .sort((a, b) => (a.date < b.date ? 1 : -1));
   }, [transactions, selectedMonth]);
 
-  function onTransactionClick(tx: Transaction) {
-    navigate(`/transaction/${tx.id}`);
-  }
-
   return (
     <div className="mx-auto max-w-xl">
       {!isCurrent && (
@@ -89,7 +82,6 @@ export default function TransactionList() {
                     key={tx.id}
                     transaction={tx}
                     category={getCategoryById(tx.category)}
-                    onClick={() => onTransactionClick(tx)}
                   />
                 ))}
               </div>

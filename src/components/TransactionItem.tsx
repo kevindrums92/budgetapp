@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { icons, Repeat } from "lucide-react";
 import { formatCOP } from "@/features/transactions/transactions.utils";
 import type { Transaction, Category } from "@/types/budget.types";
@@ -13,14 +14,14 @@ function kebabToPascal(str: string): string {
 interface TransactionItemProps {
   transaction: Transaction;
   category?: Category;
-  onClick?: () => void;
 }
 
 export default function TransactionItem({
   transaction,
   category,
-  onClick,
 }: TransactionItemProps) {
+  const navigate = useNavigate();
+
   const IconComponent = category
     ? icons[kebabToPascal(category.icon) as keyof typeof icons]
     : null;
@@ -28,7 +29,7 @@ export default function TransactionItem({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={() => navigate(`/edit/${transaction.id}`)}
       className="w-full flex items-center gap-3 bg-white px-4 py-3 active:bg-gray-50 transition-colors"
     >
       {/* Category Icon - tamaño reducido */}

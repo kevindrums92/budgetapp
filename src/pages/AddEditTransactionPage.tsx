@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { MessageSquare, Calendar, Tag, FileText, Repeat } from "lucide-react";
+import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
+import { formatCOP } from "@/features/transactions/transactions.utils";
 import DatePicker from "@/components/DatePicker";
 import CategoryPickerDrawer from "@/components/CategoryPickerDrawer";
 import PageHeader from "@/components/PageHeader";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { TransactionType } from "@/types/budget.types";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
@@ -27,6 +29,7 @@ export default function AddEditTransactionPage() {
 
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
+  const deleteTransaction = useBudgetStore((s) => s.deleteTransaction);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const transactions = useBudgetStore((s) => s.transactions);
 
@@ -45,6 +48,7 @@ export default function AddEditTransactionPage() {
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Get selected category object
   const selectedCategory = useMemo(() => {
@@ -164,6 +168,17 @@ export default function AddEditTransactionPage() {
     goBack();
   }
 
+  function handleAskDelete() {
+    setConfirmDelete(true);
+  }
+
+  function handleConfirmDelete() {
+    if (!tx) return;
+    deleteTransaction(tx.id);
+    setConfirmDelete(false);
+    navigate("/", { replace: true });
+  }
+
   const title = isEdit
     ? "Editar"
     : type === "income"
@@ -175,7 +190,21 @@ export default function AddEditTransactionPage() {
   return (
     <div className="min-h-dvh bg-white">
       {/* Header */}
-      <PageHeader title={title} onBack={goBack} />
+      <PageHeader
+        title={title}
+        onBack={goBack}
+        rightActions={
+          isEdit && tx ? (
+            <button
+              type="button"
+              onClick={handleAskDelete}
+              className="rounded-full p-2 hover:bg-red-50"
+            >
+              <Trash2 className="h-5 w-5 text-red-500" />
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Amount Input */}
       <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
@@ -387,6 +416,18 @@ export default function AddEditTransactionPage() {
           setShowCategoryDrawer(false);
         }}
         onNavigateToNewCategory={saveFormDraft}
+      />
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar movimiento"
+        message={`¿Seguro que deseas eliminar "${tx?.name}" por ${tx ? formatCOP(tx.amount) : ""}?`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        destructive
+        onConfirm={handleConfirmDelete}
+        onClose={() => setConfirmDelete(false)}
       />
     </div>
   );
