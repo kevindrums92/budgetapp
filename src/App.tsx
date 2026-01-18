@@ -22,6 +22,7 @@ import AddEditCategoryPage from "@/pages/AddEditCategoryPage";
 import CategoriesPage from "@/pages/CategoriesPage";
 import CategoryGroupsPage from "@/pages/CategoryGroupsPage";
 import AddEditCategoryGroupPage from "@/pages/AddEditCategoryGroupPage";
+import CategoryMonthDetailPage from "@/pages/CategoryMonthDetailPage";
 import ProfilePage from "@/pages/ProfilePage";
 import BackupPage from "@/pages/BackupPage";
 
@@ -94,6 +95,7 @@ function AppFrame() {
 
           <Route path="/category/new" element={<AddEditCategoryPage />} />
           <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
+          <Route path="/category/:categoryId/month/:month" element={<CategoryMonthDetailPage />} />
 
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category-groups" element={<CategoryGroupsPage />} />

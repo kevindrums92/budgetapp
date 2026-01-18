@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PieChart,
   Pie,
@@ -51,6 +52,7 @@ function shortMonthLabel(monthKey: string): string {
 }
 
 type CategoryChartItem = {
+  id: string;
   name: string;
   value: number;
   color: string;
@@ -71,6 +73,7 @@ type TrendData = {
 };
 
 export default function StatsPage() {
+  const navigate = useNavigate();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
@@ -90,6 +93,7 @@ export default function StatsPage() {
       .map(([categoryId, value]) => {
         const cat = categoryDefinitions.find((c) => c.id === categoryId);
         return {
+          id: categoryId,
           name: cat?.name ?? categoryId,
           value,
           color: cat?.color ?? "#9CA3AF",
@@ -386,15 +390,17 @@ export default function StatsPage() {
             </div>
 
             {/* Legend */}
-            <ul className="mt-4 space-y-2">
+            <div className="mt-4 space-y-2">
               {categoryChartData.map((item) => {
                 const IconComponent =
                   icons[kebabToPascal(item.icon) as keyof typeof icons];
 
                 return (
-                  <li
-                    key={item.name}
-                    className="flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm"
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => navigate(`/category/${item.id}/month/${selectedMonth}`)}
+                    className="w-full flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm active:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -412,10 +418,10 @@ export default function StatsPage() {
                     <span className="text-sm font-medium">
                       {formatCOP(item.value)}
                     </span>
-                  </li>
+                  </button>
                 );
               })}
-            </ul>
+            </div>
           </>
         )}
       </div>

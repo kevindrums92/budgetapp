@@ -5,27 +5,19 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
-- **Backup & Restore System (Phase 1 - Core)**: Manual backup and restore functionality
-  - Export complete data snapshots to JSON files with metadata and checksum validation
-  - Import backups with preview modal showing stats and warnings
-  - Automatic safety backup created before restore operations
-  - Local auto-backup system (keeps last 5 backups, max 5MB)
-  - New Settings page accessible from Profile menu
-  - Comprehensive error handling and data integrity verification
-- **Backup & Restore System (Phase 2 - Auto-Local)**: Automatic periodic backups
-  - BackupScheduler component for automatic local backups every 24 hours
-  - LocalBackupList component showing all auto-backups with restore/delete actions
-  - One-click restore from local backups with automatic safety backup
-  - Smart backup pruning (keeps last 5, max 5MB total)
-  - Visual feedback with formatted dates and file sizes
-- **Backup & Restore System (Phase 3 - Cloud)**: Cloud backup functionality
-  - CloudBackupScheduler component for automatic weekly cloud backups (every 7 days)
-  - CloudBackupList component showing all cloud backups with restore/delete actions
-  - Manual cloud backup creation via "Crear Backup" button
-  - Supabase user_backups table with RLS policies for secure storage
-  - Automatic cleanup of backups older than 30 days
-  - Cloud backups only visible for authenticated users (cloudMode === "cloud")
-  - Mobile-first modals for all confirmation dialogs
+- **Category Month Detail Page**: New drill-down view for category expenses
+  - Navigate from Stats page category cards to see all transactions in that category for the month
+  - PageHeader pattern with category info, total spent, and transaction count
+  - Direct navigation to edit transaction from list
+  - Route: `/category/:categoryId/month/:month`
+
+### Changed
+- **Stats Page Categories**: Category cards now clickable for detailed view
+  - Added navigation to CategoryMonthDetailPage on category card click
+  - Enhanced user flow: Stats → Category Detail → Transaction Edit
+
+### Fixed
+- **Transaction Delete Navigation**: Fixed bug where deleting a transaction would always navigate to home instead of going back to the previous page (e.g., CategoryMonthDetailPage)
 
 ### Changed
 - **PageHeader Standardization**: All pages now use centralized PageHeader component

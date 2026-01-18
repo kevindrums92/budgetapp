@@ -176,7 +176,7 @@ export default function AddEditTransactionPage() {
     if (!tx) return;
     deleteTransaction(tx.id);
     setConfirmDelete(false);
-    navigate("/", { replace: true });
+    navigate(-1);
   }
 
   const title = isEdit
