@@ -239,7 +239,9 @@ Special case: Transaction form uses a custom minimal header (not PageHeader).
 ```
 
 **Modal Specs (CRITICAL - Follow exactly)**:
-- Overlay: `fixed inset-0 z-50 flex items-center justify-center`
+- **Position**: ALWAYS centered in viewport (`fixed inset-0 z-50 flex items-center justify-center`)
+- **NEVER use bottom sheet pattern for confirmation modals** - those are ONLY for action selection
+- Overlay container: `fixed inset-0 z-50 flex items-center justify-center`
 - Backdrop: `absolute inset-0 bg-black/50` with onClick to close
 - Card: `relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl`
 - Title: `text-lg font-semibold text-gray-900` with `mb-2`

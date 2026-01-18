@@ -34,52 +34,44 @@ export default function ConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/40"
+      <div
+        className="absolute inset-0 bg-black/50"
         onClick={onClose}
-        aria-label="Cerrar"
       />
 
-      {/* Dialog (pegado abajo, full width) */}
-      <div className="absolute inset-x-0 bottom-0 z-50">
-        <div className="mx-auto w-full max-w-xl">
-          <div
-            className="w-full rounded-t-3xl bg-white p-4 shadow-2xl md:rounded-3xl md:p-6"
-            style={{
-              // 👇 deja espacio para el BottomBar + safe area
-              paddingBottom: `calc(env(safe-area-inset-bottom) + 30px)`,
-            }}
+      {/* Modal Card */}
+      <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+        <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          {title}
+        </h3>
+        <p className="mb-4 text-sm text-gray-600">
+          {message}
+        </p>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
           >
-            <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300 md:hidden" />
-
-            <h3 className="text-lg font-semibold">{title}</h3>
-            <p className="mt-2 text-sm text-gray-600">{message}</p>
-
-            <div className="mt-5 flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="w-full rounded-xl border px-4 py-2 font-medium"
-              >
-                {cancelText}
-              </button>
-
-              <button
-                type="button"
-                onClick={onConfirm}
-                className={`w-full rounded-xl px-4 py-2 font-medium text-white ${destructive ? "bg-red-600" : "bg-black"
-                  }`}
-              >
-                {confirmText}
-              </button>
-            </div>
-          </div>
+            {cancelText}
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className={`flex-1 rounded-xl py-3 text-sm font-medium text-white ${
+              destructive
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-blue-500 hover:bg-blue-600"
+            }`}
+          >
+            {confirmText}
+          </button>
         </div>
       </div>
-
     </div>
   );
 }
