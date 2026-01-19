@@ -173,9 +173,6 @@ test.describe('Core Functionality', () => {
   });
 
   test('should verify balance reflects transactions correctly', async ({ page }) => {
-    // Get initial balance
-    const balanceText = await page.locator('text=Balance').locator('..').locator('p').first().textContent();
-
     // Create an income transaction
     await page.click('[data-testid="fab-add-transaction"]');
     await page.click('button:has-text("Agregar Ingreso")');
