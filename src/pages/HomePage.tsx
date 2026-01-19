@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Search } from "lucide-react";
 import BalanceCard from "@/components/BalanceCard";
 import TransactionList from "@/components/TransactionList";
 import AddActionSheet from "@/components/AddActionSheet";
@@ -22,6 +22,7 @@ export default function HomePage() {
   const [showBanner, setShowBanner] = useState(false);
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -32,6 +33,11 @@ export default function HomePage() {
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const addTransaction = useBudgetStore((s) => s.addTransaction);
+
+  // Check if there are transactions in current month
+  const hasTransactions = useMemo(() => {
+    return transactions.some((t) => t.date.slice(0, 7) === selectedMonth);
+  }, [transactions, selectedMonth]);
 
   // Calculate daily budget based on current balance
   const dailyBudgetInfo = useMemo(() => {
@@ -108,6 +114,34 @@ export default function HomePage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <BalanceCard />
+
+      {/* Sticky Search Bar */}
+      {hasTransactions && (
+        <div className="sticky top-[252px] z-[5] bg-gray-50 pb-3 pt-4">
+          <div className="mx-auto max-w-xl px-4">
+            <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm">
+              <Search size={20} className="shrink-0 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar por nombre, categoría..."
+                className="min-w-0 flex-1 border-0 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 focus:ring-0"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="shrink-0 rounded-full p-1 hover:bg-gray-100"
+                >
+                  <X size={18} className="text-gray-400" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="pb-28 pt-4">
         {showBanner && (
           <RecurringBanner
@@ -146,7 +180,7 @@ export default function HomePage() {
           </div>
         )}
 
-        <TransactionList />
+        <TransactionList searchQuery={searchQuery} />
       </main>
 
       {/* FAB para agregar transacción */}
