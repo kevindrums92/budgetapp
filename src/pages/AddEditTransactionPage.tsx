@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, MessageSquare, Calendar, Tag, FileText, Repeat } from "lucide-react";
+import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
+import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
+import { formatCOP } from "@/features/transactions/transactions.utils";
 import DatePicker from "@/components/DatePicker";
 import CategoryPickerDrawer from "@/components/CategoryPickerDrawer";
+import PageHeader from "@/components/PageHeader";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { TransactionType } from "@/types/budget.types";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
@@ -22,10 +25,12 @@ export default function AddEditTransactionPage() {
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const isEdit = Boolean(params.id);
 
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
+  const deleteTransaction = useBudgetStore((s) => s.deleteTransaction);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const transactions = useBudgetStore((s) => s.transactions);
 
@@ -44,6 +49,7 @@ export default function AddEditTransactionPage() {
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   // Get selected category object
   const selectedCategory = useMemo(() => {
@@ -63,11 +69,12 @@ export default function AddEditTransactionPage() {
     sessionStorage.removeItem(FORM_STORAGE_KEY);
   }, []);
 
-  // Preload from URL param, existing transaction, or saved draft
+  // Load form data on mount
   useEffect(() => {
     if (initialized) return;
 
     if (tx) {
+      // Editing existing transaction
       setType(tx.type);
       setName(tx.name);
       setCategoryId(tx.category);
@@ -75,48 +82,61 @@ export default function AddEditTransactionPage() {
       setDate(tx.date);
       setNotes(tx.notes || "");
       setIsRecurring(tx.isRecurring || false);
-      setInitialized(true);
-      return;
+    } else {
+      // New transaction - check URL params
+      const typeParam = searchParams.get("type");
+      if (typeParam === "income" || typeParam === "expense") {
+        setType(typeParam);
+      }
     }
 
-    // Check if returning from category creation with a new category
-    const newCategoryId = searchParams.get("newCategoryId");
+    setInitialized(true);
+  }, [initialized, tx, searchParams]);
 
-    // Check for saved draft first (for when returning from category creation)
+  // Check for draft/new category when returning from category creation
+  useEffect(() => {
+    if (isEdit || !initialized) return;
+
+    const newCategoryId = sessionStorage.getItem("newCategoryId");
     const savedDraft = sessionStorage.getItem(FORM_STORAGE_KEY);
-    if (savedDraft) {
+
+    if (newCategoryId) {
+      sessionStorage.removeItem("newCategoryId");
+
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft);
+          setType(draft.type || "expense");
+          setName(draft.name || "");
+          setCategoryId(newCategoryId); // Use new category
+          setAmount(draft.amount || "");
+          setDate(draft.date || todayISO());
+          setNotes(draft.notes || "");
+          setIsRecurring(draft.isRecurring || false);
+        } catch {
+          // Invalid draft, just set new category
+          setCategoryId(newCategoryId);
+        }
+      } else {
+        // Only new category, no draft
+        setCategoryId(newCategoryId);
+      }
+    } else if (savedDraft) {
+      // No new category but there's a draft (user cancelled category creation)
       try {
         const draft = JSON.parse(savedDraft);
         setType(draft.type || "expense");
         setName(draft.name || "");
-        // Use new category if provided, otherwise use draft's category
-        setCategoryId(newCategoryId || draft.categoryId);
+        setCategoryId(draft.categoryId || null);
         setAmount(draft.amount || "");
         setDate(draft.date || todayISO());
         setNotes(draft.notes || "");
         setIsRecurring(draft.isRecurring || false);
-        clearFormDraft();
-        setInitialized(true);
-        return;
       } catch {
-        // Invalid draft, continue with normal initialization
+        // Invalid draft, ignore
       }
     }
-
-    // New transaction - check URL params
-    const typeParam = searchParams.get("type");
-    if (typeParam === "income" || typeParam === "expense") {
-      setType(typeParam);
-    } else {
-      setType("expense");
-    }
-    setName("");
-    // If we have a new category but no draft, still select it
-    setCategoryId(newCategoryId);
-    setAmount("");
-    setDate(todayISO());
-    setInitialized(true);
-  }, [tx, searchParams, initialized, clearFormDraft]);
+  }, [isEdit, initialized, location]); // Re-run when location changes (navigation back)
 
   // Redirect if editing non-existent transaction
   useEffect(() => {
@@ -131,6 +151,7 @@ export default function AddEditTransactionPage() {
     date.length === 10;
 
   function goBack() {
+    clearFormDraft(); // Clear draft when user cancels
     navigate(-1);
   }
 
@@ -160,7 +181,20 @@ export default function AddEditTransactionPage() {
         isRecurring,
       });
     }
+    clearFormDraft(); // Clear draft when user saves
     goBack();
+  }
+
+  function handleAskDelete() {
+    setConfirmDelete(true);
+  }
+
+  function handleConfirmDelete() {
+    if (!tx) return;
+    deleteTransaction(tx.id);
+    clearFormDraft(); // Clear draft when deleting
+    setConfirmDelete(false);
+    navigate(-1);
   }
 
   const title = isEdit
@@ -174,22 +208,21 @@ export default function AddEditTransactionPage() {
   return (
     <div className="min-h-dvh bg-white">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-white">
-        <div className="mx-auto max-w-xl px-4">
-          <div className="flex h-14 items-center gap-3">
+      <PageHeader
+        title={title}
+        onBack={goBack}
+        rightActions={
+          isEdit && tx ? (
             <button
               type="button"
-              onClick={goBack}
-              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 active:scale-95"
+              onClick={handleAskDelete}
+              className="rounded-full p-2 hover:bg-red-50"
             >
-              <ChevronLeft className="h-6 w-6 text-gray-700" />
+              <Trash2 className="h-5 w-5 text-red-500" />
             </button>
-            <h1 className="text-base font-semibold text-gray-900">
-              {title}
-            </h1>
-          </div>
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       {/* Amount Input */}
       <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
@@ -401,6 +434,18 @@ export default function AddEditTransactionPage() {
           setShowCategoryDrawer(false);
         }}
         onNavigateToNewCategory={saveFormDraft}
+      />
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar movimiento"
+        message={`¿Seguro que deseas eliminar "${tx?.name}" por ${tx ? formatCOP(tx.amount) : ""}?`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        destructive
+        onConfirm={handleConfirmDelete}
+        onClose={() => setConfirmDelete(false)}
       />
     </div>
   );

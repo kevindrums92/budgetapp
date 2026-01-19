@@ -18,12 +18,13 @@ import TripDetailPage from "@/pages/TripDetailPage";
 import AddEditTripPage from "@/pages/AddEditTripPage";
 import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
 import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
-import TransactionDetailPage from "@/pages/TransactionDetailPage";
 import AddEditCategoryPage from "@/pages/AddEditCategoryPage";
 import CategoriesPage from "@/pages/CategoriesPage";
 import CategoryGroupsPage from "@/pages/CategoryGroupsPage";
 import AddEditCategoryGroupPage from "@/pages/AddEditCategoryGroupPage";
+import CategoryMonthDetailPage from "@/pages/CategoryMonthDetailPage";
 import ProfilePage from "@/pages/ProfilePage";
+import BackupPage from "@/pages/BackupPage";
 
 import CloudSyncGate from "@/components/CloudSyncGate";
 import WelcomeGate from "@/components/WelcomeGate";
@@ -43,8 +44,8 @@ function AppFrame() {
   const isFormRoute =
     location.pathname === "/add" ||
     location.pathname === "/profile" ||
+    location.pathname === "/backup" ||
     location.pathname.startsWith("/edit/") ||
-    location.pathname.startsWith("/transaction/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
     location.pathname.startsWith("/categories");
@@ -91,10 +92,10 @@ function AppFrame() {
 
           <Route path="/add" element={<AddEditTransactionPage />} />
           <Route path="/edit/:id" element={<AddEditTransactionPage />} />
-          <Route path="/transaction/:id" element={<TransactionDetailPage />} />
 
           <Route path="/category/new" element={<AddEditCategoryPage />} />
           <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
+          <Route path="/category/:categoryId/month/:month" element={<CategoryMonthDetailPage />} />
 
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/category-groups" element={<CategoryGroupsPage />} />
@@ -102,6 +103,7 @@ function AppFrame() {
           <Route path="/category-group/:id/edit" element={<AddEditCategoryGroupPage />} />
 
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/backup" element={<BackupPage />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

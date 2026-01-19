@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.6.2",
+  "version": "0.7.0",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -18,12 +18,17 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:report": "playwright show-report",
     "release": "bash scripts/release.sh",
     "dev:sync": "git pull origin develop",
     "dev:save": "git add . && git commit && git push origin develop",
     "dev:update-from-main": "git checkout develop && git merge main && git push origin develop",
     "diff:main": "git diff main..develop",
-    "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run"
+    "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run && npm run test:e2e"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
@@ -39,6 +44,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",

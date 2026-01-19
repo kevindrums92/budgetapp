@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PieChart,
   Pie,
@@ -51,6 +52,7 @@ function shortMonthLabel(monthKey: string): string {
 }
 
 type CategoryChartItem = {
+  id: string;
   name: string;
   value: number;
   color: string;
@@ -71,6 +73,7 @@ type TrendData = {
 };
 
 export default function StatsPage() {
+  const navigate = useNavigate();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
@@ -90,6 +93,7 @@ export default function StatsPage() {
       .map(([categoryId, value]) => {
         const cat = categoryDefinitions.find((c) => c.id === categoryId);
         return {
+          id: categoryId,
           name: cat?.name ?? categoryId,
           value,
           color: cat?.color ?? "#9CA3AF",
@@ -247,10 +251,11 @@ export default function StatsPage() {
   }, [transactions, selectedMonth, categoryDefinitions]);
 
   return (
-    <div className="mx-auto max-w-xl px-4 pt-6 pb-28">
-      {/* Header */}
-      <h2 className="text-base font-semibold">Estadísticas</h2>
-      <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
+    <div className="bg-gray-50 min-h-screen">
+      <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
+        {/* Header */}
+        <h2 className="text-base font-semibold">Estadísticas</h2>
+        <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
 
       {/* Daily Budget Banner - Only for current month with budget */}
       {quickStats.isCurrentMonth &&
@@ -368,6 +373,7 @@ export default function StatsPage() {
                     outerRadius={100}
                     paddingAngle={2}
                     stroke="none"
+                    isAnimationActive={false}
                   >
                     {categoryChartData.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
@@ -386,15 +392,17 @@ export default function StatsPage() {
             </div>
 
             {/* Legend */}
-            <ul className="mt-4 space-y-2">
+            <div className="mt-4 space-y-2">
               {categoryChartData.map((item) => {
                 const IconComponent =
                   icons[kebabToPascal(item.icon) as keyof typeof icons];
 
                 return (
-                  <li
-                    key={item.name}
-                    className="flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm"
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => navigate(`/category/${item.id}/month/${selectedMonth}`)}
+                    className="w-full flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm active:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -412,10 +420,10 @@ export default function StatsPage() {
                     <span className="text-sm font-medium">
                       {formatCOP(item.value)}
                     </span>
-                  </li>
+                  </button>
                 );
               })}
-            </ul>
+            </div>
           </>
         )}
       </div>
@@ -456,12 +464,14 @@ export default function StatsPage() {
                   name="Ingresos"
                   fill="#10B981"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
                 />
                 <Bar
                   dataKey="expense"
                   name="Gastos"
                   fill="#EF4444"
                   radius={[4, 4, 0, 0]}
+                  isAnimationActive={false}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -520,11 +530,13 @@ export default function StatsPage() {
                 strokeWidth={2}
                 dot={{ fill: "#EF4444", strokeWidth: 0, r: 3 }}
                 activeDot={{ r: 5, fill: "#EF4444" }}
+                isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
         )}
       </div>
+      </main>
     </div>
   );
 }

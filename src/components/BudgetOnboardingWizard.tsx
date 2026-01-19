@@ -101,10 +101,10 @@ export default function BudgetOnboardingWizard({ open, onClose }: Props) {
       className="fixed inset-0 z-[85] bg-white transition-opacity duration-300"
       style={{ opacity: isAnimating ? 1 : 0 }}
     >
-      <div className="mx-auto flex min-h-dvh max-w-md flex-col px-6">
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col px-6 relative">
         {/* Skip Button */}
         {!isLastSlide && (
-          <div className="flex justify-end pt-4">
+          <div className="absolute top-4 right-6 z-10">
             <button
               type="button"
               onClick={handleSkip}
@@ -116,19 +116,20 @@ export default function BudgetOnboardingWizard({ open, onClose }: Props) {
         )}
 
         {/* Carousel Container - Centered content */}
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <div className="w-full overflow-hidden" ref={emblaRef}>
-            <div className="flex">
-              {SLIDES.map((slide, idx) => {
-                const Icon = slide.icon;
-                return (
-                  <div
-                    key={idx}
-                    className="min-w-0 shrink-0 grow-0 basis-full px-4 text-center"
-                  >
+        <div className="flex-1 overflow-hidden" ref={emblaRef}>
+          <div className="flex h-full touch-pan-y">
+            {SLIDES.map((slide, idx) => {
+              const Icon = slide.icon;
+              return (
+                <div
+                  key={idx}
+                  className="min-w-0 shrink-0 grow-0 basis-full px-8 h-full flex items-center"
+                  style={{ flex: '0 0 100%' }}
+                >
+                  <div className="flex w-full flex-col items-center text-center" style={{ marginTop: '60px' }}>
                     {/* Icon */}
                     <div
-                      className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl"
+                      className="mb-8 flex h-24 w-24 items-center justify-center rounded-3xl"
                       style={{ backgroundColor: `${slide.color}20` }}
                     >
                       <Icon className="h-12 w-12" style={{ color: slide.color }} />
@@ -140,13 +141,13 @@ export default function BudgetOnboardingWizard({ open, onClose }: Props) {
                     </h2>
 
                     {/* Description */}
-                    <p className="text-lg leading-relaxed text-gray-600">
+                    <p className="mx-auto max-w-sm text-lg leading-relaxed text-gray-600">
                       {slide.description}
                     </p>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

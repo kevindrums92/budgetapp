@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
-import { X, User, FolderOpen, ChevronRight } from "lucide-react";
+import { X, User, FolderOpen, ChevronRight, Shield } from "lucide-react";
 
 type UserInfo = {
   email: string | null;
@@ -82,7 +82,12 @@ export default function ProfilePage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: {
+          prompt: "select_account",
+        },
+      },
     });
     if (error) setLoading(false);
   }
@@ -185,6 +190,11 @@ export default function ProfilePage() {
             icon={<FolderOpen size={20} />}
             label="Categorías"
             onClick={() => navigate("/categories")}
+          />
+          <MenuItem
+            icon={<Shield size={20} />}
+            label="Backup & Restore"
+            onClick={() => navigate("/backup")}
           />
         </div>
       </div>

@@ -4,6 +4,89 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.7.0] - 2026-01-18
+
+### Added
+- **Category Month Detail Page**: New drill-down view for category expenses
+  - Navigate from Stats page category cards to see all transactions in that category for the month
+  - PageHeader pattern with centered category icon, total spent, and transaction count
+  - Shows month label and transaction count with proper singular/plural handling
+  - Clean transaction list without redundant category icons
+  - Recurring transaction indicator (Repeat icon) on applicable items
+  - Direct navigation to edit transaction from list
+  - Auto-scroll to top on mount
+  - Route: `/category/:categoryId/month/:month`
+
+### Changed
+- **Stats Page Categories**: Category cards now clickable for detailed view
+  - Added navigation to CategoryMonthDetailPage on category card click
+  - Enhanced user flow: Stats → Category Detail → Transaction Edit
+- **Stats Page Charts**: Disabled animations to fix iOS touch event issues
+  - All Recharts components now use `isAnimationActive={false}`
+  - Resolved issue where chart animations blocked touch interactions on iPhone
+  - Pie chart hover effects disabled with CSS to prevent visual glitches on tap
+
+### Fixed
+- **iOS Touch Events**: Fixed severe touch responsiveness issues on iPhone
+  - Recharts animations were blocking touch events during animation
+  - Required multiple taps to interact with UI elements when scrolling near charts
+  - Solution: Disabled all chart animations across Pie, Bar, and Line charts
+- **CategoryMonthDetailPage Scroll**: Page now scrolls to top on mount for better UX
+- **Transaction Form Navigation**: Fixed double back press bug when creating categories from transaction form
+  - Proper navigation history: Home → Create Transaction → Create Category → Back to Transaction (with preserved data) → Back to Home
+  - Form data now preserved when navigating to/from category creation
+  - New category automatically selected when returning from successful creation
+  - Draft restoration works for both successful creation and cancellation scenarios
+- **WelcomeGate Google Login**: Added account selector prompt to OAuth flow
+  - `prompt: 'select_account'` forces Google to show account picker
+  - Prevents automatic re-login with cached account
+  - Applied to both ProfilePage and WelcomeGate components
+- **BudgetOnboardingWizard Layout**: Improved carousel layout and UX
+  - Extended carousel container to full height for better drag area
+  - Content properly centered vertically within the viewport
+  - Users can now swipe from anywhere on the screen, not just content area
+  - Optimized slide structure for better mobile touch response
+- **Transaction Delete Navigation**: Fixed bug where deleting a transaction would always navigate to home instead of going back to the previous page (e.g., CategoryMonthDetailPage)
+
+### Changed
+- **PageHeader Standardization**: All pages now use centralized PageHeader component
+  - Refactored 6 pages: AddEditTransactionPage, AddEditCategoryPage, AddEditCategoryGroupPage, TripDetailPage, AddEditTripPage, AddEditTripExpensePage
+  - Removed 54 lines of duplicate header code
+  - PageHeader now supports React.ReactNode titles for custom multi-line headers
+  - Consistent back button behavior and rightActions prop across all pages
+- **Transaction Detail UX**: Removed intermediate detail page for faster editing
+  - Transactions in list now navigate directly to edit page
+  - Delete button moved to edit page header with ConfirmDialog
+  - Removed TransactionDetailPage.tsx and `/transaction/:id` route
+  - Streamlined navigation flow: tap transaction → edit immediately
+- **Trips Module Refactoring**: Complete redesign following CLAUDE.md guidelines
+  - **DatePicker Component**: All date inputs now use custom DatePicker modal instead of native `<input type="date">`
+    - Spanish locale (es-CO) with readable format
+    - Mobile-optimized calendar UI with year picker
+    - Consistent UX across AddEditTripPage and AddEditTripExpensePage
+    - CLAUDE.md updated with DatePicker pattern and usage guidelines
+  - **TripsPage Layout**: Improved visual hierarchy
+    - Added persistent "Mis Viajes" header when trips exist
+    - Dynamic section titles: "Viaje actual" / "Próximos viajes" / "Otros viajes"
+    - FAB (Floating Action Button) appears only when trips exist
+    - Empty state shows centered "Crear viaje" button
+  - **TripDetailPage UX**: Aligned with TransactionList pattern
+    - Expense items now clickable buttons (navigate to edit on tap)
+    - Removed 3-dot menu (RowMenu) from expense list
+    - Delete button moved to PageHeader in AddEditTripExpensePage
+    - FAB appears only when expenses exist (empty state shows centered button)
+    - Section header "GASTOS (n)" only visible when expenses exist
+  - **AddEditTripExpensePage**: Delete functionality in header
+    - Trash icon button in PageHeader rightActions (edit mode only)
+    - ConfirmDialog for delete confirmation
+    - Consistent with AddEditTransactionPage pattern
+  - **Design System Compliance**: All pages now follow CLAUDE.md specifications
+    - Correct page structure: `flex min-h-screen flex-col bg-gray-50`
+    - Proper content padding: `flex-1 px-4 pt-6 pb-8`
+    - FAB specs: z-40, safe-area-inset, correct shadow
+    - Border radius: rounded-xl for cards, rounded-2xl for buttons
+    - Spanish locale (es-CO) for all date formatting
+
 ## [0.6.2] - 2026-01-17
 
 ### Fixed

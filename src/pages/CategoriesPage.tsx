@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { icons, ChevronLeft, Plus, FolderOpen, ChevronRight } from "lucide-react";
+import { icons, Plus, FolderOpen, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
+import PageHeader from "@/components/PageHeader";
 
 type Tab = "expense" | "income";
 
@@ -46,35 +47,28 @@ export default function CategoriesPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-white px-4 py-4 shadow-sm">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="rounded-full p-1 hover:bg-gray-100"
-          >
-            <ChevronLeft className="h-6 w-6 text-gray-700" />
-          </button>
-          <h1 className="text-lg font-semibold text-gray-900">Categorías</h1>
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => navigate("/category-groups")}
-            className="rounded-full p-2 hover:bg-gray-100"
-            title="Grupos de categorías"
-          >
-            <FolderOpen className="h-5 w-5 text-gray-700" />
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate(`/category/new?type=${activeTab}`)}
-            className="rounded-full p-2 hover:bg-gray-100"
-          >
-            <Plus className="h-5 w-5 text-gray-700" />
-          </button>
-        </div>
-      </header>
+      <PageHeader
+        title="Categorías"
+        rightActions={
+          <>
+            <button
+              type="button"
+              onClick={() => navigate("/category-groups")}
+              className="rounded-full p-2 hover:bg-gray-100"
+              title="Grupos de categorías"
+            >
+              <FolderOpen className="h-5 w-5 text-gray-700" />
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate(`/category/new?type=${activeTab}`)}
+              className="rounded-full p-2 hover:bg-gray-100"
+            >
+              <Plus className="h-5 w-5 text-gray-700" />
+            </button>
+          </>
+        }
+      />
 
       {/* Tabs */}
       <div className="flex gap-2 bg-white px-4 pt-3 pb-4">

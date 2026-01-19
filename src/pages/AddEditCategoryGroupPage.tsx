@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { CATEGORY_COLORS } from "@/constants/category-colors";
 import type { TransactionType } from "@/types/budget.types";
+import PageHeader from "@/components/PageHeader";
 
 const DEFAULT_GROUP_COLOR = "#6B7280"; // Gray
 
@@ -72,29 +73,20 @@ export default function AddEditCategoryGroupPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-white px-4 py-4 shadow-sm">
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="rounded-full p-1 hover:bg-gray-100"
-          >
-            <ChevronLeft className="h-6 w-6 text-gray-700" />
-          </button>
-          <h1 className="text-lg font-semibold text-gray-900">
-            {isEditing ? "Editar Grupo" : "Nuevo Grupo"}
-          </h1>
-        </div>
-        {isEditing && currentGroup && !currentGroup.isDefault && (
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="rounded-full p-2 hover:bg-red-50"
-          >
-            <Trash2 className="h-5 w-5 text-red-500" />
-          </button>
-        )}
-      </header>
+      <PageHeader
+        title={isEditing ? "Editar Grupo" : "Nuevo Grupo"}
+        rightActions={
+          isEditing && currentGroup && !currentGroup.isDefault ? (
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="rounded-full p-2 hover:bg-red-50"
+            >
+              <Trash2 className="h-5 w-5 text-red-500" />
+            </button>
+          ) : undefined
+        }
+      />
 
       {/* Content */}
       <div className="flex-1 p-4">

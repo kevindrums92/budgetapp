@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Plus, ChevronRight } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
+import PageHeader from "@/components/PageHeader";
 
 type Tab = "expense" | "income";
 
@@ -30,25 +31,18 @@ export default function CategoryGroupsPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between bg-white px-4 py-4 shadow-sm">
-        <div className="flex items-center gap-3">
+      <PageHeader
+        title="Grupos de Categorías"
+        rightActions={
           <button
             type="button"
-            onClick={() => navigate(-1)}
-            className="rounded-full p-1 hover:bg-gray-100"
+            onClick={() => navigate(`/category-group/new?type=${activeTab}`)}
+            className="rounded-full p-2 hover:bg-gray-100"
           >
-            <ChevronLeft className="h-6 w-6 text-gray-700" />
+            <Plus className="h-5 w-5 text-gray-700" />
           </button>
-          <h1 className="text-lg font-semibold text-gray-900">Grupos de Categorías</h1>
-        </div>
-        <button
-          type="button"
-          onClick={() => navigate(`/category-group/new?type=${activeTab}`)}
-          className="rounded-full p-2 hover:bg-gray-100"
-        >
-          <Plus className="h-5 w-5 text-gray-700" />
-        </button>
-      </header>
+        }
+      />
 
       {/* Tabs */}
       <div className="flex gap-2 bg-white px-4 pt-3 pb-4">
