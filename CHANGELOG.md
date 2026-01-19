@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.8.0] - 2026-01-18
+
 ### Added
 - **Transaction Status System**: Nuevo campo de estado para transacciones
   - Estados disponibles: "Pagado", "Pendiente", "Planeado"
