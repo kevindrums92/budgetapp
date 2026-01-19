@@ -257,22 +257,6 @@ export default function StatsPage() {
         <h2 className="text-base font-semibold">Estadísticas</h2>
         <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
 
-      {/* Daily Budget Banner - Only for current month with budget */}
-      {quickStats.isCurrentMonth &&
-        quickStats.totalBudget > 0 &&
-        quickStats.daysRemaining > 0 && (
-          <div className="mt-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 text-white shadow-lg">
-            <p className="text-sm">
-              Tu presupuesto para los próximos{" "}
-              <span className="font-bold">{quickStats.daysRemaining} días</span> es{" "}
-              <span className="text-lg font-bold">
-                {formatCOP(quickStats.dailyBudget)}
-              </span>{" "}
-              por día. ¡Gasta sabiamente!
-            </p>
-          </div>
-        )}
-
       {/* Quick Stats */}
       {quickStats.hasData && (
         <div className="mt-4 grid grid-cols-2 gap-3">
