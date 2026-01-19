@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.7.1] - 2026-01-18
+
 ### Added
 - **Daily Budget Banner**: Banner de presupuesto diario en HomePage
   - Muestra el presupuesto disponible por día basado en el balance actual
