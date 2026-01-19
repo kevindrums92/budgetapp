@@ -3,6 +3,7 @@ import type {
   BudgetState,
   Transaction,
   TransactionType,
+  TransactionStatus,
   Trip,
   TripExpense,
   TripStatus,
@@ -26,6 +27,7 @@ type AddTxInput = {
   date: string; // YYYY-MM-DD
   notes?: string;
   isRecurring?: boolean;
+  status?: TransactionStatus;
 };
 
 type AddTripInput = {
@@ -196,6 +198,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         date: input.date,
         notes: input.notes,
         isRecurring: input.isRecurring,
+        status: input.status,
         createdAt: Date.now(),
       };
 

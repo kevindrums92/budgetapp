@@ -20,6 +20,10 @@ Cambios: !`git diff --name-only`
    - NO tocar otras secciones/versiones.
 
 ## Reglas
+- **NUNCA** modificar números de versión en ningún archivo
+- **NUNCA** modificar el campo `version` en package.json
+- **SIEMPRE** agregar entradas bajo `## [unreleased] - {release date}` (mantener ese heading exacto, incluyendo el typo "relase")
+- **NUNCA** crear nuevas secciones con números de versión (ej: `## [0.8.0]` está prohibido)
 - Si no hay cambios (`git status` vacío), detente y dilo.
 - El commit debe incluir: (a) el cambio real y (b) `CHANGELOG.md`.
 - Antes de commitear: mostrar `git diff --staged`.
@@ -45,10 +49,12 @@ Cambios: !`git diff --name-only`
 1) Abre `CHANGELOG.md` y busca exactamente el heading:
    - `## [unreleased] - {relase date}`
 
-2) Agrega 2–6 bullets nuevos describiendo el cambio.
-   - Preferir verbos en imperativo (“add…”, “fix…”, “refactor…”, “improve…”).
+2) Agrega 2–6 bullets nuevos describiendo el cambio **INMEDIATAMENTE después del heading** (antes de cualquier otro contenido).
+   - Preferir verbos en imperativo ("add…", "fix…", "refactor…", "improve…").
    - Mantener el estilo de bullets ya usado en el archivo.
-   - NO cambies el heading ni arregles el typo a menos que el cambio del PR sea precisamente sobre eso.
+   - NO cambies el heading ni arregles el typo.
+   - NO modifiques ni agregues números de versión.
+   - NO crees nuevas secciones versionadas.
 
 ---
 

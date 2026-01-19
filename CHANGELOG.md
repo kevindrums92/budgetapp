@@ -4,6 +4,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Transaction Status System**: Nuevo campo de estado para transacciones
+  - Estados disponibles: "Pagado", "Pendiente", "Planeado"
+  - Badge visual en TransactionItem que muestra el estado (solo si no es "Pagado")
+  - Selector de estado en AddEditTransactionPage con 3 botones
+  - Gastos recurrentes se replican automáticamente con estado "Pendiente"
+  - Ingresos recurrentes se replican con estado "Pagado"
+  - Color amarillo (amber) para "Pendiente", azul para "Planeado"
+- **Feature Documentation**: Documento FEATURE_TRANSACTION_TAGS.md con análisis de 3 opciones de diseño
+
 ## [0.7.2] - 2026-01-18
 
 ### Added

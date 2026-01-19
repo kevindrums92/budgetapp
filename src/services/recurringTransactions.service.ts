@@ -72,6 +72,7 @@ export function markIgnoredForMonth(month: string): void {
 /**
  * Replica una transacción al mes objetivo manteniendo el mismo día del mes
  * Si el día no existe en el mes objetivo (ej: 31 en febrero), usa el último día del mes
+ * Los gastos se replican con status "pending", los ingresos con "paid"
  */
 export function replicateTransaction(
   tx: Transaction,
@@ -96,6 +97,7 @@ export function replicateTransaction(
     date: targetDate,
     notes: tx.notes,
     isRecurring: true, // Mantener como recurrente
+    status: tx.type === "expense" ? "pending" : undefined, // Gastos pendientes, ingresos pagados
   };
 }
 
