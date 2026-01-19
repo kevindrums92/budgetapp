@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.7.0] - 2026-01-18
+
 ### Added
 - **Category Month Detail Page**: New drill-down view for category expenses
   - Navigate from Stats page category cards to see all transactions in that category for the month
