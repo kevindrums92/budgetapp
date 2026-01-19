@@ -83,6 +83,7 @@ export default function HomePage() {
       {/* FAB para agregar transacción */}
       <button
         type="button"
+        data-testid="fab-add-transaction"
         onClick={() => setAddSheetOpen(true)}
         className={[
           "fixed right-4 z-40",
