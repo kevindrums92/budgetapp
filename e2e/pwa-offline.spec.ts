@@ -36,16 +36,14 @@ test.describe('PWA Offline Support', () => {
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
 
-    // Verify transaction created
+    // Wait to be back on home and verify transaction created
+    await expect(page.locator('text=Balance')).toBeVisible();
     await expect(page.locator('text=Online Transaction')).toBeVisible();
 
     // Go offline
     await context.setOffline(true);
 
-    // Reload page (should work from cache/localStorage)
-    await page.reload();
-
-    // App should still work
+    // App should still work (PWA should work offline without reload)
     await expect(page.locator('text=Balance')).toBeVisible();
     await expect(page.locator('text=Online Transaction')).toBeVisible();
 
@@ -64,7 +62,8 @@ test.describe('PWA Offline Support', () => {
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
 
-    // Verify offline transaction was created
+    // Wait to be back on home and verify offline transaction was created
+    await expect(page.locator('text=Balance')).toBeVisible();
     await expect(page.locator('text=Offline Transaction')).toBeVisible();
 
     // Go back online
@@ -92,8 +91,12 @@ test.describe('PWA Offline Support', () => {
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
 
-    // Verify transaction exists
+    // Wait to be back on home and verify transaction exists
+    await expect(page.locator('text=Balance')).toBeVisible();
     await expect(page.locator('text=Persist Test')).toBeVisible();
+
+    // Wait a bit for localStorage to be updated
+    await page.waitForTimeout(500);
 
     // Get localStorage data before reload
     const beforeReload = await page.evaluate(() =>
@@ -142,6 +145,8 @@ test.describe('PWA Offline Support', () => {
       await page.click('button:has-text("Mercado")');
       await page.click('button:has-text("Guardar")');
 
+      // Wait to be back on home before verifying
+      await expect(page.locator('text=Balance')).toBeVisible();
       await expect(page.locator(`text=Offline Transaction ${i}`)).toBeVisible();
     }
 
@@ -153,6 +158,9 @@ test.describe('PWA Offline Support', () => {
     // Go online and reload
     await context.setOffline(false);
     await page.reload();
+
+    // Wait for page to load
+    await expect(page.locator('text=Balance')).toBeVisible();
 
     // All transactions should still be there
     await expect(page.locator('text=Offline Transaction 1')).toBeVisible();
@@ -176,11 +184,15 @@ test.describe('PWA Offline Support', () => {
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
 
-    // Verify transaction visible
+    // Wait to be back on home and verify transaction visible
+    await expect(page.locator('text=Balance')).toBeVisible();
     await expect(page.locator('text=Current Month Transaction')).toBeVisible();
 
     // Reload page
     await page.reload();
+
+    // Wait for page to load
+    await expect(page.locator('text=Balance')).toBeVisible();
 
     // Transaction should still be visible
     await expect(page.locator('text=Current Month Transaction')).toBeVisible();

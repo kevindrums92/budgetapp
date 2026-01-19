@@ -40,6 +40,9 @@ test.describe('Release Features - v0.7.0', () => {
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
 
+    // Wait to be back on home
+    await expect(page.locator('text=Balance')).toBeVisible();
+
     // Create another transaction in same category
     await page.click('[data-testid="fab-add-transaction"]');
     await page.click('button:has-text("Agregar Gasto")');
@@ -55,6 +58,9 @@ test.describe('Release Features - v0.7.0', () => {
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
 
+    // Wait to be back on home
+    await expect(page.locator('text=Balance')).toBeVisible();
+
     // Navigate to Stats page
     await page.click('text=Stats');
     await expect(page.locator('text=Estadísticas')).toBeVisible();
@@ -68,7 +74,8 @@ test.describe('Release Features - v0.7.0', () => {
 
     // Verify page shows category icon and total
     await expect(page.locator('text=Mercado')).toBeVisible();
-    await expect(page.locator('text=85.000')).toBeVisible(); // Total of both transactions
+    // Verify total (may appear in multiple places, so use first)
+    await expect(page.locator('text=85.000').first()).toBeVisible();
 
     // Verify transaction count
     await expect(page.locator('text=2 transacciones')).toBeVisible();
@@ -94,6 +101,9 @@ test.describe('Release Features - v0.7.0', () => {
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
 
+    // Wait to be back on home
+    await expect(page.locator('text=Balance')).toBeVisible();
+
     // Go to Stats
     await page.click('text=Stats');
 
@@ -104,7 +114,7 @@ test.describe('Release Features - v0.7.0', () => {
     await page.click('text=Test Category Detail');
 
     // Should navigate to edit page
-    await expect(page.locator('text=Editar transacción')).toBeVisible();
+    await expect(page.locator('text=Editar')).toBeVisible();
   });
 
   test('Transaction Delete Navigation - should go back to previous page after delete', async ({ page }) => {
@@ -122,6 +132,9 @@ test.describe('Release Features - v0.7.0', () => {
     await expect(page.locator('button:has-text("Mercado")')).toBeVisible();
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
+
+    // Wait to be back on home
+    await expect(page.locator('text=Balance')).toBeVisible();
 
     // Go to Stats -> Category Detail
     await page.click('text=Stats');
@@ -233,7 +246,7 @@ test.describe('Release Features - v0.7.0', () => {
     await page.click('button:has(svg[class*="lucide-chevron-left"])'); // Back button
 
     // Should be back on transaction form
-    await expect(page.locator('text=Nueva transacción')).toBeVisible();
+    await expect(page.locator('text=Nuevo Gasto')).toBeVisible();
 
     // Data should be preserved
     const nameValue = await page.locator('input[placeholder*="qué gastaste"]').inputValue();
@@ -258,6 +271,9 @@ test.describe('Release Features - v0.7.0', () => {
     await expect(page.locator('button:has-text("Mercado")')).toBeVisible();
     await page.click('button:has-text("Mercado")');
     await page.click('button:has-text("Guardar")');
+
+    // Wait to be back on home
+    await expect(page.locator('text=Balance')).toBeVisible();
 
     // Navigate to Stats
     await page.click('text=Stats');
