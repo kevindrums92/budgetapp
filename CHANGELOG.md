@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.7.2] - 2026-01-18
+
 ### Added
 - **Transaction Search**: Barra de búsqueda en la lista de transacciones
   - Filtra por nombre de transacción, categoría o notas
