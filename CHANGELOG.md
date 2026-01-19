@@ -10,6 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
   - Icono de búsqueda y botón X para limpiar
   - Solo aparece si hay transacciones en el mes
   - Mensaje contextual cuando no hay resultados
+- **Daily Totals in Transaction List**: Total diario al frente de cada fecha
+  - Muestra total de gastos si solo hay gastos (gris)
+  - Muestra total de ingresos si solo hay ingresos (verde)
+  - Muestra balance (ingresos - gastos) si hay ambos (verde si positivo, gris si negativo)
 
 ## [0.7.1] - 2026-01-18
 

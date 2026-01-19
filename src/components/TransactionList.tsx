@@ -4,11 +4,15 @@ import { formatDateGroupHeader } from "@/services/dates.service";
 import TransactionItem from "@/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
 import { Search, X } from "lucide-react";
+import { formatCOP } from "@/features/transactions/transactions.utils";
 
 interface GroupedTransactions {
   date: string;
   dateLabel: string;
   transactions: Transaction[];
+  totalExpenses: number;
+  totalIncome: number;
+  balance: number;
 }
 
 export default function TransactionList() {
@@ -57,13 +61,26 @@ export default function TransactionList() {
       groups[dateKey].push(tx);
     }
 
-    // Convertir a array y ordenar por fecha descendente
+    // Convertir a array, calcular totales y ordenar por fecha descendente
     return Object.entries(groups)
-      .map(([date, txs]) => ({
-        date,
-        dateLabel: formatDateGroupHeader(date),
-        transactions: txs,
-      }))
+      .map(([date, txs]) => {
+        const totalExpenses = txs
+          .filter((t) => t.type === "expense")
+          .reduce((sum, t) => sum + t.amount, 0);
+        const totalIncome = txs
+          .filter((t) => t.type === "income")
+          .reduce((sum, t) => sum + t.amount, 0);
+        const balance = totalIncome - totalExpenses;
+
+        return {
+          date,
+          dateLabel: formatDateGroupHeader(date),
+          transactions: txs,
+          totalExpenses,
+          totalIncome,
+          balance,
+        };
+      })
       .sort((a, b) => (a.date < b.date ? 1 : -1));
   }, [transactions, selectedMonth, searchQuery, categoryDefinitions]);
 
@@ -114,27 +131,54 @@ export default function TransactionList() {
         </div>
       ) : (
         <div className="space-y-3">
-          {groupedList.map((group) => (
-            <div key={group.date}>
-              {/* Date Header - fondo gris */}
-              <div className="px-4 pb-1.5">
-                <h3 className="text-xs font-semibold text-gray-600">
-                  {group.dateLabel}
-                </h3>
-              </div>
+          {groupedList.map((group) => {
+            // Determinar qué mostrar: balance si hay ingresos y gastos, sino solo gastos
+            const hasIncome = group.totalIncome > 0;
+            const hasExpenses = group.totalExpenses > 0;
+            const showBalance = hasIncome && hasExpenses;
 
-              {/* Transactions - card blanco con bordes redondeados */}
-              <div className="mx-4 bg-white rounded-xl shadow-sm overflow-hidden">
-                {group.transactions.map((tx) => (
-                  <TransactionItem
-                    key={tx.id}
-                    transaction={tx}
-                    category={getCategoryById(tx.category)}
-                  />
-                ))}
+            return (
+              <div key={group.date}>
+                {/* Date Header - fondo gris con total */}
+                <div className="px-4 pb-1.5 flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-gray-600">
+                    {group.dateLabel}
+                  </h3>
+                  {showBalance ? (
+                    <span
+                      className={`text-xs font-semibold ${
+                        group.balance >= 0
+                          ? "text-emerald-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {group.balance >= 0 ? "+" : ""}
+                      {formatCOP(group.balance)}
+                    </span>
+                  ) : hasExpenses ? (
+                    <span className="text-xs font-semibold text-gray-500">
+                      -{formatCOP(group.totalExpenses)}
+                    </span>
+                  ) : (
+                    <span className="text-xs font-semibold text-emerald-600">
+                      +{formatCOP(group.totalIncome)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Transactions - card blanco con bordes redondeados */}
+                <div className="mx-4 bg-white rounded-xl shadow-sm overflow-hidden">
+                  {group.transactions.map((tx) => (
+                    <TransactionItem
+                      key={tx.id}
+                      transaction={tx}
+                      category={getCategoryById(tx.category)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
