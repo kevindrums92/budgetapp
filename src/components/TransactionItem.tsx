@@ -59,9 +59,22 @@ export default function TransactionItem({
             <Repeat className="h-3 w-3 shrink-0 text-gray-400" />
           )}
         </div>
-        <p className="text-xs text-gray-500">
-          {category?.name || transaction.category}
-        </p>
+        <div className="flex items-center gap-1.5">
+          <p className="text-xs text-gray-500">
+            {category?.name || transaction.category}
+          </p>
+          {transaction.status && transaction.status !== "paid" && (
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                transaction.status === "pending"
+                  ? "bg-amber-50 text-amber-700"
+                  : "bg-blue-50 text-blue-700"
+              }`}
+            >
+              {transaction.status === "pending" ? "Pendiente" : "Planeado"}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Amount */}

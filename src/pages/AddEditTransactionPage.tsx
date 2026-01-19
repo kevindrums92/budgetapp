@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
-import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2 } from "lucide-react";
+import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
@@ -9,7 +9,7 @@ import DatePicker from "@/components/DatePicker";
 import CategoryPickerDrawer from "@/components/CategoryPickerDrawer";
 import PageHeader from "@/components/PageHeader";
 import ConfirmDialog from "@/components/ConfirmDialog";
-import type { TransactionType } from "@/types/budget.types";
+import type { TransactionType, TransactionStatus } from "@/types/budget.types";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
 
@@ -46,6 +46,7 @@ export default function AddEditTransactionPage() {
   const [date, setDate] = useState(todayISO());
   const [notes, setNotes] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
+  const [status, setStatus] = useState<TransactionStatus>("paid");
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -60,9 +61,9 @@ export default function AddEditTransactionPage() {
   // Save form draft to sessionStorage
   const saveFormDraft = useCallback(() => {
     if (isEdit) return; // Don't save drafts when editing
-    const draft = { type, name, categoryId, amount, date, notes, isRecurring };
+    const draft = { type, name, categoryId, amount, date, notes, isRecurring, status };
     sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(draft));
-  }, [type, name, categoryId, amount, date, notes, isRecurring, isEdit]);
+  }, [type, name, categoryId, amount, date, notes, isRecurring, status, isEdit]);
 
   // Clear form draft
   const clearFormDraft = useCallback(() => {
@@ -82,6 +83,7 @@ export default function AddEditTransactionPage() {
       setDate(tx.date);
       setNotes(tx.notes || "");
       setIsRecurring(tx.isRecurring || false);
+      setStatus(tx.status || "paid");
     } else {
       // New transaction - check URL params
       const typeParam = searchParams.get("type");
@@ -113,6 +115,7 @@ export default function AddEditTransactionPage() {
           setDate(draft.date || todayISO());
           setNotes(draft.notes || "");
           setIsRecurring(draft.isRecurring || false);
+          setStatus(draft.status || "paid");
         } catch {
           // Invalid draft, just set new category
           setCategoryId(newCategoryId);
@@ -132,6 +135,7 @@ export default function AddEditTransactionPage() {
         setDate(draft.date || todayISO());
         setNotes(draft.notes || "");
         setIsRecurring(draft.isRecurring || false);
+        setStatus(draft.status || "paid");
       } catch {
         // Invalid draft, ignore
       }
@@ -169,6 +173,7 @@ export default function AddEditTransactionPage() {
         date,
         notes: trimmedNotes || undefined,
         isRecurring,
+        status: status === "paid" ? undefined : status,
       });
     } else {
       addTransaction({
@@ -179,6 +184,7 @@ export default function AddEditTransactionPage() {
         date,
         notes: trimmedNotes || undefined,
         isRecurring,
+        status: status === "paid" ? undefined : status,
       });
     }
     clearFormDraft(); // Clear draft when user saves
@@ -355,6 +361,55 @@ export default function AddEditTransactionPage() {
                   placeholder="Agregar notas... (opcional)"
                   className="w-full border-0 p-0 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Status Selector */}
+          <div className="py-4">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                <CheckCircle className="h-5 w-5 text-gray-500" />
+              </div>
+              <div className="flex-1">
+                <label className="mb-2 block text-xs font-medium text-gray-500">
+                  Estado
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStatus("paid")}
+                    className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+                      status === "paid"
+                        ? "bg-emerald-500 text-white"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    Pagado
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatus("pending")}
+                    className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+                      status === "pending"
+                        ? "bg-amber-500 text-white"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    Pendiente
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatus("planned")}
+                    className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+                      status === "planned"
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    Planeado
+                  </button>
+                </div>
               </div>
             </div>
           </div>

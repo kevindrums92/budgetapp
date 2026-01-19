@@ -1,4 +1,5 @@
 export type TransactionType = "income" | "expense";
+export type TransactionStatus = "paid" | "pending" | "planned";
 
 export type Transaction = {
   id: string;
@@ -9,6 +10,7 @@ export type Transaction = {
   date: string;          // YYYY-MM-DD
   notes?: string;        // Optional notes
   isRecurring?: boolean; // Marca si es una transacción recurrente mensual
+  status?: TransactionStatus; // Estado de pago (default: "paid")
   createdAt: number;     // epoch ms
 };
 

@@ -83,10 +83,7 @@ export default function HomePage() {
   const handleReplicateAll = () => {
     pendingRecurring.forEach((tx) => {
       const replicated = replicateTransaction(tx, selectedMonth);
-      addTransaction({
-        ...replicated,
-        isRecurring: replicated.isRecurring || false,
-      });
+      addTransaction(replicated);
     });
     setShowBanner(false);
   };
@@ -100,7 +97,6 @@ export default function HomePage() {
       addTransaction({
         ...replicated,
         amount: amounts[id] || replicated.amount,
-        isRecurring: replicated.isRecurring || false,
       });
     });
     setShowBanner(false);
