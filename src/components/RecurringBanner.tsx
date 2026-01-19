@@ -34,7 +34,7 @@ export default function RecurringBanner({
             </div>
             <div className="flex-1">
               <p className="text-sm font-semibold text-white">
-                {count} {count === 1 ? "gasto recurrente" : "gastos recurrentes"}
+                {count} {count === 1 ? "registro recurrente" : "registros recurrentes"}
               </p>
               <p className="mt-0.5 text-xs text-emerald-50">
                 Toca para replicar en este mes

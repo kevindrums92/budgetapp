@@ -4,6 +4,24 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.7.1] - 2026-01-18
+
+### Added
+- **Daily Budget Banner**: Banner de presupuesto diario en HomePage
+  - Muestra el presupuesto disponible por día basado en el balance actual
+  - Botón X para cerrar con modal de confirmación
+  - Opciones: "No volver a mostrar" (persistente) o "Solo por esta vez" (sesión)
+  - Solo se muestra si el presupuesto diario es mayor a 0
+  - Ubicado en área gris debajo del BalanceCard
+
+### Changed
+- **BalanceCard Sticky**: El BalanceCard ahora es sticky y permanece fijo al hacer scroll
+- **Recurring Transaction Text**: Texto dinámico "Ingreso/Gasto recurrente mensual" según el tipo de transacción
+- **RecurringBanner Text**: Cambiado "gastos recurrentes" a "registros recurrentes" para incluir ingresos
+
+### Removed
+- **StatsPage Daily Budget Banner**: Removido el banner de presupuesto diario de StatsPage (ahora está en HomePage)
+
 ## [0.7.0] - 2026-01-18
 
 ### Added

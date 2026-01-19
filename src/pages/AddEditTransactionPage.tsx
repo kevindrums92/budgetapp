@@ -375,7 +375,7 @@ export default function AddEditTransactionPage() {
                     isRecurring ? "text-gray-900" : "text-gray-700"
                   }`}
                 >
-                  Gasto recurrente mensual
+                  {type === "income" ? "Ingreso" : "Gasto"} recurrente mensual
                 </p>
                 <p className="mt-0.5 text-xs text-gray-500">
                   Se te recordará replicarlo cada mes

@@ -22,7 +22,7 @@ export default function BalanceCard() {
   const balanceColor = totals.balance >= 0 ? "text-emerald-600" : "text-red-500";
 
   return (
-    <div className="bg-white border-b border-gray-100">
+    <div className="sticky top-[83.7px] z-10 bg-white border-b border-gray-100">
       <div className="mx-auto max-w-xl px-4 py-4">
         {/* Balance */}
         <div className="text-center mb-4">
@@ -54,6 +54,7 @@ export default function BalanceCard() {
             </p>
           </div>
         </div>
+
       </div>
     </div>
   );
