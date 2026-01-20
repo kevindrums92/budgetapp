@@ -49,7 +49,7 @@ Cambios: !`git diff --name-only`
 1) Abre `CHANGELOG.md` y busca exactamente el heading:
    - `## [unreleased] - {relase date}`
 
-2) Agrega 2–6 bullets nuevos describiendo el cambio **INMEDIATAMENTE después del heading** (antes de cualquier otro contenido).
+2) Agrega 1-3 bullets nuevos describiendo el cambio **INMEDIATAMENTE después del heading** (antes de cualquier otro contenido).
    - Preferir verbos en imperativo ("add…", "fix…", "refactor…", "improve…").
    - Mantener el estilo de bullets ya usado en el archivo.
    - NO cambies el heading ni arregles el typo.
@@ -74,10 +74,16 @@ Cambios: !`git diff --name-only`
 1) Revisa lo staged:
    - !`git diff --staged`
 
-2) Genera un mensaje de commit en nuestro estilo basado en el cambio real (no “update changelog”):
+2) Genera un mensaje de commit en nuestro estilo basado en el cambio real (no "update changelog"):
    - Debe empezar por `feat:` / `fix:` / `refactor:` / `chore:` etc.
    - Usa scope si aplica (ej `feat(recurring): ...`)
+   - Ejemplos:
+     - `fix(ui): reset scroll on category edit pages`
+     - `feat(transactions): add status badge to transaction items`
+     - `refactor(auth): simplify login flow`
+     - `chore(deps): update dependencies`
 
 3) Commit + push:
-   - !`git commit -m "<MENSAJE>"`
-   - !`git push`
+   - Usa el mensaje generado en el paso 2, NO uses literalmente "<MENSAJE>"
+   - Comando: `git commit -m "TU_MENSAJE_AQUI"`
+   - Luego: !`git push`
