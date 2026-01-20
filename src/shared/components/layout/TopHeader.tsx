@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabaseClient";
+import { useBudgetStore } from "@/state/budget.store";
 import CloudStatusMini from "@/shared/components/ui/CloudStatusMini";
 import LogoMark from "@/shared/components/ui/LogoMark";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
@@ -13,33 +13,9 @@ type Props = {
 
 export default function TopHeader({ title, showMonthSelector = false }: Props) {
   const navigate = useNavigate();
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
-
-    async function load() {
-      const { data } = await supabase.auth.getSession();
-      const user = data.session?.user ?? null;
-      const meta: Record<string, unknown> = user?.user_metadata ?? {};
-      const url = (meta.avatar_url as string) || (meta.picture as string) || null;
-      if (mounted) setAvatarUrl(url);
-    }
-
-    load();
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      const user = session?.user ?? null;
-      const meta: Record<string, unknown> = user?.user_metadata ?? {};
-      const url = (meta.avatar_url as string) || (meta.picture as string) || null;
-      setAvatarUrl(url);
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
+  // ✅ Read from Zustand store (single source of truth)
+  const avatarUrl = useBudgetStore((s) => s.user.avatarUrl);
 
   const Avatar = useMemo(() => {
     if (avatarUrl) {

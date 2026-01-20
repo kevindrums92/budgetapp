@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, X, Search, TrendingUp, TrendingDown, List, Clock } from "lucide-react";
+import { Plus, X, Search, TrendingUp, TrendingDown, Clock } from "lucide-react";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
 import TransactionList from "@/features/transactions/components/TransactionList";
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";

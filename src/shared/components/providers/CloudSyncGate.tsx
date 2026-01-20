@@ -61,6 +61,7 @@ export default function CloudSyncGate() {
 
   const setCloudMode = useBudgetStore((s) => s.setCloudMode);
   const setCloudStatus = useBudgetStore((s) => s.setCloudStatus);
+  const setUser = useBudgetStore((s) => s.setUser);
 
   const setWelcomeSeen = useBudgetStore((s) => s.setWelcomeSeen);
 
@@ -130,6 +131,13 @@ export default function CloudSyncGate() {
       } catch {}
       setWelcomeSeen(false);
 
+      // ✅ Clear user state atomically
+      setUser({
+        email: null,
+        name: null,
+        avatarUrl: null,
+      });
+
       setCloudMode("guest");
       setCloudStatus("idle");
       initializedRef.current = false;
@@ -137,6 +145,14 @@ export default function CloudSyncGate() {
     }
 
     console.log("[CloudSync] Session found, user:", session.user.id);
+
+    // ✅ Update user state atomically with cloudMode
+    const meta = session.user.user_metadata ?? {};
+    setUser({
+      email: session.user.email ?? null,
+      name: (meta.full_name as string) || (meta.name as string) || null,
+      avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || null,
+    });
 
     setCloudMode("cloud");
 

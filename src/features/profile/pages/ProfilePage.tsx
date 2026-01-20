@@ -1,22 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import { useBudgetStore } from "@/state/budget.store";
 import { X, User, FolderOpen, ChevronRight, Shield } from "lucide-react";
-
-type UserInfo = {
-  email: string | null;
-  name: string | null;
-  avatarUrl: string | null;
-};
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<UserInfo>({
-    email: null,
-    name: null,
-    avatarUrl: null,
-  });
-  const [loading, setLoading] = useState(true);
+
+  // ✅ Read from Zustand store (single source of truth)
+  const user = useBudgetStore((s) => s.user);
+
+  const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Online/offline listeners
@@ -28,52 +22,6 @@ export default function ProfilePage() {
     return () => {
       window.removeEventListener("online", goOnline);
       window.removeEventListener("offline", goOffline);
-    };
-  }, []);
-
-  // Load user info
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadUser() {
-      if (!navigator.onLine) {
-        if (mounted) setLoading(false);
-        return;
-      }
-
-      const { data } = await supabase.auth.getSession();
-      if (!mounted) return;
-
-      const u = data.session?.user ?? null;
-      const meta: Record<string, unknown> = u?.user_metadata ?? {};
-
-      setUser({
-        email: u?.email ?? null,
-        name: (meta.full_name as string) || (meta.name as string) || null,
-        avatarUrl:
-          (meta.avatar_url as string) || (meta.picture as string) || null,
-      });
-      setLoading(false);
-    }
-
-    loadUser();
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      const u = session?.user ?? null;
-      const meta: Record<string, unknown> = u?.user_metadata ?? {};
-
-      setUser({
-        email: u?.email ?? null,
-        name: (meta.full_name as string) || (meta.name as string) || null,
-        avatarUrl:
-          (meta.avatar_url as string) || (meta.picture as string) || null,
-      });
-      setLoading(false);
-    });
-
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
     };
   }, []);
 

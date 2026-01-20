@@ -67,6 +67,14 @@ type BudgetStore = BudgetState & {
   selectedMonth: string; // YYYY-MM
   setSelectedMonth: (monthKey: string) => void;
 
+  // Auth state (single source of truth)
+  user: {
+    email: string | null;
+    name: string | null;
+    avatarUrl: string | null;
+  };
+  setUser: (user: BudgetStore['user']) => void;
+
   // CRUD Transactions
   addTransaction: (input: AddTxInput) => void;
   updateTransaction: (
@@ -179,6 +187,14 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     // UI month
     selectedMonth: currentMonthKey(),
     setSelectedMonth: (monthKey) => set({ selectedMonth: monthKey }),
+
+    // Auth state
+    user: {
+      email: null,
+      name: null,
+      avatarUrl: null,
+    },
+    setUser: (user) => set({ user }),
 
     // ---------- CRUD ----------
     addTransaction: (input) => {

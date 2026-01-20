@@ -10,7 +10,8 @@
       "Bash(ls:*)",
       "Bash(npm run test:run:*)",
       "Bash(tree:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(npx playwright test:*)"
     ]
   }
 }

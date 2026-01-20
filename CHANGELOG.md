@@ -4,6 +4,17 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **CRITICAL: Auth State Consistency Bug**: Fixed race condition causing avatar to show while CloudStatus displayed "Local"
+  - **Root Cause**: Three components (TopHeader, ProfilePage, CloudSyncGate) had independent auth listeners creating inconsistent state
+  - **Solution**: Centralized auth state in Zustand store as single source of truth
+  - Added `user: { email, name, avatarUrl }` to budget.store.ts
+  - CloudSyncGate now updates user state atomically with cloudMode
+  - TopHeader simplified from 42 to 19 lines (removed independent listener)
+  - ProfilePage simplified from 78 to 26 lines (removed independent listener)
+  - Added E2E test suite (auth-state-consistency.spec.ts) with 4 tests to prevent regression
+  - All components now read from store, eliminating race conditions
+
 ### Changed
 - **HomePage Visual Redesign**: Refactor completo del diseño de la página principal
   - **BalanceCard Hero**: Diseño renovado con Balance Total centrado y destacado
