@@ -250,7 +250,7 @@ export default function AddEditTransactionPage() {
       </div>
 
       {/* Form Fields */}
-      <div className="mx-auto max-w-xl px-4">
+      <div className="mx-auto max-w-xl px-4 pb-32">
         <div className="divide-y divide-gray-100">
           {/* Description */}
           <div className="py-4">

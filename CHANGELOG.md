@@ -5,6 +5,10 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **Transaction Form Scroll Issue**: Fixed fields being cut off on small screens
+  - Added `pb-32` padding to form fields container in AddEditTransactionPage
+  - Toggle "Gasto recurrente mensual" y botón "Guardar" ahora visibles con scroll
+  - Fixes issue where last fields were hidden behind fixed bottom button on devices with limited screen height
 - **CRITICAL: Auth State Consistency Bug**: Fixed race condition causing avatar to show while CloudStatus displayed "Local"
   - **Root Cause**: Three components (TopHeader, ProfilePage, CloudSyncGate) had independent auth listeners creating inconsistent state
   - **Solution**: Centralized auth state in Zustand store as single source of truth
