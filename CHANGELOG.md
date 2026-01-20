@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.9.0] - 2026-01-19
+
 ### Fixed
 - **Amount Input Display for Large Numbers**: Fixed amount being cut off and hard to read
   - Added thousands separator (.) for Colombian locale format (ej: 300.000.000)
