@@ -4,6 +4,27 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Changed
+- **HomePage Visual Redesign**: Refactor completo del diseño de la página principal
+  - **BalanceCard Hero**: Diseño renovado con Balance Total centrado y destacado
+    - Texto "BALANCE TOTAL" pequeño arriba
+    - Monto grande (text-5xl) centrado en negro
+    - Tarjetas de Ingresos/Gastos con iconos circulares (TrendingUp/TrendingDown)
+    - Fondo gris para todo el componente
+    - Removido comportamiento sticky
+  - **Daily Budget Banner**: Reubicado arriba de la barra de búsqueda
+    - Texto actualizado a "DISPONIBLE DIARIO (X DÍAS RESTANTES)"
+    - Formato mejorado con monto destacado
+  - **Search & Filters Sticky**: Nueva sección sticky con búsqueda y filtros
+    - Barra de búsqueda y filtros agrupados en un solo contenedor sticky
+    - Se pegan debajo del header al hacer scroll (top-[83.7px])
+  - **Filter Pills**: Nuevos filtros de transacciones
+    - Pills: Gastos, Ingresos, Pendientes
+    - Comportamiento toggle (click para activar/desactivar)
+    - Iconos: TrendingDown, TrendingUp, Clock
+    - Sin estados hover para mejor experiencia móvil
+    - Feedback táctil con active:scale-95
+
 ### Fixed
 - **Category/Group Edit Pages Scroll**: Fixed scroll position persisting when navigating from scrolled list pages
   - AddEditCategoryPage now resets scroll to top on mount
