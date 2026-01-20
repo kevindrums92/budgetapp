@@ -4,6 +4,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Category/Group Edit Pages Scroll**: Fixed scroll position persisting when navigating from scrolled list pages
+  - AddEditCategoryPage now resets scroll to top on mount
+  - AddEditCategoryGroupPage now resets scroll to top on mount
+  - Prevents icon/color picker from appearing cut off when entering from a scrolled position
+
 ## [0.8.0] - 2026-01-18
 
 ### Added

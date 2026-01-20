@@ -44,6 +44,11 @@ export default function AddEditCategoryPage() {
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  // Reset scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Load existing category if editing
   useEffect(() => {
     if (isEditing && id) {

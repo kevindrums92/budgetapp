@@ -31,6 +31,11 @@ export default function AddEditCategoryGroupPage() {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  // Reset scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Load existing group if editing
   useEffect(() => {
     if (isEditing && id) {
