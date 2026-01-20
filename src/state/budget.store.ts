@@ -13,8 +13,8 @@ import type {
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey } from "@/services/dates.service";
-import { createDefaultCategories } from "@/constants/default-categories";
-import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/default-category-groups";
+import { createDefaultCategories } from "@/constants/categories/default-categories";
+import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/category-groups/default-category-groups";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
 type CloudMode = "guest" | "cloud";
@@ -66,6 +66,14 @@ type BudgetStore = BudgetState & {
   // UI
   selectedMonth: string; // YYYY-MM
   setSelectedMonth: (monthKey: string) => void;
+
+  // Auth state (single source of truth)
+  user: {
+    email: string | null;
+    name: string | null;
+    avatarUrl: string | null;
+  };
+  setUser: (user: BudgetStore['user']) => void;
 
   // CRUD Transactions
   addTransaction: (input: AddTxInput) => void;
@@ -179,6 +187,14 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     // UI month
     selectedMonth: currentMonthKey(),
     setSelectedMonth: (monthKey) => set({ selectedMonth: monthKey }),
+
+    // Auth state
+    user: {
+      email: null,
+      name: null,
+      avatarUrl: null,
+    },
+    setUser: (user) => set({ user }),
 
     // ---------- CRUD ----------
     addTransaction: (input) => {

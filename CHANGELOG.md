@@ -4,6 +4,56 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.9.0] - 2026-01-19
+
+### Fixed
+- **Amount Input Display for Large Numbers**: Fixed amount being cut off and hard to read
+  - Added thousands separator (.) for Colombian locale format (ej: 300.000.000)
+  - Dynamic font size: text-5xl (≤8 digits), text-4xl (≤11 digits), text-3xl (>11 digits)
+  - Input auto-cleans separators on edit, formats on display
+  - Responsive width with flex-1 to prevent overflow
+  - Amounts up to billions now fully visible and readable
+- **Transaction Form Scroll Issue**: Fixed fields being cut off on small screens
+  - Added `pb-32` padding to form fields container in AddEditTransactionPage
+  - Toggle "Gasto recurrente mensual" y botón "Guardar" ahora visibles con scroll
+  - Fixes issue where last fields were hidden behind fixed bottom button on devices with limited screen height
+- **CRITICAL: Auth State Consistency Bug**: Fixed race condition causing avatar to show while CloudStatus displayed "Local"
+  - **Root Cause**: Three components (TopHeader, ProfilePage, CloudSyncGate) had independent auth listeners creating inconsistent state
+  - **Solution**: Centralized auth state in Zustand store as single source of truth
+  - Added `user: { email, name, avatarUrl }` to budget.store.ts
+  - CloudSyncGate now updates user state atomically with cloudMode
+  - TopHeader simplified from 42 to 19 lines (removed independent listener)
+  - ProfilePage simplified from 78 to 26 lines (removed independent listener)
+  - Added E2E test suite (auth-state-consistency.spec.ts) with 4 tests to prevent regression
+  - All components now read from store, eliminating race conditions
+
+### Changed
+- **HomePage Visual Redesign**: Refactor completo del diseño de la página principal
+  - **BalanceCard Hero**: Diseño renovado con Balance Total centrado y destacado
+    - Texto "BALANCE TOTAL" pequeño arriba
+    - Monto grande (text-5xl) centrado en negro
+    - Tarjetas de Ingresos/Gastos con iconos circulares (TrendingUp/TrendingDown)
+    - Fondo gris para todo el componente
+    - Removido comportamiento sticky
+  - **Daily Budget Banner**: Reubicado arriba de la barra de búsqueda
+    - Texto actualizado a "DISPONIBLE DIARIO (X DÍAS RESTANTES)"
+    - Formato mejorado con monto destacado
+  - **Search & Filters Sticky**: Nueva sección sticky con búsqueda y filtros
+    - Barra de búsqueda y filtros agrupados en un solo contenedor sticky
+    - Se pegan debajo del header al hacer scroll (top-[83.7px])
+  - **Filter Pills**: Nuevos filtros de transacciones
+    - Pills: Gastos, Ingresos, Pendientes
+    - Comportamiento toggle (click para activar/desactivar)
+    - Iconos: TrendingDown, TrendingUp, Clock
+    - Sin estados hover para mejor experiencia móvil
+    - Feedback táctil con active:scale-95
+
+### Fixed
+- **Category/Group Edit Pages Scroll**: Fixed scroll position persisting when navigating from scrolled list pages
+  - AddEditCategoryPage now resets scroll to top on mount
+  - AddEditCategoryGroupPage now resets scroll to top on mount
+  - Prevents icon/color picker from appearing cut off when entering from a scrolled position
+
 ## [0.8.0] - 2026-01-18
 
 ### Added
