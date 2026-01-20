@@ -7,28 +7,28 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import BottomBar from "@/components/BottomBar";
-import TopHeader from "@/components/TopHeader";
+import BottomBar from "@/shared/components/layout/BottomBar";
+import TopHeader from "@/shared/components/layout/TopHeader";
 
-import HomePage from "@/pages/HomePage";
-import BudgetPage from "@/pages/BudgetPage";
-import StatsPage from "@/pages/StatsPage";
-import TripsPage from "@/pages/TripsPage";
-import TripDetailPage from "@/pages/TripDetailPage";
-import AddEditTripPage from "@/pages/AddEditTripPage";
-import AddEditTripExpensePage from "@/pages/AddEditTripExpensePage";
-import AddEditTransactionPage from "@/pages/AddEditTransactionPage";
-import AddEditCategoryPage from "@/pages/AddEditCategoryPage";
-import CategoriesPage from "@/pages/CategoriesPage";
-import CategoryGroupsPage from "@/pages/CategoryGroupsPage";
-import AddEditCategoryGroupPage from "@/pages/AddEditCategoryGroupPage";
-import CategoryMonthDetailPage from "@/pages/CategoryMonthDetailPage";
-import ProfilePage from "@/pages/ProfilePage";
-import BackupPage from "@/pages/BackupPage";
+import HomePage from "@/features/transactions/pages/HomePage";
+import BudgetPage from "@/features/budget/pages/BudgetPage";
+import StatsPage from "@/features/stats/pages/StatsPage";
+import TripsPage from "@/features/trips/pages/TripsPage";
+import TripDetailPage from "@/features/trips/pages/TripDetailPage";
+import AddEditTripPage from "@/features/trips/pages/AddEditTripPage";
+import AddEditTripExpensePage from "@/features/trips/pages/AddEditTripExpensePage";
+import AddEditTransactionPage from "@/features/transactions/pages/AddEditTransactionPage";
+import AddEditCategoryPage from "@/features/categories/pages/AddEditCategoryPage";
+import CategoriesPage from "@/features/categories/pages/CategoriesPage";
+import CategoryGroupsPage from "@/features/categories/pages/CategoryGroupsPage";
+import AddEditCategoryGroupPage from "@/features/categories/pages/AddEditCategoryGroupPage";
+import CategoryMonthDetailPage from "@/features/categories/pages/CategoryMonthDetailPage";
+import ProfilePage from "@/features/profile/pages/ProfilePage";
+import BackupPage from "@/features/backup/pages/BackupPage";
 
-import CloudSyncGate from "@/components/CloudSyncGate";
-import WelcomeGate from "@/components/WelcomeGate";
-import SplashScreen from "@/components/SplashScreen";
+import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
+import WelcomeGate from "@/shared/components/providers/WelcomeGate";
+import SplashScreen from "@/shared/components/ui/SplashScreen";
 
 function AppFrame() {
   const location = useLocation();

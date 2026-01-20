@@ -1,8 +1,8 @@
 import type { BudgetState, Category } from "@/types/budget.types";
-import { createDefaultCategories } from "@/constants/default-categories";
-import { createDefaultCategoryGroups } from "@/constants/default-category-groups";
-import { DEFAULT_CATEGORY_ICON } from "@/constants/category-icons";
-import { DEFAULT_CATEGORY_COLOR } from "@/constants/category-colors";
+import { createDefaultCategories } from "@/constants/categories/default-categories";
+import { createDefaultCategoryGroups } from "@/constants/category-groups/default-category-groups";
+import { DEFAULT_CATEGORY_ICON } from "@/constants/categories/category-icons";
+import { DEFAULT_CATEGORY_COLOR } from "@/constants/categories/category-colors";
 
 const STORAGE_KEY = "budget_app_v1";
 

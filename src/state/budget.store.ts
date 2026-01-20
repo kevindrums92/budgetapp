@@ -13,8 +13,8 @@ import type {
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey } from "@/services/dates.service";
-import { createDefaultCategories } from "@/constants/default-categories";
-import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/default-category-groups";
+import { createDefaultCategories } from "@/constants/categories/default-categories";
+import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/category-groups/default-category-groups";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
 type CloudMode = "guest" | "cloud";

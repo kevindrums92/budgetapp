@@ -1,5 +1,5 @@
 import type { CategoryGroup, TransactionType } from "@/types/budget.types";
-import { createDefaultCategoryGroups } from "./default-category-groups";
+import { createDefaultCategoryGroups } from "./category-groups/default-category-groups";
 
 // Legacy export for backward compatibility during migration
 // Components should prefer reading from store.categoryGroups

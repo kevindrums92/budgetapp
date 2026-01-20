@@ -8,7 +8,9 @@
       "Bash(npm run test:e2e:*)",
       "Bash(grep:*)",
       "Bash(ls:*)",
-      "Bash(npm run test:run:*)"
+      "Bash(npm run test:run:*)",
+      "Bash(tree:*)",
+      "Bash(git mv:*)"
     ]
   }
 }
