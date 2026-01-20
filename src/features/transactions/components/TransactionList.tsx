@@ -16,9 +16,10 @@ interface GroupedTransactions {
 
 interface TransactionListProps {
   searchQuery?: string;
+  filterType?: "all" | "expense" | "income" | "pending";
 }
 
-export default function TransactionList({ searchQuery = "" }: TransactionListProps) {
+export default function TransactionList({ searchQuery = "", filterType = "all" }: TransactionListProps) {
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -37,6 +38,13 @@ export default function TransactionList({ searchQuery = "" }: TransactionListPro
 
     const filtered = transactions
       .filter((t) => t.date.slice(0, 7) === selectedMonth)
+      .filter((t) => {
+        // Filtrar por tipo o estado
+        if (filterType === "expense" && t.type !== "expense") return false;
+        if (filterType === "income" && t.type !== "income") return false;
+        if (filterType === "pending" && t.status !== "pending" && t.status !== "planned") return false;
+        return true;
+      })
       .filter((t) => {
         if (!query) return true;
         // Buscar en nombre
@@ -84,7 +92,7 @@ export default function TransactionList({ searchQuery = "" }: TransactionListPro
         };
       })
       .sort((a, b) => (a.date < b.date ? 1 : -1));
-  }, [transactions, selectedMonth, searchQuery, categoryDefinitions]);
+  }, [transactions, selectedMonth, searchQuery, filterType, categoryDefinitions]);
 
   return (
     <div className="mx-auto max-w-xl">

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, X, Search } from "lucide-react";
+import { Plus, X, Search, TrendingUp, TrendingDown, List, Clock } from "lucide-react";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
 import TransactionList from "@/features/transactions/components/TransactionList";
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";
@@ -23,6 +23,7 @@ export default function HomePage() {
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "expense" | "income" | "pending">("all");
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -111,11 +112,41 @@ export default function HomePage() {
     <div className="bg-gray-50 min-h-screen">
       <BalanceCard />
 
-      {/* Sticky Search Bar */}
+      {/* Daily Budget Banner */}
+      {dailyBudgetInfo &&
+        dailyBudgetInfo.dailyBudget > 0 &&
+        !isDailyBudgetPermanentlyHidden &&
+        !hideDailyBudgetSession && (
+        <div className="mx-4 mb-3 mt-4">
+          <div className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 text-white shadow-lg">
+            <div className="pr-8">
+              <p className="text-xs font-medium uppercase tracking-wide mb-1 opacity-90">
+                Disponible Diario ({dailyBudgetInfo.daysRemaining} días restantes)
+              </p>
+              <p className="text-2xl font-bold tracking-tight">
+                {formatCOP(dailyBudgetInfo.dailyBudget)}
+                <span className="text-sm font-normal ml-1">/ día</span>
+              </p>
+            </div>
+
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setShowDailyBudgetConfirm(true)}
+              className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 active:scale-95 transition-all"
+            >
+              <X className="h-4 w-4 text-white" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sticky Search Bar & Filter Pills */}
       {hasTransactions && (
-        <div className="sticky top-[252px] z-[5] bg-gray-50 pb-3 pt-4">
+        <div className="sticky top-[83.7px] z-20 bg-gray-50 pb-3 pt-4">
           <div className="mx-auto max-w-xl px-4">
-            <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm">
+            {/* Search Bar */}
+            <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm mb-3">
               <Search size={20} className="shrink-0 text-gray-400" />
               <input
                 type="text"
@@ -134,6 +165,46 @@ export default function HomePage() {
                 </button>
               )}
             </div>
+
+            {/* Filter Pills */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setFilterType(filterType === "expense" ? "all" : "expense")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all active:scale-95 ${
+                  filterType === "expense"
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "bg-white text-gray-700 shadow-sm"
+                }`}
+              >
+                <TrendingDown size={16} />
+                Gastos
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterType(filterType === "income" ? "all" : "income")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all active:scale-95 ${
+                  filterType === "income"
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "bg-white text-gray-700 shadow-sm"
+                }`}
+              >
+                <TrendingUp size={16} />
+                Ingresos
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterType(filterType === "pending" ? "all" : "pending")}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap active:scale-95 ${
+                  filterType === "pending"
+                    ? "bg-gray-900 text-white shadow-sm"
+                    : "bg-white text-gray-700 shadow-sm"
+                }`}
+              >
+                <Clock size={16} />
+                Pendientes
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -148,35 +219,7 @@ export default function HomePage() {
           />
         )}
 
-        {/* Daily Budget Banner */}
-        {dailyBudgetInfo &&
-          dailyBudgetInfo.dailyBudget > 0 &&
-          !isDailyBudgetPermanentlyHidden &&
-          !hideDailyBudgetSession && (
-          <div className="mx-4 mb-3">
-            <div className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 text-white shadow-lg">
-              <p className="text-sm pr-6">
-                Tu presupuesto para los próximos{" "}
-                <span className="font-bold">{dailyBudgetInfo.daysRemaining} días</span> es{" "}
-                <span className="text-lg font-bold">
-                  {formatCOP(dailyBudgetInfo.dailyBudget)}
-                </span>{" "}
-                por día. Gasta sabiamente!
-              </p>
-
-              {/* Close button */}
-              <button
-                type="button"
-                onClick={() => setShowDailyBudgetConfirm(true)}
-                className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 active:scale-95 transition-all"
-              >
-                <X className="h-4 w-4 text-white" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        <TransactionList searchQuery={searchQuery} />
+        <TransactionList searchQuery={searchQuery} filterType={filterType} />
       </main>
 
       {/* FAB para agregar transacción */}
