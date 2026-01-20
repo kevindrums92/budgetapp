@@ -5,6 +5,12 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **Amount Input Display for Large Numbers**: Fixed amount being cut off and hard to read
+  - Added thousands separator (.) for Colombian locale format (ej: 300.000.000)
+  - Dynamic font size: text-5xl (≤8 digits), text-4xl (≤11 digits), text-3xl (>11 digits)
+  - Input auto-cleans separators on edit, formats on display
+  - Responsive width with flex-1 to prevent overflow
+  - Amounts up to billions now fully visible and readable
 - **Transaction Form Scroll Issue**: Fixed fields being cut off on small screens
   - Added `pb-32` padding to form fields container in AddEditTransactionPage
   - Toggle "Gasto recurrente mensual" y botón "Guardar" ahora visibles con scroll

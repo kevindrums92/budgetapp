@@ -211,6 +211,21 @@ export default function AddEditTransactionPage() {
 
   const accentColor = type === "income" ? "text-emerald-600" : "text-gray-900";
 
+  // Format amount with thousands separator for display
+  const displayAmount = useMemo(() => {
+    if (!amount) return "";
+    // Add thousands separator (.) for Colombian locale
+    return amount.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }, [amount]);
+
+  // Dynamic font size based on amount length
+  const amountFontSize = useMemo(() => {
+    const len = displayAmount.length;
+    if (len <= 8) return "text-5xl"; // Default: up to 99.999.999
+    if (len <= 11) return "text-4xl"; // Medium: up to 99.999.999.999
+    return "text-3xl"; // Small: larger numbers
+  }, [displayAmount]);
+
   return (
     <div className="min-h-dvh bg-white">
       {/* Header */}
@@ -234,16 +249,19 @@ export default function AddEditTransactionPage() {
       <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
         <div className="text-center">
           <p className="mb-2 text-sm font-medium text-gray-500">Monto</p>
-          <div className="flex items-center justify-center">
-            <span className={`text-5xl font-semibold tracking-tight ${accentColor}`}>$</span>
+          <div className="flex items-center justify-center px-4">
+            <span className={`${amountFontSize} font-semibold tracking-tight ${accentColor}`}>$</span>
             <input
               type="text"
               inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+              value={displayAmount}
+              onChange={(e) => {
+                // Remove all separators, keep only digits
+                const cleaned = e.target.value.replace(/[^0-9]/g, "");
+                setAmount(cleaned);
+              }}
               placeholder="0"
-              className={`w-auto min-w-[60px] max-w-[200px] border-0 bg-transparent p-0 text-center text-5xl font-semibold tracking-tight placeholder:text-gray-300 focus:outline-none focus:ring-0 ${accentColor}`}
-              style={{ width: `${Math.max(60, (amount.length || 1) * 32)}px` }}
+              className={`w-auto min-w-[60px] flex-1 border-0 bg-transparent p-0 text-center ${amountFontSize} font-semibold tracking-tight placeholder:text-gray-300 focus:outline-none focus:ring-0 ${accentColor}`}
             />
           </div>
         </div>
