@@ -4,6 +4,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **CRITICAL: Logout User State Persistence**: Fixed user data persisting after logout
+  - User avatar, email, and name now properly cleared on SIGNED_OUT event
+  - TopHeader no longer shows ghost avatar after logout
+  - ProfilePage correctly displays guest state instead of logged-in user info
+  - Added setUser({ email: null, name: null, avatarUrl: null }) to SIGNED_OUT handler in CloudSyncGate
+
 ## [0.9.0] - 2026-01-19
 
 ### Fixed

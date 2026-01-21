@@ -309,6 +309,13 @@ export default function CloudSyncGate() {
         } catch {}
         setWelcomeSeen(false);
 
+        // ✅ Clear user state on logout
+        setUser({
+          email: null,
+          name: null,
+          avatarUrl: null,
+        });
+
         setCloudMode("guest");
         setCloudStatus("idle");
         initializedRef.current = false;
