@@ -15,6 +15,13 @@ import { kebabToPascal } from "@/shared/utils/string.utils";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
 
+// Helper to get the day before a date string (YYYY-MM-DD)
+function getDateBefore(dateStr: string): string {
+  const date = new Date(dateStr + "T12:00:00");
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().slice(0, 10);
+}
+
 export default function AddEditTransactionPage() {
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
@@ -47,6 +54,14 @@ export default function AddEditTransactionPage() {
   const [showScheduleDrawer, setShowScheduleDrawer] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showTemplateEditModal, setShowTemplateEditModal] = useState(false);
+  const [showNoChangesAlert, setShowNoChangesAlert] = useState(false);
+
+  // Check if we're editing a template (scheduled transaction)
+  const isTemplate = tx?.schedule?.enabled === true;
+
+  // Get virtual date from navigation state (when coming from "Editar y registrar")
+  const virtualDate = location.state?.virtualDate as string | undefined;
 
   // Get selected category object
   const selectedCategory = useMemo(() => {
@@ -153,6 +168,37 @@ export default function AddEditTransactionPage() {
     amountNumber > 0 &&
     date.length === 10;
 
+  // Check if user changed values (excluding schedule)
+  const hasChangedValues = useMemo(() => {
+    if (!tx || !initialized) return false;
+    return (
+      name.trim() !== tx.name ||
+      amountNumber !== tx.amount ||
+      categoryId !== tx.category ||
+      date !== tx.date ||
+      notes.trim() !== (tx.notes || "") ||
+      type !== tx.type ||
+      status !== (tx.status || "paid")
+    );
+  }, [tx, initialized, name, amountNumber, categoryId, date, notes, type, status]);
+
+  // Check if schedule was changed
+  const hasChangedSchedule = useMemo(() => {
+    if (!tx || !initialized) return false;
+    const txSchedule = tx.schedule;
+    if (!txSchedule && !schedule) return false;
+    if (!txSchedule || !schedule) return true;
+    return (
+      schedule.enabled !== txSchedule.enabled ||
+      schedule.frequency !== txSchedule.frequency ||
+      schedule.interval !== txSchedule.interval ||
+      schedule.dayOfMonth !== txSchedule.dayOfMonth ||
+      schedule.dayOfWeek !== txSchedule.dayOfWeek ||
+      schedule.startDate !== txSchedule.startDate ||
+      schedule.endDate !== txSchedule.endDate
+    );
+  }, [tx, initialized, schedule]);
+
   function goBack() {
     clearFormDraft(); // Clear draft when user cancels
     navigate(-1);
@@ -161,6 +207,116 @@ export default function AddEditTransactionPage() {
   function handleSave() {
     if (!canSave) return;
 
+    // Only show modal when coming from "Editar y registrar" (virtualDate is set)
+    // This means user clicked on a virtual transaction and wants to register it with changes
+    // If editing a template directly (no virtualDate), just update it normally
+    if (virtualDate && isTemplate) {
+      // Case 0: User didn't change anything - show alert
+      if (!hasChangedSchedule && !hasChangedValues) {
+        setShowNoChangesAlert(true);
+        return;
+      }
+
+      // Case 1: User changed schedule (frequency, interval, etc.) from a virtual
+      // This should always create a new template starting from the virtual date
+      if (hasChangedSchedule) {
+        handleSaveThisAndFuture();
+        return;
+      }
+
+      // Case 2: User changed values but not schedule
+      // Show modal to ask "only this one" vs "this and future"
+      if (hasChangedValues) {
+        setShowTemplateEditModal(true);
+        return;
+      }
+    }
+
+    // Normal save flow
+    performSave();
+  }
+
+  // Create just this one transaction from the template
+  function handleSaveOnlyThisOne() {
+    if (!canSave || !tx) return;
+
+    const trimmedNotes = notes.trim();
+
+    // Use virtualDate if available, otherwise use form date
+    const effectiveDate = virtualDate || date;
+
+    // Create a new individual transaction (not a template) with sourceTemplateId
+    addTransaction({
+      type,
+      name: name.trim(),
+      category: categoryId || "",
+      amount: amountNumber,
+      date: effectiveDate,
+      notes: trimmedNotes || undefined,
+      isRecurring: false,
+      schedule: undefined, // Not a template
+      status: status === "paid" ? undefined : status,
+      sourceTemplateId: tx.id, // Link to the original template
+    });
+
+    setShowTemplateEditModal(false);
+    clearFormDraft();
+    goBack();
+  }
+
+  // End current template and create a new one with updated values
+  function handleSaveThisAndFuture() {
+    if (!canSave || !tx) return;
+
+    const trimmedNotes = notes.trim();
+
+    // Use virtualDate if available (when coming from "Editar y registrar"),
+    // otherwise fall back to the form date
+    const effectiveDate = virtualDate || date;
+
+    // 1. End the current template by setting endDate to day before the virtual date
+    // This ensures the old template doesn't generate the virtual we're replacing
+    const endDate = virtualDate
+      ? getDateBefore(virtualDate)
+      : todayISO();
+
+    updateTransaction(tx.id, {
+      schedule: {
+        ...tx.schedule!,
+        endDate,
+      },
+    });
+
+    // 2. Create a new template with updated values starting from the effective date
+    // Use the NEW schedule values (from form state), not the old template values
+    const newSchedule: Schedule = {
+      enabled: true,
+      frequency: schedule?.frequency || tx.schedule!.frequency,
+      interval: schedule?.interval || tx.schedule!.interval,
+      startDate: effectiveDate,
+      dayOfMonth: schedule?.dayOfMonth ?? tx.schedule!.dayOfMonth,
+      dayOfWeek: schedule?.dayOfWeek ?? tx.schedule!.dayOfWeek,
+      // No endDate for new template
+    };
+
+    addTransaction({
+      type,
+      name: name.trim(),
+      category: categoryId || "",
+      amount: amountNumber,
+      date: effectiveDate, // Use the effective date as the base date
+      notes: trimmedNotes || undefined,
+      isRecurring: true,
+      schedule: newSchedule,
+      status: status === "paid" ? undefined : status,
+    });
+
+    setShowTemplateEditModal(false);
+    clearFormDraft();
+    goBack();
+  }
+
+  function performSave() {
     const trimmedNotes = notes.trim();
 
     if (tx) {
@@ -249,7 +405,9 @@ export default function AddEditTransactionPage() {
         title={title}
         onBack={goBack}
         rightActions={
-          isEdit && tx ? (
+          // Don't show delete button when coming from "Editar y registrar" (virtualDate)
+          // because that would delete the template, not the virtual transaction
+          isEdit && tx && !virtualDate ? (
             <button
               type="button"
               onClick={handleAskDelete}
@@ -542,6 +700,89 @@ export default function AddEditTransactionPage() {
         onConfirm={handleConfirmDelete}
         onClose={() => setConfirmDelete(false)}
       />
+
+      {/* Template Edit Choice Modal */}
+      {showTemplateEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowTemplateEditModal(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Guardar cambios
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              Este es un registro programado. ¿Cómo deseas guardar los cambios?
+            </p>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={handleSaveOnlyThisOne}
+                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                Solo este registro
+              </button>
+              <p className="px-2 text-xs text-gray-500">
+                Crea una transacción individual con estos valores. La plantilla original no cambia.
+              </p>
+
+              <button
+                type="button"
+                onClick={handleSaveThisAndFuture}
+                className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800"
+              >
+                Este y los siguientes
+              </button>
+              <p className="px-2 text-xs text-gray-500">
+                Finaliza la plantilla actual y crea una nueva con los valores editados.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setShowTemplateEditModal(false)}
+                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* No Changes Alert Modal */}
+      {showNoChangesAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowNoChangesAlert(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Sin cambios
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              No has realizado ningún cambio. Modifica el monto, descripción, categoría u otra información para registrar esta transacción.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setShowNoChangesAlert(false)}
+              className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

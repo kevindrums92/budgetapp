@@ -39,9 +39,12 @@ export default function VirtualTransactionModal({
     onClose();
   };
 
-  const handleViewTemplate = () => {
-    // Navigate to the template transaction
-    navigate(`/edit/${transaction.templateId}`);
+  const handleEditAndRegister = () => {
+    // Navigate to edit template with virtual date context
+    // This allows the edit page to know we came from a virtual transaction
+    navigate(`/edit/${transaction.templateId}`, {
+      state: { virtualDate: transaction.date },
+    });
     onClose();
   };
 
@@ -105,11 +108,11 @@ export default function VirtualTransactionModal({
           </button>
           <button
             type="button"
-            onClick={handleViewTemplate}
+            onClick={handleEditAndRegister}
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
           >
             <FileText className="h-4 w-4" />
-            Ver plantilla
+            Editar y registrar
           </button>
         </div>
       </div>

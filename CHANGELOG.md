@@ -4,6 +4,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **"Editar y registrar" para transacciones virtuales**: Nueva funcionalidad para editar y registrar transacciones programadas
+  - Al hacer clic en una transacción virtual, opciones "Registrar ahora" y "Editar y registrar"
+  - "Editar y registrar" permite modificar valores antes de registrar
+  - Modal de elección: "Solo este registro" (crea transacción individual) vs "Este y los siguientes" (crea nuevo template)
+  - Cambios en schedule (frecuencia, intervalo) aplican automáticamente "Este y los siguientes"
+  - Alerta "Sin cambios" cuando se intenta guardar sin modificaciones
+  - Botón eliminar oculto al editar desde virtual (previene eliminar template accidentalmente)
+  - Tests unitarios (28 tests) y E2E (13 tests) para el flujo completo
+
 ### Fixed
 - **Scheduled Transactions Duplication Bug**: Corregido bug crítico donde editar una transacción programada (cambiar monto/nombre) causaba duplicados al refrescar
   - Agregado campo `sourceTemplateId` para vincular transacciones generadas a su template

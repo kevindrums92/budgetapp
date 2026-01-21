@@ -30,6 +30,7 @@ type AddTxInput = {
   isRecurring?: boolean;
   schedule?: Schedule;
   status?: TransactionStatus;
+  sourceTemplateId?: string; // Links to the template that generated this transaction
 };
 
 type AddTripInput = {
@@ -222,6 +223,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         isRecurring: input.isRecurring,
         schedule: input.schedule,
         status: input.status,
+        sourceTemplateId: input.sourceTemplateId,
         createdAt: Date.now(),
       };
 
