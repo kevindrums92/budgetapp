@@ -20,6 +20,14 @@ All notable changes to SmartSpend will be documented in this file.
   - pendingSync.service.ts: 14 tests covering setPendingSnapshot, getPendingSnapshot, clearPendingSnapshot, hasPendingSnapshot
   - recurringTransactions.service.ts: 22 tests covering detectPendingRecurring, hasIgnoredThisMonth, markIgnoredForMonth, replicateTransaction
   - cloudState.service.ts: 19 tests covering getCloudState, upsertCloudState with full Supabase mocking
+  - **storage.service.ts: 26 tests** covering localStorage operations, schema migrations, and data integrity
+    - saveState/loadState/clearState: basic CRUD operations, JSON serialization, error handling
+    - v1→v2 migration: string categories to Category objects, transaction category ID migration, deduplication logic
+    - v2→v3 migration: categoryGroups addition
+    - v3→v4 migration: isRecurring field addition to transactions
+    - Edge cases: missing arrays, empty arrays, invalid state, localStorage quota errors
+    - Full migration path: v1→v2→v3→v4 in single loadState call
+    - Data integrity: migration persistence, corrupted state handling
   - **backup.service.ts: 41 tests** covering backup creation, validation, restore, and local storage operations
     - createBackup: metadata generation, stats calculation, SHA-256 checksum, device info, empty/large states
     - validateBackup: JSON validation, structure checks, backup version compatibility, checksum verification, corrupted file detection
@@ -27,9 +35,56 @@ All notable changes to SmartSpend will be documented in this file.
     - saveLocalBackup/getLocalBackups: user namespacing, automatic backup creation, filtering by userId
     - restoreLocalBackup: backup restoration by key
     - Integration tests: full backup cycles, multi-user separation, data integrity through operations
-  - Edge cases: localStorage errors, invalid JSON, year boundaries, leap years, month-end date adjustments, auth errors, database failures, corrupted backups, quota exceeded errors
-  - Integration scenarios: full sync cycles, user switching, logout handling, validation→restore flows
-  - **Total: 192 tests passing (2 skipped)**
+  - **dates.service.ts: 26 tests** covering date formatting and manipulation utilities
+    - todayISO: date formatting in YYYY-MM-DD, single-digit padding, year boundaries
+    - monthKey: YYYY-MM extraction from ISO dates, datetime string handling
+    - currentMonthKey: current month key generation, updates on date changes, year transitions
+    - monthLabelES: Spanish month labels for all 12 months, capitalization, different years
+    - formatDateGroupHeader: "Hoy"/"Ayer" logic, weekday formatting, year boundaries, different months
+    - formatTime: HH:MM formatting, morning/afternoon hours, midnight/end of day, padding, ISO 8601 with timezone
+- **Unit Tests for Components**: Test suites for React UI components
+  - **ConfirmDialog: 23 tests** covering confirmation modal UI and interactions
+    - Rendering: conditional display based on open prop, custom vs default title/buttons/text
+    - Button styling: normal (blue) vs destructive (red) confirm buttons, cancel button styling
+    - User interactions: button clicks (confirm/cancel), backdrop click, keyboard shortcuts (Escape/Enter)
+    - Keyboard event cleanup: listener removal on close, callback updates
+    - Accessibility: button types, proper z-index hierarchy
+    - Edge cases: empty messages, long text, double-click handling
+  - **DatePicker: 44 tests** covering date picker modal with calendar UI
+    - Rendering: open/closed states, header display, action buttons, year picker toggle
+    - Initial state: selectedDate initialization from value prop, today's date handling
+    - Month navigation: previous/next month buttons, year wrapping (Dec↔Jan), updating month/year state
+    - Day selection: clicking days updates selectedDate, proper date object handling
+    - Year picker: toggle open/close, year range generation (current year ±50), year selection updates main calendar
+    - Confirm/cancel actions: onChange callback with ISO format (YYYY-MM-DD), onClose on cancel/confirm
+    - Date formatting: Spanish locale (es-CO) for month/day names, proper display of selected date
+    - Edge cases: leap years (Feb 29), month boundaries (Jan 31→Feb 28), past/future year selection
+    - Body scroll locking: prevents background scroll when open
+    - Keyboard support: Escape key closes modal
+    - Accessibility: proper button types, modal structure
+  - **TransactionList: 30 tests** covering transaction list with grouping, filtering, and balance calculations
+    - Rendering: empty states, transaction groups by date, transaction items with proper formatting
+    - Grouping and sorting: descending date order, descending createdAt within same day, date group headers (Hoy/Ayer/formatted dates)
+    - Balance calculations: daily totals (expense only, income only, mixed), formatCOP currency formatting
+    - Filtering by search query: name matching (case-insensitive), category name matching, notes matching, no results state
+    - Filtering by type: all transactions (default), expenses only, income only, pending status only
+    - Month warning banner: past month message, future month message, current month no warning
+    - Transaction interactions: onClick handler called with correct transaction
+    - Edge cases: undefined categoryDefinitions, missing category in definitions, transactions with no notes, mixed transaction types in same day, zero amount transactions
+  - **CategoryPickerDrawer: 44 tests** covering category picker with drag-to-dismiss and search
+    - Rendering: open/closed states, search input, drag handle, New Category button, Close button
+    - Category filtering by transaction type: expense categories only, income categories only, proper icon/color display
+    - Search filtering: case-insensitive matching, partial matches, accent-insensitive, updates on input change, empty state message
+    - Category selection: onSelect callback with category, visual highlighting of selected category, proper category object passed
+    - Drag-to-dismiss mechanics: touchStart records startY, touchMove updates position, touchEnd closes if threshold exceeded (80px), touchEnd resets if below threshold, backdrop opacity changes during drag
+    - New Category button navigation: navigates to /category/new with type query param
+    - Close actions: close button calls onClose, backdrop click calls onClose, closes on category selection
+    - Body scroll locking: prevents background scroll when open
+    - Edge cases: empty category list, missing icons default to Wallet, special characters in search, whitespace handling
+    - Accessibility: proper button types, search input placeholder
+  - Edge cases: localStorage errors, invalid JSON, year boundaries, leap years, month-end date adjustments, auth errors, database failures, corrupted backups, quota exceeded errors, schema migration edge cases
+  - Integration scenarios: full sync cycles, user switching, logout handling, validation→restore flows, v1→v4 migration paths
+  - **Total: 368 tests passing (2 skipped)**
 
 ## [0.9.1] - 2026-01-20
 
