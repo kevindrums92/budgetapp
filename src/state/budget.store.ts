@@ -132,7 +132,7 @@ type BudgetStore = BudgetState & {
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   transactions: [],
   categories: [],
   categoryDefinitions: createDefaultCategories(),
@@ -220,7 +220,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
@@ -270,7 +270,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
@@ -287,7 +287,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -322,7 +322,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -344,7 +344,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -361,7 +361,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -396,7 +396,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -418,7 +418,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -435,7 +435,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -467,7 +467,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
@@ -491,7 +491,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -508,7 +508,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
@@ -534,7 +534,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -564,7 +564,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -588,7 +588,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -619,7 +619,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -641,7 +641,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 4,
+        schemaVersion: 5,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
@@ -657,7 +657,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       // set explícito (NO meter funciones del store dentro)
       set({
-        schemaVersion: 4,
+        schemaVersion: 5,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
