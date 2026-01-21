@@ -43,6 +43,22 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
   // DatePicker state
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  // Sync local state when schedule prop changes (e.g., when editing existing transaction)
+  useEffect(() => {
+    if (schedule) {
+      setFrequency(schedule.frequency);
+      setInterval(schedule.interval);
+      setHasEndDate(Boolean(schedule.endDate));
+      setEndDate(schedule.endDate ?? "");
+      if (schedule.dayOfWeek !== undefined) {
+        setDayOfWeek(schedule.dayOfWeek);
+      }
+      if (schedule.dayOfMonth !== undefined) {
+        setDayOfMonth(schedule.dayOfMonth);
+      }
+    }
+  }, [schedule]);
+
   useEffect(() => {
     if (open) {
       setIsVisible(true);

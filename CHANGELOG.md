@@ -4,6 +4,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Scheduled Transactions Duplication Bug**: Corregido bug crítico donde editar una transacción programada (cambiar monto/nombre) causaba duplicados al refrescar
+  - Agregado campo `sourceTemplateId` para vincular transacciones generadas a su template
+  - Migración v4→v5: convierte `isRecurring` a `schedule`, deduplica templates, vincula transacciones
+  - Reparación automática de transacciones existentes sin `sourceTemplateId` al cargar datos
+  - El scheduler ahora verifica por `sourceTemplateId + date` primero (permite editar sin duplicar)
+  - Al editar transacciones legacy, se vinculan automáticamente a su template correspondiente
+  - Preservación de `sourceTemplateId` en `updateTransaction` del store
+
 ### Changed
 - **Scheduled Transactions**: Reemplazado sistema de generación de transacciones programadas
   - Nueva arquitectura de "generación lazy" con transacciones virtuales calculadas on-the-fly

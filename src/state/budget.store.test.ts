@@ -1440,7 +1440,7 @@ describe('budget.store', () => {
 
         const snapshot = store.getSnapshot();
 
-        expect(snapshot.schemaVersion).toBe(6);
+        expect(snapshot.schemaVersion).toBe(5);
         expect(snapshot.transactions).toHaveLength(1);
         expect(snapshot.transactions[0].name).toBe('Test');
         expect(snapshot.categories).toBeDefined();
@@ -1505,11 +1505,11 @@ describe('budget.store', () => {
         expect(state.transactions[0].type).toBe('income');
       });
 
-      it('should call saveState', () => {
+      it('should call saveState with normalized data', () => {
         const store = useBudgetStore.getState();
 
         const newData: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: [],
           categories: [],
           categoryDefinitions: [],
@@ -1520,7 +1520,11 @@ describe('budget.store', () => {
 
         store.replaceAllData(newData);
 
-        expect(storageService.saveState).toHaveBeenCalledWith(newData);
+        // replaceAllData normalizes to v5 before saving
+        expect(storageService.saveState).toHaveBeenCalledWith({
+          ...newData,
+          schemaVersion: 5,
+        });
       });
     });
   });

@@ -164,6 +164,19 @@ export default function AddEditTransactionPage() {
     const trimmedNotes = notes.trim();
 
     if (tx) {
+      // If transaction doesn't have sourceTemplateId, try to find a matching template
+      // This handles transactions that were created before sourceTemplateId was implemented
+      let sourceTemplateId = tx.sourceTemplateId;
+      if (!sourceTemplateId && !tx.schedule?.enabled) {
+        // Find a template that matches by name + category (original values before edit)
+        const matchingTemplate = transactions.find(
+          (t) => t.schedule?.enabled && t.name === tx.name && t.category === tx.category
+        );
+        if (matchingTemplate) {
+          sourceTemplateId = matchingTemplate.id;
+        }
+      }
+
       updateTransaction(tx.id, {
         type,
         name: name.trim(),
@@ -174,6 +187,8 @@ export default function AddEditTransactionPage() {
         isRecurring,
         schedule: schedule || undefined,
         status: status === "paid" ? undefined : status,
+        // Preserve or set sourceTemplateId to prevent scheduled transaction duplication
+        sourceTemplateId,
       });
     } else {
       addTransaction({

@@ -18,20 +18,30 @@ function shouldProcessSchedule(schedule: Schedule, today: string): boolean {
 
 /**
  * Check if a transaction already exists for a given date
- * Matches by name, category, amount, and date
+ * First checks by sourceTemplateId (for auto-generated transactions)
+ * Then falls back to checking by name, category, amount, and date (legacy)
  */
 function transactionExistsForDate(
   transactions: Transaction[],
   template: Transaction,
   date: string
 ): boolean {
-  return transactions.some(
-    (tx) =>
+  return transactions.some((tx) => {
+    // Primary check: sourceTemplateId + date (for auto-generated transactions)
+    // This allows users to edit amount/name without duplicating
+    if (tx.sourceTemplateId === template.id && tx.date === date) {
+      return true;
+    }
+
+    // Fallback: legacy check by name + category + amount + date
+    // This handles transactions created before sourceTemplateId was added
+    return (
       tx.name === template.name &&
       tx.category === template.category &&
       tx.amount === template.amount &&
       tx.date === date
-  );
+    );
+  });
 }
 
 /**
@@ -263,6 +273,7 @@ export function materializeTransaction(
     ...realTx,
     id: nanoid(),  // Generate a real ID
     status: "pending",  // Mark as pending until user confirms payment
+    sourceTemplateId: templateId,  // Link back to the template for deduplication
     createdAt: Date.now(),
   };
 }
@@ -355,6 +366,7 @@ export function generatePastDueTransactions(
         id: nanoid(),
         date,
         status: "pending", // Mark as pending - user can confirm payment later
+        sourceTemplateId: template.id, // Link back to template for deduplication
         createdAt: Date.now(),
         // Remove schedule from auto-generated transactions
         schedule: undefined,

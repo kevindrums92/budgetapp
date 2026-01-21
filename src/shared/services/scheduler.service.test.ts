@@ -451,6 +451,8 @@ describe("scheduler.service", () => {
       // ID should be a new nanoid, not the virtual ID
       expect(real.id).not.toBe(virtual.id);
       expect(real.id).not.toContain("virtual");
+      // Should have sourceTemplateId linking back to the template
+      expect(real.sourceTemplateId).toBe("template-1");
     });
   });
 
@@ -844,6 +846,8 @@ describe("scheduler.service", () => {
         // Should have unique IDs
         expect(tx.id).not.toContain("virtual");
         expect(tx.id).not.toBe(template.id);
+        // Should have sourceTemplateId linking back to template
+        expect(tx.sourceTemplateId).toBe(template.id);
       });
     });
 
@@ -1082,6 +1086,87 @@ describe("scheduler.service", () => {
       // Only Feb 15 should be generated (Mar is after endDate)
       expect(pastDue.length).toBe(1);
       expect(pastDue[0].date).toBe("2025-02-15");
+    });
+
+    it("should not duplicate when user edits the amount of an auto-generated transaction", () => {
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      // User edited the Feb transaction (changed amount from 1000000 to 1050000)
+      // This should still be recognized as the Feb 15 occurrence via sourceTemplateId
+      const editedFeb: Transaction = {
+        id: "existing-feb",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1050000, // User edited the amount!
+        date: "2025-02-15",
+        sourceTemplateId: "template-rent", // Links back to template
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template, editedFeb];
+      const today = "2025-03-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // Should only generate Mar 15 (Feb exists via sourceTemplateId match)
+      expect(pastDue.length).toBe(1);
+      expect(pastDue[0].date).toBe("2025-03-15");
+    });
+
+    it("should not duplicate when user edits the name of an auto-generated transaction", () => {
+      const template: Transaction = {
+        id: "template-gym",
+        type: "expense",
+        name: "Gym Membership",
+        category: "fitness",
+        amount: 50000,
+        date: "2025-01-10",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-10",
+          dayOfMonth: 10,
+        },
+        createdAt: Date.now(),
+      };
+
+      // User edited the Feb transaction (changed name)
+      const editedFeb: Transaction = {
+        id: "existing-feb",
+        type: "expense",
+        name: "Gym - February special", // User edited the name!
+        category: "fitness",
+        amount: 50000,
+        date: "2025-02-10",
+        sourceTemplateId: "template-gym", // Links back to template
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template, editedFeb];
+      const today = "2025-03-15";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // Should only generate Mar 10 (Feb exists via sourceTemplateId match)
+      expect(pastDue.length).toBe(1);
+      expect(pastDue[0].date).toBe("2025-03-10");
     });
   });
 });

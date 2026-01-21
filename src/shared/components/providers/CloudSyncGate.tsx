@@ -121,6 +121,25 @@ export default function CloudSyncGate() {
     const session = data.session;
 
     if (!session) {
+      // HMR Protection: If we're in development and already have cloud data,
+      // don't clear it - the session might just be loading slowly during HMR
+      const currentMode = useBudgetStore.getState().cloudMode;
+      const currentUser = useBudgetStore.getState().user;
+      const hasExistingCloudSession = currentMode === "cloud" && currentUser.email;
+
+      if (import.meta.env.DEV && hasExistingCloudSession) {
+        logger.warn("CloudSync", "HMR detected: Session null but already in cloud mode. Skipping reset.");
+        // Re-fetch session after a short delay (Supabase might still be initializing)
+        setTimeout(async () => {
+          const { data: retryData } = await supabase.auth.getSession();
+          if (retryData.session) {
+            logger.info("CloudSync", "HMR: Session recovered after retry");
+            initForSession();
+          }
+        }, 500);
+        return;
+      }
+
       logger.info("CloudSync", "No session found, switching to guest mode");
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
@@ -221,35 +240,28 @@ export default function CloudSyncGate() {
           needsPush = true;
         }
 
-        // Migrate v4 to v5: Convert isRecurring to schedule
+        // Migrate v4 (or v3) to v5: Full scheduled transactions support
+        // - Convert isRecurring to schedule
+        // - Deduplicate templates (keep only one per name+category+amount)
+        // - Add sourceTemplateId to link generated transactions to their template
         logger.info("CloudSync", `Schema version check: cloud.schemaVersion=${cloud.schemaVersion}`);
 
         if (cloud.schemaVersion === 4 || cloud.schemaVersion === 3) {
           const recurringCount = cloud.transactions.filter((tx: any) => tx.isRecurring).length;
-          logger.info("CloudSync", `Migrating cloud data from v${cloud.schemaVersion} to v5 (isRecurring → schedule)`);
+          logger.info("CloudSync", `Migrating cloud data from v${cloud.schemaVersion} to v5`);
           logger.info("CloudSync", `Found ${recurringCount} transactions with isRecurring=true`);
 
+          // Step 1: Convert isRecurring to schedule
           cloud.transactions = cloud.transactions.map((tx: any) => {
-            // If has isRecurring=true, convert to schedule
             if (tx.isRecurring) {
               const schedule = convertLegacyRecurringToSchedule(tx);
-              logger.info("CloudSync", `Converting transaction "${tx.name}" to scheduled:`, schedule);
-              return {
-                ...tx,
-                schedule,
-                // Keep isRecurring for backward compat but it's deprecated
-              };
+              logger.info("CloudSync", `Converting "${tx.name}" to scheduled:`, schedule);
+              return { ...tx, schedule };
             }
             return tx;
           });
-          cloud.schemaVersion = 5;
-          needsPush = true;
-          logger.info("CloudSync", "Migration complete, schemaVersion now 5, needsPush=true");
-        }
 
-        // Migrate v5 to v6: Deduplicate schedule templates
-        if (cloud.schemaVersion === 5) {
-          logger.info("CloudSync", "Migrating cloud data from v5 to v6 (deduplicate schedule templates)");
+          // Step 2: Deduplicate schedule templates
           const templatesMap = new Map<string, any>();
           const nonTemplates: any[] = [];
 
@@ -272,14 +284,75 @@ export default function CloudSyncGate() {
             }
           }
 
-          cloud.transactions = [...templatesMap.values(), ...nonTemplates];
-          cloud.schemaVersion = 6;
+          // Step 3: Add sourceTemplateId to link transactions to their templates
+          const finalTransactions: any[] = [...templatesMap.values()];
+
+          for (const tx of nonTemplates) {
+            if (tx.sourceTemplateId) {
+              finalTransactions.push(tx);
+              continue;
+            }
+
+            const key = `${tx.name}|${tx.category}`;
+            let matchedTemplate: any = null;
+
+            for (const template of templatesMap.values()) {
+              const templateKey = `${template.name}|${template.category}`;
+              if (templateKey === key) {
+                matchedTemplate = template;
+                break;
+              }
+            }
+
+            if (matchedTemplate) {
+              finalTransactions.push({ ...tx, sourceTemplateId: matchedTemplate.id });
+            } else {
+              finalTransactions.push(tx);
+            }
+          }
+
+          cloud.transactions = finalTransactions;
+          cloud.schemaVersion = 5;
           needsPush = true;
-          logger.info("CloudSync", `Migration v5→v6 complete: deduplicated to ${templatesMap.size} schedule templates`);
+          logger.info("CloudSync", `Migration v4→v5 complete: ${templatesMap.size} templates, transactions linked`);
         }
 
-        if (cloud.schemaVersion >= 6) {
-          logger.info("CloudSync", `No migration needed, schema version is ${cloud.schemaVersion}`);
+        // Always repair: Ensure all transactions have sourceTemplateId if they match a template
+        // This fixes transactions that were confirmed before sourceTemplateId was added
+        if (cloud.schemaVersion >= 5) {
+          logger.info("CloudSync", `Schema version is ${cloud.schemaVersion}, checking for sourceTemplateId repairs...`);
+
+          // Find all templates
+          const templates = cloud.transactions.filter((tx: any) => tx.schedule?.enabled);
+
+          if (templates.length > 0) {
+            let repairCount = 0;
+
+            cloud.transactions = cloud.transactions.map((tx: any) => {
+              // Skip templates themselves and transactions that already have sourceTemplateId
+              if (tx.schedule?.enabled || tx.sourceTemplateId) {
+                return tx;
+              }
+
+              // Try to find a matching template by name + category
+              const matchedTemplate = templates.find((template: any) =>
+                template.name === tx.name && template.category === tx.category
+              );
+
+              if (matchedTemplate) {
+                repairCount++;
+                logger.info("CloudSync", `Repairing sourceTemplateId for "${tx.name}" (${tx.id}) -> template ${matchedTemplate.id}`);
+                return { ...tx, sourceTemplateId: matchedTemplate.id };
+              }
+
+              return tx;
+            });
+
+            if (repairCount > 0) {
+              needsPush = true;
+              logger.info("CloudSync", `Repaired ${repairCount} transactions with missing sourceTemplateId`);
+            }
+          }
         }
 
         replaceAllData(cloud);

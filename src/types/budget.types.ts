@@ -25,6 +25,7 @@ export type Transaction = {
   isRecurring?: boolean; // DEPRECATED: Legacy field, use schedule instead
   schedule?: Schedule;   // Scheduled transaction configuration
   status?: TransactionStatus; // Estado de pago (default: "paid")
+  sourceTemplateId?: string;  // ID of the template transaction that generated this (for scheduled)
   createdAt: number;     // epoch ms
 };
 
@@ -88,7 +89,7 @@ export type Trip = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
+  schemaVersion: 1 | 2 | 3 | 4 | 5;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects

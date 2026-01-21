@@ -92,47 +92,39 @@ export function loadState(): BudgetState | null {
       needsSave = true;
     }
 
-    // Migrate v4 to v5: Convert isRecurring to schedule
+    // Migrate v4 to v5: Full scheduled transactions support
+    // - Convert isRecurring to schedule
+    // - Deduplicate templates (keep only one per name+category+amount)
+    // - Add sourceTemplateId to link generated transactions to their template
     if (parsed.schemaVersion === 4) {
+      // Step 1: Convert isRecurring to schedule
       parsed.transactions = parsed.transactions.map((tx: any) => {
-        // If has isRecurring=true, convert to schedule
         if (tx.isRecurring) {
           return {
             ...tx,
             schedule: convertLegacyRecurringToSchedule(tx),
-            // Keep isRecurring for backward compat but it's deprecated
           };
         }
         return tx;
       });
-      parsed.schemaVersion = 5;
-      needsSave = true;
-    }
 
-    // Migrate v5 to v6: Deduplicate schedule templates
-    // The v4→v5 migration created a schedule for EVERY isRecurring transaction,
-    // but we only need ONE template per unique (name, category, amount) combination.
-    // Keep only the most recent template for each combination.
-    if (parsed.schemaVersion === 5) {
+      // Step 2: Deduplicate schedule templates
+      // Keep only the most recent template for each (name, category, amount) combination
       const templatesMap = new Map<string, any>();
       const nonTemplates: any[] = [];
 
       for (const tx of parsed.transactions) {
         if (tx.schedule?.enabled) {
-          // Create a unique key for this template
           const key = `${tx.name}|${tx.category}|${tx.amount}`;
           const existing = templatesMap.get(key);
 
-          // Keep the most recent one (by date, then by createdAt)
           if (!existing || tx.date > existing.date ||
               (tx.date === existing.date && tx.createdAt > existing.createdAt)) {
-            // If there was an existing one, convert it to non-template
             if (existing) {
               nonTemplates.push({ ...existing, schedule: undefined });
             }
             templatesMap.set(key, tx);
           } else {
-            // This one is older, convert to non-template
             nonTemplates.push({ ...tx, schedule: undefined });
           }
         } else {
@@ -140,11 +132,74 @@ export function loadState(): BudgetState | null {
         }
       }
 
-      // Combine: templates + non-templates
-      parsed.transactions = [...templatesMap.values(), ...nonTemplates];
-      parsed.schemaVersion = 6;
+      // Step 3: Add sourceTemplateId to link transactions to their templates
+      // This allows users to edit amount/name without causing duplicates
+      const finalTransactions: any[] = [...templatesMap.values()];
+
+      for (const tx of nonTemplates) {
+        if (tx.sourceTemplateId) {
+          finalTransactions.push(tx);
+          continue;
+        }
+
+        // Try to find a matching template by name + category
+        const key = `${tx.name}|${tx.category}`;
+        let matchedTemplate: any = null;
+
+        for (const template of templatesMap.values()) {
+          const templateKey = `${template.name}|${template.category}`;
+          if (templateKey === key) {
+            matchedTemplate = template;
+            break;
+          }
+        }
+
+        if (matchedTemplate) {
+          finalTransactions.push({ ...tx, sourceTemplateId: matchedTemplate.id });
+        } else {
+          finalTransactions.push(tx);
+        }
+      }
+
+      parsed.transactions = finalTransactions;
+      parsed.schemaVersion = 5;
       needsSave = true;
-      console.log(`[Storage] Migrated v5→v6: Deduplicated to ${templatesMap.size} schedule templates`);
+      console.log(`[Storage] Migrated v4→v5: ${templatesMap.size} schedule templates, linked transactions to their source`);
+    }
+
+    // Always repair: Ensure all transactions have sourceTemplateId if they match a template
+    // This fixes transactions that were confirmed before sourceTemplateId was added
+    if (parsed.schemaVersion >= 5) {
+      const templates = parsed.transactions.filter((tx: any) => tx.schedule?.enabled);
+
+      if (templates.length > 0) {
+        let repairCount = 0;
+
+        parsed.transactions = parsed.transactions.map((tx: any) => {
+          // Skip templates themselves and transactions that already have sourceTemplateId
+          if (tx.schedule?.enabled || tx.sourceTemplateId) {
+            return tx;
+          }
+
+          // Try to find a matching template by name + category
+          const matchedTemplate = templates.find((template: any) =>
+            template.name === tx.name && template.category === tx.category
+          );
+
+          if (matchedTemplate) {
+            repairCount++;
+            console.log(`[Storage] Repairing sourceTemplateId for "${tx.name}" (${tx.id}) -> template ${matchedTemplate.id}`);
+            return { ...tx, sourceTemplateId: matchedTemplate.id };
+          }
+
+          return tx;
+        });
+
+        if (repairCount > 0) {
+          needsSave = true;
+          console.log(`[Storage] Repaired ${repairCount} transactions with missing sourceTemplateId`);
+        }
+      }
     }
 
     // Ensure all arrays exist
