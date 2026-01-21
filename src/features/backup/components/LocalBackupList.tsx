@@ -10,8 +10,12 @@ import { useBudgetStore } from "@/state/budget.store";
 import { saveState } from "@/services/storage.service";
 import type { LocalBackupEntry } from "@/features/backup/types/backup.types";
 
-export default function LocalBackupList() {
-  const [backups, setBackups] = useState<LocalBackupEntry[]>(() => getLocalBackups());
+type Props = {
+  userId?: string;
+};
+
+export default function LocalBackupList({ userId }: Props) {
+  const [backups, setBackups] = useState<LocalBackupEntry[]>(() => getLocalBackups(userId));
   const [isRestoring, setIsRestoring] = useState(false);
   const [confirmRestore, setConfirmRestore] = useState<LocalBackupEntry | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<LocalBackupEntry | null>(null);
@@ -20,7 +24,7 @@ export default function LocalBackupList() {
   const getSnapshot = useBudgetStore((s) => s.getSnapshot);
 
   const refreshBackups = () => {
-    setBackups(getLocalBackups());
+    setBackups(getLocalBackups(userId));
   };
 
   const handleRestoreClick = (entry: LocalBackupEntry) => {
@@ -37,7 +41,7 @@ export default function LocalBackupList() {
       // Create safety backup before restore
       console.log("[LocalBackup] Creating safety backup before restore...");
       const currentState = getSnapshot();
-      await saveLocalBackup(currentState);
+      await saveLocalBackup(currentState, userId);
 
       // Restore from backup
       const restoredState = restoreLocalBackup(confirmRestore.key);

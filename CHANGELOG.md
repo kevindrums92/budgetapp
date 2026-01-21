@@ -5,6 +5,13 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **CRITICAL: Local Backups Cross-User Data Leak**: Fixed guest users seeing logged-in users' backups
+  - Local backups now namespaced by user ID (`budget.autoBackup.{userId}.{timestamp}`)
+  - Guest users cannot access "Local" backups tab (disabled + auth required message)
+  - BackupScheduler only runs for logged-in users (cloudMode === "cloud")
+  - `getLocalBackups()` and `saveLocalBackup()` now filter by userId
+  - Prevents data leaks between different user sessions
+  - Each user only sees their own auto-backups
 - **CRITICAL: Logout User State Persistence**: Fixed user data persisting after logout
   - User avatar, email, and name now properly cleared on SIGNED_OUT event
   - TopHeader no longer shows ghost avatar after logout

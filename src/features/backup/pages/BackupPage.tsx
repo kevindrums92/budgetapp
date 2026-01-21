@@ -14,6 +14,7 @@ const BACKUP_METHOD_KEY = "budget.backupMethod";
 
 export default function BackupPage() {
   const cloudMode = useBudgetStore((s) => s.cloudMode);
+  const user = useBudgetStore((s) => s.user);
   const [selectedMethod, setSelectedMethod] = useState<BackupMethod | null>(null);
 
   // Load saved preference on mount
@@ -86,10 +87,13 @@ export default function BackupPage() {
           <button
             type="button"
             onClick={() => handleSelectMethod("local")}
+            disabled={cloudMode === "guest"}
             className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
-              selectedMethod === "local"
-                ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-gray-500 border-b-2 border-transparent"
+              cloudMode === "guest"
+                ? "text-gray-300 border-b-2 border-transparent cursor-not-allowed"
+                : selectedMethod === "local"
+                  ? "text-emerald-600 border-b-2 border-emerald-600"
+                  : "text-gray-500 border-b-2 border-transparent"
             }`}
           >
             <RefreshCw size={16} />
@@ -171,29 +175,42 @@ export default function BackupPage() {
         {/* Local Auto-Backup Tab */}
         {selectedMethod === "local" && (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                Backups Automáticos Locales
-              </h2>
-              <p className="text-sm text-gray-600">
-                Se crean automáticamente cada 24 horas
-              </p>
-            </div>
+            {cloudMode === "guest" ? (
+              <div className="rounded-xl bg-amber-50 p-6 text-center">
+                <p className="text-amber-900 font-medium mb-2">
+                  🔒 Requiere Autenticación
+                </p>
+                <p className="text-sm text-amber-700">
+                  Inicia sesión para usar backups automáticos locales
+                </p>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                    Backups Automáticos Locales
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Se crean automáticamente cada 24 horas
+                  </p>
+                </div>
 
-            <LocalBackupList />
+                <LocalBackupList userId={user.email || undefined} />
 
-            {/* Info */}
-            <div className="rounded-xl bg-purple-50 p-4">
-              <p className="text-sm text-purple-900 font-medium mb-2">
-                🔄 ¿Cómo funcionan?
-              </p>
-              <ul className="space-y-1 text-xs text-purple-700">
-                <li>• Se crean automáticamente cada 24 horas</li>
-                <li>• Se mantienen los últimos 5 backups</li>
-                <li>• Tamaño máximo total: 5MB</li>
-                <li>• Se crean antes de operaciones críticas</li>
-              </ul>
-            </div>
+                {/* Info */}
+                <div className="rounded-xl bg-purple-50 p-4">
+                  <p className="text-sm text-purple-900 font-medium mb-2">
+                    🔄 ¿Cómo funcionan?
+                  </p>
+                  <ul className="space-y-1 text-xs text-purple-700">
+                    <li>• Se crean automáticamente cada 24 horas</li>
+                    <li>• Se mantienen los últimos 5 backups</li>
+                    <li>• Tamaño máximo total: 5MB</li>
+                    <li>• Se crean antes de operaciones críticas</li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         )}
 

@@ -12,22 +12,35 @@ const LAST_BACKUP_KEY = "budget.lastAutoBackup";
  * Backups are stored in localStorage with automatic pruning.
  */
 export default function BackupScheduler() {
+  const user = useBudgetStore((s) => s.user);
+  const cloudMode = useBudgetStore((s) => s.cloudMode);
+
   useEffect(() => {
+    // Only run for logged-in users (not guest mode)
+    if (cloudMode !== "cloud" || !user.email) {
+      console.log("[BackupScheduler] Skipping - user not logged in");
+      return;
+    }
+
+    const userId = user.email; // Use email as user identifier
+
     const checkAndBackup = async () => {
       try {
-        const lastBackupTime = localStorage.getItem(LAST_BACKUP_KEY);
+        // Namespace last backup time by userId
+        const lastBackupKey = `${LAST_BACKUP_KEY}.${userId}`;
+        const lastBackupTime = localStorage.getItem(lastBackupKey);
         const lastBackupTimestamp = lastBackupTime ? parseInt(lastBackupTime, 10) : 0;
         const now = Date.now();
         const intervalMs = BACKUP_INTERVAL_HOURS * 60 * 60 * 1000;
 
         // Check if it's time for a backup
         if (now - lastBackupTimestamp >= intervalMs) {
-          console.log("[BackupScheduler] Creating periodic local backup...");
+          console.log(`[BackupScheduler] Creating periodic local backup for user ${userId}...`);
 
           const state = useBudgetStore.getState().getSnapshot();
-          await saveLocalBackup(state);
+          await saveLocalBackup(state, userId);
 
-          localStorage.setItem(LAST_BACKUP_KEY, String(now));
+          localStorage.setItem(lastBackupKey, String(now));
           console.log("[BackupScheduler] Periodic backup created successfully");
         } else {
           const nextBackupIn = intervalMs - (now - lastBackupTimestamp);
@@ -46,7 +59,7 @@ export default function BackupScheduler() {
     const intervalId = setInterval(checkAndBackup, 24 * 60 * 60 * 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [cloudMode, user.email]);
 
   // This component doesn't render anything
   return null;
