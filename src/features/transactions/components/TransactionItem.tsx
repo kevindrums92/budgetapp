@@ -1,15 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { icons, Repeat } from "lucide-react";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import type { Transaction, Category } from "@/types/budget.types";
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 interface TransactionItemProps {
   transaction: Transaction;

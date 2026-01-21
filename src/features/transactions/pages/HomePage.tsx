@@ -6,7 +6,7 @@ import AddActionSheet from "@/features/transactions/components/AddActionSheet";
 import RecurringBanner from "@/features/transactions/components/RecurringBanner";
 import RecurringModal from "@/features/transactions/components/RecurringModal";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import type { Transaction } from "@/types/budget.types";
 import {
   detectPendingRecurring,

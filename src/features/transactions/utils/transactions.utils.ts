@@ -1,7 +1,2 @@
-export function formatCOP(value: number): string {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+// Re-export from shared utils for backwards compatibility
+export { formatCOP } from "@/shared/utils/currency.utils";

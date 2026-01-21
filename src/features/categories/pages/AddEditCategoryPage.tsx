@@ -8,14 +8,7 @@ import { DEFAULT_CATEGORY_COLOR } from "@/constants/categories/category-colors";
 import type { TransactionType } from "@/types/budget.types";
 import IconColorPicker from "@/features/categories/components/IconColorPicker";
 import PageHeader from "@/shared/components/layout/PageHeader";
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 export default function AddEditCategoryPage() {
   const navigate = useNavigate();

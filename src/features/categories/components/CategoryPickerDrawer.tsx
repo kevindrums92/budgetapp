@@ -4,6 +4,7 @@ import { X, Search, Plus } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import type { TransactionType, Category } from "@/types/budget.types";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 type Props = {
   open: boolean;
@@ -16,14 +17,6 @@ type Props = {
 
 const SHEET_HEIGHT = 500;
 const DRAG_THRESHOLD = 0.3;
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
 
 export default function CategoryPickerDrawer({
   open,

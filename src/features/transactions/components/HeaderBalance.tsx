@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MONTHS = [

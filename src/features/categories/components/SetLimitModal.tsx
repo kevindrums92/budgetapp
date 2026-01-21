@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { icons } from "lucide-react";
 import type { Category } from "@/types/budget.types";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 type Props = {
   open: boolean;
@@ -8,14 +9,6 @@ type Props = {
   category: Category | null;
   onSave: (limit: number | null) => void;
 };
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
 
 function formatNumber(value: string): string {
   const num = value.replace(/\D/g, "");

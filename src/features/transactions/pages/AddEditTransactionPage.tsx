@@ -4,22 +4,15 @@ import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle } f
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
 import type { TransactionType, TransactionStatus } from "@/types/budget.types";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
 
 export default function AddEditTransactionPage() {
   const navigate = useNavigate();

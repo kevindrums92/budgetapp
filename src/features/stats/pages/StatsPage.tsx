@@ -16,15 +16,8 @@ import {
 import { icons, PieChart as PieChartIcon, BarChart3, TrendingUp } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { monthLabelES } from "@/services/dates.service";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+import { formatCOP } from "@/shared/utils/currency.utils";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 // Get last N months as YYYY-MM strings
 function getLastMonths(count: number): string[] {

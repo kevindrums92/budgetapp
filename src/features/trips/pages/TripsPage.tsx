@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import { Plus, MapPin, Calendar, Plane } from "lucide-react";
 import type { Trip } from "@/types/budget.types";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";

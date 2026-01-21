@@ -2,18 +2,11 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { icons, Plus, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import SetLimitModal from "@/features/categories/components/SetLimitModal";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
 import type { Category } from "@/types/budget.types";
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 function getProgressColor(spent: number, limit: number | undefined): string {
   if (!limit) return "bg-gray-200";

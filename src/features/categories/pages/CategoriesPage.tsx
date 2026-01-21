@@ -3,16 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { icons, Plus, FolderOpen, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/shared/components/layout/PageHeader";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 type Tab = "expense" | "income";
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
 
 export default function CategoriesPage() {
   const navigate = useNavigate();

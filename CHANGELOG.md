@@ -13,6 +13,13 @@ All notable changes to SmartSpend will be documented in this file.
   - Namespaces: Backup, CloudBackup, BackupScheduler, CloudBackupScheduler, CloudSync
   - Production builds now have clean console output
 
+- **Code Organization**: Extracted duplicate code to shared utilities
+  - Created `string.utils.ts` with `kebabToPascal` function (removed 11 duplicates, -77 lines)
+  - Created `currency.utils.ts` with `formatCOP` function (centralized from transactions.utils)
+  - Created `ui.constants.ts` with Z-index layers, timing constants, and layout values
+  - Updated 23 files to use centralized utilities
+  - Improved code maintainability following DRY principle
+
 ### Performance
 - **Bundle Size Optimization**: Reduced initial bundle size by 31% through code splitting
   - **Before**: 410.63 KB gzipped (1.45 MB minified) - single monolithic bundle

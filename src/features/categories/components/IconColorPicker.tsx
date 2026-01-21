@@ -3,6 +3,7 @@ import { icons } from "lucide-react";
 import { CATEGORY_ICONS } from "@/constants/categories/category-icons";
 import { CATEGORY_COLORS } from "@/constants/categories/category-colors";
 import { Check } from "lucide-react";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 type Props = {
   open: boolean;
@@ -12,14 +13,6 @@ type Props = {
   onIconChange: (icon: string) => void;
   onColorChange: (color: string) => void;
 };
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
 
 export default function IconColorPicker({
   open,

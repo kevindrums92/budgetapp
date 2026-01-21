@@ -3,7 +3,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { formatDateGroupHeader } from "@/services/dates.service";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 
 interface GroupedTransactions {
   date: string;

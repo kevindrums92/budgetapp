@@ -35,8 +35,8 @@ vi.mock('@/services/dates.service', async () => {
   };
 });
 
-// Mock transactions utils
-vi.mock('@/features/transactions/utils/transactions.utils', () => ({
+// Mock currency utils
+vi.mock('@/shared/utils/currency.utils', () => ({
   formatCOP: (value: number) => `$${value.toLocaleString('es-CO')}`,
 }));
 

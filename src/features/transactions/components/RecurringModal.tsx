@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { icons, X } from "lucide-react";
 import type { Transaction } from "@/types/budget.types";
 import type { Category } from "@/types/budget.types";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 type RecurringModalProps = {
   open: boolean;
@@ -11,14 +12,6 @@ type RecurringModalProps = {
   targetMonth: string; // YYYY-MM
   onReplicate: (selectedIds: string[], amounts: Record<string, number>) => void;
 };
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
 
 function formatNumber(value: number): string {
   return new Intl.NumberFormat("es-CO").format(value);
