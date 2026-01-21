@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.9.1] - 2026-01-20
+
 ### Changed
 - **Backup Method UX Redesign**: Simplified backup mechanism to operate only one method at a time
   - Removed tabs (Manual, Local, Nube) from BackupPage
