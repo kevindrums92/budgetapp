@@ -28,7 +28,6 @@ const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 export default function ScheduleConfigDrawer({ open, onClose, schedule, transactionDate, onSave }: Props) {
   const [isVisible, setIsVisible] = useState(false);
-  const [enabled, setEnabled] = useState(schedule?.enabled ?? false);
   const [frequency, setFrequency] = useState<ScheduleFrequency>(schedule?.frequency ?? "monthly");
   const [interval, setInterval] = useState(schedule?.interval ?? 1);
   const [hasEndDate, setHasEndDate] = useState(Boolean(schedule?.endDate));
@@ -104,12 +103,6 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
   if (!isVisible) return null;
 
   const handleSave = () => {
-    if (!enabled) {
-      onSave(null);
-      onClose();
-      return;
-    }
-
     const newSchedule: Schedule = {
       enabled: true,
       frequency,
@@ -174,33 +167,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+100px)] pt-4">
-          {/* Enable/Disable Toggle */}
-          <div className="mb-6">
-            <button
-              type="button"
-              onClick={() => setEnabled(!enabled)}
-              className="flex w-full items-center justify-between rounded-xl bg-gray-50 p-4"
-            >
-              <span className="text-sm font-medium text-gray-900">
-                Programar este {frequency === "daily" ? "gasto/ingreso" : "gasto/ingreso"}
-              </span>
-              <div
-                className={`relative h-8 w-14 shrink-0 rounded-full transition-all duration-200 ${
-                  enabled ? "bg-emerald-500" : "bg-gray-300"
-                }`}
-              >
-                <span
-                  className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${
-                    enabled ? "translate-x-6" : "translate-x-0"
-                  }`}
-                />
-              </div>
-            </button>
-          </div>
-
-          {enabled && (
-            <>
-              {/* Frequency */}
+          {/* Frequency */}
               <div className="mb-6">
                 <label className="mb-2 block text-sm font-medium text-gray-700">
                   Frecuencia
@@ -368,19 +335,31 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                   {hasEndDate && ` hasta el ${new Date(endDate + "T12:00:00").toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}`}.
                 </p>
               </div>
-            </>
-          )}
         </div>
 
         {/* Fixed Bottom Buttons */}
         <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-200 px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
-          <button
-            type="button"
-            onClick={handleSave}
-            className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600 active:scale-[0.98] transition-all"
-          >
-            Guardar
-          </button>
+          <div className="flex gap-3">
+            {schedule && (
+              <button
+                type="button"
+                onClick={() => {
+                  onSave(null);
+                  onClose();
+                }}
+                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 active:scale-[0.98] transition-all"
+              >
+                Eliminar programación
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleSave}
+              className={`${schedule ? "flex-1" : "w-full"} rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600 active:scale-[0.98] transition-all`}
+            >
+              Guardar
+            </button>
+          </div>
         </div>
       </div>
 

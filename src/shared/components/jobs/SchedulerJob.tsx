@@ -29,6 +29,12 @@ export default function SchedulerJob() {
     // Only run once per app session
     if (hasRun.current) return;
 
+    // Wait for transactions to load (CloudSync might still be loading)
+    if (transactions.length === 0) {
+      logger.debug("SchedulerJob", "Waiting for transactions to load...");
+      return;
+    }
+
     const today = todayISO();
 
     // Skip if already ran today

@@ -27,6 +27,13 @@ export function generateScheduledTransactions(
 
   const newTransactions: Transaction[] = [];
 
+  logger.debug(
+    "Scheduler",
+    `Total transactions: ${transactions.length}`,
+    `Transactions with schedule field: ${transactions.filter(tx => tx.schedule).length}`,
+    `Transactions with enabled schedule: ${transactions.filter(tx => tx.schedule?.enabled).length}`
+  );
+
   // Find all transactions with active schedules
   const scheduledTransactions = transactions.filter(
     (tx) => tx.schedule?.enabled && shouldProcessSchedule(tx.schedule, today)
@@ -34,7 +41,8 @@ export function generateScheduledTransactions(
 
   logger.debug(
     "Scheduler",
-    `Found ${scheduledTransactions.length} active scheduled transactions`
+    `Found ${scheduledTransactions.length} active scheduled transactions`,
+    scheduledTransactions.map(tx => ({ name: tx.name, schedule: tx.schedule }))
   );
 
   for (const tx of scheduledTransactions) {
