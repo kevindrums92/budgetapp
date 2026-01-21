@@ -4,6 +4,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Changed
+- **Logging System**: Implemented environment-aware logging utility
+  - Created `logger.ts` utility with namespace-based logging (debug, info, warn, error levels)
+  - Silent in production builds (all logs disabled) to avoid console spam
+  - Active in development with formatted `[Namespace] message` output
+  - Replaced all 59 `console.log/warn/error` statements across the codebase
+  - Namespaces: Backup, CloudBackup, BackupScheduler, CloudBackupScheduler, CloudSync
+  - Production builds now have clean console output
+
 ### Performance
 - **Bundle Size Optimization**: Reduced initial bundle size by 31% through code splitting
   - **Before**: 410.63 KB gzipped (1.45 MB minified) - single monolithic bundle

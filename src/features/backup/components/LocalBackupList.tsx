@@ -9,6 +9,7 @@ import {
 import { useBudgetStore } from "@/state/budget.store";
 import { saveState } from "@/services/storage.service";
 import type { LocalBackupEntry } from "@/features/backup/types/backup.types";
+import { logger } from "@/shared/utils/logger";
 
 type Props = {
   userId?: string;
@@ -39,7 +40,7 @@ export default function LocalBackupList({ userId }: Props) {
 
     try {
       // Create safety backup before restore
-      console.log("[LocalBackup] Creating safety backup before restore...");
+      logger.info("LocalBackup", "Creating safety backup before restore...");
       const currentState = getSnapshot();
       await saveLocalBackup(currentState, userId);
 
@@ -55,7 +56,7 @@ export default function LocalBackupList({ userId }: Props) {
       setSuccessMessage("Backup restaurado exitosamente");
       refreshBackups();
     } catch (error) {
-      console.error("[LocalBackup] Restore failed:", error);
+      logger.error("LocalBackup", "Restore failed:", error);
       setSuccessMessage("Error al restaurar backup. Tus datos no fueron modificados.");
     } finally {
       setIsRestoring(false);

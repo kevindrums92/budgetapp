@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { createBackup } from "@/features/backup/services/backup.service";
 import type { BudgetState } from "@/types/budget.types";
 import type { BackupFile } from "@/features/backup/types/backup.types";
+import { logger } from "@/shared/utils/logger";
 
 /**
  * Cloud backup type stored in Supabase
@@ -62,11 +63,11 @@ export async function createCloudBackup(
   });
 
   if (error) {
-    console.error("[CloudBackup] Failed to create cloud backup:", error);
+    logger.error("CloudBackup", "Failed to create cloud backup:", error);
     throw new Error(`Error al crear backup en la nube: ${error.message}`);
   }
 
-  console.log(`[CloudBackup] Cloud backup created successfully (${type})`);
+  logger.info("CloudBackup", `Cloud backup created successfully (${type})`);
 }
 
 /**
@@ -76,7 +77,7 @@ export async function createCloudBackup(
 export async function getCloudBackups(): Promise<CloudBackup[]> {
   const userId = await getUserId();
   if (!userId) {
-    console.warn("[CloudBackup] Cannot fetch backups: not authenticated");
+    logger.warn("CloudBackup", "Cannot fetch backups: not authenticated");
     return [];
   }
 
@@ -88,7 +89,7 @@ export async function getCloudBackups(): Promise<CloudBackup[]> {
     .limit(30); // Keep last 30 backups
 
   if (error) {
-    console.error("[CloudBackup] Failed to fetch cloud backups:", error);
+    logger.error("CloudBackup", "Failed to fetch cloud backups:", error);
     throw new Error(`Error al cargar backups de la nube: ${error.message}`);
   }
 
@@ -117,7 +118,7 @@ export async function restoreCloudBackup(
     .single();
 
   if (error) {
-    console.error("[CloudBackup] Failed to restore cloud backup:", error);
+    logger.error("CloudBackup", "Failed to restore cloud backup:", error);
     throw new Error(`Error al restaurar backup: ${error.message}`);
   }
 
@@ -146,11 +147,11 @@ export async function deleteCloudBackup(backupId: string): Promise<void> {
     .eq("user_id", userId);
 
   if (error) {
-    console.error("[CloudBackup] Failed to delete cloud backup:", error);
+    logger.error("CloudBackup", "Failed to delete cloud backup:", error);
     throw new Error(`Error al eliminar backup: ${error.message}`);
   }
 
-  console.log(`[CloudBackup] Cloud backup deleted: ${backupId}`);
+  logger.info("CloudBackup", `Cloud backup deleted: ${backupId}`);
 }
 
 /**

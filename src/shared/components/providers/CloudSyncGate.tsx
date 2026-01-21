@@ -12,6 +12,7 @@ import { createDefaultCategories } from "@/constants/categories/default-categori
 import { createDefaultCategoryGroups } from "@/constants/category-groups/default-category-groups";
 import BackupScheduler from "@/features/backup/components/BackupScheduler";
 import CloudBackupScheduler from "@/features/backup/components/CloudBackupScheduler";
+import { logger } from "@/shared/utils/logger";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
@@ -35,7 +36,7 @@ function acquireSyncLock(): boolean {
     if (existingLock) {
       const lockTime = parseInt(existingLock, 10);
       if (now - lockTime < SYNC_LOCK_TIMEOUT) {
-        console.warn("[CloudSync] ⚠️ Sync already in progress in another tab/window");
+        logger.warn("CloudSync", "⚠️ Sync already in progress in another tab/window");
         return false;
       }
     }
@@ -87,8 +88,8 @@ export default function CloudSyncGate() {
                    snapshot.trips.length > 0;
 
     if (!hasData) {
-      console.warn("[CloudSync] ⚠️ Attempting to push empty snapshot. Blocking to prevent data loss.");
-      console.warn("[CloudSync] Snapshot details:", {
+      logger.warn("CloudSync", "⚠️ Attempting to push empty snapshot. Blocking to prevent data loss.");
+      logger.warn("CloudSync", "Snapshot details:", {
         transactions: snapshot.transactions.length,
         trips: snapshot.trips.length,
         categoryDefinitions: snapshot.categoryDefinitions.length,
@@ -99,7 +100,7 @@ export default function CloudSyncGate() {
 
     try {
       setCloudStatus("syncing");
-      console.log("[CloudSync] Pushing snapshot:", {
+      logger.info("CloudSync", "Pushing snapshot:", {
         transactions: snapshot.transactions.length,
         trips: snapshot.trips.length,
         schemaVersion: snapshot.schemaVersion,
@@ -108,7 +109,7 @@ export default function CloudSyncGate() {
       clearPendingSnapshot();
       setCloudStatus("ok");
     } catch (err) {
-      console.error("[CloudSync] Push failed:", err);
+      logger.error("CloudSync", "Push failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
       setPendingSnapshot(snapshot);
     }
@@ -119,7 +120,7 @@ export default function CloudSyncGate() {
     const session = data.session;
 
     if (!session) {
-      console.log("[CloudSync] No session found, switching to guest mode");
+      logger.info("CloudSync", "No session found, switching to guest mode");
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
@@ -144,7 +145,7 @@ export default function CloudSyncGate() {
       return;
     }
 
-    console.log("[CloudSync] Session found, user:", session.user.id);
+    logger.info("CloudSync", "Session found, user:", session.user.id);
 
     // ✅ Update user state atomically with cloudMode
     const meta = session.user.user_metadata ?? {};
@@ -166,7 +167,7 @@ export default function CloudSyncGate() {
 
     // ⚠️ Acquire sync lock to prevent race conditions from multiple tabs
     if (!acquireSyncLock()) {
-      console.warn("[CloudSync] Could not acquire sync lock, another sync in progress");
+      logger.warn("CloudSync", "Could not acquire sync lock, another sync in progress");
       setCloudStatus("ok");
       initializedRef.current = true;
       return;
@@ -178,7 +179,7 @@ export default function CloudSyncGate() {
       // ✅ 1) Si hay cambios pendientes locales, PUSH primero y NO hacer PULL
       const pending = getPendingSnapshot();
       if (pending) {
-        console.log("[CloudSync] Found pending snapshot, pushing first:", {
+        logger.info("CloudSync", "Found pending snapshot, pushing first:", {
           transactions: pending.transactions.length,
           trips: pending.trips.length,
         });
@@ -188,11 +189,11 @@ export default function CloudSyncGate() {
       }
 
       // ✅ 2) No hay pendientes: flujo normal (pull)
-      console.log("[CloudSync] No pending changes, pulling from cloud...");
+      logger.info("CloudSync", "No pending changes, pulling from cloud...");
       const cloud = await getCloudState();
 
       if (cloud) {
-        console.log("[CloudSync] Cloud data found:", {
+        logger.info("CloudSync", "Cloud data found:", {
           transactions: cloud.transactions.length,
           trips: cloud.trips?.length ?? 0,
           schemaVersion: cloud.schemaVersion,
@@ -202,14 +203,14 @@ export default function CloudSyncGate() {
 
         // Check if cloud data has empty categoryDefinitions - inject defaults
         if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
-          console.log("[CloudSync] Cloud missing categoryDefinitions, injecting defaults");
+          logger.info("CloudSync", "Cloud missing categoryDefinitions, injecting defaults");
           cloud.categoryDefinitions = createDefaultCategories();
           needsPush = true;
         }
 
         // Check if cloud data has empty categoryGroups - inject defaults (migration to v3)
         if (!Array.isArray(cloud.categoryGroups) || cloud.categoryGroups.length === 0) {
-          console.log("[CloudSync] Cloud missing categoryGroups, injecting defaults (migration to v3)");
+          logger.info("CloudSync", "Cloud missing categoryGroups, injecting defaults (migration to v3)");
           cloud.categoryGroups = createDefaultCategoryGroups();
           cloud.schemaVersion = 3;
           needsPush = true;
@@ -219,7 +220,7 @@ export default function CloudSyncGate() {
 
         // Push the fixed data back to cloud if we added defaults
         if (needsPush) {
-          console.log("[CloudSync] Pushing migrated data back to cloud");
+          logger.info("CloudSync", "Pushing migrated data back to cloud");
           await upsertCloudState(cloud);
         }
       } else {
@@ -231,7 +232,7 @@ export default function CloudSyncGate() {
 
         if (hasData) {
           // Safe to push: local has actual user data
-          console.log("[CloudSync] New account detected, pushing local data to cloud:", {
+          logger.info("CloudSync", "New account detected, pushing local data to cloud:", {
             transactions: localSnapshot.transactions.length,
             trips: localSnapshot.trips.length,
             categoryDefinitions: localSnapshot.categoryDefinitions.length,
@@ -240,8 +241,8 @@ export default function CloudSyncGate() {
         } else {
           // WARNING: Local is empty, do NOT overwrite cloud
           // This could be a SIGNED_OUT->SIGNED_IN race condition
-          console.warn("[CloudSync] ⚠️ Cloud is null but local is also empty. NOT pushing to prevent data loss.");
-          console.warn("[CloudSync] If this is truly a new account, defaults will be used.");
+          logger.warn("CloudSync", "⚠️ Cloud is null but local is also empty. NOT pushing to prevent data loss.");
+          logger.warn("CloudSync", "If this is truly a new account, defaults will be used.");
           // Keep the defaults that were hydrated from defaultState
         }
       }
@@ -249,7 +250,7 @@ export default function CloudSyncGate() {
       setCloudStatus("ok");
       initializedRef.current = true;
     } catch (err) {
-      console.error("[CloudSync] Init failed:", err);
+      logger.error("CloudSync", "Init failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
       // dejamos pendiente el snapshot actual para reintentar
       setPendingSnapshot(getSnapshot());
