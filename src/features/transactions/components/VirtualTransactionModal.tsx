@@ -32,12 +32,11 @@ export default function VirtualTransactionModal({
   };
 
   const handleMaterialize = () => {
-    // Convert virtual to real transaction
+    // Convert virtual to real transaction and add to store
     const realTx = materializeTransaction(transaction);
     addTransaction(realTx);
+    // Just close the modal - user stays on the list and can click the new transaction to edit
     onClose();
-    // Navigate to edit the new transaction
-    navigate(`/edit/${realTx.id}`);
   };
 
   const handleViewTemplate = () => {
