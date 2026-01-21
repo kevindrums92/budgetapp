@@ -4,12 +4,14 @@ import { saveLocalBackup } from "@/features/backup/services/backup.service";
 
 const BACKUP_INTERVAL_HOURS = 24;
 const LAST_BACKUP_KEY = "budget.lastAutoBackup";
+const BACKUP_METHOD_KEY = "budget.backupMethod";
 
 /**
  * BackupScheduler - Automatic periodic local backups
  *
  * Runs every 24 hours and creates a local backup automatically.
  * Backups are stored in localStorage with automatic pruning.
+ * Only runs when "local" backup method is active.
  */
 export default function BackupScheduler() {
   const user = useBudgetStore((s) => s.user);
@@ -19,6 +21,13 @@ export default function BackupScheduler() {
     // Only run for logged-in users (not guest mode)
     if (cloudMode !== "cloud" || !user.email) {
       console.log("[BackupScheduler] Skipping - user not logged in");
+      return;
+    }
+
+    // Only run if "local" backup method is active
+    const activeMethod = localStorage.getItem(BACKUP_METHOD_KEY);
+    if (activeMethod !== "local") {
+      console.log("[BackupScheduler] Skipping - local backup method not active");
       return;
     }
 

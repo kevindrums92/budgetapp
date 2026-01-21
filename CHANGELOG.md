@@ -4,6 +4,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Changed
+- **Backup Method UX Redesign**: Simplified backup mechanism to operate only one method at a time
+  - Removed tabs (Manual, Local, Nube) from BackupPage
+  - Added "Método activo" indicator badge showing which backup method is currently active
+  - Renamed change method button from "Ver otras opciones" to "Cambiar método de backup"
+  - BackupScheduler (local) now only runs when "local" method is active
+  - CloudBackupScheduler (cloud) now only runs when "cloud" method is active
+  - Manual method does not run any automatic schedulers
+  - Clearer UX showing only one backup strategy operates at a time
+
 ### Fixed
 - **CRITICAL: Local Backups Cross-User Data Leak**: Fixed guest users seeing logged-in users' backups
   - Local backups now namespaced by user ID (`budget.autoBackup.{userId}.{timestamp}`)

@@ -63,58 +63,39 @@ export default function BackupPage() {
     );
   }
 
-  // Show tabs with selected method
+  // Get method label and icon
+  const getMethodInfo = () => {
+    switch (selectedMethod) {
+      case "manual":
+        return { label: "Manual", icon: Download };
+      case "local":
+        return { label: "Backups Automáticos Locales", icon: RefreshCw };
+      case "cloud":
+        return { label: "Backups en la Nube", icon: Cloud };
+      default:
+        return { label: "", icon: Download };
+    }
+  };
+
+  const { label: methodLabel, icon: MethodIcon } = getMethodInfo();
+
+  // Show selected method content
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <PageHeader title="Backup & Restore" />
 
-      {/* Tabs */}
-      <div className="sticky top-[60px] z-10 bg-white border-b border-gray-200 px-4">
-        <div className="flex gap-1">
-          <button
-            type="button"
-            onClick={() => handleSelectMethod("manual")}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
-              selectedMethod === "manual"
-                ? "text-emerald-600 border-b-2 border-emerald-600"
-                : "text-gray-500 border-b-2 border-transparent"
-            }`}
-          >
-            <Download size={16} />
-            Manual
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleSelectMethod("local")}
-            disabled={cloudMode === "guest"}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
-              cloudMode === "guest"
-                ? "text-gray-300 border-b-2 border-transparent cursor-not-allowed"
-                : selectedMethod === "local"
-                  ? "text-emerald-600 border-b-2 border-emerald-600"
-                  : "text-gray-500 border-b-2 border-transparent"
-            }`}
-          >
-            <RefreshCw size={16} />
-            Local
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleSelectMethod("cloud")}
-            disabled={cloudMode === "guest"}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
-              cloudMode === "guest"
-                ? "text-gray-300 border-b-2 border-transparent cursor-not-allowed"
-                : selectedMethod === "cloud"
-                  ? "text-emerald-600 border-b-2 border-emerald-600"
-                  : "text-gray-500 border-b-2 border-transparent"
-            }`}
-          >
-            <Cloud size={16} />
-            Nube
-          </button>
+      {/* Active Method Indicator */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Método activo:
+          </span>
+          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5">
+            <MethodIcon size={14} className="text-emerald-600" />
+            <span className="text-sm font-medium text-emerald-700">
+              {methodLabel}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -261,9 +242,9 @@ export default function BackupPage() {
           <button
             type="button"
             onClick={handleChangeMethod}
-            className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
           >
-            ← Ver otras opciones
+            ← Cambiar método de backup
           </button>
         </div>
       </div>

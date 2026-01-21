@@ -6,20 +6,39 @@ import {
   markCloudBackupCreated,
 } from "@/features/backup/services/cloudBackup.service";
 
+const BACKUP_METHOD_KEY = "budget.backupMethod";
+
 /**
  * CloudBackupScheduler - Automatically creates cloud backups every 7 days
  *
  * This component runs in the background and checks daily if a new cloud backup
  * should be created. Backups are created weekly (every 7 days) for authenticated users.
+ * Only runs when "cloud" backup method is active.
  *
  * Features:
  * - Weekly automatic backups (every 7 days)
  * - Only runs for authenticated cloud users
+ * - Only runs when cloud backup method is active
  * - Uses localStorage to track last backup time
  * - Checks daily but only creates backup when interval has passed
  */
 export default function CloudBackupScheduler() {
+  const cloudMode = useBudgetStore((s) => s.cloudMode);
+
   useEffect(() => {
+    // Only run for authenticated users
+    if (cloudMode !== "cloud") {
+      console.log("[CloudBackupScheduler] Skipping - user not logged in");
+      return;
+    }
+
+    // Only run if "cloud" backup method is active
+    const activeMethod = localStorage.getItem(BACKUP_METHOD_KEY);
+    if (activeMethod !== "cloud") {
+      console.log("[CloudBackupScheduler] Skipping - cloud backup method not active");
+      return;
+    }
+
     const checkAndBackup = async () => {
       try {
         // Only create cloud backups if enough time has passed
@@ -55,7 +74,7 @@ export default function CloudBackupScheduler() {
     const intervalId = setInterval(checkAndBackup, 24 * 60 * 60 * 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [cloudMode]);
 
   return null; // This component doesn't render anything
 }
