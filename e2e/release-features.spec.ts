@@ -288,7 +288,7 @@ test.describe('Release Features - v0.7.0', () => {
 
     const amountInput = page.locator('input[type="text"][inputmode="decimal"]');
     await amountInput.click();
-    await amountInput.fill('12345');
+    await amountInput.fill('12.345');
 
     // Click to select category
     await page.click('button:has-text("Seleccionar")');
@@ -310,7 +310,7 @@ test.describe('Release Features - v0.7.0', () => {
     expect(nameValue).toBe('Test Preserve Data');
 
     const amountValue = await page.locator('input[type="text"][inputmode="decimal"]').inputValue();
-    expect(amountValue).toBe('12345');
+    expect(amountValue).toBe('12.345');
   });
 
   test('Stats Page Charts - should not have animations (iOS fix)', async ({ page }) => {

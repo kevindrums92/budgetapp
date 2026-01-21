@@ -47,15 +47,19 @@ echo ""
 log "Ejecutando validaciones antes del release..."
 echo ""
 
-log "1/3 Ejecutando linter..."
+log "1/4 Ejecutando linter..."
 npm run lint || error "El linter encontró errores. Corrígelos antes de continuar."
 success "Linter pasó ✓"
 
-log "2/3 Ejecutando tests..."
-npm run test:run || error "Los tests fallaron. Corrígelos antes de continuar."
-success "Tests pasaron ✓"
+log "2/4 Ejecutando tests unitarios..."
+npm run test:run || error "Los tests unitarios fallaron. Corrígelos antes de continuar."
+success "Tests unitarios pasaron ✓"
 
-log "3/3 Verificando que el build funciona..."
+log "3/4 Ejecutando tests E2E..."
+npm run test:e2e || error "Los tests E2E fallaron. Corrígelos antes de continuar."
+success "Tests E2E pasaron ✓"
+
+log "4/4 Verificando que el build funciona..."
 npm run build || error "El build falló. Corrígelo antes de continuar."
 success "Build exitoso ✓"
 

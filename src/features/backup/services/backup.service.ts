@@ -121,18 +121,21 @@ export function downloadBackup(backup: BackupFile): void {
 
 /**
  * Save backup to localStorage (auto-backup)
+ * @param userId - User ID to namespace the backup (undefined for guest mode)
  */
-export async function saveLocalBackup(state: BudgetState): Promise<void> {
-  const backup = await createBackup(state, undefined, "auto-local");
-  const key = `${LOCAL_BACKUP_PREFIX}${Date.now()}`;
+export async function saveLocalBackup(state: BudgetState, userId?: string): Promise<void> {
+  const backup = await createBackup(state, userId, "auto-local");
+  // Namespace by userId to prevent cross-user data leaks
+  const userPrefix = userId ? `${userId}.` : "guest.";
+  const key = `${LOCAL_BACKUP_PREFIX}${userPrefix}${Date.now()}`;
 
   try {
     localStorage.setItem(key, JSON.stringify(backup));
-    pruneLocalBackups();
+    pruneLocalBackups(userId);
   } catch (error) {
     console.error("[Backup] Failed to save local backup:", error);
     // If quota exceeded, try to prune first and retry
-    pruneLocalBackups();
+    pruneLocalBackups(userId);
     try {
       localStorage.setItem(key, JSON.stringify(backup));
     } catch {
@@ -142,11 +145,16 @@ export async function saveLocalBackup(state: BudgetState): Promise<void> {
 }
 
 /**
- * Get all local auto-backups, sorted by newest first
+ * Get all local auto-backups for a specific user, sorted by newest first
+ * @param userId - User ID to filter backups (undefined for guest mode)
  */
-export function getLocalBackups(): LocalBackupEntry[] {
+export function getLocalBackups(userId?: string): LocalBackupEntry[] {
+  // Namespace filter to prevent cross-user data leaks
+  const userPrefix = userId ? `${userId}.` : "guest.";
+  const fullPrefix = `${LOCAL_BACKUP_PREFIX}${userPrefix}`;
+
   const keys = Object.keys(localStorage).filter((k) =>
-    k.startsWith(LOCAL_BACKUP_PREFIX)
+    k.startsWith(fullPrefix)
   );
 
   const backups: LocalBackupEntry[] = [];
@@ -253,9 +261,10 @@ function generateBackupFilename(createdAt: string): string {
 
 /**
  * Prune old local backups to stay within limits
+ * @param userId - User ID to filter backups (undefined for guest mode)
  */
-function pruneLocalBackups(): void {
-  const backups = getLocalBackups();
+function pruneLocalBackups(userId?: string): void {
+  const backups = getLocalBackups(userId);
 
   // Keep only last MAX_LOCAL_BACKUPS
   if (backups.length > MAX_LOCAL_BACKUPS) {

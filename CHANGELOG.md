@@ -4,6 +4,32 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.9.1] - 2026-01-20
+
+### Changed
+- **Backup Method UX Redesign**: Simplified backup mechanism to operate only one method at a time
+  - Removed tabs (Manual, Local, Nube) from BackupPage
+  - Added "Método activo" indicator badge showing which backup method is currently active
+  - Renamed change method button from "Ver otras opciones" to "Cambiar método de backup"
+  - BackupScheduler (local) now only runs when "local" method is active
+  - CloudBackupScheduler (cloud) now only runs when "cloud" method is active
+  - Manual method does not run any automatic schedulers
+  - Clearer UX showing only one backup strategy operates at a time
+
+### Fixed
+- **CRITICAL: Local Backups Cross-User Data Leak**: Fixed guest users seeing logged-in users' backups
+  - Local backups now namespaced by user ID (`budget.autoBackup.{userId}.{timestamp}`)
+  - Guest users cannot access "Local" backups tab (disabled + auth required message)
+  - BackupScheduler only runs for logged-in users (cloudMode === "cloud")
+  - `getLocalBackups()` and `saveLocalBackup()` now filter by userId
+  - Prevents data leaks between different user sessions
+  - Each user only sees their own auto-backups
+- **CRITICAL: Logout User State Persistence**: Fixed user data persisting after logout
+  - User avatar, email, and name now properly cleared on SIGNED_OUT event
+  - TopHeader no longer shows ghost avatar after logout
+  - ProfilePage correctly displays guest state instead of logged-in user info
+  - Added setUser({ email: null, name: null, avatarUrl: null }) to SIGNED_OUT handler in CloudSyncGate
+
 ## [0.9.0] - 2026-01-19
 
 ### Fixed
