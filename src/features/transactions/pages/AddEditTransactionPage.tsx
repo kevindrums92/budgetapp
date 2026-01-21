@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
-import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle } from "lucide-react";
+import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 import { formatCOP } from "@/shared/utils/currency.utils";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
+import ScheduleConfigDrawer from "@/features/transactions/components/ScheduleConfigDrawer";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
-import type { TransactionType, TransactionStatus } from "@/types/budget.types";
+import type { TransactionType, TransactionStatus, Schedule } from "@/types/budget.types";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
@@ -39,9 +40,11 @@ export default function AddEditTransactionPage() {
   const [date, setDate] = useState(todayISO());
   const [notes, setNotes] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
+  const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [status, setStatus] = useState<TransactionStatus>("paid");
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showScheduleDrawer, setShowScheduleDrawer] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -54,9 +57,9 @@ export default function AddEditTransactionPage() {
   // Save form draft to sessionStorage
   const saveFormDraft = useCallback(() => {
     if (isEdit) return; // Don't save drafts when editing
-    const draft = { type, name, categoryId, amount, date, notes, isRecurring, status };
+    const draft = { type, name, categoryId, amount, date, notes, isRecurring, schedule, status };
     sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(draft));
-  }, [type, name, categoryId, amount, date, notes, isRecurring, status, isEdit]);
+  }, [type, name, categoryId, amount, date, notes, isRecurring, schedule, status, isEdit]);
 
   // Clear form draft
   const clearFormDraft = useCallback(() => {
@@ -76,6 +79,7 @@ export default function AddEditTransactionPage() {
       setDate(tx.date);
       setNotes(tx.notes || "");
       setIsRecurring(tx.isRecurring || false);
+      setSchedule(tx.schedule || null);
       setStatus(tx.status || "paid");
     } else {
       // New transaction - check URL params
@@ -108,6 +112,7 @@ export default function AddEditTransactionPage() {
           setDate(draft.date || todayISO());
           setNotes(draft.notes || "");
           setIsRecurring(draft.isRecurring || false);
+          setSchedule(draft.schedule || null);
           setStatus(draft.status || "paid");
         } catch {
           // Invalid draft, just set new category
@@ -128,6 +133,7 @@ export default function AddEditTransactionPage() {
         setDate(draft.date || todayISO());
         setNotes(draft.notes || "");
         setIsRecurring(draft.isRecurring || false);
+        setSchedule(draft.schedule || null);
         setStatus(draft.status || "paid");
       } catch {
         // Invalid draft, ignore
@@ -166,6 +172,7 @@ export default function AddEditTransactionPage() {
         date,
         notes: trimmedNotes || undefined,
         isRecurring,
+        schedule: schedule || undefined,
         status: status === "paid" ? undefined : status,
       });
     } else {
@@ -177,6 +184,7 @@ export default function AddEditTransactionPage() {
         date,
         notes: trimmedNotes || undefined,
         isRecurring,
+        schedule: schedule || undefined,
         status: status === "paid" ? undefined : status,
       });
     }
@@ -425,39 +433,33 @@ export default function AddEditTransactionPage() {
             </div>
           </div>
 
-          {/* Recurring Toggle */}
+          {/* Schedule Configuration */}
           <div className="py-4">
             <button
               type="button"
-              onClick={() => setIsRecurring(!isRecurring)}
+              onClick={() => setShowScheduleDrawer(true)}
               className="flex w-full items-center gap-4 active:bg-gray-50 rounded-lg -mx-2 px-2 py-1"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <Repeat className="h-5 w-5 text-gray-500" />
+              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                schedule?.enabled ? "bg-emerald-100" : "bg-gray-100"
+              }`}>
+                <Repeat className={`h-5 w-5 ${schedule?.enabled ? "text-emerald-600" : "text-gray-500"}`} />
               </div>
               <div className="flex-1 text-left">
-                <p
-                  className={`text-sm font-medium transition-colors ${
-                    isRecurring ? "text-gray-900" : "text-gray-700"
-                  }`}
-                >
-                  {type === "income" ? "Ingreso" : "Gasto"} recurrente mensual
+                <p className={`text-sm font-medium ${schedule?.enabled ? "text-gray-900" : "text-gray-700"}`}>
+                  {schedule?.enabled ? "Programado automáticamente" : "Programar automáticamente"}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-500">
-                  Se te recordará replicarlo cada mes
+                  {schedule?.enabled
+                    ? `Cada ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
+                        schedule.frequency === "daily" ? "día" :
+                        schedule.frequency === "weekly" ? "semana" :
+                        schedule.frequency === "monthly" ? "mes" : "año"
+                      }${schedule.interval > 1 && schedule.frequency !== "daily" ? "s" : ""}`
+                    : "Toca para configurar"}
                 </p>
               </div>
-              <div
-                className={`relative h-8 w-14 shrink-0 rounded-full transition-all duration-200 ${
-                  isRecurring ? "bg-emerald-500" : "bg-gray-300"
-                }`}
-              >
-                <span
-                  className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${
-                    isRecurring ? "translate-x-6" : "translate-x-0"
-                  }`}
-                />
-              </div>
+              <ChevronRight className="h-5 w-5 text-gray-300" />
             </button>
           </div>
         </div>
@@ -500,6 +502,18 @@ export default function AddEditTransactionPage() {
           setShowCategoryDrawer(false);
         }}
         onNavigateToNewCategory={saveFormDraft}
+      />
+
+      {/* Schedule Config Drawer */}
+      <ScheduleConfigDrawer
+        open={showScheduleDrawer}
+        onClose={() => setShowScheduleDrawer(false)}
+        schedule={schedule}
+        transactionDate={date}
+        onSave={(newSchedule) => {
+          setSchedule(newSchedule);
+          setShowScheduleDrawer(false);
+        }}
       />
 
       {/* Confirm Delete Dialog */}
