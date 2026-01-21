@@ -1,11 +1,19 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, FileText, X } from "lucide-react";
+import { Calendar, Pencil, Trash2, X } from "lucide-react";
 import { formatCOP } from "@/shared/utils/currency.utils";
 import { useBudgetStore } from "@/state/budget.store";
 import {
   materializeTransaction,
   type VirtualTransaction,
 } from "@/shared/services/scheduler.service";
+
+// Helper to get the day before a date string (YYYY-MM-DD)
+function getDateBefore(dateStr: string): string {
+  const date = new Date(dateStr + "T12:00:00");
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().slice(0, 10);
+}
 
 interface VirtualTransactionModalProps {
   transaction: VirtualTransaction;
@@ -20,6 +28,10 @@ export default function VirtualTransactionModal({
 }: VirtualTransactionModalProps) {
   const navigate = useNavigate();
   const addTransaction = useBudgetStore((s) => s.addTransaction);
+  const updateTransaction = useBudgetStore((s) => s.updateTransaction);
+  const transactions = useBudgetStore((s) => s.transactions);
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Format date for display
   const formatDate = (dateStr: string) => {
@@ -31,7 +43,7 @@ export default function VirtualTransactionModal({
     });
   };
 
-  const handleMaterialize = () => {
+  const handleConfirm = () => {
     // Convert virtual to real transaction and add to store
     const realTx = materializeTransaction(transaction);
     addTransaction(realTx);
@@ -39,12 +51,27 @@ export default function VirtualTransactionModal({
     onClose();
   };
 
-  const handleEditAndRegister = () => {
+  const handleEdit = () => {
     // Navigate to edit template with virtual date context
     // This allows the edit page to know we came from a virtual transaction
     navigate(`/edit/${transaction.templateId}`, {
       state: { virtualDate: transaction.date },
     });
+    onClose();
+  };
+
+  const handleDelete = () => {
+    // Find the template and end it by setting endDate to day before virtual date
+    const template = transactions.find((t) => t.id === transaction.templateId);
+    if (template && template.schedule) {
+      updateTransaction(transaction.templateId, {
+        schedule: {
+          ...template.schedule,
+          endDate: getDateBefore(transaction.date),
+        },
+      });
+    }
+    setShowDeleteConfirm(false);
     onClose();
   };
 
@@ -93,29 +120,79 @@ export default function VirtualTransactionModal({
         {/* Info */}
         <p className="mb-4 text-xs text-gray-500">
           Esta transaccion se generara automaticamente en la fecha indicada.
-          Puedes registrarla ahora o ver la plantilla original.
         </p>
 
-        {/* Actions */}
-        <div className="space-y-2">
+        {/* Actions - 3 buttons in a row */}
+        <div className="flex gap-2">
           <button
             type="button"
-            onClick={handleMaterialize}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+            onClick={handleConfirm}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
           >
             <Calendar className="h-4 w-4" />
-            Registrar ahora
+            Confirmar
           </button>
           <button
             type="button"
-            onClick={handleEditAndRegister}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            onClick={handleEdit}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
           >
-            <FileText className="h-4 w-4" />
-            Editar y registrar
+            <Pencil className="h-4 w-4" />
+            Editar
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowDeleteConfirm(true)}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 py-3 text-sm font-medium text-red-600 hover:bg-red-100"
+          >
+            <Trash2 className="h-4 w-4" />
+            Eliminar
           </button>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Eliminar programacion
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              Esto terminara la programacion de "{transaction.name}".
+              No se generaran mas transacciones a partir de esta fecha.
+            </p>
+            <p className="mb-4 text-xs text-gray-500">
+              Las transacciones ya registradas no se veran afectadas.
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

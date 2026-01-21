@@ -1,15 +1,16 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * E2E Tests for Scheduled Transactions - "Editar y registrar" Feature
+ * E2E Tests for Scheduled Transactions - Virtual Transaction Flow
  *
  * These tests cover the complete user flow for:
  * 1. Creating a scheduled transaction (template)
  * 2. Viewing virtual transactions generated from template
- * 3. Using "Registrar ahora" to materialize a virtual
- * 4. Using "Editar y registrar" to edit and register with changes
- * 5. Handling "Sin cambios" alert
- * 6. Choosing "Solo este registro" vs "Este y los siguientes"
+ * 3. Using "Confirmar" to materialize a virtual
+ * 4. Using "Editar" to edit and register with changes
+ * 5. Using "Eliminar" to end the schedule
+ * 6. Handling "Sin cambios" alert
+ * 7. Choosing "Solo este registro" vs "Este y los siguientes"
  */
 
 test.describe("Scheduled Transactions - Edit and Register Flow", () => {
@@ -85,7 +86,7 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await expect(page.locator("text=Programada").first()).toBeVisible();
   });
 
-  test("should show 'Registrar ahora' and 'Editar y registrar' when clicking virtual", async ({
+  test("should show 'Confirmar', 'Editar' and 'Eliminar' when clicking virtual", async ({
     page,
   }) => {
     // First create a scheduled transaction
@@ -115,10 +116,11 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     // Click on the virtual transaction
     await page.click("text=Gym Membership");
 
-    // Should show modal with both options
+    // Should show modal with all three options
     await expect(page.locator("text=Programada")).toBeVisible();
-    await expect(page.locator('button:has-text("Registrar ahora")')).toBeVisible();
-    await expect(page.locator('button:has-text("Editar y registrar")')).toBeVisible();
+    await expect(page.locator('button:has-text("Confirmar")')).toBeVisible();
+    await expect(page.locator('button:has-text("Editar")')).toBeVisible();
+    await expect(page.locator('button:has-text("Eliminar")')).toBeVisible();
   });
 
   test("should show 'Sin cambios' alert when saving without modifications", async ({
@@ -147,9 +149,9 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.click('button[aria-label="Mes siguiente"]');
     await page.waitForTimeout(500);
 
-    // Click on virtual and then "Editar y registrar"
+    // Click on virtual and then "Editar"
     await page.click("text=Sin Cambios Test");
-    await page.click('button:has-text("Editar y registrar")');
+    await page.click('button:has-text("Editar")');
 
     // Wait for edit page
     await expect(page.locator("text=Editar")).toBeVisible();
@@ -197,9 +199,9 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.click('button[aria-label="Mes siguiente"]');
     await page.waitForTimeout(500);
 
-    // Click on virtual and then "Editar y registrar"
+    // Click on virtual and then "Editar"
     await page.click("text=Amount Change Test");
-    await page.click('button:has-text("Editar y registrar")');
+    await page.click('button:has-text("Editar")');
 
     // Wait for edit page
     await expect(page.locator("text=Editar")).toBeVisible();
@@ -252,9 +254,9 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.click('button[aria-label="Mes siguiente"]');
     await page.waitForTimeout(500);
 
-    // Click on virtual and then "Editar y registrar"
+    // Click on virtual and then "Editar"
     await page.click("text=Solo Este Test");
-    await page.click('button:has-text("Editar y registrar")');
+    await page.click('button:has-text("Editar")');
 
     // Wait for edit page
     await expect(page.locator("text=Editar")).toBeVisible();
@@ -314,9 +316,9 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.click('button[aria-label="Mes siguiente"]');
     await page.waitForTimeout(500);
 
-    // Click on virtual and then "Editar y registrar"
+    // Click on virtual and then "Editar"
     await page.click("text=Este y Siguientes Test");
-    await page.click('button:has-text("Editar y registrar")');
+    await page.click('button:has-text("Editar")');
 
     // Wait for edit page
     await expect(page.locator("text=Editar")).toBeVisible();
@@ -349,14 +351,14 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await expect(page.locator("text=85.000")).toBeVisible();
   });
 
-  test("should use 'Registrar ahora' to materialize virtual without edit page", async ({
+  test("should use 'Confirmar' to materialize virtual without edit page", async ({
     page,
   }) => {
     // Create scheduled transaction
     await page.click('[data-testid="fab-add-transaction"]');
     await page.click('button:has-text("Agregar Gasto")');
 
-    await page.fill('input[placeholder*="qué gastaste"]', "Registrar Ahora Test");
+    await page.fill('input[placeholder*="qué gastaste"]', "Confirmar Test");
     const amountInput = page.locator('input[type="text"][inputmode="decimal"]');
     await amountInput.fill("45000");
 
@@ -376,21 +378,73 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.waitForTimeout(500);
 
     // Click on virtual
-    await page.click("text=Registrar Ahora Test");
+    await page.click("text=Confirmar Test");
 
-    // Click "Registrar ahora"
-    await page.click('button:has-text("Registrar ahora")');
+    // Click "Confirmar"
+    await page.click('button:has-text("Confirmar")');
 
     // Should stay on list (modal closes), virtual becomes real
     await page.waitForTimeout(500);
     await expect(page.locator("text=Balance")).toBeVisible();
 
     // Transaction should now appear without "Programada" badge
-    await expect(page.locator("text=Registrar Ahora Test")).toBeVisible();
+    await expect(page.locator("text=Confirmar Test")).toBeVisible();
 
     // Click on it - should go to edit page directly (not virtual modal)
-    await page.click("text=Registrar Ahora Test");
+    await page.click("text=Confirmar Test");
     await expect(page.locator("text=Editar")).toBeVisible();
+  });
+
+  test("should end schedule when clicking 'Eliminar'", async ({ page }) => {
+    // Create scheduled transaction
+    await page.click('[data-testid="fab-add-transaction"]');
+    await page.click('button:has-text("Agregar Gasto")');
+
+    await page.fill('input[placeholder*="qué gastaste"]', "Eliminar Schedule Test");
+    const amountInput = page.locator('input[type="text"][inputmode="decimal"]');
+    await amountInput.fill("35000");
+
+    await page.click('button:has-text("Seleccionar")');
+    await page.click('button:has-text("Suscripciones")');
+
+    await page.click("text=Programar automáticamente");
+    await page.click('button:has-text("Desactivado")');
+    await page.click('button:has-text("Guardar")');
+    await page.waitForTimeout(300);
+
+    await page.click('button:has-text("Guardar")');
+    await expect(page.locator("text=Balance")).toBeVisible();
+
+    // Navigate to next month
+    await page.click('button[aria-label="Mes siguiente"]');
+    await page.waitForTimeout(500);
+
+    // Click on virtual
+    await page.click("text=Eliminar Schedule Test");
+
+    // Click "Eliminar"
+    await page.click('button:has-text("Eliminar")');
+
+    // Should show confirmation modal
+    await expect(page.locator("text=Eliminar programacion")).toBeVisible();
+    await expect(
+      page.locator("text=No se generaran mas transacciones a partir de esta fecha")
+    ).toBeVisible();
+
+    // Confirm deletion
+    await page.locator('button:has-text("Eliminar")').last().click();
+
+    // Should return to list
+    await page.waitForTimeout(500);
+    await expect(page.locator("text=Balance")).toBeVisible();
+
+    // Virtual should no longer appear
+    await expect(page.locator("text=Eliminar Schedule Test")).not.toBeVisible();
+
+    // Navigate to next month - should also not appear
+    await page.click('button[aria-label="Mes siguiente"]');
+    await page.waitForTimeout(500);
+    await expect(page.locator("text=Eliminar Schedule Test")).not.toBeVisible();
   });
 
   test("should auto-apply 'Este y los siguientes' when changing schedule frequency", async ({
@@ -420,9 +474,9 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.click('button[aria-label="Mes siguiente"]');
     await page.waitForTimeout(500);
 
-    // Click on virtual and then "Editar y registrar"
+    // Click on virtual and then "Editar"
     await page.click("text=Frequency Change Test");
-    await page.click('button:has-text("Editar y registrar")');
+    await page.click('button:has-text("Editar")');
 
     // Wait for edit page
     await expect(page.locator("text=Editar")).toBeVisible();
@@ -482,7 +536,7 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.click("text=Modal Close Test");
 
     // Modal should be visible
-    await expect(page.locator('button:has-text("Registrar ahora")')).toBeVisible();
+    await expect(page.locator('button:has-text("Confirmar")')).toBeVisible();
 
     // Click backdrop (the semi-transparent overlay)
     await page.click(".bg-black\\/50");
@@ -490,7 +544,7 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     // Modal should close
     await page.waitForTimeout(300);
     await expect(
-      page.locator('button:has-text("Registrar ahora")')
+      page.locator('button:has-text("Confirmar")')
     ).not.toBeVisible();
   });
 
@@ -522,7 +576,7 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     await page.click("text=X Button Test");
 
     // Modal should be visible
-    await expect(page.locator('button:has-text("Registrar ahora")')).toBeVisible();
+    await expect(page.locator('button:has-text("Confirmar")')).toBeVisible();
 
     // Click the X button
     await page.click('button:has(svg[class*="lucide-x"])');
@@ -530,8 +584,55 @@ test.describe("Scheduled Transactions - Edit and Register Flow", () => {
     // Modal should close
     await page.waitForTimeout(300);
     await expect(
-      page.locator('button:has-text("Registrar ahora")')
+      page.locator('button:has-text("Confirmar")')
     ).not.toBeVisible();
+  });
+
+  test("should cancel delete confirmation when clicking 'Cancelar'", async ({ page }) => {
+    // Create scheduled transaction
+    await page.click('[data-testid="fab-add-transaction"]');
+    await page.click('button:has-text("Agregar Gasto")');
+
+    await page.fill('input[placeholder*="qué gastaste"]', "Cancel Delete Test");
+    const amountInput = page.locator('input[type="text"][inputmode="decimal"]');
+    await amountInput.fill("20000");
+
+    await page.click('button:has-text("Seleccionar")');
+    await page.click('button:has-text("Suscripciones")');
+
+    await page.click("text=Programar automáticamente");
+    await page.click('button:has-text("Desactivado")');
+    await page.click('button:has-text("Guardar")');
+    await page.waitForTimeout(300);
+
+    await page.click('button:has-text("Guardar")');
+    await expect(page.locator("text=Balance")).toBeVisible();
+
+    // Navigate to next month
+    await page.click('button[aria-label="Mes siguiente"]');
+    await page.waitForTimeout(500);
+
+    // Click on virtual
+    await page.click("text=Cancel Delete Test");
+
+    // Click "Eliminar"
+    await page.click('button:has-text("Eliminar")');
+
+    // Should show confirmation modal
+    await expect(page.locator("text=Eliminar programacion")).toBeVisible();
+
+    // Click "Cancelar"
+    await page.click('button:has-text("Cancelar")');
+
+    // Confirmation modal should close, main modal still visible
+    await expect(page.locator("text=Eliminar programacion")).not.toBeVisible();
+    await expect(page.locator('button:has-text("Confirmar")')).toBeVisible();
+
+    // Close main modal
+    await page.click('button:has(svg[class*="lucide-x"])');
+
+    // Virtual should still exist
+    await expect(page.locator("text=Cancel Delete Test")).toBeVisible();
   });
 });
 
