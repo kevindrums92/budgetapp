@@ -4,6 +4,33 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Unit Tests for Zustand Store**: Comprehensive test suite for budget.store.ts
+  - 79 test cases covering all CRUD operations
+  - Transaction CRUD tests (add, update, delete with validation)
+  - Category CRUD tests (add, update, delete, setLimit, getCategoryById)
+  - Category Groups CRUD tests (add, update, delete, getCategoryGroupById, reassignment on delete)
+  - Trip CRUD tests (add, update, delete with cascading trip expenses)
+  - Trip Expenses CRUD tests (add, update, delete)
+  - Sync helpers tests (getSnapshot, replaceAllData)
+  - UI state tests (selectedMonth, cloudMode, cloudStatus, user, welcomeSeen, budgetOnboardingSeen)
+  - Store coverage: 98.65% statements, 84.48% branches, 100% functions
+  - All tests passing with proper mocking of storage and dates services
+- **Unit Tests for Services**: Test suites for critical services
+  - pendingSync.service.ts: 14 tests covering setPendingSnapshot, getPendingSnapshot, clearPendingSnapshot, hasPendingSnapshot
+  - recurringTransactions.service.ts: 22 tests covering detectPendingRecurring, hasIgnoredThisMonth, markIgnoredForMonth, replicateTransaction
+  - cloudState.service.ts: 19 tests covering getCloudState, upsertCloudState with full Supabase mocking
+  - **backup.service.ts: 41 tests** covering backup creation, validation, restore, and local storage operations
+    - createBackup: metadata generation, stats calculation, SHA-256 checksum, device info, empty/large states
+    - validateBackup: JSON validation, structure checks, backup version compatibility, checksum verification, corrupted file detection
+    - restoreBackup: data restoration in replace mode, merge mode error handling
+    - saveLocalBackup/getLocalBackups: user namespacing, automatic backup creation, filtering by userId
+    - restoreLocalBackup: backup restoration by key
+    - Integration tests: full backup cycles, multi-user separation, data integrity through operations
+  - Edge cases: localStorage errors, invalid JSON, year boundaries, leap years, month-end date adjustments, auth errors, database failures, corrupted backups, quota exceeded errors
+  - Integration scenarios: full sync cycles, user switching, logout handling, validation→restore flows
+  - **Total: 192 tests passing (2 skipped)**
+
 ## [0.9.1] - 2026-01-20
 
 ### Changed
