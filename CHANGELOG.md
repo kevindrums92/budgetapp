@@ -4,6 +4,21 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Performance
+- **Bundle Size Optimization**: Reduced initial bundle size by 31% through code splitting
+  - **Before**: 410.63 KB gzipped (1.45 MB minified) - single monolithic bundle
+  - **After**: 284.09 KB gzipped (1.00 MB minified) - optimized with lazy loading
+  - **Improvement**: -126.54 KB gzipped (-31% reduction in initial bundle)
+  - **Code Splitting Strategy**:
+    - Lazy loaded StatsPage (372 KB chunk with Recharts library)
+    - Lazy loaded BackupPage, ProfilePage, and all Trip pages
+    - Lazy loaded all Category management pages
+    - Added Suspense boundaries with loading fallback
+    - Total chunks: 16 (from 1 monolithic bundle)
+  - **Build Performance**: Build time improved from 8.79s to 6.29s (28% faster)
+  - **Impact**: Faster initial page load, better caching, improved Time to Interactive (TTI)
+  - **Bundle Analyzer**: Added rollup-plugin-visualizer for ongoing bundle monitoring
+
 ### Added
 - **Unit Tests for Zustand Store**: Comprehensive test suite for budget.store.ts
   - 79 test cases covering all CRUD operations

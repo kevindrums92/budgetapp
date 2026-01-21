@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useBudgetStore } from './budget.store';
-import type { BudgetState, Transaction, Category, CategoryGroup, Trip, TripExpense } from '@/types/budget.types';
+import type { BudgetState } from '@/types/budget.types';
 import * as storageService from '@/services/storage.service';
 
 // Mock storage service

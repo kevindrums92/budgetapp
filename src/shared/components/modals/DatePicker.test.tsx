@@ -58,7 +58,6 @@ describe('DatePicker', () => {
     it('should render all action buttons', () => {
       render(<DatePicker {...defaultProps} />);
 
-      const buttons = screen.getAllByRole('button');
       expect(screen.getByText('Cancelar')).toBeInTheDocument();
       expect(screen.getByText('OK')).toBeInTheDocument();
     });

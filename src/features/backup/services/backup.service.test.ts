@@ -11,7 +11,7 @@ import {
   getLocalBackups,
   restoreLocalBackup,
 } from './backup.service';
-import type { BudgetState, BackupFile } from '@/types/budget.types';
+import type { BudgetState } from '@/types/budget.types';
 
 describe('backup.service', () => {
   let cryptoDigestSpy: any;
@@ -176,10 +176,10 @@ describe('backup.service', () => {
       expect(backup.meta.createdBy).toBe('manual');
     });
 
-    it('should allow automatic createdBy', async () => {
-      const backup = await createBackup(mockState, 'user-123', 'automatic');
+    it('should allow auto-local createdBy', async () => {
+      const backup = await createBackup(mockState, 'user-123', 'auto-local');
 
-      expect(backup.meta.createdBy).toBe('automatic');
+      expect(backup.meta.createdBy).toBe('auto-local');
     });
 
     it('should handle large state with many transactions', async () => {
@@ -353,7 +353,7 @@ describe('backup.service', () => {
     });
 
     it('should validate backup with all optional fields', async () => {
-      const backup = await createBackup(mockState, 'user-123', 'automatic');
+      const backup = await createBackup(mockState, 'user-123', 'auto-cloud');
       const file = await createMockFile(JSON.stringify(backup));
 
       const result = await validateBackup(file);
