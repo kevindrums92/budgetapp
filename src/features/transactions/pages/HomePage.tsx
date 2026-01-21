@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Plus, X, Search, TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { Plus, X, Search, TrendingUp, TrendingDown, Clock, Download } from "lucide-react";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
 import TransactionList from "@/features/transactions/components/TransactionList";
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";
@@ -14,6 +14,7 @@ import {
   markIgnoredForMonth,
   replicateTransaction,
 } from "@/features/transactions/services/recurringTransactions.service";
+import { exportTransactionsToCSV } from "@/shared/services/export.service";
 
 export default function HomePage() {
   const [addSheetOpen, setAddSheetOpen] = useState(false);
@@ -24,6 +25,7 @@ export default function HomePage() {
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "expense" | "income" | "pending">("all");
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -108,6 +110,20 @@ export default function HomePage() {
     setShowBanner(false);
   };
 
+  const handleExport = () => {
+    // Filter transactions by selected month
+    const monthTransactions = transactions.filter((t) => t.date.slice(0, 7) === selectedMonth);
+
+    if (monthTransactions.length === 0) {
+      alert("No hay transacciones para exportar en este mes");
+      return;
+    }
+
+    // Export to CSV
+    exportTransactionsToCSV(monthTransactions, categoryDefinitions, `transacciones-${selectedMonth}`);
+    setShowExportModal(false);
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen">
       <BalanceCard />
@@ -167,7 +183,7 @@ export default function HomePage() {
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setFilterType(filterType === "expense" ? "all" : "expense")}
@@ -203,6 +219,14 @@ export default function HomePage() {
               >
                 <Clock size={16} />
                 Pendientes
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowExportModal(true)}
+                className="flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap active:scale-95 bg-white text-gray-700 shadow-sm"
+              >
+                <Download size={16} />
+                Exportar
               </button>
             </div>
           </div>
@@ -302,6 +326,55 @@ export default function HomePage() {
                 className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
               >
                 Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowExportModal(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Exportar transacciones
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              Se exportarán todas las transacciones de {selectedMonth} a formato CSV.
+            </p>
+
+            {/* Info */}
+            <div className="mb-6 rounded-xl bg-gray-50 p-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Total de transacciones:</span>
+                <span className="font-semibold text-gray-900">
+                  {transactions.filter((t) => t.date.slice(0, 7) === selectedMonth).length}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowExportModal(false)}
+                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleExport}
+                className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                Exportar
               </button>
             </div>
           </div>
