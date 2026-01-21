@@ -13,6 +13,7 @@ import { createDefaultCategoryGroups } from "@/constants/category-groups/default
 import BackupScheduler from "@/features/backup/components/BackupScheduler";
 import CloudBackupScheduler from "@/features/backup/components/CloudBackupScheduler";
 import { logger } from "@/shared/utils/logger";
+import { convertLegacyRecurringToSchedule } from "@/shared/services/scheduler.service";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
@@ -214,6 +215,34 @@ export default function CloudSyncGate() {
           cloud.categoryGroups = createDefaultCategoryGroups();
           cloud.schemaVersion = 3;
           needsPush = true;
+        }
+
+        // Migrate v4 to v5: Convert isRecurring to schedule
+        logger.info("CloudSync", `Schema version check: cloud.schemaVersion=${cloud.schemaVersion}`);
+
+        if (cloud.schemaVersion === 4 || cloud.schemaVersion === 3) {
+          const recurringCount = cloud.transactions.filter((tx: any) => tx.isRecurring).length;
+          logger.info("CloudSync", `Migrating cloud data from v${cloud.schemaVersion} to v5 (isRecurring → schedule)`);
+          logger.info("CloudSync", `Found ${recurringCount} transactions with isRecurring=true`);
+
+          cloud.transactions = cloud.transactions.map((tx: any) => {
+            // If has isRecurring=true, convert to schedule
+            if (tx.isRecurring) {
+              const schedule = convertLegacyRecurringToSchedule(tx);
+              logger.info("CloudSync", `Converting transaction "${tx.name}" to scheduled:`, schedule);
+              return {
+                ...tx,
+                schedule,
+                // Keep isRecurring for backward compat but it's deprecated
+              };
+            }
+            return tx;
+          });
+          cloud.schemaVersion = 5;
+          needsPush = true;
+          logger.info("CloudSync", "Migration complete, schemaVersion now 5, needsPush=true");
+        } else {
+          logger.info("CloudSync", `No migration needed, schema version is ${cloud.schemaVersion}`);
         }
 
         replaceAllData(cloud);
