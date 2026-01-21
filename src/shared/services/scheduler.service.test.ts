@@ -4,11 +4,13 @@
 
 import { describe, it, expect } from "vitest";
 import {
-  generateScheduledTransactions,
   calculateNextDate,
   calculateNextDates,
-  updateLastGenerated,
   convertLegacyRecurringToSchedule,
+  generateVirtualTransactions,
+  generatePastDueTransactions,
+  materializeTransaction,
+  isVirtualTransaction,
 } from "./scheduler.service";
 import type { Transaction, Schedule } from "@/types/budget.types";
 
@@ -276,8 +278,8 @@ describe("scheduler.service", () => {
     });
   });
 
-  describe("generateScheduledTransactions", () => {
-    it("should generate transactions for active schedules", () => {
+  describe("generateVirtualTransactions", () => {
+    it("should generate virtual transactions for active schedules", () => {
       const transactions: Transaction[] = [
         {
           id: "template-1",
@@ -297,21 +299,17 @@ describe("scheduler.service", () => {
         },
       ];
 
-      const generated = generateScheduledTransactions(
-        transactions,
-        "2025-01-20",
-        3
-      );
+      const virtuals = generateVirtualTransactions(transactions, "2025-01-20");
 
-      expect(generated.length).toBe(3);
-      expect(generated[0].date).toBe("2025-02-15");
-      expect(generated[1].date).toBe("2025-03-15");
-      expect(generated[2].date).toBe("2025-04-15");
-      expect(generated[0].name).toBe("Rent");
-      expect(generated[0].status).toBe("planned");
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-02-15");
+      expect(virtuals[0].name).toBe("Rent");
+      expect(virtuals[0].status).toBe("planned");
+      expect(virtuals[0].isVirtual).toBe(true);
+      expect(virtuals[0].templateId).toBe("template-1");
     });
 
-    it("should skip transactions that already exist", () => {
+    it("should skip dates that already have real transactions", () => {
       const transactions: Transaction[] = [
         {
           id: "template-1",
@@ -340,86 +338,14 @@ describe("scheduler.service", () => {
         },
       ];
 
-      const generated = generateScheduledTransactions(
-        transactions,
-        "2025-01-20",
-        3
-      );
+      const virtuals = generateVirtualTransactions(transactions, "2025-01-20");
 
-      // Should skip Feb (already exists) and generate Mar, Apr
-      expect(generated.length).toBe(2);
-      expect(generated[0].date).toBe("2025-03-15");
-      expect(generated[1].date).toBe("2025-04-15");
+      // Should skip Feb (already exists) and show Mar
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-03-15");
     });
 
-    it("should use lastGenerated if available", () => {
-      const transactions: Transaction[] = [
-        {
-          id: "template-1",
-          type: "expense",
-          name: "Rent",
-          category: "housing",
-          amount: 100000,
-          date: "2025-01-15",
-          schedule: {
-            enabled: true,
-            frequency: "monthly",
-            interval: 1,
-            startDate: "2025-01-15",
-            lastGenerated: "2025-02-15",
-            dayOfMonth: 15,
-          },
-          createdAt: Date.now(),
-        },
-      ];
-
-      const generated = generateScheduledTransactions(
-        transactions,
-        "2025-02-20",
-        3
-      );
-
-      // Should start from lastGenerated (Feb 15), so next is Mar 15
-      expect(generated.length).toBe(3);
-      expect(generated[0].date).toBe("2025-03-15");
-      expect(generated[1].date).toBe("2025-04-15");
-      expect(generated[2].date).toBe("2025-05-15");
-    });
-
-    it("should not generate transactions before today", () => {
-      const transactions: Transaction[] = [
-        {
-          id: "template-1",
-          type: "expense",
-          name: "Rent",
-          category: "housing",
-          amount: 100000,
-          date: "2025-01-15",
-          schedule: {
-            enabled: true,
-            frequency: "monthly",
-            interval: 1,
-            startDate: "2025-01-15",
-            dayOfMonth: 15,
-          },
-          createdAt: Date.now(),
-        },
-      ];
-
-      const generated = generateScheduledTransactions(
-        transactions,
-        "2025-03-20",
-        3
-      );
-
-      // Should skip Jan, Feb, Mar (all before or equal to today)
-      expect(generated.length).toBe(3);
-      expect(generated[0].date).toBe("2025-04-15");
-      expect(generated[1].date).toBe("2025-05-15");
-      expect(generated[2].date).toBe("2025-06-15");
-    });
-
-    it("should not generate transactions for disabled schedules", () => {
+    it("should not generate for disabled schedules", () => {
       const transactions: Transaction[] = [
         {
           id: "template-1",
@@ -439,16 +365,12 @@ describe("scheduler.service", () => {
         },
       ];
 
-      const generated = generateScheduledTransactions(
-        transactions,
-        "2025-01-20",
-        3
-      );
+      const virtuals = generateVirtualTransactions(transactions, "2025-01-20");
 
-      expect(generated.length).toBe(0);
+      expect(virtuals.length).toBe(0);
     });
 
-    it("should not generate transactions for ended schedules", () => {
+    it("should not generate for ended schedules", () => {
       const transactions: Transaction[] = [
         {
           id: "template-1",
@@ -469,24 +391,136 @@ describe("scheduler.service", () => {
         },
       ];
 
-      const generated = generateScheduledTransactions(
-        transactions,
-        "2025-02-01",
-        3
-      );
+      const virtuals = generateVirtualTransactions(transactions, "2025-02-01");
 
-      expect(generated.length).toBe(0);
+      expect(virtuals.length).toBe(0);
+    });
+
+    it("should generate only the next occurrence (not multiple)", () => {
+      const transactions: Transaction[] = [
+        {
+          id: "template-1",
+          type: "expense",
+          name: "Rent",
+          category: "housing",
+          amount: 100000,
+          date: "2025-01-15",
+          schedule: {
+            enabled: true,
+            frequency: "monthly",
+            interval: 1,
+            startDate: "2025-01-15",
+            dayOfMonth: 15,
+          },
+          createdAt: Date.now(),
+        },
+      ];
+
+      const virtuals = generateVirtualTransactions(transactions, "2025-01-20");
+
+      // Should only generate 1 virtual (the next occurrence)
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-02-15");
     });
   });
 
-  describe("updateLastGenerated", () => {
-    it("should update lastGenerated date", () => {
-      const transaction: Transaction = {
-        id: "template-1",
-        type: "expense",
+  describe("materializeTransaction", () => {
+    it("should convert virtual to real transaction", () => {
+      const virtual = {
+        id: "virtual-template-1-2025-02-15",
+        type: "expense" as const,
         name: "Rent",
         category: "housing",
         amount: 100000,
+        date: "2025-02-15",
+        status: "planned" as const,
+        createdAt: Date.now(),
+        isVirtual: true as const,
+        templateId: "template-1",
+      };
+
+      const real = materializeTransaction(virtual);
+
+      // Should not have virtual properties
+      expect("isVirtual" in real).toBe(false);
+      expect("templateId" in real).toBe(false);
+      expect(real.status).toBe("pending");
+      expect(real.name).toBe("Rent");
+      expect(real.amount).toBe(100000);
+      expect(real.date).toBe("2025-02-15");
+      // ID should be a new nanoid, not the virtual ID
+      expect(real.id).not.toBe(virtual.id);
+      expect(real.id).not.toContain("virtual");
+    });
+  });
+
+  describe("isVirtualTransaction", () => {
+    it("should return true for virtual transactions", () => {
+      const virtual = {
+        id: "virtual-1",
+        type: "expense" as const,
+        name: "Test",
+        category: "misc",
+        amount: 1000,
+        date: "2025-01-15",
+        createdAt: Date.now(),
+        isVirtual: true as const,
+        templateId: "template-1",
+      };
+
+      expect(isVirtualTransaction(virtual)).toBe(true);
+    });
+
+    it("should return false for real transactions", () => {
+      const real: Transaction = {
+        id: "tx-1",
+        type: "expense",
+        name: "Test",
+        category: "misc",
+        amount: 1000,
+        date: "2025-01-15",
+        createdAt: Date.now(),
+      };
+
+      expect(isVirtualTransaction(real)).toBe(false);
+    });
+
+    it("should return false for transactions with isVirtual=false", () => {
+      const tx = {
+        id: "tx-1",
+        type: "expense" as const,
+        name: "Test",
+        category: "misc",
+        amount: 1000,
+        date: "2025-01-15",
+        createdAt: Date.now(),
+        isVirtual: false,
+      };
+
+      expect(isVirtualTransaction(tx as Transaction)).toBe(false);
+    });
+  });
+
+  // ==========================================================================
+  // INTEGRATION TESTS: Full scheduled transaction flow
+  // ==========================================================================
+  describe("Integration: Scheduled Transaction Flow", () => {
+    /**
+     * Test the full lifecycle of a scheduled transaction:
+     * 1. Create a template transaction with schedule
+     * 2. Generate virtual transaction for next occurrence
+     * 3. Materialize the virtual (simulating user confirmation)
+     * 4. Verify next virtual is generated for the following occurrence
+     * 5. Repeat for multiple iterations
+     */
+    it("should correctly iterate through monthly scheduled transactions", () => {
+      // Start with a template transaction created on Jan 15
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
         date: "2025-01-15",
         schedule: {
           enabled: true,
@@ -498,26 +532,556 @@ describe("scheduler.service", () => {
         createdAt: Date.now(),
       };
 
-      const updated = updateLastGenerated(transaction, "2025-02-15");
+      let transactions: Transaction[] = [template];
+      const today = "2025-01-20"; // After the first occurrence
 
-      expect(updated.schedule?.lastGenerated).toBe("2025-02-15");
-      expect(updated.schedule?.startDate).toBe("2025-01-15"); // Should not change
+      // ITERATION 1: Generate first virtual (should be Feb 15)
+      let virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-02-15");
+      expect(virtuals[0].name).toBe("Rent");
+      expect(virtuals[0].isVirtual).toBe(true);
+      expect(virtuals[0].templateId).toBe("template-rent");
+
+      // User confirms the Feb 15 transaction
+      const realFeb = materializeTransaction(virtuals[0]);
+      expect(realFeb.date).toBe("2025-02-15");
+      expect(realFeb.status).toBe("pending");
+      expect("isVirtual" in realFeb).toBe(false);
+      transactions.push(realFeb);
+
+      // ITERATION 2: Generate next virtual (should be Mar 15, Feb already exists)
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-03-15");
+
+      // User confirms the Mar 15 transaction
+      const realMar = materializeTransaction(virtuals[0]);
+      transactions.push(realMar);
+
+      // ITERATION 3: Generate next virtual (should be Apr 15)
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-04-15");
+
+      // Verify we now have 4 transactions: 1 template + 3 real (Jan, Feb, Mar... wait, Jan is the template)
+      // Actually: 1 template (Jan 15) + 2 materialized (Feb 15, Mar 15) = 3 total
+      expect(transactions.length).toBe(3);
     });
 
-    it("should return unchanged transaction if no schedule", () => {
-      const transaction: Transaction = {
-        id: "tx-1",
+    it("should correctly iterate through weekly scheduled transactions", () => {
+      const template: Transaction = {
+        id: "template-gym",
         type: "expense",
-        name: "One-time",
-        category: "misc",
+        name: "Gym",
+        category: "fitness",
         amount: 50000,
-        date: "2025-01-15",
+        date: "2025-01-06", // Monday
+        schedule: {
+          enabled: true,
+          frequency: "weekly",
+          interval: 1,
+          startDate: "2025-01-06",
+        },
         createdAt: Date.now(),
       };
 
-      const updated = updateLastGenerated(transaction, "2025-02-15");
+      let transactions: Transaction[] = [template];
+      const today = "2025-01-07"; // Tuesday after first gym day
 
-      expect(updated).toEqual(transaction);
+      // ITERATION 1: Should get Jan 13 (next Monday)
+      let virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-01-13");
+
+      // Confirm it
+      transactions.push(materializeTransaction(virtuals[0]));
+
+      // ITERATION 2: Should get Jan 20
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-01-20");
+
+      // Confirm it
+      transactions.push(materializeTransaction(virtuals[0]));
+
+      // ITERATION 3: Should get Jan 27
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-01-27");
+    });
+
+    it("should handle multiple templates generating virtuals simultaneously", () => {
+      const templates: Transaction[] = [
+        {
+          id: "template-rent",
+          type: "expense",
+          name: "Rent",
+          category: "housing",
+          amount: 1000000,
+          date: "2025-01-15",
+          schedule: {
+            enabled: true,
+            frequency: "monthly",
+            interval: 1,
+            startDate: "2025-01-15",
+            dayOfMonth: 15,
+          },
+          createdAt: Date.now(),
+        },
+        {
+          id: "template-netflix",
+          type: "expense",
+          name: "Netflix",
+          category: "subscriptions",
+          amount: 60000,
+          date: "2025-01-17",
+          schedule: {
+            enabled: true,
+            frequency: "monthly",
+            interval: 1,
+            startDate: "2025-01-17",
+            dayOfMonth: 17,
+          },
+          createdAt: Date.now(),
+        },
+        {
+          id: "template-salary",
+          type: "income",
+          name: "Salary",
+          category: "income",
+          amount: 12000000,
+          date: "2025-01-01",
+          schedule: {
+            enabled: true,
+            frequency: "monthly",
+            interval: 1,
+            startDate: "2025-01-01",
+            dayOfMonth: 1,
+          },
+          createdAt: Date.now(),
+        },
+      ];
+
+      let transactions = [...templates];
+      const today = "2025-01-20";
+
+      // Should generate 3 virtuals: Feb 1, Feb 15, Feb 17
+      let virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(3);
+
+      const dates = virtuals.map(v => v.date).sort();
+      expect(dates).toEqual(["2025-02-01", "2025-02-15", "2025-02-17"]);
+
+      // Confirm all 3
+      virtuals.forEach(v => {
+        transactions.push(materializeTransaction(v));
+      });
+
+      // Next iteration: should generate Mar 1, Mar 15, Mar 17
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(3);
+
+      const nextDates = virtuals.map(v => v.date).sort();
+      expect(nextDates).toEqual(["2025-03-01", "2025-03-15", "2025-03-17"]);
+    });
+
+    it("should stop generating virtuals when schedule ends", () => {
+      const template: Transaction = {
+        id: "template-promo",
+        type: "expense",
+        name: "Promo Subscription",
+        category: "subscriptions",
+        amount: 10000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          endDate: "2025-03-15", // Only valid for Feb and Mar
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      let transactions: Transaction[] = [template];
+      const today = "2025-01-20";
+
+      // ITERATION 1: Feb 15 (within range)
+      let virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-02-15");
+      transactions.push(materializeTransaction(virtuals[0]));
+
+      // ITERATION 2: Mar 15 (last valid date)
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-03-15");
+      transactions.push(materializeTransaction(virtuals[0]));
+
+      // ITERATION 3: No more virtuals (schedule ended)
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(0);
+    });
+
+    it("should handle disabling a schedule mid-flow", () => {
+      const template: Transaction = {
+        id: "template-gym",
+        type: "expense",
+        name: "Gym",
+        category: "fitness",
+        amount: 110000,
+        date: "2025-01-05",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-05",
+          dayOfMonth: 5,
+        },
+        createdAt: Date.now(),
+      };
+
+      let transactions: Transaction[] = [template];
+      const today = "2025-01-10";
+
+      // Should generate Feb 5
+      let virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(1);
+      expect(virtuals[0].date).toBe("2025-02-05");
+
+      // User disables the schedule (cancels gym membership)
+      transactions[0] = {
+        ...transactions[0],
+        schedule: { ...transactions[0].schedule!, enabled: false },
+      };
+
+      // No more virtuals should be generated
+      virtuals = generateVirtualTransactions(transactions, today);
+      expect(virtuals.length).toBe(0);
+    });
+
+    it("should filter virtuals by month correctly for display", () => {
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template];
+      const today = "2025-01-20";
+
+      // Generate all virtuals
+      const allVirtuals = generateVirtualTransactions(transactions, today);
+      expect(allVirtuals.length).toBe(1);
+      expect(allVirtuals[0].date).toBe("2025-02-15");
+
+      // Filter for January (should be empty - the virtual is in Feb)
+      const janVirtuals = allVirtuals.filter(v => v.date.slice(0, 7) === "2025-01");
+      expect(janVirtuals.length).toBe(0);
+
+      // Filter for February (should have 1)
+      const febVirtuals = allVirtuals.filter(v => v.date.slice(0, 7) === "2025-02");
+      expect(febVirtuals.length).toBe(1);
+
+      // Filter for March (should be empty - we only generate 1 virtual at a time)
+      const marVirtuals = allVirtuals.filter(v => v.date.slice(0, 7) === "2025-03");
+      expect(marVirtuals.length).toBe(0);
+    });
+  });
+
+  // ==========================================================================
+  // AUTO-CONFIRMATION OF PAST DUE TRANSACTIONS
+  // ==========================================================================
+  describe("generatePastDueTransactions", () => {
+    it("should generate real transactions for past-due dates", () => {
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template];
+      // Today is March 20, so Feb 15 and Mar 15 are past-due
+      const today = "2025-03-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      expect(pastDue.length).toBe(2);
+      // Should have Feb 15 and Mar 15
+      const dates = pastDue.map(tx => tx.date).sort();
+      expect(dates).toEqual(["2025-02-15", "2025-03-15"]);
+
+      // All should be real transactions (not virtual)
+      pastDue.forEach(tx => {
+        expect("isVirtual" in tx).toBe(false);
+        expect(tx.status).toBe("pending");
+        expect(tx.name).toBe("Rent");
+        expect(tx.amount).toBe(1000000);
+        // Should have unique IDs
+        expect(tx.id).not.toContain("virtual");
+        expect(tx.id).not.toBe(template.id);
+      });
+    });
+
+    it("should not generate for dates that already have real transactions", () => {
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      // Feb 15 already has a real transaction
+      const existingFeb: Transaction = {
+        id: "existing-feb",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-02-15",
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template, existingFeb];
+      const today = "2025-03-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // Should only generate Mar 15 (Feb already exists)
+      expect(pastDue.length).toBe(1);
+      expect(pastDue[0].date).toBe("2025-03-15");
+    });
+
+    it("should not generate for disabled schedules", () => {
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: false,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template];
+      const today = "2025-03-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      expect(pastDue.length).toBe(0);
+    });
+
+    it("should not generate for schedules that have ended", () => {
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          endDate: "2025-01-31", // Ended in January
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template];
+      const today = "2025-03-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      expect(pastDue.length).toBe(0);
+    });
+
+    it("should handle multiple templates with past-due dates", () => {
+      const templates: Transaction[] = [
+        {
+          id: "template-rent",
+          type: "expense",
+          name: "Rent",
+          category: "housing",
+          amount: 1000000,
+          date: "2025-01-15",
+          schedule: {
+            enabled: true,
+            frequency: "monthly",
+            interval: 1,
+            startDate: "2025-01-15",
+            dayOfMonth: 15,
+          },
+          createdAt: Date.now(),
+        },
+        {
+          id: "template-netflix",
+          type: "expense",
+          name: "Netflix",
+          category: "subscriptions",
+          amount: 60000,
+          date: "2025-01-17",
+          schedule: {
+            enabled: true,
+            frequency: "monthly",
+            interval: 1,
+            startDate: "2025-01-17",
+            dayOfMonth: 17,
+          },
+          createdAt: Date.now(),
+        },
+      ];
+
+      const transactions = [...templates];
+      // Today is March 20, so Feb and Mar are past-due for both templates
+      const today = "2025-03-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // 2 templates × 2 months (Feb, Mar) = 4 transactions
+      expect(pastDue.length).toBe(4);
+
+      const dates = pastDue.map(tx => tx.date).sort();
+      expect(dates).toEqual([
+        "2025-02-15",
+        "2025-02-17",
+        "2025-03-15",
+        "2025-03-17",
+      ]);
+    });
+
+    it("should not generate for future dates", () => {
+      const template: Transaction = {
+        id: "template-rent",
+        type: "expense",
+        name: "Rent",
+        category: "housing",
+        amount: 1000000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template];
+      // Today is Jan 20, so only Jan 15 has passed (but it's the template)
+      // Feb 15 is in the future
+      const today = "2025-01-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // No past-due transactions (Jan 15 is the template, Feb 15 is future)
+      expect(pastDue.length).toBe(0);
+    });
+
+    it("should handle weekly schedules with multiple past-due occurrences", () => {
+      const template: Transaction = {
+        id: "template-gym",
+        type: "expense",
+        name: "Gym",
+        category: "fitness",
+        amount: 50000,
+        date: "2025-01-06", // Monday
+        schedule: {
+          enabled: true,
+          frequency: "weekly",
+          interval: 1,
+          startDate: "2025-01-06",
+        },
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template];
+      // Today is Jan 30, so Jan 13, Jan 20, Jan 27 are past-due
+      const today = "2025-01-30";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      expect(pastDue.length).toBe(3);
+      const dates = pastDue.map(tx => tx.date).sort();
+      expect(dates).toEqual([
+        "2025-01-13",
+        "2025-01-20",
+        "2025-01-27",
+      ]);
+    });
+
+    it("should respect endDate when generating past-due transactions", () => {
+      const template: Transaction = {
+        id: "template-promo",
+        type: "expense",
+        name: "Promo",
+        category: "subscriptions",
+        amount: 10000,
+        date: "2025-01-15",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-15",
+          endDate: "2025-02-28", // Only valid through Feb
+          dayOfMonth: 15,
+        },
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template];
+      // Today is April, but schedule ended in Feb
+      const today = "2025-04-20";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // Only Feb 15 should be generated (Mar is after endDate)
+      expect(pastDue.length).toBe(1);
+      expect(pastDue[0].date).toBe("2025-02-15");
     });
   });
 });

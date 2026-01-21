@@ -34,7 +34,6 @@ const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/C
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import WelcomeGate from "@/shared/components/providers/WelcomeGate";
 import SplashScreen from "@/shared/components/ui/SplashScreen";
-import SchedulerJob from "@/shared/components/jobs/SchedulerJob";
 
 // Loading fallback component
 function PageLoader() {
@@ -138,7 +137,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <CloudSyncGate />
-      <SchedulerJob />
       <AppFrame />
       <WelcomeGate />
     </BrowserRouter>

@@ -153,7 +153,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(5); // Should migrate all the way to v5
+        expect(loaded?.schemaVersion).toBe(6); // Should migrate all the way to v5
         expect(loaded?.categoryDefinitions).toBeDefined();
         expect(Array.isArray(loaded?.categoryDefinitions)).toBe(true);
         expect(loaded!.categoryDefinitions.length).toBeGreaterThan(0);
@@ -215,7 +215,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(5);
+        expect(loaded?.schemaVersion).toBe(6);
         expect(loaded?.categoryDefinitions).toBeDefined();
       });
 
@@ -287,7 +287,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v2State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(5);
+        expect(loaded?.schemaVersion).toBe(6);
         expect(loaded?.categoryGroups).toBeDefined();
         expect(Array.isArray(loaded?.categoryGroups)).toBe(true);
         expect(loaded!.categoryGroups.length).toBeGreaterThan(0);
@@ -330,7 +330,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v3State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(5);
+        expect(loaded?.schemaVersion).toBe(6);
         expect(loaded?.transactions[0].isRecurring).toBe(false);
         expect(loaded?.transactions[1].isRecurring).toBe(false);
       });
@@ -494,7 +494,7 @@ describe('storage.service', () => {
         const persisted = localStorage.getItem('budget_app_v1');
         const parsed = JSON.parse(persisted!);
 
-        expect(parsed.schemaVersion).toBe(5);
+        expect(parsed.schemaVersion).toBe(6);
         expect(parsed.categoryDefinitions).toBeDefined();
         expect(parsed.categoryGroups).toBeDefined();
       });
@@ -518,14 +518,117 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(5);
+        expect(loaded?.schemaVersion).toBe(6);
 
         // Restore original
         localStorage.setItem = originalSetItem;
       });
     });
 
-    describe('Full migration path: v1 → v2 → v3 → v4 → v5', () => {
+    describe('v5 → v6: Deduplicate schedule templates', () => {
+      it('should deduplicate schedule templates keeping the most recent', () => {
+        const v5State = {
+          schemaVersion: 5,
+          transactions: [
+            // Three "Netflix" transactions with schedule - should be deduplicated to 1
+            {
+              id: 'netflix-jan',
+              type: 'expense' as const,
+              name: 'Netflix',
+              category: 'suscripciones',
+              amount: 60000,
+              date: '2025-01-17',
+              createdAt: 1000,
+              isRecurring: true,
+              schedule: { enabled: true, frequency: 'monthly', interval: 1, startDate: '2025-01-17', dayOfMonth: 17 },
+            },
+            {
+              id: 'netflix-feb',
+              type: 'expense' as const,
+              name: 'Netflix',
+              category: 'suscripciones',
+              amount: 60000,
+              date: '2025-02-17',
+              createdAt: 2000,
+              isRecurring: true,
+              schedule: { enabled: true, frequency: 'monthly', interval: 1, startDate: '2025-02-17', dayOfMonth: 17 },
+            },
+            {
+              id: 'netflix-mar',
+              type: 'expense' as const,
+              name: 'Netflix',
+              category: 'suscripciones',
+              amount: 60000,
+              date: '2025-03-17',
+              createdAt: 3000,
+              isRecurring: true,
+              schedule: { enabled: true, frequency: 'monthly', interval: 1, startDate: '2025-03-17', dayOfMonth: 17 },
+            },
+            // A different subscription - should remain as 1 template
+            {
+              id: 'spotify-jan',
+              type: 'expense' as const,
+              name: 'Spotify',
+              category: 'suscripciones',
+              amount: 30000,
+              date: '2025-01-15',
+              createdAt: 1000,
+              isRecurring: true,
+              schedule: { enabled: true, frequency: 'monthly', interval: 1, startDate: '2025-01-15', dayOfMonth: 15 },
+            },
+            // Non-recurring transaction - should remain unchanged
+            {
+              id: 'groceries',
+              type: 'expense' as const,
+              name: 'Groceries',
+              category: 'food',
+              amount: 100000,
+              date: '2025-01-20',
+              createdAt: 4000,
+            },
+          ],
+          categories: [],
+          categoryDefinitions: [],
+          categoryGroups: [],
+          trips: [],
+          tripExpenses: [],
+        };
+
+        localStorage.setItem('budget_app_v1', JSON.stringify(v5State));
+        const loaded = loadState();
+
+        expect(loaded?.schemaVersion).toBe(6);
+
+        // Should have 2 templates (Netflix + Spotify) + 1 groceries + 2 deduplicated Netflix (now without schedule)
+        expect(loaded?.transactions.length).toBe(5);
+
+        // Check that only the most recent Netflix is a template
+        const netflixTemplates = loaded?.transactions.filter(
+          tx => tx.name === 'Netflix' && tx.schedule?.enabled
+        );
+        expect(netflixTemplates?.length).toBe(1);
+        expect(netflixTemplates?.[0].id).toBe('netflix-mar'); // Most recent by date
+
+        // Check that the older Netflix transactions lost their schedule
+        const netflixNonTemplates = loaded?.transactions.filter(
+          tx => tx.name === 'Netflix' && !tx.schedule?.enabled
+        );
+        expect(netflixNonTemplates?.length).toBe(2);
+
+        // Spotify should still have its template
+        const spotifyTemplates = loaded?.transactions.filter(
+          tx => tx.name === 'Spotify' && tx.schedule?.enabled
+        );
+        expect(spotifyTemplates?.length).toBe(1);
+
+        // Groceries should be unchanged
+        const groceries = loaded?.transactions.find(tx => tx.name === 'Groceries');
+        expect(groceries).toBeDefined();
+        expect(groceries?.schedule).toBeUndefined();
+      });
+    });
+
+    describe('Full migration path: v1 → v2 → v3 → v4 → v5 → v6', () => {
       it('should migrate through all versions in one loadState call', () => {
         const v1State = {
           schemaVersion: 1,
@@ -549,7 +652,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         // Should be at v5
-        expect(loaded?.schemaVersion).toBe(5);
+        expect(loaded?.schemaVersion).toBe(6);
 
         // v1→v2: categoryDefinitions exist
         expect(loaded?.categoryDefinitions).toBeDefined();
@@ -567,7 +670,7 @@ describe('storage.service', () => {
         expect(loaded?.transactions[0].isRecurring).toBe(false);
 
         // v4→v5: migrations complete (isRecurring without schedule stays as is)
-        expect(loaded?.schemaVersion).toBe(5);
+        expect(loaded?.schemaVersion).toBe(6);
       });
     });
   });

@@ -143,6 +143,10 @@ export default function CloudSyncGate() {
       setCloudMode("guest");
       setCloudStatus("idle");
       initializedRef.current = false;
+
+      // Mark CloudSync as ready in guest mode (no sync needed, scheduler can run immediately)
+      useBudgetStore.getState().setCloudSyncReady();
+      logger.info("CloudSync", "Guest mode - scheduler can run immediately");
       return;
     }
 
@@ -241,7 +245,40 @@ export default function CloudSyncGate() {
           cloud.schemaVersion = 5;
           needsPush = true;
           logger.info("CloudSync", "Migration complete, schemaVersion now 5, needsPush=true");
-        } else {
+        }
+
+        // Migrate v5 to v6: Deduplicate schedule templates
+        if (cloud.schemaVersion === 5) {
+          logger.info("CloudSync", "Migrating cloud data from v5 to v6 (deduplicate schedule templates)");
+          const templatesMap = new Map<string, any>();
+          const nonTemplates: any[] = [];
+
+          for (const tx of cloud.transactions) {
+            if (tx.schedule?.enabled) {
+              const key = `${tx.name}|${tx.category}|${tx.amount}`;
+              const existing = templatesMap.get(key);
+
+              if (!existing || tx.date > existing.date ||
+                  (tx.date === existing.date && tx.createdAt > existing.createdAt)) {
+                if (existing) {
+                  nonTemplates.push({ ...existing, schedule: undefined });
+                }
+                templatesMap.set(key, tx);
+              } else {
+                nonTemplates.push({ ...tx, schedule: undefined });
+              }
+            } else {
+              nonTemplates.push(tx);
+            }
+          }
+
+          cloud.transactions = [...templatesMap.values(), ...nonTemplates];
+          cloud.schemaVersion = 6;
+          needsPush = true;
+          logger.info("CloudSync", `Migration v5→v6 complete: deduplicated to ${templatesMap.size} schedule templates`);
+        }
+
+        if (cloud.schemaVersion >= 6) {
           logger.info("CloudSync", `No migration needed, schema version is ${cloud.schemaVersion}`);
         }
 
@@ -278,12 +315,19 @@ export default function CloudSyncGate() {
 
       setCloudStatus("ok");
       initializedRef.current = true;
+
+      // Mark CloudSync as ready so SchedulerJob can run
+      useBudgetStore.getState().setCloudSyncReady();
+      logger.info("CloudSync", "CloudSync initialization complete, scheduler can now run");
     } catch (err) {
       logger.error("CloudSync", "Init failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
       // dejamos pendiente el snapshot actual para reintentar
       setPendingSnapshot(getSnapshot());
       initializedRef.current = true;
+
+      // Even on error, mark as ready so scheduler doesn't hang forever
+      useBudgetStore.getState().setCloudSyncReady();
     } finally {
       // Always release the sync lock when done
       releaseSyncLock();

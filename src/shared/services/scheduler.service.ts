@@ -1,109 +1,10 @@
 /**
- * Scheduler service for generating scheduled transactions
- * Handles automatic creation of recurring transactions based on schedules
+ * Scheduler service for virtual transaction generation
+ * Uses lazy generation - calculates virtual transactions on-the-fly for display
  */
 
 import type { Transaction, Schedule } from "@/types/budget.types";
-import { logger } from "@/shared/utils/logger";
 import { nanoid } from "nanoid";
-
-/**
- * Generate scheduled transactions for the next N months
- * Creates transactions that don't exist yet based on schedule rules
- *
- * @param transactions - All existing transactions
- * @param today - Current date (YYYY-MM-DD)
- * @param monthsAhead - How many months to generate (default: 3)
- * @returns Array of new transactions to add
- */
-export function generateScheduledTransactions(
-  transactions: Transaction[],
-  today: string,
-  monthsAhead: number = 3
-): Transaction[] {
-  const todayDate = new Date(today + "T12:00:00");
-  const endDate = new Date(todayDate);
-  endDate.setMonth(endDate.getMonth() + monthsAhead);
-
-  const newTransactions: Transaction[] = [];
-
-  logger.debug(
-    "Scheduler",
-    `Total transactions: ${transactions.length}`,
-    `Transactions with schedule field: ${transactions.filter(tx => tx.schedule).length}`,
-    `Transactions with enabled schedule: ${transactions.filter(tx => tx.schedule?.enabled).length}`
-  );
-
-  // Find all transactions with active schedules
-  const scheduledTransactions = transactions.filter(
-    (tx) => tx.schedule?.enabled && shouldProcessSchedule(tx.schedule, today)
-  );
-
-  logger.debug(
-    "Scheduler",
-    `Found ${scheduledTransactions.length} active scheduled transactions`,
-    scheduledTransactions.map(tx => ({ name: tx.name, schedule: tx.schedule }))
-  );
-
-  for (const tx of scheduledTransactions) {
-    if (!tx.schedule) continue;
-
-    // Calculate next dates from lastGenerated or startDate
-    const startFrom = tx.schedule.lastGenerated || tx.schedule.startDate;
-    const nextDates = calculateNextDates(tx.schedule, startFrom, endDate.toISOString().slice(0, 10));
-
-    for (const nextDate of nextDates) {
-      // Skip if already exists
-      if (transactionExistsForDate(transactions, tx, nextDate)) {
-        logger.debug("Scheduler", `Transaction "${tx.name}" already exists for ${nextDate}`);
-        continue;
-      }
-
-      // Skip if before today
-      if (nextDate < today) {
-        continue;
-      }
-
-      // Create new transaction
-      const newTx: Transaction = {
-        ...tx,
-        id: nanoid(),
-        date: nextDate,
-        status: "planned",
-        createdAt: Date.now(),
-      };
-
-      newTransactions.push(newTx);
-      logger.info("Scheduler", `Generated scheduled transaction "${newTx.name}" for ${nextDate}`);
-    }
-  }
-
-  logger.info("Scheduler", `Generated ${newTransactions.length} new scheduled transactions`);
-  return newTransactions;
-}
-
-/**
- * Update lastGenerated date for scheduled transactions
- * Call this after adding generated transactions to the store
- *
- * @param transaction - Transaction with schedule to update
- * @param lastDate - Last generated date (YYYY-MM-DD)
- * @returns Updated transaction
- */
-export function updateLastGenerated(
-  transaction: Transaction,
-  lastDate: string
-): Transaction {
-  if (!transaction.schedule) return transaction;
-
-  return {
-    ...transaction,
-    schedule: {
-      ...transaction.schedule,
-      lastGenerated: lastDate,
-    },
-  };
-}
 
 /**
  * Check if a schedule should be processed
@@ -210,7 +111,7 @@ export function calculateNextDate(
       break;
 
     default:
-      logger.error("Scheduler", `Unknown frequency: ${schedule.frequency}`);
+      console.error(`[Scheduler] Unknown frequency: ${schedule.frequency}`);
       return null;
   }
 
@@ -245,4 +146,223 @@ export function convertLegacyRecurringToSchedule(
     dayOfMonth,
     // No endDate - runs indefinitely
   };
+}
+
+// ============================================================================
+// VIRTUAL TRANSACTIONS (Lazy Generation)
+// ============================================================================
+
+/**
+ * Virtual transaction - exists only for display, not persisted
+ * Has a special `isVirtual` flag and `templateId` to link back to the source
+ */
+export type VirtualTransaction = Transaction & {
+  isVirtual: true;
+  templateId: string;  // ID of the source transaction with schedule
+};
+
+/**
+ * Generate virtual transactions for display purposes
+ * Only generates the NEXT occurrence for each template (not multiple months ahead)
+ * These are NOT saved to the database - they're calculated on-the-fly
+ *
+ * @param transactions - All real transactions from the store
+ * @param today - Current date (YYYY-MM-DD)
+ * @returns Array of virtual transactions for display (1 per template max)
+ */
+export function generateVirtualTransactions(
+  transactions: Transaction[],
+  today: string
+): VirtualTransaction[] {
+  const virtualTransactions: VirtualTransaction[] = [];
+
+  // Find all template transactions (those with active schedules)
+  const templates = transactions.filter(
+    (tx) => tx.schedule?.enabled && shouldProcessSchedule(tx.schedule, today)
+  );
+
+  for (const template of templates) {
+    if (!template.schedule) continue;
+
+    // Find the NEXT occurrence after today
+    const nextDate = findNextOccurrence(template.schedule, today, transactions, template);
+
+    if (!nextDate) continue;
+
+    // Create virtual transaction for the next occurrence only
+    const virtualTx: VirtualTransaction = {
+      ...template,
+      id: `virtual-${template.id}-${nextDate}`,  // Deterministic ID
+      date: nextDate,
+      status: "planned",
+      createdAt: Date.now(),
+      isVirtual: true,
+      templateId: template.id,
+      // Remove schedule from virtual transactions - they don't have their own schedule
+      schedule: undefined,
+    };
+
+    virtualTransactions.push(virtualTx);
+  }
+
+  return virtualTransactions;
+}
+
+/**
+ * Find the next occurrence date for a schedule
+ * Skips dates that already have real transactions
+ *
+ * @param schedule - Schedule configuration
+ * @param today - Current date (YYYY-MM-DD)
+ * @param transactions - All transactions to check for existing
+ * @param template - Template transaction for matching
+ * @returns Next date (YYYY-MM-DD) or null if none found within 1 year
+ */
+function findNextOccurrence(
+  schedule: Schedule,
+  today: string,
+  transactions: Transaction[],
+  template: Transaction
+): string | null {
+  // Calculate dates up to 1 year ahead to find the next valid one
+  const endDate = new Date(today + "T12:00:00");
+  endDate.setFullYear(endDate.getFullYear() + 1);
+  const endDateStr = endDate.toISOString().slice(0, 10);
+
+  const futureDates = calculateNextDates(schedule, schedule.startDate, endDateStr);
+
+  for (const futureDate of futureDates) {
+    // Skip dates in the past or today
+    if (futureDate <= today) continue;
+
+    // Skip if a real transaction already exists for this date
+    if (transactionExistsForDate(transactions, template, futureDate)) {
+      continue;
+    }
+
+    // Found the next valid occurrence
+    return futureDate;
+  }
+
+  return null;
+}
+
+/**
+ * Materialize a virtual transaction into a real one
+ * Called when the user wants to "confirm" a scheduled transaction
+ *
+ * @param virtualTx - The virtual transaction to materialize
+ * @returns A real transaction ready to be saved
+ */
+export function materializeTransaction(
+  virtualTx: VirtualTransaction
+): Transaction {
+  const { isVirtual, templateId, ...realTx } = virtualTx;
+
+  return {
+    ...realTx,
+    id: nanoid(),  // Generate a real ID
+    status: "pending",  // Mark as pending until user confirms payment
+    createdAt: Date.now(),
+  };
+}
+
+/**
+ * Check if a transaction is virtual
+ */
+export function isVirtualTransaction(tx: Transaction | VirtualTransaction): tx is VirtualTransaction {
+  return "isVirtual" in tx && tx.isVirtual === true;
+}
+
+// ============================================================================
+// AUTO-CONFIRMATION OF PAST DUE TRANSACTIONS
+// ============================================================================
+
+/**
+ * Find all past-due occurrences that don't have real transactions
+ * These are scheduled dates that have already passed without being confirmed
+ *
+ * @param schedule - Schedule configuration
+ * @param today - Current date (YYYY-MM-DD)
+ * @param transactions - All transactions to check for existing
+ * @param template - Template transaction for matching
+ * @returns Array of past-due dates (YYYY-MM-DD)
+ */
+function findPastDueOccurrences(
+  schedule: Schedule,
+  today: string,
+  transactions: Transaction[],
+  template: Transaction
+): string[] {
+  const pastDueDates: string[] = [];
+
+  // Calculate all dates from startDate up to today
+  const allDates = calculateNextDates(schedule, schedule.startDate, today);
+
+  for (const date of allDates) {
+    // Skip future dates (should not happen, but safety check)
+    if (date > today) continue;
+
+    // Skip if a real transaction already exists for this date
+    if (transactionExistsForDate(transactions, template, date)) {
+      continue;
+    }
+
+    // This date is past-due and has no transaction
+    pastDueDates.push(date);
+  }
+
+  return pastDueDates;
+}
+
+/**
+ * Generate real transactions for all past-due scheduled occurrences
+ * These transactions are auto-confirmed because their date has already passed
+ *
+ * @param transactions - All real transactions from the store
+ * @param today - Current date (YYYY-MM-DD)
+ * @returns Array of real transactions ready to be saved
+ */
+export function generatePastDueTransactions(
+  transactions: Transaction[],
+  today: string
+): Transaction[] {
+  const pastDueTransactions: Transaction[] = [];
+
+  // Find all template transactions (those with enabled schedules)
+  // Note: We don't use shouldProcessSchedule here because we want to
+  // generate past-due transactions even for schedules that have ended
+  // (as long as the past-due dates are within the schedule's valid range)
+  const templates = transactions.filter(
+    (tx) => tx.schedule?.enabled
+  );
+
+  for (const template of templates) {
+    if (!template.schedule) continue;
+
+    // Find all past-due occurrences for this template
+    const pastDueDates = findPastDueOccurrences(
+      template.schedule,
+      today,
+      transactions,
+      template
+    );
+
+    // Create real transactions for each past-due date
+    for (const date of pastDueDates) {
+      const realTx: Transaction = {
+        ...template,
+        id: nanoid(),
+        date,
+        status: "pending", // Mark as pending - user can confirm payment later
+        createdAt: Date.now(),
+        // Remove schedule from auto-generated transactions
+        schedule: undefined,
+      };
+
+      pastDueTransactions.push(realTx);
+    }
+  }
+
+  return pastDueTransactions;
 }

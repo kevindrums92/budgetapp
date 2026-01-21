@@ -109,6 +109,44 @@ export function loadState(): BudgetState | null {
       needsSave = true;
     }
 
+    // Migrate v5 to v6: Deduplicate schedule templates
+    // The v4→v5 migration created a schedule for EVERY isRecurring transaction,
+    // but we only need ONE template per unique (name, category, amount) combination.
+    // Keep only the most recent template for each combination.
+    if (parsed.schemaVersion === 5) {
+      const templatesMap = new Map<string, any>();
+      const nonTemplates: any[] = [];
+
+      for (const tx of parsed.transactions) {
+        if (tx.schedule?.enabled) {
+          // Create a unique key for this template
+          const key = `${tx.name}|${tx.category}|${tx.amount}`;
+          const existing = templatesMap.get(key);
+
+          // Keep the most recent one (by date, then by createdAt)
+          if (!existing || tx.date > existing.date ||
+              (tx.date === existing.date && tx.createdAt > existing.createdAt)) {
+            // If there was an existing one, convert it to non-template
+            if (existing) {
+              nonTemplates.push({ ...existing, schedule: undefined });
+            }
+            templatesMap.set(key, tx);
+          } else {
+            // This one is older, convert to non-template
+            nonTemplates.push({ ...tx, schedule: undefined });
+          }
+        } else {
+          nonTemplates.push(tx);
+        }
+      }
+
+      // Combine: templates + non-templates
+      parsed.transactions = [...templatesMap.values(), ...nonTemplates];
+      parsed.schemaVersion = 6;
+      needsSave = true;
+      console.log(`[Storage] Migrated v5→v6: Deduplicated to ${templatesMap.size} schedule templates`);
+    }
+
     // Ensure all arrays exist
     if (!Array.isArray(parsed.categories)) parsed.categories = [];
     if (!Array.isArray(parsed.trips)) parsed.trips = [];

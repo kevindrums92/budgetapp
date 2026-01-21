@@ -88,7 +88,7 @@ export type Trip = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
@@ -98,4 +98,5 @@ export type BudgetState = {
   tripExpenses: TripExpense[];
   // Scheduler
   lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
+  cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull
 };

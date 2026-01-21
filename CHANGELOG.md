@@ -5,6 +5,16 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Changed
+- **Scheduled Transactions**: Reemplazado sistema de generación de transacciones programadas
+  - Nueva arquitectura de "generación lazy" con transacciones virtuales calculadas on-the-fly
+  - Migración v5→v6: deduplicación automática de templates de schedule
+  - Auto-confirmación de transacciones pasadas al abrir la app
+  - Nuevo banner de transacciones programadas con modal de confirmación
+  - Modal de dismiss con opciones: "No volver a mostrar este mes" o "Solo por esta vez"
+  - Eliminado SchedulerJob background, RecurringBanner, RecurringModal (código legacy)
+  - Tests completos para flujo de iteración de transacciones programadas (40 tests)
+
+### Changed
 - **Logging System**: Implemented environment-aware logging utility
   - Created `logger.ts` utility with namespace-based logging (debug, info, warn, error levels)
   - Silent in production builds (all logs disabled) to avoid console spam
