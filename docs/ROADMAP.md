@@ -2,7 +2,7 @@
 
 > **Estrategia**: Híbrido Balanceado - Calidad del código + Features clave
 > **Timeline**: 4-5 meses (Feb-Jun 2025)
-> **Versión actual**: v0.8.0
+> **Versión actual**: v0.8.1
 
 ---
 
@@ -28,7 +28,6 @@
 - ✅ Mobile-first design system exhaustivo
 
 ### Deuda Técnica Identificada ⚠️
-- ❌ **CRÍTICO**: Bug de estado inconsistente en auth (avatar visible + status "Local")
 - ❌ 0 tests unitarios para Zustand store
 - ❌ Código duplicado (`kebabToPascal` en 3+ archivos)
 - ❌ 55 console.logs en producción
@@ -42,39 +41,6 @@
 
 ## v0.9.0 - "Fundaciones Sólidas" 🛠️
 **ETA**: 3 semanas | **Objetivo**: Elevar calidad a 9.5/10, fix bugs críticos
-
-### 🔥 Critical Bug Fixes (Semana 1)
-
-#### BUG-001: Estado inconsistente de autenticación (CRÍTICO)
-**Síntoma**: Avatar de Google visible mientras CloudStatusMini muestra "Local"
-
-**Root Cause**:
-- Tres componentes con listeners independientes de `onAuthStateChange`
-- TopHeader lee sesión directamente de Supabase (cached)
-- CloudSyncGate actualiza `cloudMode` en store async con posibles fallos
-- Race condition: avatar se muestra antes de que CloudSyncGate actualice store
-
-**Fix**:
-- [ ] Centralizar estado de auth en Zustand store (single source of truth)
-- [ ] Agregar `user: { email, name, avatarUrl }` a budget.store.ts
-- [ ] CloudSyncGate actualiza user state atómicamente con cloudMode
-- [ ] TopHeader y ProfilePage leen de store (no de Supabase directamente)
-- [ ] Agregar `authInitialized` flag con loading state
-- [ ] Test: Multiple tabs, offline→online, background→foreground
-
-**Files**:
-- `src/state/budget.store.ts` (+20 líneas)
-- `src/shared/components/providers/CloudSyncGate.tsx` (refactor)
-- `src/shared/components/layout/TopHeader.tsx` (simplificar)
-- `src/features/profile/pages/ProfilePage.tsx` (simplificar)
-
-**Acceptance Criteria**:
-- ✅ Auth state siempre consistente entre avatar, CloudStatus, ProfilePage
-- ✅ No más avatars "fantasma" con status Local
-- ✅ Test E2E: login, refresh page, wait 5s, verify consistency
-- ✅ Test E2E: open multiple tabs, verify no race conditions
-
----
 
 ### 🧪 Test Coverage al 60%+ (Semana 1-2)
 
