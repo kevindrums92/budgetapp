@@ -359,7 +359,7 @@ describe('backup.service', () => {
       const result = await validateBackup(file);
 
       expect(result.meta.userId).toBe('user-123');
-      expect(result.meta.createdBy).toBe('automatic');
+      expect(result.meta.createdBy).toBe('auto-cloud');
       expect(result.meta.deviceInfo).toBeDefined();
       expect(result.stats).toBeDefined();
     });
