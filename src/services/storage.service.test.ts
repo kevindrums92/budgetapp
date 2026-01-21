@@ -153,7 +153,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(4); // Should migrate all the way to v4
+        expect(loaded?.schemaVersion).toBe(5); // Should migrate all the way to v5
         expect(loaded?.categoryDefinitions).toBeDefined();
         expect(Array.isArray(loaded?.categoryDefinitions)).toBe(true);
         expect(loaded!.categoryDefinitions.length).toBeGreaterThan(0);
@@ -215,7 +215,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(4);
+        expect(loaded?.schemaVersion).toBe(5);
         expect(loaded?.categoryDefinitions).toBeDefined();
       });
 
@@ -287,15 +287,15 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v2State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(4);
+        expect(loaded?.schemaVersion).toBe(5);
         expect(loaded?.categoryGroups).toBeDefined();
         expect(Array.isArray(loaded?.categoryGroups)).toBe(true);
         expect(loaded!.categoryGroups.length).toBeGreaterThan(0);
       });
     });
 
-    describe('v3 to v4 migration (add isRecurring to transactions)', () => {
-      it('should add isRecurring field to all transactions', () => {
+    describe('v3 to v4 to v5 migration (add isRecurring, then convert to schedule)', () => {
+      it('should add isRecurring field and migrate to schedule', () => {
         const v3State = {
           schemaVersion: 3,
           transactions: [
@@ -330,7 +330,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v3State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(4);
+        expect(loaded?.schemaVersion).toBe(5);
         expect(loaded?.transactions[0].isRecurring).toBe(false);
         expect(loaded?.transactions[1].isRecurring).toBe(false);
       });
@@ -494,7 +494,7 @@ describe('storage.service', () => {
         const persisted = localStorage.getItem('budget_app_v1');
         const parsed = JSON.parse(persisted!);
 
-        expect(parsed.schemaVersion).toBe(4);
+        expect(parsed.schemaVersion).toBe(5);
         expect(parsed.categoryDefinitions).toBeDefined();
         expect(parsed.categoryGroups).toBeDefined();
       });
@@ -518,14 +518,14 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(4);
+        expect(loaded?.schemaVersion).toBe(5);
 
         // Restore original
         localStorage.setItem = originalSetItem;
       });
     });
 
-    describe('Full migration path: v1 → v2 → v3 → v4', () => {
+    describe('Full migration path: v1 → v2 → v3 → v4 → v5', () => {
       it('should migrate through all versions in one loadState call', () => {
         const v1State = {
           schemaVersion: 1,
@@ -548,8 +548,8 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v1State));
         const loaded = loadState();
 
-        // Should be at v4
-        expect(loaded?.schemaVersion).toBe(4);
+        // Should be at v5
+        expect(loaded?.schemaVersion).toBe(5);
 
         // v1→v2: categoryDefinitions exist
         expect(loaded?.categoryDefinitions).toBeDefined();
@@ -565,6 +565,9 @@ describe('storage.service', () => {
         // v3→v4: isRecurring field exists
         expect(loaded?.transactions[0]).toHaveProperty('isRecurring');
         expect(loaded?.transactions[0].isRecurring).toBe(false);
+
+        // v4→v5: migrations complete (isRecurring without schedule stays as is)
+        expect(loaded?.schemaVersion).toBe(5);
       });
     });
   });
