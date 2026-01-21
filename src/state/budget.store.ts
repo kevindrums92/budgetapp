@@ -126,6 +126,9 @@ type BudgetStore = BudgetState & {
   setCloudMode: (m: CloudMode) => void;
   setCloudStatus: (s: CloudStatus) => void;
 
+  // Scheduler
+  setLastSchedulerRun: (date: string) => void;
+
   // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
@@ -648,7 +651,14 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         categoryGroups: s.categoryGroups ?? [],
         trips: s.trips ?? [],
         tripExpenses: s.tripExpenses ?? [],
+        lastSchedulerRun: s.lastSchedulerRun,
       };
+    },
+
+    // ===== SCHEDULER =====
+    setLastSchedulerRun: (date) => {
+      set({ lastSchedulerRun: date });
+      saveState(get());
     },
 
     replaceAllData: (data) => {
@@ -664,6 +674,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         categoryGroups: data.categoryGroups ?? [],
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
+        lastSchedulerRun: data.lastSchedulerRun,
       });
     },
   };
