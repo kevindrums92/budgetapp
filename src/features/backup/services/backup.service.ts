@@ -2,7 +2,7 @@ import type { BudgetState } from "@/types/budget.types";
 import type { BackupFile, BackupMeta, BackupStats, LocalBackupEntry } from "@/features/backup/types/backup.types";
 import { logger } from "@/shared/utils/logger";
 
-const APP_VERSION = "0.6.2"; // TODO: Get from package.json or env
+const APP_VERSION = __APP_VERSION__;
 const BACKUP_VERSION = "1.0";
 const LOCAL_BACKUP_PREFIX = "budget.autoBackup.";
 const MAX_LOCAL_BACKUPS = 5;
