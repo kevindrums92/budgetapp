@@ -1,6 +1,19 @@
 export type TransactionType = "income" | "expense";
 export type TransactionStatus = "paid" | "pending" | "planned";
 
+export type ScheduleFrequency = "daily" | "weekly" | "monthly" | "yearly";
+
+export type Schedule = {
+  enabled: boolean;
+  frequency: ScheduleFrequency;
+  interval: number;           // every X days/weeks/months/years
+  startDate: string;          // YYYY-MM-DD
+  endDate?: string;           // YYYY-MM-DD (optional end)
+  dayOfWeek?: number;         // 0-6 for weekly (0 = Sunday)
+  dayOfMonth?: number;        // 1-31 for monthly
+  lastGenerated?: string;     // YYYY-MM-DD - track last auto-created tx
+};
+
 export type Transaction = {
   id: string;
   type: TransactionType;
@@ -9,7 +22,8 @@ export type Transaction = {
   amount: number;        // siempre positivo
   date: string;          // YYYY-MM-DD
   notes?: string;        // Optional notes
-  isRecurring?: boolean; // Marca si es una transacción recurrente mensual
+  isRecurring?: boolean; // DEPRECATED: Legacy field, use schedule instead
+  schedule?: Schedule;   // Scheduled transaction configuration
   status?: TransactionStatus; // Estado de pago (default: "paid")
   createdAt: number;     // epoch ms
 };
@@ -74,7 +88,7 @@ export type Trip = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4;
+  schemaVersion: 1 | 2 | 3 | 4 | 5;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
@@ -82,4 +96,6 @@ export type BudgetState = {
   // Trips
   trips: Trip[];
   tripExpenses: TripExpense[];
+  // Scheduler
+  lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
 };

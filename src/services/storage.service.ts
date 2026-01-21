@@ -3,6 +3,7 @@ import { createDefaultCategories } from "@/constants/categories/default-categori
 import { createDefaultCategoryGroups } from "@/constants/category-groups/default-category-groups";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/categories/category-icons";
 import { DEFAULT_CATEGORY_COLOR } from "@/constants/categories/category-colors";
+import { convertLegacyRecurringToSchedule } from "@/shared/services/scheduler.service";
 
 const STORAGE_KEY = "budget_app_v1";
 
@@ -88,6 +89,23 @@ export function loadState(): BudgetState | null {
         isRecurring: tx.isRecurring ?? false,
       }));
       parsed.schemaVersion = 4;
+      needsSave = true;
+    }
+
+    // Migrate v4 to v5: Convert isRecurring to schedule
+    if (parsed.schemaVersion === 4) {
+      parsed.transactions = parsed.transactions.map((tx: any) => {
+        // If has isRecurring=true, convert to schedule
+        if (tx.isRecurring) {
+          return {
+            ...tx,
+            schedule: convertLegacyRecurringToSchedule(tx),
+            // Keep isRecurring for backward compat but it's deprecated
+          };
+        }
+        return tx;
+      });
+      parsed.schemaVersion = 5;
       needsSave = true;
     }
 
