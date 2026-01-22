@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.10.0] - 2026-01-22
+
 ### Added
 - **E2E Tests**: Nuevos archivos de tests E2E para cobertura completa
   - `transaction-attributes.spec.ts`: Tests para estados (Pagado/Pendiente/Planeado), notas, campos opcionales
