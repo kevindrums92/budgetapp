@@ -4,6 +4,9 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **CategoryPickerDrawer**: El gesto de drag-to-close ya no interfiere con el scroll de la lista de categorías
+
 ## [0.10.0] - 2026-01-22
 
 ### Added

@@ -186,12 +186,14 @@ export default function CategoryPickerDrawer({
             ? "none"
             : "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
-        {/* Header */}
-        <div className="flex-none">
+        {/* Header - drag enabled only here */}
+        <div
+          className="flex-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Drag handle */}
           <div
             className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
