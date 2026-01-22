@@ -267,6 +267,7 @@ function findNextOccurrence(
 export function materializeTransaction(
   virtualTx: VirtualTransaction
 ): Transaction {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { isVirtual, templateId, ...realTx } = virtualTx;
 
   return {

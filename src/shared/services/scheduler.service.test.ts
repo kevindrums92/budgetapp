@@ -534,7 +534,7 @@ describe("scheduler.service", () => {
         createdAt: Date.now(),
       };
 
-      let transactions: Transaction[] = [template];
+      const transactions: Transaction[] = [template];
       const today = "2025-01-20"; // After the first occurrence
 
       // ITERATION 1: Generate first virtual (should be Feb 15)
@@ -588,7 +588,7 @@ describe("scheduler.service", () => {
         createdAt: Date.now(),
       };
 
-      let transactions: Transaction[] = [template];
+      const transactions: Transaction[] = [template];
       const today = "2025-01-07"; // Tuesday after first gym day
 
       // ITERATION 1: Should get Jan 13 (next Monday)
@@ -665,7 +665,7 @@ describe("scheduler.service", () => {
         },
       ];
 
-      let transactions = [...templates];
+      const transactions = [...templates];
       const today = "2025-01-20";
 
       // Should generate 3 virtuals: Feb 1, Feb 15, Feb 17
@@ -707,7 +707,7 @@ describe("scheduler.service", () => {
         createdAt: Date.now(),
       };
 
-      let transactions: Transaction[] = [template];
+      const transactions: Transaction[] = [template];
       const today = "2025-01-20";
 
       // ITERATION 1: Feb 15 (within range)
@@ -745,7 +745,7 @@ describe("scheduler.service", () => {
         createdAt: Date.now(),
       };
 
-      let transactions: Transaction[] = [template];
+      const transactions: Transaction[] = [template];
       const today = "2025-01-10";
 
       // Should generate Feb 5
