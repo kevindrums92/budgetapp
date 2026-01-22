@@ -241,16 +241,14 @@ Reemplazo de "recurring transactions" manual por scheduled automáticas.
   - [x] Shows schedule status (emerald colors when active)
   - [x] Displays schedule summary (frequency + interval)
   - [x] Opens ScheduleConfigDrawer on click
-- [ ] UI: Transaction list
-  - [ ] Badge "Programada" en txs con schedule
-  - [ ] Icon: Repeat (lucide-react) indicator
-  - [ ] Future transactions rendered con opacity 50%
-- [ ] UI: Scheduled transactions manager (nueva página)
-  - [ ] Route: `/scheduled`
-  - [ ] Lista de todas las schedules activas
-  - [ ] Edit/delete schedule
-  - [ ] Pause/resume schedule
-  - [ ] View next 10 generated dates
+- [x] UI: Transaction list
+  - [x] Badge "Programada" en txs con schedule (virtual transactions show as "Planeado")
+  - [x] Future transactions rendered con opacity diferente (status: "planned")
+- [x] UI: Scheduled transactions manager (nueva página)
+  - [x] Route: `/scheduled`
+  - [x] Lista de todas las schedules activas/inactivas (tabs)
+  - [x] Desactivar schedule (irreversible)
+  - [x] View próxima fecha
 
 #### Edge Cases
 - [x] Feb 31 → Feb 28/29 handling (uses Math.min with daysInMonth)
@@ -265,7 +263,7 @@ Reemplazo de "recurring transactions" manual por scheduled automáticas.
 - ✅ Migration v4→v5 preserva todas las recurring existentes - **IMPLEMENTADO**
 - ✅ Future txs no afectan balance actual (solo cuando date <= today) - **IMPLEMENTADO** (status: "planned")
 
-**Status**: Core scheduler implementation complete. Pending: transaction list UI updates and scheduled transactions manager page.
+**Status**: ✅ COMPLETADO - Scheduler implementation y UI completos (Ene 2026).
 
 ---
 
