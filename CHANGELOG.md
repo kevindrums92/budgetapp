@@ -5,6 +5,11 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **E2E Tests**: Nuevos archivos de tests E2E para cobertura completa
+  - `transaction-attributes.spec.ts`: Tests para estados (Pagado/Pendiente/Planeado), notas, campos opcionales
+  - `list-filtering.spec.ts`: Tests para agrupación por día, búsqueda, filtros de tipo, navegación mensual
+  - Actualizado `scheduled-transactions.spec.ts` para compatibilidad con cambios recientes en UI
+
 - **Página de gestión de transacciones programadas** (`/scheduled`): Nueva UI para ver y administrar todas las transacciones con schedule
   - Acceso desde Perfil → Programadas
   - Tabs "Activas" / "Inactivas" para filtrar programaciones
