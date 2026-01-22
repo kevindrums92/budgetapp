@@ -31,6 +31,9 @@ const CategoryGroupsPage = lazy(() => import("@/features/categories/pages/Catego
 const AddEditCategoryGroupPage = lazy(() => import("@/features/categories/pages/AddEditCategoryGroupPage"));
 const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/CategoryMonthDetailPage"));
 
+// Lazy load scheduled transactions page
+const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
+
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import WelcomeGate from "@/shared/components/providers/WelcomeGate";
 import SplashScreen from "@/shared/components/ui/SplashScreen";
@@ -62,6 +65,7 @@ function AppFrame() {
     location.pathname === "/add" ||
     location.pathname === "/profile" ||
     location.pathname === "/backup" ||
+    location.pathname === "/scheduled" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
@@ -110,6 +114,7 @@ function AppFrame() {
 
             <Route path="/add" element={<AddEditTransactionPage />} />
             <Route path="/edit/:id" element={<AddEditTransactionPage />} />
+            <Route path="/scheduled" element={<ScheduledPage />} />
 
             <Route path="/category/new" element={<AddEditCategoryPage />} />
             <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
