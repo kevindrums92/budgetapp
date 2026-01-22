@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
-import { Plus, MapPin, Calendar, Plane } from "lucide-react";
+import { formatCOP } from "@/shared/utils/currency.utils";
+import { Plus, MapPin, Calendar, Plane, Download } from "lucide-react";
 import type { Trip } from "@/types/budget.types";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
 import RowMenu from "@/shared/components/ui/RowMenu";
+import { exportTripsToCSV } from "@/shared/services/export.service";
 
 const STATUS_LABELS: Record<Trip["status"], string> = {
   planning: "Planificando",
@@ -52,6 +53,18 @@ export default function TripsPage() {
     deleteTrip(tripToDelete.id);
     setConfirmOpen(false);
     setTripToDelete(null);
+  }
+
+  function handleExportTrips() {
+    if (trips.length === 0) return;
+
+    // Add spent amount to each trip
+    const tripsWithSpent = trips.map((trip) => ({
+      ...trip,
+      spent: getTripSpent(trip.id),
+    }));
+
+    exportTripsToCSV(tripsWithSpent, "viajes");
   }
 
   function formatDateRange(start: string, end: string | null) {
@@ -121,6 +134,18 @@ export default function TripsPage() {
                 ))}
               </div>
             </div>
+          )}
+
+          {/* Export Button - Mostrar solo cuando hay viajes */}
+          {trips.length > 0 && (
+            <button
+              type="button"
+              onClick={handleExportTrips}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors mt-6"
+            >
+              <Download className="h-5 w-5" />
+              Exportar Viajes a CSV
+            </button>
           )}
 
           {/* Empty state */}

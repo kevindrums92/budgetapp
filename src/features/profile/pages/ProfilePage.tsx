@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useBudgetStore } from "@/state/budget.store";
-import { X, User, FolderOpen, ChevronRight, Shield } from "lucide-react";
+import { X, User, FolderOpen, ChevronRight, Shield, Repeat } from "lucide-react";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -138,6 +138,11 @@ export default function ProfilePage() {
             icon={<FolderOpen size={20} />}
             label="Categorías"
             onClick={() => navigate("/categories")}
+          />
+          <MenuItem
+            icon={<Repeat size={20} />}
+            label="Programadas"
+            onClick={() => navigate("/scheduled")}
           />
           <MenuItem
             icon={<Shield size={20} />}

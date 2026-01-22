@@ -1,39 +1,69 @@
-import { useState, useEffect, useMemo } from "react";
-import { Plus, X, Search, TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Plus, X, Search, TrendingUp, TrendingDown, Clock, Download } from "lucide-react";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
 import TransactionList from "@/features/transactions/components/TransactionList";
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";
-import RecurringBanner from "@/features/transactions/components/RecurringBanner";
-import RecurringModal from "@/features/transactions/components/RecurringModal";
+import ScheduledBanner from "@/features/transactions/components/ScheduledBanner";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
-import type { Transaction } from "@/types/budget.types";
-import {
-  detectPendingRecurring,
-  hasIgnoredThisMonth,
-  markIgnoredForMonth,
-  replicateTransaction,
-} from "@/features/transactions/services/recurringTransactions.service";
+import { formatCOP } from "@/shared/utils/currency.utils";
+import { exportTransactionsToCSV } from "@/shared/services/export.service";
+import { generateVirtualTransactions, generatePastDueTransactions, materializeTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
+import { todayISO } from "@/services/dates.service";
 
 export default function HomePage() {
   const [addSheetOpen, setAddSheetOpen] = useState(false);
-  const [showRecurringModal, setShowRecurringModal] = useState(false);
-  const [pendingRecurring, setPendingRecurring] = useState<Transaction[]>([]);
-  const [showBanner, setShowBanner] = useState(false);
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"all" | "expense" | "income" | "pending">("all");
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [hideScheduledBannerSession, setHideScheduledBannerSession] = useState(false);
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
     return localStorage.getItem("budget.hideDailyBudgetBanner") === "1";
   }, []);
 
+  // Get list of months where scheduled banner is hidden
+  const [hiddenScheduledMonths, setHiddenScheduledMonths] = useState<string[]>(() => {
+    const stored = localStorage.getItem("budget.hideScheduledBannerMonths");
+    if (!stored) return [];
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return [];
+    }
+  });
+
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const addTransaction = useBudgetStore((s) => s.addTransaction);
+
+  const today = todayISO();
+
+  // Track if we've already auto-confirmed past-due transactions this session
+  const hasAutoConfirmedRef = useRef(false);
+
+  // Auto-confirm past-due scheduled transactions on mount
+  useEffect(() => {
+    if (hasAutoConfirmedRef.current) return;
+
+    const pastDue = generatePastDueTransactions(transactions, today);
+
+    if (pastDue.length > 0) {
+      console.log(`[HomePage] Auto-confirming ${pastDue.length} past-due scheduled transactions`);
+      pastDue.forEach((tx) => addTransaction(tx));
+      hasAutoConfirmedRef.current = true;
+    }
+  }, [transactions, today, addTransaction]);
+
+  // Generate virtual transactions for the selected month
+  const virtualTransactionsForMonth = useMemo<VirtualTransaction[]>(() => {
+    const allVirtual = generateVirtualTransactions(transactions, today);
+    // Filter to only show virtuals in the selected month
+    return allVirtual.filter((vt) => vt.date.slice(0, 7) === selectedMonth);
+  }, [transactions, today, selectedMonth]);
 
   // Check if there are transactions in current month
   const hasTransactions = useMemo(() => {
@@ -72,40 +102,39 @@ export default function HomePage() {
     return { dailyBudget, daysRemaining };
   }, [transactions, selectedMonth]);
 
-  // Detect pending recurring transactions
-  useEffect(() => {
-    const pending = detectPendingRecurring(transactions, selectedMonth);
-    setPendingRecurring(pending);
-
-    const ignored = hasIgnoredThisMonth(selectedMonth);
-    setShowBanner(pending.length > 0 && !ignored);
-  }, [transactions, selectedMonth]);
-
-  const handleReplicateAll = () => {
-    pendingRecurring.forEach((tx) => {
-      const replicated = replicateTransaction(tx, selectedMonth);
-      addTransaction(replicated);
+  // Register all virtual transactions at once
+  const handleRegisterAllScheduled = () => {
+    virtualTransactionsForMonth.forEach((vt) => {
+      const realTx = materializeTransaction(vt);
+      addTransaction(realTx);
     });
-    setShowBanner(false);
+    setHideScheduledBannerSession(true);
   };
 
-  const handleReplicateSelected = (selectedIds: string[], amounts: Record<string, number>) => {
-    selectedIds.forEach((id) => {
-      const tx = pendingRecurring.find((t) => t.id === id);
-      if (!tx) return;
-
-      const replicated = replicateTransaction(tx, selectedMonth);
-      addTransaction({
-        ...replicated,
-        amount: amounts[id] || replicated.amount,
-      });
-    });
-    setShowBanner(false);
+  // Hide scheduled banner for a specific month (persistent)
+  const handleDismissScheduledForMonth = (month: string) => {
+    if (!hiddenScheduledMonths.includes(month)) {
+      const newMonths = [...hiddenScheduledMonths, month];
+      setHiddenScheduledMonths(newMonths);
+      localStorage.setItem("budget.hideScheduledBannerMonths", JSON.stringify(newMonths));
+    }
   };
 
-  const handleIgnore = () => {
-    markIgnoredForMonth(selectedMonth);
-    setShowBanner(false);
+  // Check if scheduled banner should be hidden for current month
+  const isScheduledBannerHiddenForMonth = hiddenScheduledMonths.includes(selectedMonth);
+
+  const handleExport = () => {
+    // Filter transactions by selected month
+    const monthTransactions = transactions.filter((t) => t.date.slice(0, 7) === selectedMonth);
+
+    if (monthTransactions.length === 0) {
+      alert("No hay transacciones para exportar en este mes");
+      return;
+    }
+
+    // Export to CSV
+    exportTransactionsToCSV(monthTransactions, categoryDefinitions, `transacciones-${selectedMonth}`);
+    setShowExportModal(false);
   };
 
   return (
@@ -167,7 +196,7 @@ export default function HomePage() {
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setFilterType(filterType === "expense" ? "all" : "expense")}
@@ -204,18 +233,30 @@ export default function HomePage() {
                 <Clock size={16} />
                 Pendientes
               </button>
+              <button
+                type="button"
+                onClick={() => setShowExportModal(true)}
+                className="flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap active:scale-95 bg-white text-gray-700 shadow-sm"
+              >
+                <Download size={16} />
+                Exportar
+              </button>
             </div>
           </div>
         </div>
       )}
 
       <main className="pb-28 pt-4">
-        {showBanner && (
-          <RecurringBanner
-            pendingTransactions={pendingRecurring}
-            onViewDetails={() => setShowRecurringModal(true)}
-            onReplicateAll={handleReplicateAll}
-            onIgnore={handleIgnore}
+        {/* Scheduled transactions banner */}
+        {!hideScheduledBannerSession &&
+          !isScheduledBannerHiddenForMonth &&
+          virtualTransactionsForMonth.length > 0 && (
+          <ScheduledBanner
+            virtualTransactions={virtualTransactionsForMonth}
+            selectedMonth={selectedMonth}
+            onRegisterAll={handleRegisterAllScheduled}
+            onDismiss={() => setHideScheduledBannerSession(true)}
+            onDismissForMonth={handleDismissScheduledForMonth}
           />
         )}
 
@@ -243,15 +284,6 @@ export default function HomePage() {
       <AddActionSheet
         open={addSheetOpen}
         onClose={() => setAddSheetOpen(false)}
-      />
-
-      <RecurringModal
-        open={showRecurringModal}
-        onClose={() => setShowRecurringModal(false)}
-        pendingTransactions={pendingRecurring}
-        categories={categoryDefinitions}
-        targetMonth={selectedMonth}
-        onReplicate={handleReplicateSelected}
       />
 
       {/* Daily Budget Dismiss Confirmation Modal */}
@@ -302,6 +334,55 @@ export default function HomePage() {
                 className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
               >
                 Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowExportModal(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Exportar transacciones
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              Se exportarán todas las transacciones de {selectedMonth} a formato CSV.
+            </p>
+
+            {/* Info */}
+            <div className="mb-6 rounded-xl bg-gray-50 p-4">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Total de transacciones:</span>
+                <span className="font-semibold text-gray-900">
+                  {transactions.filter((t) => t.date.slice(0, 7) === selectedMonth).length}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowExportModal(false)}
+                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleExport}
+                className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                Exportar
               </button>
             </div>
           </div>

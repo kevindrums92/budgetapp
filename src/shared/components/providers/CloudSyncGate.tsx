@@ -12,6 +12,8 @@ import { createDefaultCategories } from "@/constants/categories/default-categori
 import { createDefaultCategoryGroups } from "@/constants/category-groups/default-category-groups";
 import BackupScheduler from "@/features/backup/components/BackupScheduler";
 import CloudBackupScheduler from "@/features/backup/components/CloudBackupScheduler";
+import { logger } from "@/shared/utils/logger";
+import { convertLegacyRecurringToSchedule } from "@/shared/services/scheduler.service";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
@@ -35,7 +37,7 @@ function acquireSyncLock(): boolean {
     if (existingLock) {
       const lockTime = parseInt(existingLock, 10);
       if (now - lockTime < SYNC_LOCK_TIMEOUT) {
-        console.warn("[CloudSync] ⚠️ Sync already in progress in another tab/window");
+        logger.warn("CloudSync", "⚠️ Sync already in progress in another tab/window");
         return false;
       }
     }
@@ -87,8 +89,8 @@ export default function CloudSyncGate() {
                    snapshot.trips.length > 0;
 
     if (!hasData) {
-      console.warn("[CloudSync] ⚠️ Attempting to push empty snapshot. Blocking to prevent data loss.");
-      console.warn("[CloudSync] Snapshot details:", {
+      logger.warn("CloudSync", "⚠️ Attempting to push empty snapshot. Blocking to prevent data loss.");
+      logger.warn("CloudSync", "Snapshot details:", {
         transactions: snapshot.transactions.length,
         trips: snapshot.trips.length,
         categoryDefinitions: snapshot.categoryDefinitions.length,
@@ -99,7 +101,7 @@ export default function CloudSyncGate() {
 
     try {
       setCloudStatus("syncing");
-      console.log("[CloudSync] Pushing snapshot:", {
+      logger.info("CloudSync", "Pushing snapshot:", {
         transactions: snapshot.transactions.length,
         trips: snapshot.trips.length,
         schemaVersion: snapshot.schemaVersion,
@@ -108,7 +110,7 @@ export default function CloudSyncGate() {
       clearPendingSnapshot();
       setCloudStatus("ok");
     } catch (err) {
-      console.error("[CloudSync] Push failed:", err);
+      logger.error("CloudSync", "Push failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
       setPendingSnapshot(snapshot);
     }
@@ -119,7 +121,26 @@ export default function CloudSyncGate() {
     const session = data.session;
 
     if (!session) {
-      console.log("[CloudSync] No session found, switching to guest mode");
+      // HMR Protection: If we're in development and already have cloud data,
+      // don't clear it - the session might just be loading slowly during HMR
+      const currentMode = useBudgetStore.getState().cloudMode;
+      const currentUser = useBudgetStore.getState().user;
+      const hasExistingCloudSession = currentMode === "cloud" && currentUser.email;
+
+      if (import.meta.env.DEV && hasExistingCloudSession) {
+        logger.warn("CloudSync", "HMR detected: Session null but already in cloud mode. Skipping reset.");
+        // Re-fetch session after a short delay (Supabase might still be initializing)
+        setTimeout(async () => {
+          const { data: retryData } = await supabase.auth.getSession();
+          if (retryData.session) {
+            logger.info("CloudSync", "HMR: Session recovered after retry");
+            initForSession();
+          }
+        }, 500);
+        return;
+      }
+
+      logger.info("CloudSync", "No session found, switching to guest mode");
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
@@ -141,10 +162,14 @@ export default function CloudSyncGate() {
       setCloudMode("guest");
       setCloudStatus("idle");
       initializedRef.current = false;
+
+      // Mark CloudSync as ready in guest mode (no sync needed, scheduler can run immediately)
+      useBudgetStore.getState().setCloudSyncReady();
+      logger.info("CloudSync", "Guest mode - scheduler can run immediately");
       return;
     }
 
-    console.log("[CloudSync] Session found, user:", session.user.id);
+    logger.info("CloudSync", "Session found, user:", session.user.id);
 
     // ✅ Update user state atomically with cloudMode
     const meta = session.user.user_metadata ?? {};
@@ -166,7 +191,7 @@ export default function CloudSyncGate() {
 
     // ⚠️ Acquire sync lock to prevent race conditions from multiple tabs
     if (!acquireSyncLock()) {
-      console.warn("[CloudSync] Could not acquire sync lock, another sync in progress");
+      logger.warn("CloudSync", "Could not acquire sync lock, another sync in progress");
       setCloudStatus("ok");
       initializedRef.current = true;
       return;
@@ -178,7 +203,7 @@ export default function CloudSyncGate() {
       // ✅ 1) Si hay cambios pendientes locales, PUSH primero y NO hacer PULL
       const pending = getPendingSnapshot();
       if (pending) {
-        console.log("[CloudSync] Found pending snapshot, pushing first:", {
+        logger.info("CloudSync", "Found pending snapshot, pushing first:", {
           transactions: pending.transactions.length,
           trips: pending.trips.length,
         });
@@ -188,11 +213,11 @@ export default function CloudSyncGate() {
       }
 
       // ✅ 2) No hay pendientes: flujo normal (pull)
-      console.log("[CloudSync] No pending changes, pulling from cloud...");
+      logger.info("CloudSync", "No pending changes, pulling from cloud...");
       const cloud = await getCloudState();
 
       if (cloud) {
-        console.log("[CloudSync] Cloud data found:", {
+        logger.info("CloudSync", "Cloud data found:", {
           transactions: cloud.transactions.length,
           trips: cloud.trips?.length ?? 0,
           schemaVersion: cloud.schemaVersion,
@@ -202,24 +227,139 @@ export default function CloudSyncGate() {
 
         // Check if cloud data has empty categoryDefinitions - inject defaults
         if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
-          console.log("[CloudSync] Cloud missing categoryDefinitions, injecting defaults");
+          logger.info("CloudSync", "Cloud missing categoryDefinitions, injecting defaults");
           cloud.categoryDefinitions = createDefaultCategories();
           needsPush = true;
         }
 
         // Check if cloud data has empty categoryGroups - inject defaults (migration to v3)
         if (!Array.isArray(cloud.categoryGroups) || cloud.categoryGroups.length === 0) {
-          console.log("[CloudSync] Cloud missing categoryGroups, injecting defaults (migration to v3)");
+          logger.info("CloudSync", "Cloud missing categoryGroups, injecting defaults (migration to v3)");
           cloud.categoryGroups = createDefaultCategoryGroups();
           cloud.schemaVersion = 3;
           needsPush = true;
+        }
+
+        // Migrate v4 (or v3) to v5: Full scheduled transactions support
+        // - Convert isRecurring to schedule
+        // - Deduplicate templates (keep only one per name+category+amount)
+        // - Add sourceTemplateId to link generated transactions to their template
+        logger.info("CloudSync", `Schema version check: cloud.schemaVersion=${cloud.schemaVersion}`);
+
+        if (cloud.schemaVersion === 4 || cloud.schemaVersion === 3) {
+          const recurringCount = cloud.transactions.filter((tx: any) => tx.isRecurring).length;
+          logger.info("CloudSync", `Migrating cloud data from v${cloud.schemaVersion} to v5`);
+          logger.info("CloudSync", `Found ${recurringCount} transactions with isRecurring=true`);
+
+          // Step 1: Convert isRecurring to schedule
+          cloud.transactions = cloud.transactions.map((tx: any) => {
+            if (tx.isRecurring) {
+              const schedule = convertLegacyRecurringToSchedule(tx);
+              logger.info("CloudSync", `Converting "${tx.name}" to scheduled:`, schedule);
+              return { ...tx, schedule };
+            }
+            return tx;
+          });
+
+          // Step 2: Deduplicate schedule templates
+          const templatesMap = new Map<string, any>();
+          const nonTemplates: any[] = [];
+
+          for (const tx of cloud.transactions) {
+            if (tx.schedule?.enabled) {
+              const key = `${tx.name}|${tx.category}|${tx.amount}`;
+              const existing = templatesMap.get(key);
+
+              if (!existing || tx.date > existing.date ||
+                  (tx.date === existing.date && tx.createdAt > existing.createdAt)) {
+                if (existing) {
+                  nonTemplates.push({ ...existing, schedule: undefined });
+                }
+                templatesMap.set(key, tx);
+              } else {
+                nonTemplates.push({ ...tx, schedule: undefined });
+              }
+            } else {
+              nonTemplates.push(tx);
+            }
+          }
+
+          // Step 3: Add sourceTemplateId to link transactions to their templates
+          const finalTransactions: any[] = [...templatesMap.values()];
+
+          for (const tx of nonTemplates) {
+            if (tx.sourceTemplateId) {
+              finalTransactions.push(tx);
+              continue;
+            }
+
+            const key = `${tx.name}|${tx.category}`;
+            let matchedTemplate: any = null;
+
+            for (const template of templatesMap.values()) {
+              const templateKey = `${template.name}|${template.category}`;
+              if (templateKey === key) {
+                matchedTemplate = template;
+                break;
+              }
+            }
+
+            if (matchedTemplate) {
+              finalTransactions.push({ ...tx, sourceTemplateId: matchedTemplate.id });
+            } else {
+              finalTransactions.push(tx);
+            }
+          }
+
+          cloud.transactions = finalTransactions;
+          cloud.schemaVersion = 5;
+          needsPush = true;
+          logger.info("CloudSync", `Migration v4→v5 complete: ${templatesMap.size} templates, transactions linked`);
+        }
+
+        // Always repair: Ensure all transactions have sourceTemplateId if they match a template
+        // This fixes transactions that were confirmed before sourceTemplateId was added
+        if (cloud.schemaVersion >= 5) {
+          logger.info("CloudSync", `Schema version is ${cloud.schemaVersion}, checking for sourceTemplateId repairs...`);
+
+          // Find all templates
+          const templates = cloud.transactions.filter((tx: any) => tx.schedule?.enabled);
+
+          if (templates.length > 0) {
+            let repairCount = 0;
+
+            cloud.transactions = cloud.transactions.map((tx: any) => {
+              // Skip templates themselves and transactions that already have sourceTemplateId
+              if (tx.schedule?.enabled || tx.sourceTemplateId) {
+                return tx;
+              }
+
+              // Try to find a matching template by name + category
+              const matchedTemplate = templates.find((template: any) =>
+                template.name === tx.name && template.category === tx.category
+              );
+
+              if (matchedTemplate) {
+                repairCount++;
+                logger.info("CloudSync", `Repairing sourceTemplateId for "${tx.name}" (${tx.id}) -> template ${matchedTemplate.id}`);
+                return { ...tx, sourceTemplateId: matchedTemplate.id };
+              }
+
+              return tx;
+            });
+
+            if (repairCount > 0) {
+              needsPush = true;
+              logger.info("CloudSync", `Repaired ${repairCount} transactions with missing sourceTemplateId`);
+            }
+          }
         }
 
         replaceAllData(cloud);
 
         // Push the fixed data back to cloud if we added defaults
         if (needsPush) {
-          console.log("[CloudSync] Pushing migrated data back to cloud");
+          logger.info("CloudSync", "Pushing migrated data back to cloud");
           await upsertCloudState(cloud);
         }
       } else {
@@ -231,7 +371,7 @@ export default function CloudSyncGate() {
 
         if (hasData) {
           // Safe to push: local has actual user data
-          console.log("[CloudSync] New account detected, pushing local data to cloud:", {
+          logger.info("CloudSync", "New account detected, pushing local data to cloud:", {
             transactions: localSnapshot.transactions.length,
             trips: localSnapshot.trips.length,
             categoryDefinitions: localSnapshot.categoryDefinitions.length,
@@ -240,20 +380,27 @@ export default function CloudSyncGate() {
         } else {
           // WARNING: Local is empty, do NOT overwrite cloud
           // This could be a SIGNED_OUT->SIGNED_IN race condition
-          console.warn("[CloudSync] ⚠️ Cloud is null but local is also empty. NOT pushing to prevent data loss.");
-          console.warn("[CloudSync] If this is truly a new account, defaults will be used.");
+          logger.warn("CloudSync", "⚠️ Cloud is null but local is also empty. NOT pushing to prevent data loss.");
+          logger.warn("CloudSync", "If this is truly a new account, defaults will be used.");
           // Keep the defaults that were hydrated from defaultState
         }
       }
 
       setCloudStatus("ok");
       initializedRef.current = true;
+
+      // Mark CloudSync as ready so SchedulerJob can run
+      useBudgetStore.getState().setCloudSyncReady();
+      logger.info("CloudSync", "CloudSync initialization complete, scheduler can now run");
     } catch (err) {
-      console.error("[CloudSync] Init failed:", err);
+      logger.error("CloudSync", "Init failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
       // dejamos pendiente el snapshot actual para reintentar
       setPendingSnapshot(getSnapshot());
       initializedRef.current = true;
+
+      // Even on error, mark as ready so scheduler doesn't hang forever
+      useBudgetStore.getState().setCloudSyncReady();
     } finally {
       // Always release the sync lock when done
       releaseSyncLock();

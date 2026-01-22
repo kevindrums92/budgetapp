@@ -5,6 +5,7 @@ import {
   shouldCreateCloudBackup,
   markCloudBackupCreated,
 } from "@/features/backup/services/cloudBackup.service";
+import { logger } from "@/shared/utils/logger";
 
 const BACKUP_METHOD_KEY = "budget.backupMethod";
 
@@ -28,14 +29,14 @@ export default function CloudBackupScheduler() {
   useEffect(() => {
     // Only run for authenticated users
     if (cloudMode !== "cloud") {
-      console.log("[CloudBackupScheduler] Skipping - user not logged in");
+      logger.info("CloudBackupScheduler", "Skipping - user not logged in");
       return;
     }
 
     // Only run if "cloud" backup method is active
     const activeMethod = localStorage.getItem(BACKUP_METHOD_KEY);
     if (activeMethod !== "cloud") {
-      console.log("[CloudBackupScheduler] Skipping - cloud backup method not active");
+      logger.info("CloudBackupScheduler", "Skipping - cloud backup method not active");
       return;
     }
 
@@ -43,13 +44,13 @@ export default function CloudBackupScheduler() {
       try {
         // Only create cloud backups if enough time has passed
         if (shouldCreateCloudBackup()) {
-          console.log("[CloudBackupScheduler] Creating weekly cloud backup...");
+          logger.info("CloudBackupScheduler", "Creating weekly cloud backup...");
 
           const state = useBudgetStore.getState().getSnapshot();
           await createCloudBackup(state, "auto");
 
           markCloudBackupCreated();
-          console.log("[CloudBackupScheduler] Weekly cloud backup created successfully");
+          logger.info("CloudBackupScheduler", "Weekly cloud backup created successfully");
         } else {
           const lastBackupTime = localStorage.getItem("budget.lastCloudBackup");
           if (lastBackupTime) {
@@ -58,11 +59,11 @@ export default function CloudBackupScheduler() {
             const sevenDays = 7 * 24 * 60 * 60 * 1000;
             const nextBackupIn = sevenDays - (now - lastBackupTimestamp);
             const daysRemaining = Math.ceil(nextBackupIn / (24 * 60 * 60 * 1000));
-            console.log(`[CloudBackupScheduler] Next cloud backup in ${daysRemaining} days`);
+            logger.info("CloudBackupScheduler", `Next cloud backup in ${daysRemaining} days`);
           }
         }
       } catch (error) {
-        console.error("[CloudBackupScheduler] Failed to create cloud backup:", error);
+        logger.error("CloudBackupScheduler", "Failed to create cloud backup:", error);
         // Don't throw - we don't want to break the app if cloud backup fails
       }
     };

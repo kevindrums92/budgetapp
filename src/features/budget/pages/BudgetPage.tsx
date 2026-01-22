@@ -1,19 +1,13 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { icons, Plus, ChevronRight } from "lucide-react";
+import { icons, Plus, ChevronRight, Download } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import SetLimitModal from "@/features/categories/components/SetLimitModal";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
 import type { Category } from "@/types/budget.types";
-
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+import { kebabToPascal } from "@/shared/utils/string.utils";
+import { exportBudgetToCSV } from "@/shared/services/export.service";
 
 function getProgressColor(spent: number, limit: number | undefined): string {
   if (!limit) return "bg-gray-200";
@@ -106,6 +100,22 @@ export default function BudgetPage() {
     if (modalCategory) {
       setCategoryLimit(modalCategory.id, limit);
     }
+  };
+
+  const handleExportBudget = () => {
+    // Create a map of spent per category
+    const spentMap = new Map<string, number>();
+    Object.entries(spentByCategory).forEach(([catId, amount]) => {
+      spentMap.set(catId, amount);
+    });
+
+    // Export budget
+    exportBudgetToCSV(
+      expenseCategories,
+      spentMap,
+      selectedMonth,
+      `presupuesto-${selectedMonth}`
+    );
   };
 
   const renderCategoryRow = (category: Category, showLimit: boolean = true) => {
@@ -229,6 +239,16 @@ export default function BudgetPage() {
           <div className="space-y-2 mb-8">
             {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
           </div>
+
+          {/* Export Budget Button */}
+          <button
+            type="button"
+            onClick={handleExportBudget}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors mb-3"
+          >
+            <Download className="h-5 w-5" />
+            Exportar Presupuesto a CSV
+          </button>
 
           {/* Add Category Button */}
           <button

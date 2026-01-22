@@ -1,14 +1,18 @@
 import { useMemo } from "react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatDateGroupHeader } from "@/services/dates.service";
+import { formatDateGroupHeader, todayISO } from "@/services/dates.service";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
+import { generateVirtualTransactions, isVirtualTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
+
+// Extended transaction type that includes virtual transactions
+type DisplayTransaction = Transaction | VirtualTransaction;
 
 interface GroupedTransactions {
   date: string;
   dateLabel: string;
-  transactions: Transaction[];
+  transactions: DisplayTransaction[];
   totalExpenses: number;
   totalIncome: number;
   balance: number;
@@ -31,12 +35,23 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
 
   const currentMonth = new Date().toISOString().slice(0, 7);
   const isCurrent = selectedMonth === currentMonth;
+  const today = todayISO();
+
+  // Generate virtual transactions for future dates (lazy generation - only next occurrence)
+  const virtualTransactions = useMemo(() => {
+    return generateVirtualTransactions(transactions, today);
+  }, [transactions, today]);
+
+  // Combine real + virtual transactions
+  const allTransactions = useMemo<DisplayTransaction[]>(() => {
+    return [...transactions, ...virtualTransactions];
+  }, [transactions, virtualTransactions]);
 
   // Agrupar transacciones por fecha (con búsqueda)
   const groupedList = useMemo<GroupedTransactions[]>(() => {
     const query = searchQuery.toLowerCase().trim();
 
-    const filtered = transactions
+    const filtered = allTransactions
       .filter((t) => t.date.slice(0, 7) === selectedMonth)
       .filter((t) => {
         // Filtrar por tipo o estado
@@ -72,12 +87,14 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
     }
 
     // Convertir a array, calcular totales y ordenar por fecha descendente
+    // IMPORTANT: Only count REAL transactions in totals, not virtual ones
     return Object.entries(groups)
       .map(([date, txs]) => {
-        const totalExpenses = txs
+        const realTxs = txs.filter((t) => !isVirtualTransaction(t));
+        const totalExpenses = realTxs
           .filter((t) => t.type === "expense")
           .reduce((sum, t) => sum + t.amount, 0);
-        const totalIncome = txs
+        const totalIncome = realTxs
           .filter((t) => t.type === "income")
           .reduce((sum, t) => sum + t.amount, 0);
         const balance = totalIncome - totalExpenses;
@@ -92,7 +109,7 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
         };
       })
       .sort((a, b) => (a.date < b.date ? 1 : -1));
-  }, [transactions, selectedMonth, searchQuery, filterType, categoryDefinitions]);
+  }, [allTransactions, selectedMonth, searchQuery, filterType, categoryDefinitions]);
 
   return (
     <div className="mx-auto max-w-xl">

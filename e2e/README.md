@@ -30,6 +30,52 @@ Tests de características del release actual (v0.7.0):
 - ✅ Transaction Form - preservar datos al crear categoría
 - ✅ Stats Page Charts - sin animaciones
 
+### `auth-state-consistency.spec.ts`
+Tests de consistencia del estado de autenticación:
+- ✅ Guest mode: avatar NO visible, status "Local"
+- ✅ No avatar ghost después de page reload
+- ✅ Consistencia en múltiples navegaciones de página
+- ✅ Stress test de navegación rápida
+- ⏸️ Simulación offline (skip por limitaciones de Playwright)
+
+### `scheduled-transactions.spec.ts`
+Tests del flujo de transacciones programadas:
+- ✅ Crear transacción programada y ver virtual en mes siguiente
+- ✅ Modal muestra "Confirmar", "Editar" y "Desactivar" al clickear virtual
+- ✅ Alerta "Sin cambios" al guardar sin modificaciones
+- ✅ Modal de edición de template al cambiar monto
+- ✅ "Solo este registro" crea transacción individual
+- ✅ "Este y los siguientes" termina template anterior y crea nuevo
+- ✅ "Confirmar" materializa virtual sin página de edición
+- ✅ "Desactivar" desactiva la programación (irreversible)
+- ✅ Auto-aplicar "Este y los siguientes" al cambiar frecuencia
+- ✅ Cerrar modal con backdrop y botón X
+- ✅ Cancelar confirmación de desactivación
+- ✅ Edición directa de template NO muestra modal de elección
+
+### `transaction-attributes.spec.ts`
+Tests de atributos y estados de transacciones:
+- ✅ Crear transacción con todos los campos opcionales (notas, fecha, categoría)
+- ✅ Persistencia de notas después de reload (offline-first)
+- ✅ Estado "Pendiente" muestra badge amber en listado
+- ✅ Estado "Planeado" muestra badge blue en listado
+- ✅ Estado "Pagado" (default) no muestra badge
+- ✅ Cambiar estado de Pendiente a Pagado al editar
+- ✅ Crear ingreso con notas y verificar balance positivo
+
+### `list-filtering.spec.ts`
+Tests de listado, búsqueda y filtros:
+- ✅ Agrupar transacciones por día con subtotales correctos
+- ✅ Separar transacciones de diferentes días en grupos distintos
+- ✅ Filtrar por nombre al buscar
+- ✅ Filtrar por categoría al buscar
+- ✅ Limpiar búsqueda y mostrar todas las transacciones
+- ✅ Filtro "Gastos" muestra solo gastos
+- ✅ Filtro "Ingresos" muestra solo ingresos
+- ✅ Filtro "Pendientes" muestra solo pendientes/planeados
+- ✅ Navegación mensual muestra solo transacciones del mes seleccionado
+- ✅ Navegación entre meses con flechas
+
 ## Comandos
 
 ### Correr todos los tests

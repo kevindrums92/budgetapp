@@ -1,18 +1,17 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { icons, Repeat } from "lucide-react";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import type { Transaction, Category } from "@/types/budget.types";
+import { kebabToPascal } from "@/shared/utils/string.utils";
+import { isVirtualTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
+import VirtualTransactionModal from "./VirtualTransactionModal";
 
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
-}
+// Extended type that can be either real or virtual
+type DisplayTransaction = Transaction | VirtualTransaction;
 
 interface TransactionItemProps {
-  transaction: Transaction;
+  transaction: DisplayTransaction;
   category?: Category;
 }
 
@@ -21,16 +20,40 @@ export default function TransactionItem({
   category,
 }: TransactionItemProps) {
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
 
   const IconComponent = category
     ? icons[kebabToPascal(category.icon) as keyof typeof icons]
     : null;
 
+  // Check if this is a virtual (future) transaction
+  const isVirtual = isVirtualTransaction(transaction);
+
+  // Virtual transactions show modal, real transactions navigate to edit
+  const handleClick = () => {
+    if (isVirtual) {
+      setShowModal(true);
+      return;
+    }
+    navigate(`/edit/${transaction.id}`);
+  };
+
   return (
+    <>
+      {/* Modal for virtual transactions */}
+      {showModal && isVirtual && (
+        <VirtualTransactionModal
+          transaction={transaction}
+          categoryName={category?.name}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     <button
       type="button"
-      onClick={() => navigate(`/edit/${transaction.id}`)}
-      className="w-full flex items-center gap-3 bg-white px-4 py-3 active:bg-gray-50 transition-colors"
+      onClick={handleClick}
+      className={`w-full flex items-center gap-3 bg-white px-4 py-3 active:bg-gray-50 transition-colors ${
+        isVirtual ? "opacity-50" : ""
+      }`}
     >
       {/* Category Icon - tamaño reducido */}
       <div
@@ -55,7 +78,8 @@ export default function TransactionItem({
           <p className="truncate font-semibold text-gray-900 text-sm">
             {transaction.name}
           </p>
-          {transaction.isRecurring && (
+          {/* Show repeat icon only for active scheduled transactions */}
+          {transaction.schedule?.enabled && (
             <Repeat className="h-3 w-3 shrink-0 text-gray-400" />
           )}
         </div>
@@ -63,7 +87,14 @@ export default function TransactionItem({
           <p className="text-xs text-gray-500">
             {category?.name || transaction.category}
           </p>
-          {transaction.status && transaction.status !== "paid" && (
+          {/* Virtual transaction badge */}
+          {isVirtual && (
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-purple-50 text-purple-700">
+              Programada
+            </span>
+          )}
+          {/* Status badges for real transactions */}
+          {!isVirtual && transaction.status && transaction.status !== "paid" && (
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                 transaction.status === "pending"
@@ -88,5 +119,6 @@ export default function TransactionItem({
         </p>
       </div>
     </button>
+    </>
   );
 }

@@ -4,6 +4,7 @@ import type {
   Transaction,
   TransactionType,
   TransactionStatus,
+  Schedule,
   Trip,
   TripExpense,
   TripStatus,
@@ -27,7 +28,9 @@ type AddTxInput = {
   date: string; // YYYY-MM-DD
   notes?: string;
   isRecurring?: boolean;
+  schedule?: Schedule;
   status?: TransactionStatus;
+  sourceTemplateId?: string; // Links to the template that generated this transaction
 };
 
 type AddTripInput = {
@@ -126,13 +129,17 @@ type BudgetStore = BudgetState & {
   setCloudMode: (m: CloudMode) => void;
   setCloudStatus: (s: CloudStatus) => void;
 
+  // Scheduler
+  setLastSchedulerRun: (date: string) => void;
+  setCloudSyncReady: () => void;
+
   // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   transactions: [],
   categories: [],
   categoryDefinitions: createDefaultCategories(),
@@ -214,13 +221,15 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         date: input.date,
         notes: input.notes,
         isRecurring: input.isRecurring,
+        schedule: input.schedule,
         status: input.status,
+        sourceTemplateId: input.sourceTemplateId,
         createdAt: Date.now(),
       };
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
@@ -260,6 +269,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
             amount,
             date,
             type,
+            // Preserve sourceTemplateId for scheduled transaction deduplication
+            sourceTemplateId: merged.sourceTemplateId ?? t.sourceTemplateId,
           };
         });
 
@@ -270,7 +281,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
@@ -287,7 +298,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -322,7 +333,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -344,7 +355,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -361,7 +372,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -396,7 +407,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -418,7 +429,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -435,7 +446,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -467,7 +478,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
@@ -491,7 +502,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -508,7 +519,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
@@ -534,7 +545,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -564,7 +575,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -588,7 +599,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -619,7 +630,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -641,29 +652,43 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 4,
+        schemaVersion: 5,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
         categoryGroups: s.categoryGroups ?? [],
         trips: s.trips ?? [],
         tripExpenses: s.tripExpenses ?? [],
+        lastSchedulerRun: s.lastSchedulerRun,
       };
+    },
+
+    // ===== SCHEDULER =====
+    setLastSchedulerRun: (date) => {
+      set({ lastSchedulerRun: date });
+      saveState(get());
+    },
+
+    setCloudSyncReady: () => {
+      set({ cloudSyncReady: true });
+      // No need to saveState - this is a runtime flag only
     },
 
     replaceAllData: (data) => {
       // guarda como cache local (cloud cache)
-      saveState(data);
+      const normalizedData = { ...data, schemaVersion: 5 as const };
+      saveState(normalizedData);
 
       // set explícito (NO meter funciones del store dentro)
       set({
-        schemaVersion: 4,
+        schemaVersion: 5,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
         categoryGroups: data.categoryGroups ?? [],
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
+        lastSchedulerRun: data.lastSchedulerRun,
       });
     },
   };

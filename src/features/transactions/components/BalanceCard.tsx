@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 
 export default function BalanceCard() {
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);

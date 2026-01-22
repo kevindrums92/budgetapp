@@ -3,6 +3,7 @@ import { Download } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { createBackup, downloadBackup } from "@/features/backup/services/backup.service";
 import { supabase } from "@/lib/supabaseClient";
+import { logger } from "@/shared/utils/logger";
 
 export default function BackupExportButton() {
   const getSnapshot = useBudgetStore((s) => s.getSnapshot);
@@ -23,13 +24,13 @@ export default function BackupExportButton() {
       // Trigger download
       downloadBackup(backup);
 
-      console.log("[Backup] Export successful:", {
+      logger.info("Backup", "Export successful:", {
         transactions: backup.stats.totalTransactions,
         trips: backup.stats.totalTrips,
         filename: `smartspend-backup-${backup.meta.createdAt.split("T")[0]}.json`,
       });
     } catch (error) {
-      console.error("[Backup] Export failed:", error);
+      logger.error("Backup", "Export failed:", error);
       alert("Failed to export backup. Please try again.");
     } finally {
       setIsExporting(false);

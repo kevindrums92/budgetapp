@@ -1,7 +1,8 @@
 import type { BudgetState } from "@/types/budget.types";
 import type { BackupFile, BackupMeta, BackupStats, LocalBackupEntry } from "@/features/backup/types/backup.types";
+import { logger } from "@/shared/utils/logger";
 
-const APP_VERSION = "0.6.2"; // TODO: Get from package.json or env
+const APP_VERSION = __APP_VERSION__;
 const BACKUP_VERSION = "1.0";
 const LOCAL_BACKUP_PREFIX = "budget.autoBackup.";
 const MAX_LOCAL_BACKUPS = 5;
@@ -74,8 +75,9 @@ export async function validateBackup(file: File): Promise<BackupFile> {
 
   // Validate schema version compatibility
   if (backup.data.schemaVersion > 4) {
-    console.warn(
-      `[Backup] Warning: Backup uses newer schema v${backup.data.schemaVersion}, current app supports up to v4`
+    logger.warn(
+      "Backup",
+      `Warning: Backup uses newer schema v${backup.data.schemaVersion}, current app supports up to v4`
     );
   }
 
@@ -133,13 +135,13 @@ export async function saveLocalBackup(state: BudgetState, userId?: string): Prom
     localStorage.setItem(key, JSON.stringify(backup));
     pruneLocalBackups(userId);
   } catch (error) {
-    console.error("[Backup] Failed to save local backup:", error);
+    logger.error("Backup", "Failed to save local backup:", error);
     // If quota exceeded, try to prune first and retry
     pruneLocalBackups(userId);
     try {
       localStorage.setItem(key, JSON.stringify(backup));
     } catch {
-      console.error("[Backup] Failed to save local backup after pruning");
+      logger.error("Backup", "Failed to save local backup after pruning");
     }
   }
 }
@@ -171,7 +173,7 @@ export function getLocalBackups(userId?: string): LocalBackupEntry[] {
         sizeBytes: json.length,
       });
     } catch (error) {
-      console.error(`[Backup] Failed to parse local backup ${key}:`, error);
+      logger.error("Backup", `Failed to parse local backup ${key}:`, error);
       // Remove corrupted backup
       localStorage.removeItem(key);
     }
@@ -196,7 +198,7 @@ export function restoreLocalBackup(key: string): BudgetState | null {
     const backup = JSON.parse(json) as BackupFile;
     return backup.data;
   } catch (error) {
-    console.error(`[Backup] Failed to restore local backup ${key}:`, error);
+    logger.error("Backup", `Failed to restore local backup ${key}:`, error);
     return null;
   }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import {
   Plus,
   MapPin,

@@ -3,6 +3,7 @@ import { Upload } from "lucide-react";
 import { validateBackup } from "@/features/backup/services/backup.service";
 import BackupPreviewModal from "./BackupPreviewModal";
 import type { BackupFile } from "@/features/backup/types/backup.types";
+import { logger } from "@/shared/utils/logger";
 
 export default function BackupImportButton() {
   const [isValidating, setIsValidating] = useState(false);
@@ -19,7 +20,7 @@ export default function BackupImportButton() {
       // Validate backup file
       const backup = await validateBackup(file);
 
-      console.log("[Backup] File validated successfully:", {
+      logger.info("Backup", "File validated successfully:", {
         transactions: backup.stats.totalTransactions,
         trips: backup.stats.totalTrips,
         createdAt: backup.meta.createdAt,
@@ -28,7 +29,7 @@ export default function BackupImportButton() {
       // Show preview modal
       setBackupToRestore(backup);
     } catch (error) {
-      console.error("[Backup] Validation failed:", error);
+      logger.error("Backup", "Validation failed:", error);
       alert(`Invalid backup file: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       setIsValidating(false);

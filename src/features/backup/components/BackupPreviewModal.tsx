@@ -4,6 +4,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { restoreBackup, saveLocalBackup } from "@/features/backup/services/backup.service";
 import { upsertCloudState } from "@/services/cloudState.service";
 import type { BackupFile } from "@/features/backup/types/backup.types";
+import { logger } from "@/shared/utils/logger";
 
 type Props = {
   backup: BackupFile;
@@ -37,26 +38,26 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
 
     try {
       // 1. Create safety backup of current state
-      console.log("[Backup] Creating safety backup before restore...");
+      logger.info("Backup", "Creating safety backup before restore...");
       await saveLocalBackup(currentState);
 
       // 2. Restore from backup
-      console.log("[Backup] Restoring backup...");
+      logger.info("Backup", "Restoring backup...");
       const restoredState = restoreBackup(backup, "replace");
       replaceAllData(restoredState);
 
       // 3. Push to cloud if in cloud mode
       if (cloudMode === "cloud") {
-        console.log("[Backup] Pushing restored state to cloud...");
+        logger.info("Backup", "Pushing restored state to cloud...");
         await upsertCloudState(restoredState);
       }
 
-      console.log("[Backup] Restore successful");
+      logger.info("Backup", "Restore successful");
 
       // Show success modal
       setShowSuccess(true);
     } catch (error) {
-      console.error("[Backup] Restore failed:", error);
+      logger.error("Backup", "Restore failed:", error);
       setShowError(error instanceof Error ? error.message : "Unknown error");
       setIsRestoring(false);
     }

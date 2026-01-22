@@ -10,6 +10,7 @@ import {
   type CloudBackup,
 } from "@/features/backup/services/cloudBackup.service";
 import { saveLocalBackup } from "@/features/backup/services/backup.service";
+import { logger } from "@/shared/utils/logger";
 
 /**
  * CloudBackupList - Display and manage cloud backups from Supabase
@@ -55,7 +56,7 @@ export default function CloudBackupList() {
       const data = await getCloudBackups();
       setBackups(data);
     } catch (err) {
-      console.error("[CloudBackupList] Failed to load backups:", err);
+      logger.error("CloudBackupList", "Failed to load backups:", err);
       setError(err instanceof Error ? err.message : "Error al cargar backups");
     } finally {
       setLoading(false);
@@ -74,7 +75,7 @@ export default function CloudBackupList() {
       });
       await loadBackups(); // Reload list
     } catch (err) {
-      console.error("[CloudBackupList] Failed to create manual backup:", err);
+      logger.error("CloudBackupList", "Failed to create manual backup:", err);
       setShowResult({
         type: "error",
         message:
@@ -90,12 +91,12 @@ export default function CloudBackupList() {
 
     try {
       // Create safety backup before restore
-      console.log("[CloudBackupList] Creating safety backup before restore...");
+      logger.info("CloudBackupList", "Creating safety backup before restore...");
       const currentState = useBudgetStore.getState().getSnapshot();
       await saveLocalBackup(currentState);
 
       // Restore from cloud
-      console.log("[CloudBackupList] Restoring from cloud backup...");
+      logger.info("CloudBackupList", "Restoring from cloud backup...");
       const backupData = await restoreCloudBackup(confirmRestore.backup.id);
 
       // Replace all data
@@ -112,7 +113,7 @@ export default function CloudBackupList() {
         window.location.reload();
       }, 2000);
     } catch (err) {
-      console.error("[CloudBackupList] Failed to restore backup:", err);
+      logger.error("CloudBackupList", "Failed to restore backup:", err);
       setConfirmRestore(null);
       setShowResult({
         type: "error",
@@ -134,7 +135,7 @@ export default function CloudBackupList() {
       });
       await loadBackups(); // Reload list
     } catch (err) {
-      console.error("[CloudBackupList] Failed to delete backup:", err);
+      logger.error("CloudBackupList", "Failed to delete backup:", err);
       setConfirmDelete(null);
       setShowResult({
         type: "error",

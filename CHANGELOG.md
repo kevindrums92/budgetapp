@@ -4,6 +4,167 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+## [0.10.0] - 2026-01-22
+
+### Added
+- **E2E Tests**: Nuevos archivos de tests E2E para cobertura completa
+  - `transaction-attributes.spec.ts`: Tests para estados (Pagado/Pendiente/Planeado), notas, campos opcionales
+  - `list-filtering.spec.ts`: Tests para agrupación por día, búsqueda, filtros de tipo, navegación mensual
+  - Actualizado `scheduled-transactions.spec.ts` para compatibilidad con cambios recientes en UI
+
+- **Página de gestión de transacciones programadas** (`/scheduled`): Nueva UI para ver y administrar todas las transacciones con schedule
+  - Acceso desde Perfil → Programadas
+  - Tabs "Activas" / "Inactivas" para filtrar programaciones
+  - Card con icono de categoría, nombre, monto, frecuencia y próxima fecha
+  - Botón "Desactivar" (con confirmación y aviso de irreversibilidad)
+  - Inactivas se muestran como historial (sin acciones)
+  - Al desactivar: el icono de recurrencia desaparece del listado principal
+  - Templates desactivadas no pueden reactivar la programación desde el formulario de edición
+  - Empty state cuando no hay programaciones en cada tab
+
+- **"Editar y registrar" para transacciones virtuales**: Nueva funcionalidad para editar y registrar transacciones programadas
+  - Al hacer clic en una transacción virtual, 3 opciones: "Confirmar", "Editar" y "Eliminar"
+  - "Confirmar" registra la transacción inmediatamente
+  - "Editar" permite modificar valores antes de registrar
+  - "Eliminar" termina la programación (con confirmación), no genera más transacciones futuras
+  - Modal de elección: "Solo este registro" (crea transacción individual) vs "Este y los siguientes" (crea nuevo template)
+  - Cambios en schedule (frecuencia, intervalo) aplican automáticamente "Este y los siguientes"
+  - Alerta "Sin cambios" cuando se intenta guardar sin modificaciones
+  - Botón eliminar oculto al editar desde virtual (previene eliminar template accidentalmente)
+  - Tests unitarios (28 tests) y E2E (15 tests) para el flujo completo
+
+### Fixed
+- **Scheduled Transactions Duplication Bug**: Corregido bug crítico donde editar una transacción programada (cambiar monto/nombre) causaba duplicados al refrescar
+  - Agregado campo `sourceTemplateId` para vincular transacciones generadas a su template
+  - Migración v4→v5: convierte `isRecurring` a `schedule`, deduplica templates, vincula transacciones
+  - Reparación automática de transacciones existentes sin `sourceTemplateId` al cargar datos
+  - El scheduler ahora verifica por `sourceTemplateId + date` primero (permite editar sin duplicar)
+  - Al editar transacciones legacy, se vinculan automáticamente a su template correspondiente
+  - Preservación de `sourceTemplateId` en `updateTransaction` del store
+
+### Changed
+- **Scheduled Transactions**: Reemplazado sistema de generación de transacciones programadas
+  - Nueva arquitectura de "generación lazy" con transacciones virtuales calculadas on-the-fly
+  - Migración v5→v6: deduplicación automática de templates de schedule
+  - Auto-confirmación de transacciones pasadas al abrir la app
+  - Nuevo banner de transacciones programadas con modal de confirmación
+  - Modal de dismiss con opciones: "No volver a mostrar este mes" o "Solo por esta vez"
+  - Eliminado SchedulerJob background, RecurringBanner, RecurringModal (código legacy)
+  - Tests completos para flujo de iteración de transacciones programadas (40 tests)
+
+### Changed
+- **Logging System**: Implemented environment-aware logging utility
+  - Created `logger.ts` utility with namespace-based logging (debug, info, warn, error levels)
+  - Silent in production builds (all logs disabled) to avoid console spam
+  - Active in development with formatted `[Namespace] message` output
+  - Replaced all 59 `console.log/warn/error` statements across the codebase
+  - Namespaces: Backup, CloudBackup, BackupScheduler, CloudBackupScheduler, CloudSync
+  - Production builds now have clean console output
+
+- **Code Organization**: Extracted duplicate code to shared utilities
+  - Created `string.utils.ts` with `kebabToPascal` function (removed 11 duplicates, -77 lines)
+  - Created `currency.utils.ts` with `formatCOP` function (centralized from transactions.utils)
+  - Created `ui.constants.ts` with Z-index layers, timing constants, and layout values
+  - Updated 23 files to use centralized utilities
+  - Improved code maintainability following DRY principle
+
+### Performance
+- **Bundle Size Optimization**: Reduced initial bundle size by 31% through code splitting
+  - **Before**: 410.63 KB gzipped (1.45 MB minified) - single monolithic bundle
+  - **After**: 284.09 KB gzipped (1.00 MB minified) - optimized with lazy loading
+  - **Improvement**: -126.54 KB gzipped (-31% reduction in initial bundle)
+  - **Code Splitting Strategy**:
+    - Lazy loaded StatsPage (372 KB chunk with Recharts library)
+    - Lazy loaded BackupPage, ProfilePage, and all Trip pages
+    - Lazy loaded all Category management pages
+    - Added Suspense boundaries with loading fallback
+    - Total chunks: 16 (from 1 monolithic bundle)
+  - **Build Performance**: Build time improved from 8.79s to 6.29s (28% faster)
+  - **Impact**: Faster initial page load, better caching, improved Time to Interactive (TTI)
+  - **Bundle Analyzer**: Added rollup-plugin-visualizer for ongoing bundle monitoring
+
+### Added
+- **Unit Tests for Zustand Store**: Comprehensive test suite for budget.store.ts
+  - 79 test cases covering all CRUD operations
+  - Transaction CRUD tests (add, update, delete with validation)
+  - Category CRUD tests (add, update, delete, setLimit, getCategoryById)
+  - Category Groups CRUD tests (add, update, delete, getCategoryGroupById, reassignment on delete)
+  - Trip CRUD tests (add, update, delete with cascading trip expenses)
+  - Trip Expenses CRUD tests (add, update, delete)
+  - Sync helpers tests (getSnapshot, replaceAllData)
+  - UI state tests (selectedMonth, cloudMode, cloudStatus, user, welcomeSeen, budgetOnboardingSeen)
+  - Store coverage: 98.65% statements, 84.48% branches, 100% functions
+  - All tests passing with proper mocking of storage and dates services
+- **Unit Tests for Services**: Test suites for critical services
+  - pendingSync.service.ts: 14 tests covering setPendingSnapshot, getPendingSnapshot, clearPendingSnapshot, hasPendingSnapshot
+  - recurringTransactions.service.ts: 22 tests covering detectPendingRecurring, hasIgnoredThisMonth, markIgnoredForMonth, replicateTransaction
+  - cloudState.service.ts: 19 tests covering getCloudState, upsertCloudState with full Supabase mocking
+  - **storage.service.ts: 26 tests** covering localStorage operations, schema migrations, and data integrity
+    - saveState/loadState/clearState: basic CRUD operations, JSON serialization, error handling
+    - v1→v2 migration: string categories to Category objects, transaction category ID migration, deduplication logic
+    - v2→v3 migration: categoryGroups addition
+    - v3→v4 migration: isRecurring field addition to transactions
+    - Edge cases: missing arrays, empty arrays, invalid state, localStorage quota errors
+    - Full migration path: v1→v2→v3→v4 in single loadState call
+    - Data integrity: migration persistence, corrupted state handling
+  - **backup.service.ts: 41 tests** covering backup creation, validation, restore, and local storage operations
+    - createBackup: metadata generation, stats calculation, SHA-256 checksum, device info, empty/large states
+    - validateBackup: JSON validation, structure checks, backup version compatibility, checksum verification, corrupted file detection
+    - restoreBackup: data restoration in replace mode, merge mode error handling
+    - saveLocalBackup/getLocalBackups: user namespacing, automatic backup creation, filtering by userId
+    - restoreLocalBackup: backup restoration by key
+    - Integration tests: full backup cycles, multi-user separation, data integrity through operations
+  - **dates.service.ts: 26 tests** covering date formatting and manipulation utilities
+    - todayISO: date formatting in YYYY-MM-DD, single-digit padding, year boundaries
+    - monthKey: YYYY-MM extraction from ISO dates, datetime string handling
+    - currentMonthKey: current month key generation, updates on date changes, year transitions
+    - monthLabelES: Spanish month labels for all 12 months, capitalization, different years
+    - formatDateGroupHeader: "Hoy"/"Ayer" logic, weekday formatting, year boundaries, different months
+    - formatTime: HH:MM formatting, morning/afternoon hours, midnight/end of day, padding, ISO 8601 with timezone
+- **Unit Tests for Components**: Test suites for React UI components
+  - **ConfirmDialog: 23 tests** covering confirmation modal UI and interactions
+    - Rendering: conditional display based on open prop, custom vs default title/buttons/text
+    - Button styling: normal (blue) vs destructive (red) confirm buttons, cancel button styling
+    - User interactions: button clicks (confirm/cancel), backdrop click, keyboard shortcuts (Escape/Enter)
+    - Keyboard event cleanup: listener removal on close, callback updates
+    - Accessibility: button types, proper z-index hierarchy
+    - Edge cases: empty messages, long text, double-click handling
+  - **DatePicker: 44 tests** covering date picker modal with calendar UI
+    - Rendering: open/closed states, header display, action buttons, year picker toggle
+    - Initial state: selectedDate initialization from value prop, today's date handling
+    - Month navigation: previous/next month buttons, year wrapping (Dec↔Jan), updating month/year state
+    - Day selection: clicking days updates selectedDate, proper date object handling
+    - Year picker: toggle open/close, year range generation (current year ±50), year selection updates main calendar
+    - Confirm/cancel actions: onChange callback with ISO format (YYYY-MM-DD), onClose on cancel/confirm
+    - Date formatting: Spanish locale (es-CO) for month/day names, proper display of selected date
+    - Edge cases: leap years (Feb 29), month boundaries (Jan 31→Feb 28), past/future year selection
+    - Body scroll locking: prevents background scroll when open
+    - Keyboard support: Escape key closes modal
+    - Accessibility: proper button types, modal structure
+  - **TransactionList: 30 tests** covering transaction list with grouping, filtering, and balance calculations
+    - Rendering: empty states, transaction groups by date, transaction items with proper formatting
+    - Grouping and sorting: descending date order, descending createdAt within same day, date group headers (Hoy/Ayer/formatted dates)
+    - Balance calculations: daily totals (expense only, income only, mixed), formatCOP currency formatting
+    - Filtering by search query: name matching (case-insensitive), category name matching, notes matching, no results state
+    - Filtering by type: all transactions (default), expenses only, income only, pending status only
+    - Month warning banner: past month message, future month message, current month no warning
+    - Transaction interactions: onClick handler called with correct transaction
+    - Edge cases: undefined categoryDefinitions, missing category in definitions, transactions with no notes, mixed transaction types in same day, zero amount transactions
+  - **CategoryPickerDrawer: 44 tests** covering category picker with drag-to-dismiss and search
+    - Rendering: open/closed states, search input, drag handle, New Category button, Close button
+    - Category filtering by transaction type: expense categories only, income categories only, proper icon/color display
+    - Search filtering: case-insensitive matching, partial matches, accent-insensitive, updates on input change, empty state message
+    - Category selection: onSelect callback with category, visual highlighting of selected category, proper category object passed
+    - Drag-to-dismiss mechanics: touchStart records startY, touchMove updates position, touchEnd closes if threshold exceeded (80px), touchEnd resets if below threshold, backdrop opacity changes during drag
+    - New Category button navigation: navigates to /category/new with type query param
+    - Close actions: close button calls onClose, backdrop click calls onClose, closes on category selection
+    - Body scroll locking: prevents background scroll when open
+    - Edge cases: empty category list, missing icons default to Wallet, special characters in search, whitespace handling
+    - Accessibility: proper button types, search input placeholder
+  - Edge cases: localStorage errors, invalid JSON, year boundaries, leap years, month-end date adjustments, auth errors, database failures, corrupted backups, quota exceeded errors, schema migration edge cases
+  - Integration scenarios: full sync cycles, user switching, logout handling, validation→restore flows, v1→v4 migration paths
+  - **Total: 368 tests passing (2 skipped)**
+
 ## [0.9.1] - 2026-01-20
 
 ### Changed

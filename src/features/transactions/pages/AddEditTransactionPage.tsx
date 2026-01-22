@@ -1,24 +1,25 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
-import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle } from "lucide-react";
+import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
+import ScheduleConfigDrawer from "@/features/transactions/components/ScheduleConfigDrawer";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
-import type { TransactionType, TransactionStatus } from "@/types/budget.types";
+import type { TransactionType, TransactionStatus, Schedule } from "@/types/budget.types";
+import { kebabToPascal } from "@/shared/utils/string.utils";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
 
-// Convert kebab-case to PascalCase for lucide-react icons
-function kebabToPascal(str: string): string {
-  return str
-    .split("-")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join("");
+// Helper to get the day before a date string (YYYY-MM-DD)
+function getDateBefore(dateStr: string): string {
+  const date = new Date(dateStr + "T12:00:00");
+  date.setDate(date.getDate() - 1);
+  return date.toISOString().slice(0, 10);
 }
 
 export default function AddEditTransactionPage() {
@@ -46,11 +47,24 @@ export default function AddEditTransactionPage() {
   const [date, setDate] = useState(todayISO());
   const [notes, setNotes] = useState("");
   const [isRecurring, setIsRecurring] = useState(false);
+  const [schedule, setSchedule] = useState<Schedule | null>(null);
   const [status, setStatus] = useState<TransactionStatus>("paid");
   const [showCategoryDrawer, setShowCategoryDrawer] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showScheduleDrawer, setShowScheduleDrawer] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showTemplateEditModal, setShowTemplateEditModal] = useState(false);
+  const [showNoChangesAlert, setShowNoChangesAlert] = useState(false);
+
+  // Check if we're editing a template (scheduled transaction)
+  const isTemplate = tx?.schedule?.enabled === true;
+
+  // Check if this was a scheduled transaction that was deactivated
+  const wasDeactivated = tx?.schedule !== undefined && tx.schedule.enabled === false;
+
+  // Get virtual date from navigation state (when coming from "Editar y registrar")
+  const virtualDate = location.state?.virtualDate as string | undefined;
 
   // Get selected category object
   const selectedCategory = useMemo(() => {
@@ -61,9 +75,9 @@ export default function AddEditTransactionPage() {
   // Save form draft to sessionStorage
   const saveFormDraft = useCallback(() => {
     if (isEdit) return; // Don't save drafts when editing
-    const draft = { type, name, categoryId, amount, date, notes, isRecurring, status };
+    const draft = { type, name, categoryId, amount, date, notes, isRecurring, schedule, status };
     sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(draft));
-  }, [type, name, categoryId, amount, date, notes, isRecurring, status, isEdit]);
+  }, [type, name, categoryId, amount, date, notes, isRecurring, schedule, status, isEdit]);
 
   // Clear form draft
   const clearFormDraft = useCallback(() => {
@@ -83,6 +97,7 @@ export default function AddEditTransactionPage() {
       setDate(tx.date);
       setNotes(tx.notes || "");
       setIsRecurring(tx.isRecurring || false);
+      setSchedule(tx.schedule || null);
       setStatus(tx.status || "paid");
     } else {
       // New transaction - check URL params
@@ -115,6 +130,7 @@ export default function AddEditTransactionPage() {
           setDate(draft.date || todayISO());
           setNotes(draft.notes || "");
           setIsRecurring(draft.isRecurring || false);
+          setSchedule(draft.schedule || null);
           setStatus(draft.status || "paid");
         } catch {
           // Invalid draft, just set new category
@@ -135,6 +151,7 @@ export default function AddEditTransactionPage() {
         setDate(draft.date || todayISO());
         setNotes(draft.notes || "");
         setIsRecurring(draft.isRecurring || false);
+        setSchedule(draft.schedule || null);
         setStatus(draft.status || "paid");
       } catch {
         // Invalid draft, ignore
@@ -154,6 +171,37 @@ export default function AddEditTransactionPage() {
     amountNumber > 0 &&
     date.length === 10;
 
+  // Check if user changed values (excluding schedule)
+  const hasChangedValues = useMemo(() => {
+    if (!tx || !initialized) return false;
+    return (
+      name.trim() !== tx.name ||
+      amountNumber !== tx.amount ||
+      categoryId !== tx.category ||
+      date !== tx.date ||
+      notes.trim() !== (tx.notes || "") ||
+      type !== tx.type ||
+      status !== (tx.status || "paid")
+    );
+  }, [tx, initialized, name, amountNumber, categoryId, date, notes, type, status]);
+
+  // Check if schedule was changed
+  const hasChangedSchedule = useMemo(() => {
+    if (!tx || !initialized) return false;
+    const txSchedule = tx.schedule;
+    if (!txSchedule && !schedule) return false;
+    if (!txSchedule || !schedule) return true;
+    return (
+      schedule.enabled !== txSchedule.enabled ||
+      schedule.frequency !== txSchedule.frequency ||
+      schedule.interval !== txSchedule.interval ||
+      schedule.dayOfMonth !== txSchedule.dayOfMonth ||
+      schedule.dayOfWeek !== txSchedule.dayOfWeek ||
+      schedule.startDate !== txSchedule.startDate ||
+      schedule.endDate !== txSchedule.endDate
+    );
+  }, [tx, initialized, schedule]);
+
   function goBack() {
     clearFormDraft(); // Clear draft when user cancels
     navigate(-1);
@@ -162,9 +210,132 @@ export default function AddEditTransactionPage() {
   function handleSave() {
     if (!canSave) return;
 
+    // Only show modal when coming from "Editar y registrar" (virtualDate is set)
+    // This means user clicked on a virtual transaction and wants to register it with changes
+    // If editing a template directly (no virtualDate), just update it normally
+    if (virtualDate && isTemplate) {
+      // Case 0: User didn't change anything - show alert
+      if (!hasChangedSchedule && !hasChangedValues) {
+        setShowNoChangesAlert(true);
+        return;
+      }
+
+      // Case 1: User changed schedule (frequency, interval, etc.) from a virtual
+      // This should always create a new template starting from the virtual date
+      if (hasChangedSchedule) {
+        handleSaveThisAndFuture();
+        return;
+      }
+
+      // Case 2: User changed values but not schedule
+      // Show modal to ask "only this one" vs "this and future"
+      if (hasChangedValues) {
+        setShowTemplateEditModal(true);
+        return;
+      }
+    }
+
+    // Normal save flow
+    performSave();
+  }
+
+  // Create just this one transaction from the template
+  function handleSaveOnlyThisOne() {
+    if (!canSave || !tx) return;
+
+    const trimmedNotes = notes.trim();
+
+    // Use virtualDate if available, otherwise use form date
+    const effectiveDate = virtualDate || date;
+
+    // Create a new individual transaction (not a template) with sourceTemplateId
+    addTransaction({
+      type,
+      name: name.trim(),
+      category: categoryId || "",
+      amount: amountNumber,
+      date: effectiveDate,
+      notes: trimmedNotes || undefined,
+      isRecurring: false,
+      schedule: undefined, // Not a template
+      status: status === "paid" ? undefined : status,
+      sourceTemplateId: tx.id, // Link to the original template
+    });
+
+    setShowTemplateEditModal(false);
+    clearFormDraft();
+    goBack();
+  }
+
+  // End current template and create a new one with updated values
+  function handleSaveThisAndFuture() {
+    if (!canSave || !tx) return;
+
+    const trimmedNotes = notes.trim();
+
+    // Use virtualDate if available (when coming from "Editar y registrar"),
+    // otherwise fall back to the form date
+    const effectiveDate = virtualDate || date;
+
+    // 1. End the current template by setting endDate to day before the virtual date
+    // This ensures the old template doesn't generate the virtual we're replacing
+    const endDate = virtualDate
+      ? getDateBefore(virtualDate)
+      : todayISO();
+
+    updateTransaction(tx.id, {
+      schedule: {
+        ...tx.schedule!,
+        endDate,
+      },
+    });
+
+    // 2. Create a new template with updated values starting from the effective date
+    // Use the NEW schedule values (from form state), not the old template values
+    const newSchedule: Schedule = {
+      enabled: true,
+      frequency: schedule?.frequency || tx.schedule!.frequency,
+      interval: schedule?.interval || tx.schedule!.interval,
+      startDate: effectiveDate,
+      dayOfMonth: schedule?.dayOfMonth ?? tx.schedule!.dayOfMonth,
+      dayOfWeek: schedule?.dayOfWeek ?? tx.schedule!.dayOfWeek,
+      // No endDate for new template
+    };
+
+    addTransaction({
+      type,
+      name: name.trim(),
+      category: categoryId || "",
+      amount: amountNumber,
+      date: effectiveDate, // Use the effective date as the base date
+      notes: trimmedNotes || undefined,
+      isRecurring: true,
+      schedule: newSchedule,
+      status: status === "paid" ? undefined : status,
+    });
+
+    setShowTemplateEditModal(false);
+    clearFormDraft();
+    goBack();
+  }
+
+  function performSave() {
     const trimmedNotes = notes.trim();
 
     if (tx) {
+      // If transaction doesn't have sourceTemplateId, try to find a matching template
+      // This handles transactions that were created before sourceTemplateId was implemented
+      let sourceTemplateId = tx.sourceTemplateId;
+      if (!sourceTemplateId && !tx.schedule?.enabled) {
+        // Find a template that matches by name + category (original values before edit)
+        const matchingTemplate = transactions.find(
+          (t) => t.schedule?.enabled && t.name === tx.name && t.category === tx.category
+        );
+        if (matchingTemplate) {
+          sourceTemplateId = matchingTemplate.id;
+        }
+      }
+
       updateTransaction(tx.id, {
         type,
         name: name.trim(),
@@ -173,7 +344,10 @@ export default function AddEditTransactionPage() {
         date,
         notes: trimmedNotes || undefined,
         isRecurring,
+        schedule: schedule || undefined,
         status: status === "paid" ? undefined : status,
+        // Preserve or set sourceTemplateId to prevent scheduled transaction duplication
+        sourceTemplateId,
       });
     } else {
       addTransaction({
@@ -184,6 +358,7 @@ export default function AddEditTransactionPage() {
         date,
         notes: trimmedNotes || undefined,
         isRecurring,
+        schedule: schedule || undefined,
         status: status === "paid" ? undefined : status,
       });
     }
@@ -233,7 +408,9 @@ export default function AddEditTransactionPage() {
         title={title}
         onBack={goBack}
         rightActions={
-          isEdit && tx ? (
+          // Don't show delete button when coming from "Editar y registrar" (virtualDate)
+          // because that would delete the template, not the virtual transaction
+          isEdit && tx && !virtualDate ? (
             <button
               type="button"
               onClick={handleAskDelete}
@@ -432,40 +609,52 @@ export default function AddEditTransactionPage() {
             </div>
           </div>
 
-          {/* Recurring Toggle */}
+          {/* Schedule Configuration */}
           <div className="py-4">
-            <button
-              type="button"
-              onClick={() => setIsRecurring(!isRecurring)}
-              className="flex w-full items-center gap-4 active:bg-gray-50 rounded-lg -mx-2 px-2 py-1"
-            >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <Repeat className="h-5 w-5 text-gray-500" />
+            {wasDeactivated ? (
+              /* Deactivated schedule - show disabled state */
+              <div className="flex w-full items-center gap-4 rounded-lg -mx-2 px-2 py-1 opacity-50">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                  <Repeat className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-gray-500">
+                    Programación inactiva
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    Esta programación fue desactivada
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <p
-                  className={`text-sm font-medium transition-colors ${
-                    isRecurring ? "text-gray-900" : "text-gray-700"
-                  }`}
-                >
-                  {type === "income" ? "Ingreso" : "Gasto"} recurrente mensual
-                </p>
-                <p className="mt-0.5 text-xs text-gray-500">
-                  Se te recordará replicarlo cada mes
-                </p>
-              </div>
-              <div
-                className={`relative h-8 w-14 shrink-0 rounded-full transition-all duration-200 ${
-                  isRecurring ? "bg-emerald-500" : "bg-gray-300"
-                }`}
+            ) : (
+              /* Normal schedule button */
+              <button
+                type="button"
+                onClick={() => setShowScheduleDrawer(true)}
+                className="flex w-full items-center gap-4 active:bg-gray-50 rounded-lg -mx-2 px-2 py-1"
               >
-                <span
-                  className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform duration-200 ${
-                    isRecurring ? "translate-x-6" : "translate-x-0"
-                  }`}
-                />
-              </div>
-            </button>
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                  schedule?.enabled ? "bg-emerald-100" : "bg-gray-100"
+                }`}>
+                  <Repeat className={`h-5 w-5 ${schedule?.enabled ? "text-emerald-600" : "text-gray-500"}`} />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className={`text-sm font-medium ${schedule?.enabled ? "text-gray-900" : "text-gray-700"}`}>
+                    {schedule?.enabled ? "Programado automáticamente" : "Programar automáticamente"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    {schedule?.enabled
+                      ? `Cada ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
+                          schedule.frequency === "daily" ? "día" :
+                          schedule.frequency === "weekly" ? "semana" :
+                          schedule.frequency === "monthly" ? "mes" : "año"
+                        }${schedule.interval > 1 && schedule.frequency !== "daily" ? "s" : ""}`
+                      : "Toca para configurar"}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-300" />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -509,6 +698,18 @@ export default function AddEditTransactionPage() {
         onNavigateToNewCategory={saveFormDraft}
       />
 
+      {/* Schedule Config Drawer */}
+      <ScheduleConfigDrawer
+        open={showScheduleDrawer}
+        onClose={() => setShowScheduleDrawer(false)}
+        schedule={schedule}
+        transactionDate={date}
+        onSave={(newSchedule) => {
+          setSchedule(newSchedule);
+          setShowScheduleDrawer(false);
+        }}
+      />
+
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
         open={confirmDelete}
@@ -520,6 +721,89 @@ export default function AddEditTransactionPage() {
         onConfirm={handleConfirmDelete}
         onClose={() => setConfirmDelete(false)}
       />
+
+      {/* Template Edit Choice Modal */}
+      {showTemplateEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowTemplateEditModal(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Guardar cambios
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              Este es un registro programado. ¿Cómo deseas guardar los cambios?
+            </p>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={handleSaveOnlyThisOne}
+                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                Solo este registro
+              </button>
+              <p className="px-2 text-xs text-gray-500">
+                Crea una transacción individual con estos valores. La plantilla original no cambia.
+              </p>
+
+              <button
+                type="button"
+                onClick={handleSaveThisAndFuture}
+                className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800"
+              >
+                Este y los siguientes
+              </button>
+              <p className="px-2 text-xs text-gray-500">
+                Finaliza la plantilla actual y crea una nueva con los valores editados.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setShowTemplateEditModal(false)}
+                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* No Changes Alert Modal */}
+      {showNoChangesAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowNoChangesAlert(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+              Sin cambios
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              No has realizado ningún cambio. Modifica el monto, descripción, categoría u otra información para registrar esta transacción.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setShowNoChangesAlert(false)}
+              className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -278,7 +278,7 @@ Use TypeScript path aliases configured in `vite.config.ts`:
 // ✅ CORRECT
 import { HomePage, TransactionList } from "@/features/transactions";
 import { PageHeader } from "@/shared/components/layout/PageHeader";
-import { formatCOP } from "@/features/transactions/utils/transactions.utils";
+import { formatCOP } from "@/shared/utils/currency.utils";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 

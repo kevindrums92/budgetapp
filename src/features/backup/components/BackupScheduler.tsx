@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useBudgetStore } from "@/state/budget.store";
 import { saveLocalBackup } from "@/features/backup/services/backup.service";
+import { logger } from "@/shared/utils/logger";
 
 const BACKUP_INTERVAL_HOURS = 24;
 const LAST_BACKUP_KEY = "budget.lastAutoBackup";
@@ -20,14 +21,14 @@ export default function BackupScheduler() {
   useEffect(() => {
     // Only run for logged-in users (not guest mode)
     if (cloudMode !== "cloud" || !user.email) {
-      console.log("[BackupScheduler] Skipping - user not logged in");
+      logger.info("BackupScheduler", "Skipping - user not logged in");
       return;
     }
 
     // Only run if "local" backup method is active
     const activeMethod = localStorage.getItem(BACKUP_METHOD_KEY);
     if (activeMethod !== "local") {
-      console.log("[BackupScheduler] Skipping - local backup method not active");
+      logger.info("BackupScheduler", "Skipping - local backup method not active");
       return;
     }
 
@@ -44,20 +45,20 @@ export default function BackupScheduler() {
 
         // Check if it's time for a backup
         if (now - lastBackupTimestamp >= intervalMs) {
-          console.log(`[BackupScheduler] Creating periodic local backup for user ${userId}...`);
+          logger.info("BackupScheduler", `Creating periodic local backup for user ${userId}...`);
 
           const state = useBudgetStore.getState().getSnapshot();
           await saveLocalBackup(state, userId);
 
           localStorage.setItem(lastBackupKey, String(now));
-          console.log("[BackupScheduler] Periodic backup created successfully");
+          logger.info("BackupScheduler", "Periodic backup created successfully");
         } else {
           const nextBackupIn = intervalMs - (now - lastBackupTimestamp);
           const hoursRemaining = Math.ceil(nextBackupIn / (60 * 60 * 1000));
-          console.log(`[BackupScheduler] Next backup in ${hoursRemaining} hours`);
+          logger.info("BackupScheduler", `Next backup in ${hoursRemaining} hours`);
         }
       } catch (error) {
-        console.error("[BackupScheduler] Failed to create periodic backup:", error);
+        logger.error("BackupScheduler", "Failed to create periodic backup:", error);
       }
     };
 

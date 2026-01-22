@@ -11,7 +11,12 @@
       "Bash(npm run test:run:*)",
       "Bash(tree:*)",
       "Bash(git mv:*)",
-      "Bash(npx playwright test:*)"
+      "Bash(npx playwright test:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm install:*)",
+      "Bash(taskkill /F /FI \"WINDOWTITLE eq npm test*\")",
+      "Bash(npm run lint:*)"
     ]
   }
 }
