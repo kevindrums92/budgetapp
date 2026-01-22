@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { icons, Pencil, Ban } from "lucide-react";
+import { icons, Power } from "lucide-react";
 import { formatCOP } from "@/shared/utils/currency.utils";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import { formatScheduleFrequency, formatNextDate } from "@/shared/utils/schedule.utils";
@@ -12,7 +11,7 @@ interface ScheduleListItemProps {
   transaction: Transaction;
   category?: Category;
   isEnded?: boolean;
-  onInactivate: (id: string) => void;
+  onInactivate?: (id: string) => void;
 }
 
 export default function ScheduleListItem({
@@ -21,7 +20,6 @@ export default function ScheduleListItem({
   isEnded = false,
   onInactivate,
 }: ScheduleListItemProps) {
-  const navigate = useNavigate();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const IconComponent = category
@@ -34,22 +32,14 @@ export default function ScheduleListItem({
     ? calculateNextDate(transaction.schedule, today)
     : null;
 
-  const handleEdit = () => {
-    navigate(`/edit/${transaction.id}`);
-  };
-
   const handleInactivateConfirm = () => {
-    onInactivate(transaction.id);
+    onInactivate?.(transaction.id);
     setShowConfirm(false);
   };
 
   return (
     <>
-      <div
-        className={`rounded-2xl bg-white p-4 shadow-sm ${
-          isEnded ? "opacity-60" : ""
-        }`}
-      >
+      <div className="rounded-2xl bg-white p-4 shadow-sm">
         {/* Header: Icon + Name + Badge */}
         <div className="flex items-start gap-3">
           {/* Category Icon */}
@@ -117,36 +107,21 @@ export default function ScheduleListItem({
               Próxima: {formatNextDate(nextDate)}
             </p>
           )}
-
-          {/* End date (only for ended) */}
-          {isEnded && transaction.schedule?.endDate && (
-            <p className="text-sm text-gray-400">
-              Inactivada el {formatNextDate(transaction.schedule.endDate)}
-            </p>
-          )}
         </div>
 
-        {/* Actions */}
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            onClick={handleEdit}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gray-100 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
-          >
-            <Pencil className="h-4 w-4" />
-            Editar
-          </button>
-          {!isEnded && (
+        {/* Actions (only for active) */}
+        {!isEnded && (
+          <div className="mt-4">
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-orange-50 py-2.5 text-sm font-medium text-orange-600 hover:bg-orange-100 transition-colors"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-orange-50 py-2.5 text-sm font-medium text-orange-600 hover:bg-orange-100 transition-colors"
             >
-              <Ban className="h-4 w-4" />
-              Inactivar
+              <Power className="h-4 w-4" />
+              Desactivar
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Inactivate Confirmation Modal */}
@@ -161,14 +136,19 @@ export default function ScheduleListItem({
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Inactivar programación
+              Desactivar programación
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
-              Esto inactivará la programación de "{transaction.name}".
+            <p className="mb-3 text-sm text-gray-600">
+              Esto desactivará la programación de "{transaction.name}".
               No se generarán más transacciones automáticamente.
             </p>
+            <div className="mb-4 rounded-lg bg-orange-50 p-3">
+              <p className="text-xs font-medium text-orange-700">
+                Esta acción es irreversible. Si deseas activarla de nuevo, deberás crear una nueva programación.
+              </p>
+            </div>
             <p className="mb-4 text-xs text-gray-500">
-              Esta acción es irreversible. Las transacciones ya registradas no se verán afectadas.
+              Las transacciones ya registradas no se verán afectadas.
             </p>
 
             {/* Actions */}
@@ -185,7 +165,7 @@ export default function ScheduleListItem({
                 onClick={handleInactivateConfirm}
                 className="flex-1 rounded-xl bg-orange-500 py-3 text-sm font-medium text-white hover:bg-orange-600"
               >
-                Inactivar
+                Desactivar
               </button>
             </div>
           </div>

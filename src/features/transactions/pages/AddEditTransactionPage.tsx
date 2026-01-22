@@ -60,6 +60,9 @@ export default function AddEditTransactionPage() {
   // Check if we're editing a template (scheduled transaction)
   const isTemplate = tx?.schedule?.enabled === true;
 
+  // Check if this was a scheduled transaction that was deactivated
+  const wasDeactivated = tx?.schedule !== undefined && tx.schedule.enabled === false;
+
   // Get virtual date from navigation state (when coming from "Editar y registrar")
   const virtualDate = location.state?.virtualDate as string | undefined;
 
@@ -608,32 +611,50 @@ export default function AddEditTransactionPage() {
 
           {/* Schedule Configuration */}
           <div className="py-4">
-            <button
-              type="button"
-              onClick={() => setShowScheduleDrawer(true)}
-              className="flex w-full items-center gap-4 active:bg-gray-50 rounded-lg -mx-2 px-2 py-1"
-            >
-              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                schedule?.enabled ? "bg-emerald-100" : "bg-gray-100"
-              }`}>
-                <Repeat className={`h-5 w-5 ${schedule?.enabled ? "text-emerald-600" : "text-gray-500"}`} />
+            {wasDeactivated ? (
+              /* Deactivated schedule - show disabled state */
+              <div className="flex w-full items-center gap-4 rounded-lg -mx-2 px-2 py-1 opacity-50">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
+                  <Repeat className="h-5 w-5 text-gray-400" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-medium text-gray-500">
+                    Programación inactiva
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-400">
+                    Esta programación fue desactivada
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 text-left">
-                <p className={`text-sm font-medium ${schedule?.enabled ? "text-gray-900" : "text-gray-700"}`}>
-                  {schedule?.enabled ? "Programado automáticamente" : "Programar automáticamente"}
-                </p>
-                <p className="mt-0.5 text-xs text-gray-500">
-                  {schedule?.enabled
-                    ? `Cada ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
-                        schedule.frequency === "daily" ? "día" :
-                        schedule.frequency === "weekly" ? "semana" :
-                        schedule.frequency === "monthly" ? "mes" : "año"
-                      }${schedule.interval > 1 && schedule.frequency !== "daily" ? "s" : ""}`
-                    : "Toca para configurar"}
-                </p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-gray-300" />
-            </button>
+            ) : (
+              /* Normal schedule button */
+              <button
+                type="button"
+                onClick={() => setShowScheduleDrawer(true)}
+                className="flex w-full items-center gap-4 active:bg-gray-50 rounded-lg -mx-2 px-2 py-1"
+              >
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                  schedule?.enabled ? "bg-emerald-100" : "bg-gray-100"
+                }`}>
+                  <Repeat className={`h-5 w-5 ${schedule?.enabled ? "text-emerald-600" : "text-gray-500"}`} />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className={`text-sm font-medium ${schedule?.enabled ? "text-gray-900" : "text-gray-700"}`}>
+                    {schedule?.enabled ? "Programado automáticamente" : "Programar automáticamente"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-500">
+                    {schedule?.enabled
+                      ? `Cada ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
+                          schedule.frequency === "daily" ? "día" :
+                          schedule.frequency === "weekly" ? "semana" :
+                          schedule.frequency === "monthly" ? "mes" : "año"
+                        }${schedule.interval > 1 && schedule.frequency !== "daily" ? "s" : ""}`
+                      : "Toca para configurar"}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-300" />
+              </button>
+            )}
           </div>
         </div>
       </div>

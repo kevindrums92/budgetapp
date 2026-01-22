@@ -7,12 +7,13 @@ All notable changes to SmartSpend will be documented in this file.
 ### Added
 - **Página de gestión de transacciones programadas** (`/scheduled`): Nueva UI para ver y administrar todas las transacciones con schedule
   - Acceso desde Perfil → Programadas
-  - Clasificación en secciones: Activas (con recurrencias futuras) e Inactivas (sin recurrencias)
+  - Tabs "Activas" / "Inactivas" para filtrar programaciones
   - Card con icono de categoría, nombre, monto, frecuencia y próxima fecha
-  - Botón "Editar" navega al formulario de edición
-  - Botón "Inactivar" (con confirmación) termina la programación de forma irreversible
-  - Empty state cuando no hay transacciones programadas
-  - Helpers de formato: frecuencia en español ("Mensual el día 15") y fechas relativas ("Hoy", "Mañana")
+  - Botón "Desactivar" (con confirmación y aviso de irreversibilidad)
+  - Inactivas se muestran como historial (sin acciones)
+  - Al desactivar: el icono de recurrencia desaparece del listado principal
+  - Templates desactivadas no pueden reactivar la programación desde el formulario de edición
+  - Empty state cuando no hay programaciones en cada tab
 
 - **"Editar y registrar" para transacciones virtuales**: Nueva funcionalidad para editar y registrar transacciones programadas
   - Al hacer clic en una transacción virtual, 3 opciones: "Confirmar", "Editar" y "Eliminar"

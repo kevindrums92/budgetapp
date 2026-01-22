@@ -78,8 +78,8 @@ export default function TransactionItem({
           <p className="truncate font-semibold text-gray-900 text-sm">
             {transaction.name}
           </p>
-          {/* Show repeat icon for transactions with schedule or legacy isRecurring */}
-          {(transaction.schedule?.enabled || transaction.isRecurring) && (
+          {/* Show repeat icon only for active scheduled transactions */}
+          {transaction.schedule?.enabled && (
             <Repeat className="h-3 w-3 shrink-0 text-gray-400" />
           )}
         </div>

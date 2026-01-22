@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Pencil, Trash2, X } from "lucide-react";
+import { Calendar, Pencil, Power, X } from "lucide-react";
 import { formatCOP } from "@/shared/utils/currency.utils";
 import { useBudgetStore } from "@/state/budget.store";
 import {
@@ -8,12 +8,6 @@ import {
   type VirtualTransaction,
 } from "@/shared/services/scheduler.service";
 
-// Helper to get the day before a date string (YYYY-MM-DD)
-function getDateBefore(dateStr: string): string {
-  const date = new Date(dateStr + "T12:00:00");
-  date.setDate(date.getDate() - 1);
-  return date.toISOString().slice(0, 10);
-}
 
 interface VirtualTransactionModalProps {
   transaction: VirtualTransaction;
@@ -60,14 +54,14 @@ export default function VirtualTransactionModal({
     onClose();
   };
 
-  const handleDelete = () => {
-    // Find the template and end it by setting endDate to day before virtual date
+  const handleDisable = () => {
+    // Find the template and disable its schedule
     const template = transactions.find((t) => t.id === transaction.templateId);
     if (template && template.schedule) {
       updateTransaction(transaction.templateId, {
         schedule: {
           ...template.schedule,
-          endDate: getDateBefore(transaction.date),
+          enabled: false,
         },
       });
     }
@@ -143,10 +137,10 @@ export default function VirtualTransactionModal({
           <button
             type="button"
             onClick={() => setShowDeleteConfirm(true)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 py-3 text-sm font-medium text-red-600 hover:bg-red-100"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-orange-50 py-3 text-sm font-medium text-orange-600 hover:bg-orange-100"
           >
-            <Trash2 className="h-4 w-4" />
-            Eliminar
+            <Power className="h-4 w-4" />
+            Desactivar
           </button>
         </div>
       </div>
@@ -163,14 +157,19 @@ export default function VirtualTransactionModal({
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Eliminar programacion
+              Desactivar programación
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
-              Esto terminara la programacion de "{transaction.name}".
-              No se generaran mas transacciones a partir de esta fecha.
+            <p className="mb-3 text-sm text-gray-600">
+              Esto desactivará la programación de "{transaction.name}".
+              No se generarán más transacciones automáticamente.
             </p>
+            <div className="mb-4 rounded-lg bg-orange-50 p-3">
+              <p className="text-xs font-medium text-orange-700">
+                Esta acción es irreversible. Si deseas activarla de nuevo, deberás crear una nueva programación.
+              </p>
+            </div>
             <p className="mb-4 text-xs text-gray-500">
-              Las transacciones ya registradas no se veran afectadas.
+              Las transacciones ya registradas no se verán afectadas.
             </p>
 
             {/* Actions */}
@@ -184,10 +183,10 @@ export default function VirtualTransactionModal({
               </button>
               <button
                 type="button"
-                onClick={handleDelete}
-                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
+                onClick={handleDisable}
+                className="flex-1 rounded-xl bg-orange-500 py-3 text-sm font-medium text-white hover:bg-orange-600"
               >
-                Eliminar
+                Desactivar
               </button>
             </div>
           </div>
