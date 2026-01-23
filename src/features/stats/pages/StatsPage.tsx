@@ -16,7 +16,8 @@ import {
 } from "recharts";
 import { icons, PieChart as PieChartIcon, BarChart3, TrendingUp } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { monthLabelES } from "@/services/dates.service";
+import { monthLabel } from "@/services/dates.service";
+import { useLanguage } from "@/hooks/useLanguage";
 import { formatCOP } from "@/shared/utils/currency.utils";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
@@ -68,6 +69,7 @@ type TrendData = {
 
 export default function StatsPage() {
   const { t } = useTranslation('stats');
+  const { getLocale } = useLanguage();
   const navigate = useNavigate();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -250,7 +252,7 @@ export default function StatsPage() {
       <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
         {/* Header */}
         <h2 className="text-base font-semibold">{t('title')}</h2>
-        <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
+        <p className="text-sm text-gray-500">{monthLabel(selectedMonth, getLocale())}</p>
 
       {/* Quick Stats */}
       {quickStats.hasData && (

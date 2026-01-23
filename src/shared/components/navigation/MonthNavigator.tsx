@@ -1,5 +1,7 @@
 import { useBudgetStore } from "@/state/budget.store";
-import { monthLabelES } from "@/services/dates.service";
+import { monthLabel } from "@/services/dates.service";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 
 function parseMonthKey(monthKey: string) {
   const [yStr, mStr] = monthKey.split("-");
@@ -19,6 +21,8 @@ function addMonths(monthKey: string, delta: number) {
 }
 
 export default function MonthNavigator() {
+  const { t } = useTranslation('common');
+  const { getLocale } = useLanguage();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const setSelectedMonth = useBudgetStore((s) => s.setSelectedMonth);
 
@@ -32,8 +36,8 @@ export default function MonthNavigator() {
           type="button"
           onClick={() => setSelectedMonth(addMonths(selectedMonth, -1))}
           className="rounded-xl border bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50"
-          aria-label="Mes anterior"
-          title="Mes anterior"
+          aria-label={t('date.previousMonth')}
+          title={t('date.previousMonth')}
         >
           ◀
         </button>
@@ -42,8 +46,8 @@ export default function MonthNavigator() {
           type="button"
           onClick={() => setSelectedMonth(addMonths(selectedMonth, 1))}
           className="rounded-xl border bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50"
-          aria-label="Mes siguiente"
-          title="Mes siguiente"
+          aria-label={t('date.nextMonth')}
+          title={t('date.nextMonth')}
         >
           ▶
         </button>
@@ -53,16 +57,16 @@ export default function MonthNavigator() {
           onClick={() => setSelectedMonth(currentMonth)}
           disabled={isCurrent}
           className="rounded-xl border bg-white px-3 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-40"
-          aria-label="Ir al mes actual"
-          title="Ir al mes actual"
+          aria-label={t('date.goToCurrentMonth')}
+          title={t('date.goToCurrentMonth')}
         >
-          Hoy
+          {t('date.today')}
         </button>
       </div>
 
       <div className="text-right">
-        <p className="text-xs text-gray-600">Mes</p>
-        <p className="text-sm font-semibold">{monthLabelES(selectedMonth)}</p>
+        <p className="text-xs text-gray-600">{t('date.month')}</p>
+        <p className="text-sm font-semibold">{monthLabel(selectedMonth, getLocale())}</p>
       </div>
     </div>
   );

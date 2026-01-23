@@ -26,7 +26,11 @@
     "tomorrow": "Mañana",
     "thisWeek": "Esta semana",
     "thisMonth": "Este mes",
-    "lastMonth": "Mes pasado"
+    "lastMonth": "Mes pasado",
+    "month": "Mes",
+    "previousMonth": "Mes anterior",
+    "nextMonth": "Mes siguiente",
+    "goToCurrentMonth": "Ir al mes actual"
   },
   "errors": {
     "generic": "Ocurrió un error inesperado",

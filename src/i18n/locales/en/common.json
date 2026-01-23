@@ -26,7 +26,11 @@
     "tomorrow": "Tomorrow",
     "thisWeek": "This week",
     "thisMonth": "This month",
-    "lastMonth": "Last month"
+    "lastMonth": "Last month",
+    "month": "Month",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "goToCurrentMonth": "Go to current month"
   },
   "errors": {
     "generic": "An unexpected error occurred",

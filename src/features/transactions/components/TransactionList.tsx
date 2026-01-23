@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatDateGroupHeader, todayISO } from "@/services/dates.service";
+import { formatDateGroupHeaderI18n, todayISO } from "@/services/dates.service";
+import { useLanguage } from "@/hooks/useLanguage";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
 import { formatCOP } from "@/shared/utils/currency.utils";
@@ -26,6 +27,8 @@ interface TransactionListProps {
 
 export default function TransactionList({ searchQuery = "", filterType = "all" }: TransactionListProps) {
   const { t } = useTranslation("transactions");
+  const { t: tCommon } = useTranslation("common");
+  const { getLocale } = useLanguage();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -114,7 +117,12 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
 
         return {
           date,
-          dateLabel: formatDateGroupHeader(date),
+          dateLabel: formatDateGroupHeaderI18n(
+            date,
+            tCommon('date.today'),
+            tCommon('date.yesterday'),
+            getLocale()
+          ),
           transactions: txs,
           totalExpenses,
           totalIncome,
@@ -122,7 +130,7 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
         };
       })
       .sort((a, b) => (a.date < b.date ? 1 : -1));
-  }, [allTransactions, selectedMonth, searchQuery, filterType, categoryDefinitions]);
+  }, [allTransactions, selectedMonth, searchQuery, filterType, categoryDefinitions, tCommon, getLocale]);
 
   return (
     <div className="mx-auto max-w-xl">
