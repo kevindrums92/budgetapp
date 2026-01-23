@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, ChevronRight, X } from "lucide-react";
+import { CalendarClock, ChevronRight, X } from "lucide-react";
 import type { VirtualTransaction } from "@/shared/services/scheduler.service";
 import { formatCOP } from "@/shared/utils/currency.utils";
 
@@ -34,29 +34,38 @@ export default function ScheduledBanner({
 
   return (
     <>
-      <div className="mx-4 mb-3">
-        {/* Main card - Tappable to show confirmation */}
-        <div className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-4 shadow-sm">
-          <button
-            type="button"
-            onClick={() => setShowConfirm(true)}
-            className="w-full text-left active:opacity-90 transition-opacity"
-          >
-            <div className="flex items-start gap-3 pr-6">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20">
-                <Calendar className="h-5 w-5 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-white">
-                  {count} {count === 1 ? "transaccion programada" : "transacciones programadas"}
-                </p>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-white">
-                  <span>Registrar todas</span>
-                  <ChevronRight className="h-4 w-4" />
-                </div>
+      <div className="mx-4 mb-5">
+        <section className="bg-violet-50 border border-violet-100 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+          {/* Fondo decorativo sutil */}
+          <div className="absolute left-0 bottom-0 w-24 h-24 bg-violet-100/50 rounded-full -ml-8 -mb-8 blur-xl" />
+
+          {/* Main content */}
+          <div className="relative z-10 flex items-center gap-3">
+            {/* Ícono centrado verticalmente */}
+            <div className="w-10 h-10 rounded-full bg-white text-violet-600 flex items-center justify-center shadow-sm border border-violet-50 shrink-0">
+              {/* Icono con animación de pulso */}
+              <div className="relative">
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full animate-ping opacity-75" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full" />
+                <CalendarClock size={20} strokeWidth={2} />
               </div>
             </div>
-          </button>
+
+            {/* Contenido: título + botón */}
+            <div className="flex-1">
+              <p className="text-sm text-gray-800 font-bold leading-tight mb-1">
+                {count} {count === 1 ? "Transacción programada" : "Transacciones programadas"}
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowConfirm(true)}
+                className="text-violet-600 font-bold text-sm flex items-center gap-1 hover:text-violet-700 active:scale-95 transition"
+              >
+                Revisar
+                <ChevronRight size={16} strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
 
           {/* Close button */}
           <button
@@ -65,11 +74,11 @@ export default function ScheduledBanner({
               e.stopPropagation();
               setShowDismissConfirm(true);
             }}
-            className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 active:scale-95 transition-all"
+            className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 hover:bg-white active:scale-95 transition-all z-20 shadow-sm"
           >
-            <X className="h-4 w-4 text-white" />
+            <X className="h-3.5 w-3.5 text-violet-600" />
           </button>
-        </div>
+        </section>
       </div>
 
       {/* Dismiss Confirmation Modal */}
@@ -108,7 +117,7 @@ export default function ScheduledBanner({
                   onDismiss();
                   setShowDismissConfirm(false);
                 }}
-                className="w-full rounded-xl bg-purple-500 py-3 text-sm font-medium text-white hover:bg-purple-600"
+                className="w-full rounded-xl bg-violet-600 py-3 text-sm font-medium text-white hover:bg-violet-700"
               >
                 Solo por esta vez
               </button>
@@ -166,7 +175,7 @@ export default function ScheduledBanner({
               <button
                 type="button"
                 onClick={handleConfirm}
-                className="flex-1 rounded-xl bg-purple-500 py-3 text-sm font-medium text-white hover:bg-purple-600"
+                className="flex-1 rounded-xl bg-violet-600 py-3 text-sm font-medium text-white hover:bg-violet-700"
               >
                 Registrar todas
               </button>
