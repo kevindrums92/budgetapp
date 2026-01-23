@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/shared/utils/currency.utils";
 import { Plus, MapPin, Calendar, Plane, Download } from "lucide-react";
@@ -8,12 +9,6 @@ import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
 import RowMenu from "@/shared/components/ui/RowMenu";
 import { exportTripsToCSV } from "@/shared/services/export.service";
 
-const STATUS_LABELS: Record<Trip["status"], string> = {
-  planning: "Planificando",
-  active: "En curso",
-  completed: "Completado",
-};
-
 const STATUS_COLORS: Record<Trip["status"], string> = {
   planning: "bg-amber-100 text-amber-700",
   active: "bg-emerald-100 text-emerald-700",
@@ -21,6 +16,7 @@ const STATUS_COLORS: Record<Trip["status"], string> = {
 };
 
 export default function TripsPage() {
+  const { t } = useTranslation('trips');
   const navigate = useNavigate();
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
@@ -28,6 +24,12 @@ export default function TripsPage() {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<Trip | null>(null);
+
+  const STATUS_LABELS: Record<Trip["status"], string> = {
+    planning: t('labels.planning'),
+    active: t('labels.inProgress'),
+    completed: t('labels.completed'),
+  };
 
   const { activeTrip, otherTrips } = useMemo(() => {
     const active = trips.find((t) => t.status === "active") ?? null;
@@ -74,7 +76,7 @@ export default function TripsPage() {
       month: "short",
     });
 
-    if (!end) return `Desde ${startStr}`;
+    if (!end) return t('labels.from', { date: startStr });
 
     const endDate = new Date(end + "T12:00:00");
     const endStr = endDate.toLocaleDateString("es-CO", {
@@ -92,8 +94,8 @@ export default function TripsPage() {
           {/* Header con título (siempre visible cuando hay viajes) */}
           {trips.length > 0 && (
             <div className="pt-6 pb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Mis Viajes</h2>
-              <p className="text-xs text-gray-500">Planifica y trackea tus gastos</p>
+              <h2 className="text-lg font-semibold text-gray-900">{t('title')}</h2>
+              <p className="text-xs text-gray-500">{t('subtitle')}</p>
             </div>
           )}
 
@@ -101,7 +103,7 @@ export default function TripsPage() {
           {activeTrip && (
             <div className="mb-6">
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                Viaje actual
+                {t('sections.current')}
               </p>
               <ActiveTripCard
                 trip={activeTrip}
@@ -110,6 +112,7 @@ export default function TripsPage() {
                 onView={() => navigate(`/trips/${activeTrip.id}`)}
                 onEdit={() => navigate(`/trips/${activeTrip.id}/edit`)}
                 onDelete={() => onAskDelete(activeTrip)}
+                t={t}
               />
             </div>
           )}
@@ -118,7 +121,7 @@ export default function TripsPage() {
           {otherTrips.length > 0 && (
             <div className={activeTrip ? "" : "mt-0"}>
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                {activeTrip ? "Otros viajes" : "Próximos viajes"}
+                {activeTrip ? t('sections.other') : t('sections.upcoming')}
               </p>
               <div className="space-y-2">
                 {otherTrips.map((trip) => (
@@ -127,6 +130,7 @@ export default function TripsPage() {
                     trip={trip}
                     spent={getTripSpent(trip.id)}
                     formatDateRange={formatDateRange}
+                    statusLabel={STATUS_LABELS[trip.status]}
                     onView={() => navigate(`/trips/${trip.id}`)}
                     onEdit={() => navigate(`/trips/${trip.id}/edit`)}
                     onDelete={() => onAskDelete(trip)}
@@ -144,7 +148,7 @@ export default function TripsPage() {
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors mt-6"
             >
               <Download className="h-5 w-5" />
-              Exportar Viajes a CSV
+              {t('export')}
             </button>
           )}
 
@@ -154,16 +158,16 @@ export default function TripsPage() {
               <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
                 <Plane size={24} className="text-gray-400" />
               </div>
-              <p className="font-medium text-gray-700">No tienes viajes</p>
+              <p className="font-medium text-gray-700">{t('emptyState.title')}</p>
               <p className="mt-1 text-sm text-gray-500">
-                Crea tu primer viaje para empezar a trackear gastos
+                {t('emptyState.message')}
               </p>
               <button
                 type="button"
                 onClick={() => navigate("/trips/new")}
                 className="mt-4 rounded-full bg-black px-6 py-2 text-sm font-medium text-white active:scale-[0.98] transition-transform"
               >
-                Crear viaje
+                {t('emptyState.button')}
               </button>
             </div>
           )}
@@ -186,14 +190,10 @@ export default function TripsPage() {
       {/* Confirm delete dialog */}
       <ConfirmDialog
         open={confirmOpen}
-        title="Eliminar viaje"
-        message={
-          tripToDelete
-            ? `¿Seguro que deseas eliminar "${tripToDelete.name}"? Se eliminarán también todos los gastos asociados.`
-            : "¿Seguro que deseas eliminar este viaje?"
-        }
-        confirmText="Eliminar"
-        cancelText="Cancelar"
+        title={t('delete.title')}
+        message={t('delete.message')}
+        confirmText={t('delete.confirm')}
+        cancelText={t('delete.cancel')}
         destructive
         onConfirm={onConfirmDelete}
         onClose={() => {
@@ -212,6 +212,7 @@ function ActiveTripCard({
   onView,
   onEdit,
   onDelete,
+  t,
 }: {
   trip: Trip;
   spent: number;
@@ -219,6 +220,7 @@ function ActiveTripCard({
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  t: (key: string) => string;
 }) {
   const remaining = trip.budget - spent;
   const progress = trip.budget > 0 ? Math.min((spent / trip.budget) * 100, 100) : 0;
@@ -245,7 +247,7 @@ function ActiveTripCard({
       {/* Progress bar */}
       <div className="mb-3">
         <div className="flex justify-between text-xs mb-1">
-          <span className="text-gray-500">Gastado</span>
+          <span className="text-gray-500">{t('labels.spent')}</span>
           <span className={isOverBudget ? "text-red-600 font-medium" : "text-gray-600"}>
             {formatCOP(spent)} / {formatCOP(trip.budget)}
           </span>
@@ -272,8 +274,8 @@ function ActiveTripCard({
           }`}
         >
           {isOverBudget
-            ? `Excedido ${formatCOP(Math.abs(remaining))}`
-            : `Disponible ${formatCOP(remaining)}`}
+            ? `${t('labels.exceeded')} ${formatCOP(Math.abs(remaining))}`
+            : `${t('labels.available')} ${formatCOP(remaining)}`}
         </div>
       </div>
     </div>
@@ -284,6 +286,7 @@ function TripCard({
   trip,
   spent,
   formatDateRange,
+  statusLabel,
   onView,
   onEdit,
   onDelete,
@@ -291,6 +294,7 @@ function TripCard({
   trip: Trip;
   spent: number;
   formatDateRange: (start: string, end: string | null) => string;
+  statusLabel: string;
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -311,7 +315,7 @@ function TripCard({
                 STATUS_COLORS[trip.status]
               }`}
             >
-              {STATUS_LABELS[trip.status]}
+              {statusLabel}
             </span>
           </div>
           <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">

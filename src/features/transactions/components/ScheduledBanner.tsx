@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CalendarClock, ChevronRight, X } from "lucide-react";
 import type { VirtualTransaction } from "@/shared/services/scheduler.service";
 import { formatCOP } from "@/shared/utils/currency.utils";
@@ -18,6 +19,7 @@ export default function ScheduledBanner({
   onDismiss,
   onDismissForMonth,
 }: ScheduledBannerProps) {
+  const { t } = useTranslation("transactions");
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDismissConfirm, setShowDismissConfirm] = useState(false);
 
@@ -54,14 +56,14 @@ export default function ScheduledBanner({
             {/* Contenido: título + botón */}
             <div className="flex-1">
               <p className="text-sm text-gray-800 font-bold leading-tight mb-1">
-                {count} {count === 1 ? "Transacción programada" : "Transacciones programadas"}
+                {count} {t(count === 1 ? "scheduledBanner.singular" : "scheduledBanner.plural")}
               </p>
               <button
                 type="button"
                 onClick={() => setShowConfirm(true)}
                 className="text-violet-600 font-bold text-sm flex items-center gap-1 hover:text-violet-700 active:scale-95 transition"
               >
-                Revisar
+                {t("scheduledBanner.review")}
                 <ChevronRight size={16} strokeWidth={2.5} />
               </button>
             </div>
@@ -93,10 +95,10 @@ export default function ScheduledBanner({
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Ocultar transacciones programadas
+              {t("scheduledBanner.hideModal.title")}
             </h3>
             <p className="mb-4 text-sm text-gray-600">
-              ¿Cómo quieres ocultar este banner?
+              {t("scheduledBanner.hideModal.message")}
             </p>
 
             {/* Actions */}
@@ -109,7 +111,7 @@ export default function ScheduledBanner({
                 }}
                 className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
-                No volver a mostrar este mes
+                {t("scheduledBanner.hideModal.neverShowMonth")}
               </button>
               <button
                 type="button"
@@ -119,14 +121,14 @@ export default function ScheduledBanner({
                 }}
                 className="w-full rounded-xl bg-violet-600 py-3 text-sm font-medium text-white hover:bg-violet-700"
               >
-                Solo por esta vez
+                {t("scheduledBanner.hideModal.hideOnce")}
               </button>
               <button
                 type="button"
                 onClick={() => setShowDismissConfirm(false)}
                 className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
               >
-                Cancelar
+                {t("scheduledBanner.hideModal.cancel")}
               </button>
             </div>
           </div>
@@ -145,10 +147,10 @@ export default function ScheduledBanner({
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Registrar transacciones
+              {t("scheduledBanner.confirmModal.title")}
             </h3>
             <p className="mb-4 text-sm text-gray-600">
-              Se registraran {count} transacciones programadas.
+              {t("scheduledBanner.confirmModal.message", { count })}
             </p>
 
             {/* Transaction list preview */}
@@ -170,14 +172,14 @@ export default function ScheduledBanner({
                 onClick={() => setShowConfirm(false)}
                 className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
-                Cancelar
+                {t("scheduledBanner.confirmModal.cancel")}
               </button>
               <button
                 type="button"
                 onClick={handleConfirm}
                 className="flex-1 rounded-xl bg-violet-600 py-3 text-sm font-medium text-white hover:bg-violet-700"
               >
-                Registrar todas
+                {t("scheduledBanner.confirmModal.confirm")}
               </button>
             </div>
           </div>

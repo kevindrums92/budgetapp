@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { icons, Plus, ChevronRight, Download } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/shared/utils/currency.utils";
@@ -26,6 +27,7 @@ function getTextColor(spent: number, limit: number | undefined): string {
 }
 
 export default function BudgetPage() {
+  const { t } = useTranslation('budget');
   const navigate = useNavigate();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -165,7 +167,7 @@ export default function BudgetPage() {
 
           {/* No limit text */}
           {showLimit && !limit && (
-            <p className="text-xs text-gray-400 mt-1">Toca para establecer límite</p>
+            <p className="text-xs text-gray-400 mt-1">{t('setLimit')}</p>
           )}
         </div>
 
@@ -179,18 +181,18 @@ export default function BudgetPage() {
       <div className="bg-gray-50 min-h-screen">
         <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
           {/* Summary Section */}
-          <h2 className="text-base font-semibold mb-3">Resumen del Mes</h2>
+          <h2 className="text-base font-semibold mb-3">{t('summary.title')}</h2>
           <div className="rounded-2xl bg-white p-5 shadow-sm mb-6">
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-xs text-gray-400">Presupuestado</p>
+                <p className="text-xs text-gray-400">{t('summary.budgeted')}</p>
                 <p className="text-lg font-semibold text-gray-900">
                   {formatCOP(totals.totalBudgeted)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-400">Gastado</p>
+                <p className="text-xs text-gray-400">{t('summary.spent')}</p>
                 <p
                   className={`text-lg font-semibold ${
                     totals.totalSpent > totals.totalBudgeted && totals.totalBudgeted > 0
@@ -216,26 +218,26 @@ export default function BudgetPage() {
                   />
                 </div>
                 <p className="text-xs text-gray-500 text-right">
-                  {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}% del presupuesto
+                  {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}{t('summary.percentageLabel')}
                 </p>
               </div>
             )}
 
             {totals.totalBudgeted === 0 && (
               <p className="text-sm text-gray-400 text-center py-2">
-                Establece límites en tus categorías para ver tu progreso
+                {t('emptyState')}
               </p>
             )}
           </div>
 
           {/* Expense Categories */}
-          <h3 className="text-base font-semibold mb-3">Gastos</h3>
+          <h3 className="text-base font-semibold mb-3">{t('sections.expenses')}</h3>
           <div className="space-y-2 mb-8">
             {expenseCategories.map((cat) => renderCategoryRow(cat, true))}
           </div>
 
           {/* Income Categories */}
-          <h3 className="text-base font-semibold mb-3">Ingresos</h3>
+          <h3 className="text-base font-semibold mb-3">{t('sections.income')}</h3>
           <div className="space-y-2 mb-8">
             {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
           </div>
@@ -247,7 +249,7 @@ export default function BudgetPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors mb-3"
           >
             <Download className="h-5 w-5" />
-            Exportar Presupuesto a CSV
+            {t('export')}
           </button>
 
           {/* Add Category Button */}
@@ -257,7 +259,7 @@ export default function BudgetPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm font-medium text-gray-500 hover:border-emerald-300 hover:text-emerald-600 transition-colors"
           >
             <Plus className="h-5 w-5" />
-            Nueva Categoría
+            {t('newCategory')}
           </button>
 
           {/* Set Limit Modal */}

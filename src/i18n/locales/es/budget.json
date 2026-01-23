@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "title": "Resumen del Mes",
+    "budgeted": "Presupuestado",
+    "spent": "Gastado",
+    "percentageLabel": "% del presupuesto"
+  },
+  "emptyState": "Establece límites en tus categorías para ver tu progreso",
+  "sections": {
+    "expenses": "Gastos",
+    "income": "Ingresos"
+  },
+  "setLimit": "Toca para establecer límite",
+  "export": "Exportar Presupuesto a CSV",
+  "newCategory": "Nueva Categoría"
+}

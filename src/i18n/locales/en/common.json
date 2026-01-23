@@ -39,6 +39,12 @@
   "noData": "No data available",
   "search": "Search...",
   "filter": "Filter",
+  "cancel": "Cancel",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "confirm": "Confirm",
+  "ok": "OK",
   "defaultCategories": {
     "mercado": "Groceries",
     "restaurantes": "Restaurants",

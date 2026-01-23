@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Plus, X, Search, Calculator, SlidersHorizontal, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
 import TransactionList from "@/features/transactions/components/TransactionList";
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";
@@ -11,6 +12,7 @@ import { generateVirtualTransactions, generatePastDueTransactions, materializeTr
 import { todayISO } from "@/services/dates.service";
 
 export default function HomePage() {
+  const { t } = useTranslation('home');
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
@@ -129,7 +131,7 @@ export default function HomePage() {
     const monthTransactions = transactions.filter((t) => t.date.slice(0, 7) === selectedMonth);
 
     if (monthTransactions.length === 0) {
-      alert("No hay transacciones para exportar en este mes");
+      alert(t('export.noTransactions'));
       return;
     }
 
@@ -156,10 +158,10 @@ export default function HomePage() {
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider font-bold text-[#18B7B0] mb-0.5">
-                  Al mes le quedan {dailyBudgetInfo.daysRemaining} días
+                  {t('dailyBudget.remaining', { count: dailyBudgetInfo.daysRemaining })}
                 </p>
                 <p className="text-sm text-gray-700 font-medium leading-tight">
-                  Podrías gastar <span className="text-lg font-bold text-teal-700">{formatCOP(dailyBudgetInfo.dailyBudget)}</span> / día
+                  {t('dailyBudget.couldSpend', { amount: formatCOP(dailyBudgetInfo.dailyBudget) })}
                 </p>
               </div>
             </div>
@@ -192,7 +194,7 @@ export default function HomePage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar..."
+                  placeholder={t('search')}
                   className="w-full bg-white border border-gray-200 rounded-xl py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20 shadow-sm transition"
                 />
                 {searchQuery && (
@@ -227,7 +229,7 @@ export default function HomePage() {
                 {showFilterMenu && (
                   <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
                     <p className="px-3 py-2 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
-                      Filtrar por
+                      {t('filter')}
                     </p>
 
                     <button
@@ -239,7 +241,7 @@ export default function HomePage() {
                       className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
                     >
                       <span className={filterType === "all" ? "text-[#18B7B0]" : "text-gray-700"}>
-                        Todos
+                        {t('filters.all')}
                       </span>
                       {filterType === "all" && <Check size={14} className="text-[#18B7B0]" />}
                     </button>
@@ -253,7 +255,7 @@ export default function HomePage() {
                       className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
                     >
                       <span className={filterType === "expense" ? "text-rose-600" : "text-gray-700"}>
-                        Gastos
+                        {t('filters.expenses')}
                       </span>
                       {filterType === "expense" && <Check size={14} className="text-rose-600" />}
                     </button>
@@ -267,7 +269,7 @@ export default function HomePage() {
                       className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
                     >
                       <span className={filterType === "income" ? "text-[#18B7B0]" : "text-gray-700"}>
-                        Ingresos
+                        {t('filters.income')}
                       </span>
                       {filterType === "income" && <Check size={14} className="text-[#18B7B0]" />}
                     </button>
@@ -281,7 +283,7 @@ export default function HomePage() {
                       className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
                     >
                       <span className={filterType === "pending" ? "text-[#18B7B0]" : "text-gray-700"}>
-                        Pendientes
+                        {t('filters.pending')}
                       </span>
                       {filterType === "pending" && <Check size={14} className="text-[#18B7B0]" />}
                     </button>
@@ -295,7 +297,7 @@ export default function HomePage() {
                       className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
                     >
                       <span className={filterType === "recurring" ? "text-[#18B7B0]" : "text-gray-700"}>
-                        Recurrentes
+                        {t('filters.recurring')}
                       </span>
                       {filterType === "recurring" && <Check size={14} className="text-[#18B7B0]" />}
                     </button>
@@ -359,10 +361,10 @@ export default function HomePage() {
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Ocultar presupuesto diario
+              {t('hideDailyBudget.title')}
             </h3>
             <p className="mb-4 text-sm text-gray-600">
-              ¿Cómo quieres ocultar este banner?
+              {t('hideDailyBudget.message')}
             </p>
 
             {/* Actions */}
@@ -377,7 +379,7 @@ export default function HomePage() {
                 }}
                 className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
-                No volver a mostrar
+                {t('hideDailyBudget.neverShow')}
               </button>
               <button
                 type="button"
@@ -387,14 +389,14 @@ export default function HomePage() {
                 }}
                 className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
               >
-                Solo por esta vez
+                {t('hideDailyBudget.hideOnce')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowDailyBudgetConfirm(false)}
                 className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
               >
-                Cancelar
+                {t('hideDailyBudget.cancel')}
               </button>
             </div>
           </div>
@@ -413,16 +415,16 @@ export default function HomePage() {
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Exportar transacciones
+              {t('export.title')}
             </h3>
             <p className="mb-4 text-sm text-gray-600">
-              Se exportarán todas las transacciones de {selectedMonth} a formato CSV.
+              {t('export.info')}
             </p>
 
             {/* Info */}
             <div className="mb-6 rounded-xl bg-gray-50 p-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Total de transacciones:</span>
+                <span className="text-gray-600">{t('export.total')}</span>
                 <span className="font-semibold text-gray-900">
                   {transactions.filter((t) => t.date.slice(0, 7) === selectedMonth).length}
                 </span>
@@ -436,14 +438,14 @@ export default function HomePage() {
                 onClick={() => setShowExportModal(false)}
                 className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
-                Cancelar
+                {t('hideDailyBudget.cancel')}
               </button>
               <button
                 type="button"
                 onClick={handleExport}
                 className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
               >
-                Exportar
+                {t('export.title')}
               </button>
             </div>
           </div>

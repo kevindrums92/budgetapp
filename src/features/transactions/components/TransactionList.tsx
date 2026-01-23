@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatDateGroupHeader, todayISO } from "@/services/dates.service";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
@@ -24,6 +25,7 @@ interface TransactionListProps {
 }
 
 export default function TransactionList({ searchQuery = "", filterType = "all" }: TransactionListProps) {
+  const { t } = useTranslation("transactions");
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -126,15 +128,15 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
     <div className="mx-auto max-w-xl">
       {!isCurrent && (
         <div className="mb-3 mx-4 border bg-white p-3 text-xs text-gray-600 rounded-lg">
-          Estás viendo un mes diferente al actual. Puedes agregar movimientos igual, pero revisa la fecha.
+          {t("list.monthWarning")}
         </div>
       )}
 
       {groupedList.length === 0 ? (
         <div className="mx-4 bg-white p-6 text-center text-sm text-gray-600 rounded-xl shadow-sm">
           {searchQuery
-            ? `No se encontraron resultados para "${searchQuery}"`
-            : "Aún no tienes movimientos este mes."}
+            ? t("list.searchEmpty", { query: searchQuery })
+            : t("list.noTransactions")}
         </div>
       ) : (
         <div className="space-y-3">

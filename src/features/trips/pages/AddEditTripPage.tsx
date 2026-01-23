@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 import type { TripStatus } from "@/types/budget.types";
@@ -14,6 +15,7 @@ const STATUS_OPTIONS: { value: TripStatus; label: string }[] = [
 ];
 
 export default function AddEditTripPage() {
+  const { t } = useTranslation('trips');
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const isEdit = Boolean(params.id);
@@ -113,7 +115,7 @@ export default function AddEditTripPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <PageHeader
-        title={trip ? "Editar viaje" : "Nuevo viaje"}
+        title={trip ? t('form.editTitle') : t('form.newTitle')}
         onBack={goBack}
       />
 
@@ -122,12 +124,12 @@ export default function AddEditTripPage() {
           {/* Nombre */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Nombre del viaje
+              {t('form.name')}
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: San Andrés 2026, Europa Verano..."
+              placeholder={t('form.namePlaceholder')}
               className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
@@ -135,12 +137,12 @@ export default function AddEditTripPage() {
           {/* Destino */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Destino
+              {t('form.destination')}
             </label>
             <input
               value={destination}
               onChange={(e) => setDestination(e.target.value)}
-              placeholder="Ej: San Andrés, Colombia"
+              placeholder={t('form.destinationPlaceholder')}
               className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
@@ -148,7 +150,7 @@ export default function AddEditTripPage() {
           {/* Presupuesto */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Presupuesto
+              {t('form.budget')}
             </label>
             <input
               value={budget}
@@ -170,7 +172,7 @@ export default function AddEditTripPage() {
               className="rounded-2xl bg-white p-4 shadow-sm text-left"
             >
               <label className="mb-1 block text-xs font-medium text-gray-500">
-                Fecha inicio
+                {t('form.startDate')}
               </label>
               <div className="flex items-center gap-2">
                 <Calendar size={18} className="text-gray-400" />
@@ -186,12 +188,12 @@ export default function AddEditTripPage() {
               className="rounded-2xl bg-white p-4 shadow-sm text-left"
             >
               <label className="mb-1 block text-xs font-medium text-gray-500">
-                Fecha fin
+                {t('form.endDate')}
               </label>
               <div className="flex items-center gap-2">
                 <Calendar size={18} className="text-gray-400" />
                 <span className={`text-base ${endDate ? "text-gray-900" : "text-gray-400"}`}>
-                  {endDate ? formatDate(endDate) : "Opcional"}
+                  {endDate ? formatDate(endDate) : t('expense.optional')}
                 </span>
               </div>
             </button>
@@ -214,7 +216,7 @@ export default function AddEditTripPage() {
                       : "bg-gray-100 text-gray-600"
                   }`}
                 >
-                  {opt.label}
+                  {t(`labels.${opt.value}`)}
                 </button>
               ))}
             </div>
@@ -231,7 +233,7 @@ export default function AddEditTripPage() {
             disabled={!canSave}
             className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300"
           >
-            {trip ? "Guardar cambios" : "Crear viaje"}
+            {trip ? t('form.saveChanges') : t('form.save')}
           </button>
         </div>
       </div>

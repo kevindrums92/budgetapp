@@ -1,0 +1,70 @@
+{
+  "title": "My Trips",
+  "subtitle": "Plan and track your expenses",
+  "sections": {
+    "current": "Current trip",
+    "upcoming": "Upcoming trips",
+    "other": "Other trips"
+  },
+  "labels": {
+    "spent": "Spent",
+    "available": "Available",
+    "exceeded": "Exceeded",
+    "from": "From {{date}}",
+    "planning": "Planning",
+    "inProgress": "In progress",
+    "completed": "Completed"
+  },
+  "export": "Export Trips to CSV",
+  "emptyState": {
+    "title": "No trips yet",
+    "message": "Create your first trip to start tracking expenses",
+    "button": "Create trip"
+  },
+  "delete": {
+    "title": "Delete trip",
+    "message": "Are you sure you want to delete this trip? All associated expenses will also be deleted.",
+    "confirm": "Delete",
+    "cancel": "Cancel"
+  },
+  "form": {
+    "editTitle": "Edit Trip",
+    "newTitle": "New Trip",
+    "name": "Trip name",
+    "namePlaceholder": "E.g.: Cartagena Vacation",
+    "budget": "Budget",
+    "startDate": "Start date",
+    "endDate": "End date (optional)",
+    "destination": "Destination (optional)",
+    "destinationPlaceholder": "E.g.: Cartagena, Colombia",
+    "save": "Save",
+    "saveChanges": "Save changes"
+  },
+  "detail": {
+    "expenses": "EXPENSES ({{count}})",
+    "expenses_one": "EXPENSE ({{count}})",
+    "newExpense": "New Expense",
+    "emptyExpenses": {
+      "title": "No expenses",
+      "message": "Add your first trip expense"
+    }
+  },
+  "expense": {
+    "editTitle": "Edit Expense",
+    "newTitle": "New Expense",
+    "description": "Description",
+    "descriptionPlaceholder": "What did you spend on?",
+    "amount": "Amount",
+    "date": "Date",
+    "category": "Category",
+    "categoryPlaceholder": "Select category",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "delete": {
+      "title": "Delete expense",
+      "message": "Are you sure you want to delete this expense?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  }
+}

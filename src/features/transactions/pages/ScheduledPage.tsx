@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Calendar } from "lucide-react";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ScheduleListItem from "../components/ScheduleListItem";
@@ -8,6 +9,7 @@ import type { Transaction } from "@/types/budget.types";
 type TabType = "active" | "inactive";
 
 export default function ScheduledPage() {
+  const { t } = useTranslation("scheduled");
   const transactions = useBudgetStore((s) => s.transactions);
   const getCategoryById = useBudgetStore((s) => s.getCategoryById);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
@@ -54,7 +56,7 @@ export default function ScheduledPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
-      <PageHeader title="Programadas" />
+      <PageHeader title={t("title")} />
 
       {/* Tabs */}
       <div className="flex gap-2 bg-white px-4 pt-3 pb-4">
@@ -67,7 +69,7 @@ export default function ScheduledPage() {
               : "bg-gray-100 text-gray-600"
           }`}
         >
-          Activas ({active.length})
+          {t("tabs.active", { count: active.length })}
         </button>
         <button
           type="button"
@@ -78,7 +80,7 @@ export default function ScheduledPage() {
               : "bg-gray-100 text-gray-600"
           }`}
         >
-          Inactivas ({inactive.length})
+          {t("tabs.inactive", { count: inactive.length })}
         </button>
       </div>
 
@@ -89,13 +91,13 @@ export default function ScheduledPage() {
             <Calendar className="mx-auto h-10 w-10 text-gray-300" />
             <p className="mt-3 text-sm font-medium text-gray-600">
               {activeTab === "active"
-                ? "No tienes programaciones activas"
-                : "No tienes programaciones inactivas"}
+                ? t("emptyActive.title")
+                : t("emptyInactive.title")}
             </p>
             <p className="mt-1 text-xs text-gray-400">
               {activeTab === "active"
-                ? "Activa la programación al crear una transacción"
-                : "Las programaciones desactivadas aparecerán aquí"}
+                ? t("emptyActive.message")
+                : t("emptyInactive.message")}
             </p>
           </div>
         )}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ChevronDown, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -11,6 +12,7 @@ import PageHeader from "@/shared/components/layout/PageHeader";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
 export default function AddEditCategoryPage() {
+  const { t } = useTranslation("categories");
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -18,7 +20,6 @@ export default function AddEditCategoryPage() {
 
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
-  const transactions = useBudgetStore((s) => s.transactions);
   const addCategory = useBudgetStore((s) => s.addCategory);
   const updateCategory = useBudgetStore((s) => s.updateCategory);
   const deleteCategory = useBudgetStore((s) => s.deleteCategory);
@@ -73,7 +74,6 @@ export default function AddEditCategoryPage() {
 
   const currentGroup = categoryGroups.find((g) => g.id === groupId);
   const currentCategory = categoryDefinitions.find((c) => c.id === id);
-  const transactionsCount = transactions.filter((t) => t.category === id).length;
 
   function handleSave() {
     if (!name.trim()) return;
@@ -112,7 +112,7 @@ export default function AddEditCategoryPage() {
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
       <PageHeader
-        title={isEditing ? "Editar Categoría" : "Nueva Categoría"}
+        title={isEditing ? t("form.editTitle") : t("form.newTitle")}
         rightActions={
           isEditing && currentCategory ? (
             <button
@@ -154,13 +154,13 @@ export default function AddEditCategoryPage() {
           {/* Name */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Descripción
+              {t("form.name")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nombre de la categoría"
+              placeholder={t("form.namePlaceholder")}
               className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
@@ -168,7 +168,7 @@ export default function AddEditCategoryPage() {
           {/* Type */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-2 block text-xs font-medium text-gray-500">
-              Tipo
+              {t("form.type")}
             </label>
             <div className="flex gap-2">
               <button
@@ -180,7 +180,7 @@ export default function AddEditCategoryPage() {
                     : "bg-gray-100 text-gray-600"
                 }`}
               >
-                Gasto
+                {t("form.typeExpense")}
               </button>
               <button
                 type="button"
@@ -191,7 +191,7 @@ export default function AddEditCategoryPage() {
                     : "bg-gray-100 text-gray-600"
                 }`}
               >
-                Ingreso
+                {t("form.typeIncome")}
               </button>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function AddEditCategoryPage() {
           {/* Group */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Grupo
+              {t("form.group")}
             </label>
             <button
               type="button"
@@ -207,7 +207,7 @@ export default function AddEditCategoryPage() {
               className="flex w-full items-center justify-between"
             >
               <span className="text-base text-gray-900">
-                {currentGroup?.name || "Seleccionar"}
+                {currentGroup?.name || t("form.selectGroup")}
               </span>
               <ChevronDown
                 className={`h-5 w-5 text-gray-400 transition-transform ${
@@ -249,7 +249,7 @@ export default function AddEditCategoryPage() {
           disabled={!name.trim()}
           className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300"
         >
-          Guardar
+          {t("form.save")}
         </button>
       </div>
 
@@ -272,22 +272,10 @@ export default function AddEditCategoryPage() {
           />
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Eliminar categoría
+              {t("form.delete.title")}
             </h3>
             <p className="mb-4 text-gray-600">
-              {transactionsCount > 0 ? (
-                <>
-                  La categoría "{name}" tiene{" "}
-                  <span className="font-medium">{transactionsCount}</span>{" "}
-                  transacción(es) asociadas. Si la eliminas, estas transacciones
-                  quedarán sin categoría.
-                </>
-              ) : (
-                <>
-                  ¿Estás seguro de que deseas eliminar la categoría "{name}"?
-                  Esta acción no se puede deshacer.
-                </>
-              )}
+              {t("form.delete.message")}
             </p>
             <div className="flex gap-3">
               <button
@@ -295,14 +283,14 @@ export default function AddEditCategoryPage() {
                 onClick={() => setConfirmDelete(false)}
                 className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
-                Cancelar
+                {t("form.delete.cancel")}
               </button>
               <button
                 type="button"
                 onClick={confirmDeleteCategory}
                 className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
               >
-                Eliminar
+                {t("form.delete.confirm")}
               </button>
             </div>
           </div>

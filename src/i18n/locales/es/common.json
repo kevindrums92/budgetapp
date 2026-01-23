@@ -39,6 +39,12 @@
   "noData": "No hay datos disponibles",
   "search": "Buscar...",
   "filter": "Filtrar",
+  "cancel": "Cancelar",
+  "save": "Guardar",
+  "delete": "Eliminar",
+  "edit": "Editar",
+  "confirm": "Confirmar",
+  "ok": "OK",
   "defaultCategories": {
     "mercado": "Mercado",
     "restaurantes": "Restaurantes",

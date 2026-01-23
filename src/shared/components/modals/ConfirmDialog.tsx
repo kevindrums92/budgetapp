@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   open: boolean;
@@ -13,14 +14,15 @@ type Props = {
 
 export default function ConfirmDialog({
   open,
-  title = "Confirmar",
+  title,
   message,
-  confirmText = "Confirmar",
-  cancelText = "Cancelar",
+  confirmText,
+  cancelText,
   destructive = false,
   onConfirm,
   onClose,
 }: Props) {
+  const { t } = useTranslation('common');
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -44,7 +46,7 @@ export default function ConfirmDialog({
       {/* Modal Card */}
       <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
         <h3 className="mb-2 text-lg font-semibold text-gray-900">
-          {title}
+          {title || t('buttons.confirm')}
         </h3>
         <p className="mb-4 text-sm text-gray-600">
           {message}
@@ -57,7 +59,7 @@ export default function ConfirmDialog({
             onClick={onClose}
             className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
           >
-            {cancelText}
+            {cancelText || t('buttons.cancel')}
           </button>
           <button
             type="button"
@@ -68,7 +70,7 @@ export default function ConfirmDialog({
                 : "bg-blue-500 hover:bg-blue-600"
             }`}
           >
-            {confirmText}
+            {confirmText || t('buttons.confirm')}
           </button>
         </div>
       </div>

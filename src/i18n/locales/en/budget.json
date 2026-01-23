@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "title": "Monthly Summary",
+    "budgeted": "Budgeted",
+    "spent": "Spent",
+    "percentageLabel": "% of budget"
+  },
+  "emptyState": "Set limits on your categories to see your progress",
+  "sections": {
+    "expenses": "Expenses",
+    "income": "Income"
+  },
+  "setLimit": "Tap to set limit",
+  "export": "Export Budget to CSV",
+  "newCategory": "New Category"
+}

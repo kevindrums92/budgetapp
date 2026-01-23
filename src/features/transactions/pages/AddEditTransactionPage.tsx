@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -23,6 +24,7 @@ function getDateBefore(dateStr: string): string {
 }
 
 export default function AddEditTransactionPage() {
+  const { t } = useTranslation("transactions");
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
@@ -379,10 +381,10 @@ export default function AddEditTransactionPage() {
   }
 
   const title = isEdit
-    ? "Editar"
+    ? t("form.edit")
     : type === "income"
-    ? "Nuevo Ingreso"
-    : "Nuevo Gasto";
+    ? t("form.newIncome")
+    : t("form.newExpense");
 
   const accentColor = type === "income" ? "text-emerald-600" : "text-gray-900";
 
@@ -425,7 +427,7 @@ export default function AddEditTransactionPage() {
       {/* Amount Input */}
       <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
         <div className="text-center">
-          <p className="mb-2 text-sm font-medium text-gray-500">Monto</p>
+          <p className="mb-2 text-sm font-medium text-gray-500">{t("form.amount")}</p>
           <div className="flex items-center justify-center px-4">
             <span className={`${amountFontSize} font-semibold tracking-tight ${accentColor}`}>$</span>
             <input
@@ -455,13 +457,13 @@ export default function AddEditTransactionPage() {
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Descripción
+                  {t("form.description")}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={type === "income" ? "¿De dónde proviene?" : "¿En qué gastaste?"}
+                  placeholder={type === "income" ? t("form.placeholderIncome") : t("form.placeholderExpense")}
                   className="w-full border-0 p-0 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
                 />
               </div>
@@ -476,7 +478,7 @@ export default function AddEditTransactionPage() {
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Fecha
+                  {t("form.date")}
                 </label>
                 <button
                   type="button"
@@ -524,7 +526,7 @@ export default function AddEditTransactionPage() {
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Categoría
+                  {t("form.category")}
                 </label>
                 <button
                   type="button"
@@ -532,7 +534,7 @@ export default function AddEditTransactionPage() {
                   className="w-full text-left text-base text-gray-900"
                 >
                   {selectedCategory?.name || (
-                    <span className="text-gray-400">Seleccionar categoría</span>
+                    <span className="text-gray-400">{t("form.categoryPlaceholder")}</span>
                   )}
                 </button>
               </div>
@@ -547,13 +549,13 @@ export default function AddEditTransactionPage() {
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Notas
+                  {t("form.notes")}
                 </label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Agregar notas... (opcional)"
+                  placeholder={t("form.notesPlaceholder")}
                   className="w-full border-0 p-0 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
                 />
               </div>
@@ -568,7 +570,7 @@ export default function AddEditTransactionPage() {
               </div>
               <div className="flex-1">
                 <label className="mb-2 block text-xs font-medium text-gray-500">
-                  Estado
+                  {t("form.status")}
                 </label>
                 <div className="flex gap-2">
                   <button
@@ -580,7 +582,7 @@ export default function AddEditTransactionPage() {
                         : "bg-gray-100 text-gray-600"
                     }`}
                   >
-                    Pagado
+                    {t("form.statusPaid")}
                   </button>
                   <button
                     type="button"
@@ -591,7 +593,7 @@ export default function AddEditTransactionPage() {
                         : "bg-gray-100 text-gray-600"
                     }`}
                   >
-                    Pendiente
+                    {t("form.statusPending")}
                   </button>
                   <button
                     type="button"
@@ -602,7 +604,7 @@ export default function AddEditTransactionPage() {
                         : "bg-gray-100 text-gray-600"
                     }`}
                   >
-                    Planeado
+                    {t("form.statusPlanned")}
                   </button>
                 </div>
               </div>
@@ -619,10 +621,10 @@ export default function AddEditTransactionPage() {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-medium text-gray-500">
-                    Programación inactiva
+                    {t("form.schedule.inactive")}
                   </p>
                   <p className="mt-0.5 text-xs text-gray-400">
-                    Esta programación fue desactivada
+                    {t("form.schedule.inactiveMessage")}
                   </p>
                 </div>
               </div>
@@ -640,16 +642,17 @@ export default function AddEditTransactionPage() {
                 </div>
                 <div className="flex-1 text-left">
                   <p className={`text-sm font-medium ${schedule?.enabled ? "text-gray-900" : "text-gray-700"}`}>
-                    {schedule?.enabled ? "Programado automáticamente" : "Programar automáticamente"}
+                    {schedule?.enabled ? t("form.schedule.enabled") : t("form.schedule.title")}
                   </p>
                   <p className="mt-0.5 text-xs text-gray-500">
                     {schedule?.enabled
-                      ? `Cada ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
-                          schedule.frequency === "daily" ? "día" :
-                          schedule.frequency === "weekly" ? "semana" :
-                          schedule.frequency === "monthly" ? "mes" : "año"
-                        }${schedule.interval > 1 && schedule.frequency !== "daily" ? "s" : ""}`
-                      : "Toca para configurar"}
+                      ? `${t("scheduleConfig.interval.label")} ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
+                          schedule.frequency === "daily" ? t(`scheduleConfig.interval.${schedule.interval === 1 ? "day" : "days"}`) :
+                          schedule.frequency === "weekly" ? t(`scheduleConfig.interval.${schedule.interval === 1 ? "week" : "weeks"}`) :
+                          schedule.frequency === "monthly" ? t(`scheduleConfig.interval.${schedule.interval === 1 ? "month" : "months"}`) :
+                          t(`scheduleConfig.interval.${schedule.interval === 1 ? "year" : "years"}`)
+                        }`
+                      : t("form.schedule.tapToConfig")}
                   </p>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-300" />
@@ -672,7 +675,7 @@ export default function AddEditTransactionPage() {
                 : "bg-gray-900 hover:bg-gray-800"
             }`}
           >
-            {isEdit ? "Guardar cambios" : "Guardar"}
+            {isEdit ? t("form.saveChanges") : t("form.save")}
           </button>
         </div>
       </div>
@@ -713,10 +716,10 @@ export default function AddEditTransactionPage() {
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
         open={confirmDelete}
-        title="Eliminar movimiento"
-        message={`¿Seguro que deseas eliminar "${tx?.name}" por ${tx ? formatCOP(tx.amount) : ""}?`}
-        confirmText="Eliminar"
-        cancelText="Cancelar"
+        title={t("form.delete.title")}
+        message={t("form.delete.message", { name: tx?.name || "", amount: tx ? formatCOP(tx.amount) : "" })}
+        confirmText={t("form.delete.confirm")}
+        cancelText={t("form.delete.cancel")}
         destructive
         onConfirm={handleConfirmDelete}
         onClose={() => setConfirmDelete(false)}
@@ -734,10 +737,10 @@ export default function AddEditTransactionPage() {
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Guardar cambios
+              {t("form.saveModal.title")}
             </h3>
             <p className="mb-4 text-sm text-gray-600">
-              Este es un registro programado. ¿Cómo deseas guardar los cambios?
+              {t("form.saveModal.message")}
             </p>
 
             {/* Actions */}
@@ -747,10 +750,10 @@ export default function AddEditTransactionPage() {
                 onClick={handleSaveOnlyThisOne}
                 className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
               >
-                Solo este registro
+                {t("form.saveModal.onlyThis")}
               </button>
               <p className="px-2 text-xs text-gray-500">
-                Crea una transacción individual con estos valores. La plantilla original no cambia.
+                {t("form.saveModal.onlyThisDesc")}
               </p>
 
               <button
@@ -758,10 +761,10 @@ export default function AddEditTransactionPage() {
                 onClick={handleSaveThisAndFuture}
                 className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800"
               >
-                Este y los siguientes
+                {t("form.saveModal.thisAndFollowing")}
               </button>
               <p className="px-2 text-xs text-gray-500">
-                Finaliza la plantilla actual y crea una nueva con los valores editados.
+                {t("form.saveModal.thisAndFollowingDesc")}
               </p>
 
               <button
@@ -769,7 +772,7 @@ export default function AddEditTransactionPage() {
                 onClick={() => setShowTemplateEditModal(false)}
                 className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
               >
-                Cancelar
+                {t("form.saveModal.cancel")}
               </button>
             </div>
           </div>
@@ -788,10 +791,10 @@ export default function AddEditTransactionPage() {
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Sin cambios
+              {t("form.noChanges.title")}
             </h3>
             <p className="mb-4 text-sm text-gray-600">
-              No has realizado ningún cambio. Modifica el monto, descripción, categoría u otra información para registrar esta transacción.
+              {t("form.noChanges.message")}
             </p>
 
             <button
@@ -799,7 +802,7 @@ export default function AddEditTransactionPage() {
               onClick={() => setShowNoChangesAlert(false)}
               className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
             >
-              Entendido
+              {t("form.noChanges.ok")}
             </button>
           </div>
         </div>

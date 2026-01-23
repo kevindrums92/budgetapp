@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { icons, Plus, FolderOpen, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/shared/components/layout/PageHeader";
@@ -8,6 +9,7 @@ import { kebabToPascal } from "@/shared/utils/string.utils";
 type Tab = "expense" | "income";
 
 export default function CategoriesPage() {
+  const { t } = useTranslation("categories");
   const navigate = useNavigate();
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
@@ -41,14 +43,14 @@ export default function CategoriesPage() {
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
       <PageHeader
-        title="Categorías"
+        title={t("title")}
         rightActions={
           <>
             <button
               type="button"
               onClick={() => navigate("/category-groups")}
               className="rounded-full p-2 hover:bg-gray-100"
-              title="Grupos de categorías"
+              title={t("groups.title")}
             >
               <FolderOpen className="h-5 w-5 text-gray-700" />
             </button>
@@ -74,7 +76,7 @@ export default function CategoriesPage() {
               : "bg-gray-100 text-gray-600"
           }`}
         >
-          Gastos
+          {t("tabs.expenses")}
         </button>
         <button
           type="button"
@@ -85,7 +87,7 @@ export default function CategoriesPage() {
               : "bg-gray-100 text-gray-600"
           }`}
         >
-          Ingresos
+          {t("tabs.income")}
         </button>
       </div>
 
@@ -141,14 +143,14 @@ export default function CategoriesPage() {
         {categoriesByGroup.length === 0 && (
           <div className="py-12 text-center">
             <p className="text-gray-500">
-              No hay categorías de {activeTab === "expense" ? "gastos" : "ingresos"}
+              {activeTab === "expense" ? t("emptyExpenses") : t("emptyIncome")}
             </p>
             <button
               type="button"
               onClick={() => navigate(`/category/new?type=${activeTab}`)}
               className="mt-4 font-medium text-emerald-600"
             >
-              Crear categoría
+              {t("createButton")}
             </button>
           </div>
         )}

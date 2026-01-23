@@ -5,19 +5,33 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
-- **Internacionalización (i18n)**: Sistema completo de traducción para soporte multiidioma
+- **Internacionalización (i18n)**: Sistema completo de traducción para soporte multiidioma en TODA la aplicación
   - **Idiomas soportados**: Español (es) e Inglés (en)
   - **react-i18next**: Integración con detección automática de idioma (localStorage → navigator.language → fallback español)
-  - **Archivos de traducción**: Estructura por namespaces (onboarding, common, profile) en `src/i18n/locales/{lang}/`
-  - **Onboarding completamente traducido**: 13 pantallas migradas a usar traducciones (6 Welcome + 5 FirstConfig + 1 Login + 1 Language)
-  - **LanguageSelector**: Componente reutilizable para cambiar idioma con modal de confirmación
+  - **11 namespaces de traducción**: `common`, `onboarding`, `profile`, `home`, `budget`, `stats`, `trips`, `transactions`, `categories`, `backup`, `scheduled`
+  - **37 archivos modificados**: 18 páginas/componentes migrados + 16 archivos de traducción nuevos + 3 helpers/config
+  - **300+ strings traducidos**: Cada rincón de la app ahora soporta español e inglés
+  - **Cobertura completa por módulo**:
+    - **Onboarding (13 pantallas)**: Welcome flow, Login, First Config (idioma, tema, moneda, categorías)
+    - **Home**: Búsqueda, filtros, presupuesto diario, exportar, todos los labels
+    - **Budget**: Resumen mensual, límites, secciones de gastos/ingresos
+    - **Stats**: Estadísticas, gráficas (donut, barras, línea), días de la semana, métricas
+    - **Trips (4 páginas)**: Lista de viajes, detalle, crear/editar viaje, gastos de viaje
+    - **Transactions (5 archivos)**: Formulario de transacción, lista, programación, configuración de schedules, banner de programadas
+    - **Categories (4 páginas)**: Lista de categorías, grupos, formularios de crear/editar
+    - **Backup**: Métodos manual/local/nube, exportar/restaurar, descripciones
+    - **Scheduled**: Transacciones programadas activas/inactivas
+    - **Componentes**: ConfirmDialog, TransactionList, todos los modales
+  - **LanguageSelector**: Componente reutilizable para cambiar idioma con modal de confirmación en ProfilePage
   - **useLanguage hook**: Hook personalizado para gestionar cambio de idioma con i18next
   - **Traducción de categorías por defecto**: 21 categorías traducidas (13 gastos + 8 ingresos)
     - Categorías se crean con nombre en el idioma seleccionado durante onboarding
     - Helper `getCategoryDisplayName()` para mostrar categorías traducidas en selección
     - `category-translation-keys.ts`: Mapeo de nombres españoles a claves de traducción
     - Categorías personalizadas del usuario mantienen su nombre original (no se traducen)
-  - **ProfilePage**: Selector de idioma agregado en configuración con LanguageSelector
+  - **Pluralización**: Soporte para formas singular/plural (ej: "1 día" vs "5 días")
+  - **Interpolación**: Variables dinámicas en traducciones (ej: "Gastado {{amount}}")
+  - **Fallback inteligente**: Si falta una traducción, usa español como respaldo
 - **Sistema de Onboarding Completo**: Nuevo flujo de bienvenida para usuarios nuevos
   - **Welcome Flow (6 pantallas)**: Introducción visual a las features principales de SmartSpend
   - **Login Screen**: Selección entre modo invitado (local-first) o sincronización con la nube

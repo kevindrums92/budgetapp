@@ -1,0 +1,82 @@
+{
+  "title": "Backup & Restore",
+  "activeMethod": "Método activo:",
+  "methods": {
+    "manual": "Manual",
+    "local": "Backups Automáticos Locales",
+    "cloud": "Backups en la Nube"
+  },
+  "manual": {
+    "title": "Backup Manual",
+    "description": "Exporta e importa tus datos en formato JSON",
+    "export": {
+      "title": "Exportar",
+      "description": "Descarga tus datos en formato JSON",
+      "button": "Exportar"
+    },
+    "restore": {
+      "title": "Restaurar",
+      "warning": "Esto reemplazará tus datos actuales",
+      "button": "Restaurar"
+    },
+    "includes": {
+      "title": "¿Qué incluye el backup?",
+      "transactions": "Todas tus transacciones",
+      "trips": "Viajes y gastos de viaje",
+      "categories": "Categorías personalizadas",
+      "checksum": "Verificación SHA-256"
+    },
+    "advice": "Guarda tus backups en un lugar seguro como Google Drive o Dropbox"
+  },
+  "local": {
+    "authRequired": "Requiere Autenticación",
+    "authMessage": "Inicia sesión para usar backups automáticos locales",
+    "description": "Se crean automáticamente cada 24 horas",
+    "howItWorks": {
+      "title": "¿Cómo funcionan?",
+      "frequency": "Se crean automáticamente cada 24 horas",
+      "retention": "Se mantienen los últimos 5 backups",
+      "sizeLimit": "Tamaño máximo total: 5MB",
+      "timing": "Se crean antes de operaciones críticas"
+    },
+    "emptyState": "No hay backups automáticos locales",
+    "backupItem": {
+      "restore": "Restaurar",
+      "delete": "Eliminar"
+    }
+  },
+  "cloud": {
+    "authRequired": "Requiere Autenticación",
+    "authMessage": "Inicia sesión para usar backups en la nube",
+    "description": "Se crean automáticamente cada 7 días",
+    "howItWorks": {
+      "title": "¿Cómo funcionan?",
+      "frequency": "Se crean automáticamente cada 7 días",
+      "retention": "Se mantienen por 30 días",
+      "storage": "Almacenados en Supabase",
+      "accessible": "Accesibles desde cualquier dispositivo"
+    },
+    "emptyState": "No hay backups en la nube",
+    "backupItem": {
+      "restore": "Restaurar",
+      "delete": "Eliminar"
+    }
+  },
+  "changeMethod": "Cambiar método de backup",
+  "selectMethod": {
+    "title": "Seleccionar método de backup",
+    "manual": {
+      "title": "Manual",
+      "description": "Tú decides cuándo hacer backup"
+    },
+    "local": {
+      "title": "Automático Local",
+      "description": "Backups cada 24h en este dispositivo"
+    },
+    "cloud": {
+      "title": "Nube",
+      "description": "Backups cada 7 días en Supabase"
+    },
+    "cancel": "Cancelar"
+  }
+}

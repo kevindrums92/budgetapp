@@ -1,0 +1,43 @@
+{
+  "title": "Estadísticas",
+  "quickStats": {
+    "dailyAverage": "Promedio de Gasto Diario",
+    "topCategory": "Categoría Top",
+    "topDay": "Día que más gastas",
+    "monthComparison": "vs Mes Anterior",
+    "noExpenses": "No hay gastos este mes"
+  },
+  "expensesByCategory": {
+    "title": "Gastos por Categoría",
+    "spent": "gastado",
+    "noData": "No hay gastos este mes"
+  },
+  "incomeVsExpenses": {
+    "title": "Ingresos vs Gastos",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "noData": "No hay datos en los últimos 6 meses"
+  },
+  "expenseTrend": {
+    "title": "Tendencia de Gastos",
+    "noData": "No hay datos de gastos"
+  },
+  "days": {
+    "sunday": "Domingo",
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado"
+  },
+  "daysShort": {
+    "sun": "Dom",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mié",
+    "thu": "Jue",
+    "fri": "Vie",
+    "sat": "Sáb"
+  }
+}

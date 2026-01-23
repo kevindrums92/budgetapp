@@ -5,21 +5,53 @@ import { initReactI18next } from 'react-i18next';
 import esCommon from './locales/es/common.json';
 import esOnboarding from './locales/es/onboarding.json';
 import esProfile from './locales/es/profile.json';
+import esHome from './locales/es/home.json';
+import esBudget from './locales/es/budget.json';
+import esStats from './locales/es/stats.json';
+import esTrips from './locales/es/trips.json';
+import esTransactions from './locales/es/transactions.json';
+import esCategories from './locales/es/categories.json';
+import esBackup from './locales/es/backup.json';
+import esScheduled from './locales/es/scheduled.json';
 
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
 import enProfile from './locales/en/profile.json';
+import enHome from './locales/en/home.json';
+import enBudget from './locales/en/budget.json';
+import enStats from './locales/en/stats.json';
+import enTrips from './locales/en/trips.json';
+import enTransactions from './locales/en/transactions.json';
+import enCategories from './locales/en/categories.json';
+import enBackup from './locales/en/backup.json';
+import enScheduled from './locales/en/scheduled.json';
 
 const resources = {
   es: {
     common: esCommon,
     onboarding: esOnboarding,
     profile: esProfile,
+    home: esHome,
+    budget: esBudget,
+    stats: esStats,
+    trips: esTrips,
+    transactions: esTransactions,
+    categories: esCategories,
+    backup: esBackup,
+    scheduled: esScheduled,
   },
   en: {
     common: enCommon,
     onboarding: enOnboarding,
     profile: enProfile,
+    home: enHome,
+    budget: enBudget,
+    stats: enStats,
+    trips: enTrips,
+    transactions: enTransactions,
+    categories: enCategories,
+    backup: enBackup,
+    scheduled: enScheduled,
   },
 };
 
@@ -58,7 +90,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'profile'],
+    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled'],
     interpolation: {
       escapeValue: false, // React already escapes
     },

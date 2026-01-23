@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   PieChart,
   Pie,
@@ -66,6 +67,7 @@ type TrendData = {
 };
 
 export default function StatsPage() {
+  const { t } = useTranslation('stats');
   const navigate = useNavigate();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -203,13 +205,13 @@ export default function StatsPage() {
       ([, a], [, b]) => b - a
     )[0]?.[0];
     const dayNames = [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sábado",
+      t('days.sunday'),
+      t('days.monday'),
+      t('days.tuesday'),
+      t('days.wednesday'),
+      t('days.thursday'),
+      t('days.friday'),
+      t('days.saturday'),
     ];
     const topDayName = topDayOfWeek !== undefined ? dayNames[Number(topDayOfWeek)] : null;
 
@@ -247,7 +249,7 @@ export default function StatsPage() {
     <div className="bg-gray-50 min-h-screen">
       <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
         {/* Header */}
-        <h2 className="text-base font-semibold">Estadísticas</h2>
+        <h2 className="text-base font-semibold">{t('title')}</h2>
         <p className="text-sm text-gray-500">{monthLabelES(selectedMonth)}</p>
 
       {/* Quick Stats */}
@@ -255,7 +257,7 @@ export default function StatsPage() {
         <div className="mt-4 grid grid-cols-2 gap-3">
           {/* Daily Average */}
           <div className="rounded-xl bg-white p-4 shadow-sm">
-            <p className="text-xs text-gray-500">Promedio de Gasto Diario</p>
+            <p className="text-xs text-gray-500">{t('quickStats.dailyAverage')}</p>
             <p className="mt-1 text-lg font-semibold">
               {formatCOP(quickStats.dailyAverage)}
             </p>
@@ -264,7 +266,7 @@ export default function StatsPage() {
           {/* Top Category */}
           {quickStats.topCategory && (
             <div className="rounded-xl bg-white p-4 shadow-sm">
-              <p className="text-xs text-gray-500">Categoría Top</p>
+              <p className="text-xs text-gray-500">{t('quickStats.topCategory')}</p>
               <div className="mt-1 flex items-center gap-2">
                 {(() => {
                   const IconComponent =
@@ -290,14 +292,14 @@ export default function StatsPage() {
           {/* Top Day of Week */}
           {quickStats.topDayName && (
             <div className="rounded-xl bg-white p-4 shadow-sm">
-              <p className="text-xs text-gray-500">Día que más gastas</p>
+              <p className="text-xs text-gray-500">{t('quickStats.topDay')}</p>
               <p className="mt-1 text-sm font-medium">{quickStats.topDayName}</p>
             </div>
           )}
 
           {/* Month Comparison */}
           <div className="rounded-xl bg-white p-4 shadow-sm">
-            <p className="text-xs text-gray-500">vs Mes Anterior</p>
+            <p className="text-xs text-gray-500">{t('quickStats.monthComparison')}</p>
             <div className="mt-1 flex items-center gap-1">
               {quickStats.monthDiff > 0 ? (
                 <icons.TrendingUp className="h-4 w-4 text-red-500" />
@@ -326,13 +328,13 @@ export default function StatsPage() {
       {/* Donut Chart Section */}
       <div className="mt-6">
         <h3 className="mb-4 text-sm font-medium text-gray-700">
-          Gastos por Categoría
+          {t('expensesByCategory.title')}
         </h3>
 
         {categoryChartData.length === 0 ? (
           <div className="py-12 text-center text-gray-500">
             <PieChartIcon className="mx-auto mb-2 h-12 w-12 opacity-50" />
-            <p>No hay gastos este mes</p>
+            <p>{t('expensesByCategory.noData')}</p>
           </div>
         ) : (
           <>
@@ -364,7 +366,7 @@ export default function StatsPage() {
                 <span className="text-2xl font-bold">
                   {formatCOP(totalExpenses)}
                 </span>
-                <span className="text-sm text-gray-500">gastado</span>
+                <span className="text-sm text-gray-500">{t('expensesByCategory.spent')}</span>
               </div>
             </div>
 
@@ -408,13 +410,13 @@ export default function StatsPage() {
       {/* Bar Chart Section */}
       <div className="mt-8">
         <h3 className="mb-4 text-sm font-medium text-gray-700">
-          Ingresos vs Gastos
+          {t('incomeVsExpenses.title')}
         </h3>
 
         {!hasMonthlyData ? (
           <div className="py-12 text-center text-gray-500">
             <BarChart3 className="mx-auto mb-2 h-12 w-12 opacity-50" />
-            <p>No hay datos en los últimos 6 meses</p>
+            <p>{t('incomeVsExpenses.noData')}</p>
           </div>
         ) : (
           <>
@@ -438,14 +440,14 @@ export default function StatsPage() {
                 />
                 <Bar
                   dataKey="income"
-                  name="Ingresos"
+                  name={t('incomeVsExpenses.income')}
                   fill="#10B981"
                   radius={[4, 4, 0, 0]}
                   isAnimationActive={false}
                 />
                 <Bar
                   dataKey="expense"
-                  name="Gastos"
+                  name={t('incomeVsExpenses.expenses')}
                   fill="#EF4444"
                   radius={[4, 4, 0, 0]}
                   isAnimationActive={false}
@@ -457,11 +459,11 @@ export default function StatsPage() {
             <div className="mt-4 flex justify-center gap-6">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-emerald-500" />
-                <span className="text-sm text-gray-600">Ingresos</span>
+                <span className="text-sm text-gray-600">{t('incomeVsExpenses.income')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-red-500" />
-                <span className="text-sm text-gray-600">Gastos</span>
+                <span className="text-sm text-gray-600">{t('incomeVsExpenses.expenses')}</span>
               </div>
             </div>
           </>
@@ -471,13 +473,13 @@ export default function StatsPage() {
       {/* Trend Chart Section */}
       <div className="mt-8">
         <h3 className="mb-4 text-sm font-medium text-gray-700">
-          Tendencia de Gastos
+          {t('expenseTrend.title')}
         </h3>
 
         {!hasTrendData ? (
           <div className="py-12 text-center text-gray-500">
             <TrendingUp className="mx-auto mb-2 h-12 w-12 opacity-50" />
-            <p>No hay datos de gastos</p>
+            <p>{t('expenseTrend.noData')}</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={200}>
@@ -502,7 +504,7 @@ export default function StatsPage() {
               <Line
                 type="monotone"
                 dataKey="expense"
-                name="Gastos"
+                name={t('incomeVsExpenses.expenses')}
                 stroke="#EF4444"
                 strokeWidth={2}
                 dot={{ fill: "#EF4444", strokeWidth: 0, r: 3 }}

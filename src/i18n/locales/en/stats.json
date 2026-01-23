@@ -1,0 +1,43 @@
+{
+  "title": "Statistics",
+  "quickStats": {
+    "dailyAverage": "Daily Spending Average",
+    "topCategory": "Top Category",
+    "topDay": "Day You Spend Most",
+    "monthComparison": "vs Previous Month",
+    "noExpenses": "No expenses this month"
+  },
+  "expensesByCategory": {
+    "title": "Expenses by Category",
+    "spent": "spent",
+    "noData": "No expenses this month"
+  },
+  "incomeVsExpenses": {
+    "title": "Income vs Expenses",
+    "income": "Income",
+    "expenses": "Expenses",
+    "noData": "No data for the last 6 months"
+  },
+  "expenseTrend": {
+    "title": "Expense Trend",
+    "noData": "No expense data"
+  },
+  "days": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "daysShort": {
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat"
+  }
+}

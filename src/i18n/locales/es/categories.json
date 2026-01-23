@@ -1,0 +1,55 @@
+{
+  "title": "Categorías",
+  "tabs": {
+    "expenses": "Gastos",
+    "income": "Ingresos"
+  },
+  "emptyExpenses": "No hay categorías de gastos",
+  "emptyIncome": "No hay categorías de ingresos",
+  "createButton": "Crear categoría",
+  "form": {
+    "editTitle": "Editar Categoría",
+    "newTitle": "Nueva Categoría",
+    "name": "Nombre",
+    "namePlaceholder": "Nombre de la categoría",
+    "type": "Tipo",
+    "typeExpense": "Gasto",
+    "typeIncome": "Ingreso",
+    "icon": "Ícono",
+    "selectIcon": "Seleccionar ícono",
+    "color": "Color",
+    "group": "Grupo",
+    "selectGroup": "Seleccionar grupo",
+    "save": "Guardar",
+    "saveChanges": "Guardar cambios",
+    "delete": {
+      "title": "Eliminar categoría",
+      "message": "¿Seguro que deseas eliminar esta categoría? Las transacciones existentes mantendrán el nombre de la categoría.",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    }
+  },
+  "groups": {
+    "title": "Grupos de Categorías",
+    "emptyExpenses": "No hay grupos de gastos",
+    "emptyIncome": "No hay grupos de ingresos",
+    "createButton": "Crear grupo",
+    "form": {
+      "editTitle": "Editar Grupo",
+      "newTitle": "Nuevo Grupo",
+      "name": "Nombre del grupo",
+      "namePlaceholder": "Ej: Vivienda",
+      "type": "Tipo",
+      "typeExpense": "Gasto",
+      "typeIncome": "Ingreso",
+      "save": "Guardar",
+      "saveChanges": "Guardar cambios",
+      "delete": {
+        "title": "Eliminar grupo",
+        "message": "¿Seguro que deseas eliminar este grupo? Las categorías se reasignarán al grupo \"Otros\".",
+        "confirm": "Eliminar",
+        "cancel": "Cancelar"
+      }
+    }
+  }
+}

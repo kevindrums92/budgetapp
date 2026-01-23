@@ -1,0 +1,37 @@
+{
+  "title": "Scheduled",
+  "tabs": {
+    "active": "Active ({{count}})",
+    "active_zero": "Active (0)",
+    "inactive": "Inactive ({{count}})",
+    "inactive_zero": "Inactive (0)"
+  },
+  "emptyActive": {
+    "title": "No active schedules",
+    "message": "Enable scheduling when creating a transaction"
+  },
+  "emptyInactive": {
+    "title": "No inactive schedules",
+    "message": "Deactivated schedules will appear here"
+  },
+  "item": {
+    "deactivate": "Deactivate",
+    "frequency": {
+      "daily": "Every {{interval}} day",
+      "daily_other": "Every {{interval}} days",
+      "weekly": "Every {{interval}} week",
+      "weekly_other": "Every {{interval}} weeks",
+      "monthly": "Every {{interval}} month",
+      "monthly_other": "Every {{interval}} months",
+      "yearly": "Every {{interval}} year",
+      "yearly_other": "Every {{interval}} years"
+    },
+    "nextDate": "Next: {{date}}"
+  },
+  "deactivate": {
+    "title": "Deactivate schedule",
+    "message": "Are you sure you want to deactivate this schedule? This action is irreversible and no more transactions will be generated.",
+    "confirm": "Deactivate",
+    "cancel": "Cancel"
+  }
+}

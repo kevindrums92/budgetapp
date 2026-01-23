@@ -1,0 +1,37 @@
+{
+  "title": "Programadas",
+  "tabs": {
+    "active": "Activas ({{count}})",
+    "active_zero": "Activas (0)",
+    "inactive": "Inactivas ({{count}})",
+    "inactive_zero": "Inactivas (0)"
+  },
+  "emptyActive": {
+    "title": "No tienes programaciones activas",
+    "message": "Activa la programación al crear una transacción"
+  },
+  "emptyInactive": {
+    "title": "No tienes programaciones inactivas",
+    "message": "Las programaciones desactivadas aparecerán aquí"
+  },
+  "item": {
+    "deactivate": "Desactivar",
+    "frequency": {
+      "daily": "Cada {{interval}} día",
+      "daily_other": "Cada {{interval}} días",
+      "weekly": "Cada {{interval}} semana",
+      "weekly_other": "Cada {{interval}} semanas",
+      "monthly": "Cada {{interval}} mes",
+      "monthly_other": "Cada {{interval}} meses",
+      "yearly": "Cada {{interval}} año",
+      "yearly_other": "Cada {{interval}} años"
+    },
+    "nextDate": "Próxima: {{date}}"
+  },
+  "deactivate": {
+    "title": "Desactivar programación",
+    "message": "¿Seguro que deseas desactivar esta programación? Esta acción es irreversible y no se generarán más transacciones.",
+    "confirm": "Desactivar",
+    "cancel": "Cancelar"
+  }
+}

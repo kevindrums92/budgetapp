@@ -4,6 +4,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X, Calendar } from "lucide-react";
 import type { Schedule, ScheduleFrequency } from "@/types/budget.types";
 import { todayISO } from "@/services/dates.service";
@@ -17,16 +18,8 @@ type Props = {
   onSave: (schedule: Schedule | null) => void;
 };
 
-const FREQUENCY_LABELS: Record<ScheduleFrequency, string> = {
-  daily: "Diario",
-  weekly: "Semanal",
-  monthly: "Mensual",
-  yearly: "Anual",
-};
-
-const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-
 export default function ScheduleConfigDrawer({ open, onClose, schedule, transactionDate, onSave }: Props) {
+  const { t } = useTranslation("transactions");
   const [isVisible, setIsVisible] = useState(false);
   const [frequency, setFrequency] = useState<ScheduleFrequency>(schedule?.frequency ?? "monthly");
   const [interval, setInterval] = useState(schedule?.interval ?? 1);
@@ -118,6 +111,16 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
 
   if (!isVisible) return null;
 
+  const WEEKDAY_LABELS = [
+    t("scheduleConfig.dayOfWeek.sun"),
+    t("scheduleConfig.dayOfWeek.mon"),
+    t("scheduleConfig.dayOfWeek.tue"),
+    t("scheduleConfig.dayOfWeek.wed"),
+    t("scheduleConfig.dayOfWeek.thu"),
+    t("scheduleConfig.dayOfWeek.fri"),
+    t("scheduleConfig.dayOfWeek.sat"),
+  ];
+
   const handleSave = () => {
     const newSchedule: Schedule = {
       enabled: true,
@@ -169,7 +172,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
         >
           <div className="flex items-center justify-between px-4 py-4">
             <h3 className="text-lg font-semibold text-gray-900">
-              Configurar programación
+              {t("scheduleConfig.title")}
             </h3>
             <button
               type="button"
@@ -186,7 +189,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
           {/* Frequency */}
               <div className="mb-6">
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Frecuencia
+                  {t("scheduleConfig.frequency.label")}
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {(["daily", "weekly", "monthly", "yearly"] as ScheduleFrequency[]).map((freq) => (
@@ -200,7 +203,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                       }`}
                     >
-                      {FREQUENCY_LABELS[freq]}
+                      {t(`scheduleConfig.frequency.${freq}`)}
                     </button>
                   ))}
                 </div>
@@ -209,7 +212,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               {/* Interval */}
               <div className="mb-6">
                 <label className="mb-2 block text-sm font-medium text-gray-700">
-                  Cada cuánto
+                  {t("scheduleConfig.interval.label")}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
@@ -223,10 +226,10 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                   <div className="flex-1 text-center">
                     <span className="text-2xl font-semibold text-gray-900">{interval}</span>
                     <span className="ml-2 text-sm text-gray-500">
-                      {frequency === "daily" && (interval === 1 ? "día" : "días")}
-                      {frequency === "weekly" && (interval === 1 ? "semana" : "semanas")}
-                      {frequency === "monthly" && (interval === 1 ? "mes" : "meses")}
-                      {frequency === "yearly" && (interval === 1 ? "año" : "años")}
+                      {frequency === "daily" && t(`scheduleConfig.interval.${interval === 1 ? "day" : "days"}`)}
+                      {frequency === "weekly" && t(`scheduleConfig.interval.${interval === 1 ? "week" : "weeks"}`)}
+                      {frequency === "monthly" && t(`scheduleConfig.interval.${interval === 1 ? "month" : "months"}`)}
+                      {frequency === "yearly" && t(`scheduleConfig.interval.${interval === 1 ? "year" : "years"}`)}
                     </span>
                   </div>
                   <button
@@ -243,7 +246,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               {frequency === "weekly" && (
                 <div className="mb-6">
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Día de la semana
+                    {t("scheduleConfig.dayOfWeek.label")}
                   </label>
                   <div className="grid grid-cols-7 gap-2">
                     {WEEKDAY_LABELS.map((label, index) => (
@@ -268,7 +271,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               {frequency === "monthly" && (
                 <div className="mb-6">
                   <label className="mb-2 block text-sm font-medium text-gray-700">
-                    Día del mes
+                    {t("scheduleConfig.dayOfMonth.label")}
                   </label>
                   <div className="flex items-center gap-3">
                     <button
@@ -281,7 +284,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                     </button>
                     <div className="flex-1 text-center">
                       <span className="text-2xl font-semibold text-gray-900">{dayOfMonth}</span>
-                      <span className="ml-2 text-sm text-gray-500">del mes</span>
+                      <span className="ml-2 text-sm text-gray-500">{t("scheduleConfig.dayOfMonth.suffix")}</span>
                     </div>
                     <button
                       type="button"
@@ -293,7 +296,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                     </button>
                   </div>
                   <p className="mt-2 text-xs text-gray-500">
-                    Si el mes tiene menos días, se usará el último día del mes
+                    {t("scheduleConfig.dayOfMonth.validation")}
                   </p>
                 </div>
               )}
@@ -306,7 +309,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                   className="flex w-full items-center justify-between rounded-xl bg-gray-50 p-4"
                 >
                   <span className="text-sm font-medium text-gray-900">
-                    Fecha de fin
+                    {t("scheduleConfig.endDate.label")}
                   </span>
                   <div
                     className={`relative h-8 w-14 shrink-0 rounded-full transition-all duration-200 ${
@@ -330,7 +333,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                     <div className="flex items-center gap-2">
                       <Calendar size={18} className="text-gray-400" />
                       <span className="text-sm text-gray-900">
-                        {endDate ? formatDate(endDate) : "Seleccionar fecha"}
+                        {endDate ? formatDate(endDate) : t("scheduleConfig.endDate.placeholder")}
                       </span>
                     </div>
                   </button>
@@ -340,15 +343,16 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               {/* Info */}
               <div className="rounded-xl bg-blue-50 p-4">
                 <p className="text-sm text-blue-900">
-                  Esta transacción se generará automáticamente{" "}
-                  <span className="font-medium">
-                    cada {interval > 1 ? `${interval} ` : ""}
-                    {frequency === "daily" && (interval === 1 ? "día" : "días")}
-                    {frequency === "weekly" && (interval === 1 ? "semana" : "semanas")}
-                    {frequency === "monthly" && (interval === 1 ? "mes" : "meses")}
-                    {frequency === "yearly" && (interval === 1 ? "año" : "años")}
-                  </span>
-                  {hasEndDate && ` hasta el ${new Date(endDate + "T12:00:00").toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}`}.
+                  {t("scheduleConfig.info", {
+                    interval: interval > 1 ? interval : "",
+                    unit: frequency === "daily" ? t(`scheduleConfig.interval.${interval === 1 ? "day" : "days"}`) :
+                          frequency === "weekly" ? t(`scheduleConfig.interval.${interval === 1 ? "week" : "weeks"}`) :
+                          frequency === "monthly" ? t(`scheduleConfig.interval.${interval === 1 ? "month" : "months"}`) :
+                          t(`scheduleConfig.interval.${interval === 1 ? "year" : "years"}`),
+                    endDate: hasEndDate ? t("scheduleConfig.infoUntil", {
+                      date: new Date(endDate + "T12:00:00").toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
+                    }) : ""
+                  })}
                 </p>
               </div>
         </div>
@@ -365,7 +369,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                 }}
                 className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 active:scale-[0.98] transition-all"
               >
-                Eliminar programación
+                {t("scheduleConfig.delete")}
               </button>
             )}
             <button
@@ -373,7 +377,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               onClick={handleSave}
               className={`${schedule ? "flex-1" : "w-full"} rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600 active:scale-[0.98] transition-all`}
             >
-              Guardar
+              {t("scheduleConfig.save")}
             </button>
           </div>
         </div>
