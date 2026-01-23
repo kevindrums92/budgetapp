@@ -120,8 +120,11 @@ export default function LoginScreen() {
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // Redirigir de vuelta a login para manejar el callback correctamente
-          redirectTo: `${window.location.origin}/onboarding/login`,
+          // Redirigir al origin (sin path) para que funcione correctamente en localhost
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: 'select_account',
+          },
         },
       });
 
