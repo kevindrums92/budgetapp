@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen } from '@/test/test-utils';
 import TransactionList from './TransactionList';
 import { useBudgetStore } from '@/state/budget.store';
 import type { Transaction, Category } from '@/types/budget.types';
@@ -39,10 +38,6 @@ vi.mock('@/services/dates.service', async () => {
 vi.mock('@/shared/utils/currency.utils', () => ({
   formatCOP: (value: number) => `$${value.toLocaleString('es-CO')}`,
 }));
-
-const Wrapper = ({ children }: { children: React.ReactNode }) => (
-  <BrowserRouter>{children}</BrowserRouter>
-);
 
 describe('TransactionList', () => {
   const mockCategories: Category[] = [
@@ -125,7 +120,7 @@ describe('TransactionList', () => {
 
   describe('Rendering', () => {
     it('should render transaction list with grouped dates', () => {
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.getByTestId('transaction-tx-2')).toBeInTheDocument();
@@ -133,7 +128,7 @@ describe('TransactionList', () => {
     });
 
     it('should display date headers for each day', () => {
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       // Should have date headers (mocked as "Viernes, 15 Mar")
       const dateHeaders = screen.getAllByText(/Viernes|Mar/);
@@ -150,19 +145,19 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(screen.getByText('Aún no tienes movimientos este mes.')).toBeInTheDocument();
     });
 
     it('should show empty search results message', () => {
-      render(<TransactionList searchQuery="Nonexistent" />, { wrapper: Wrapper });
+      render(<TransactionList searchQuery="Nonexistent" />);
 
       expect(screen.getByText(/No se encontraron resultados para "Nonexistent"/)).toBeInTheDocument();
     });
 
     it('should render transactions with correct category names', () => {
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(screen.getByText(/Almuerzo - Restaurantes/)).toBeInTheDocument();
       expect(screen.getByText(/Pago mensual - Salario/)).toBeInTheDocument();
@@ -172,7 +167,7 @@ describe('TransactionList', () => {
 
   describe('Grouping by Date', () => {
     it('should group transactions by date in descending order', () => {
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       const transactions = screen.getAllByTestId(/transaction-/);
       // First should be from 2024-03-15 (tx-1 or tx-2)
@@ -213,7 +208,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       const transactions = screen.getAllByTestId(/transaction-/);
       expect(transactions[0]).toHaveAttribute('data-testid', 'transaction-tx-b');
@@ -221,7 +216,7 @@ describe('TransactionList', () => {
     });
 
     it('should calculate daily totals correctly', () => {
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       // March 15 has: income 1,000,000 and expense 25,000 = balance +975,000
       expect(screen.getByText(/\+\$975\.000/)).toBeInTheDocument();
@@ -231,14 +226,14 @@ describe('TransactionList', () => {
     });
 
     it('should show balance when day has both income and expense', () => {
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       // March 15 has both types, should show balance
       expect(screen.getByText(/\+\$975\.000/)).toBeInTheDocument();
     });
 
     it('should show only expense total when day has only expenses', () => {
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       // March 14 has only expense
       expect(screen.getByText(/-\$15\.000/)).toBeInTheDocument();
@@ -267,7 +262,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(screen.getByText(/\+\$500\.000/)).toBeInTheDocument();
     });
@@ -275,7 +270,7 @@ describe('TransactionList', () => {
 
   describe('Filtering by Search Query', () => {
     it('should filter by transaction name', () => {
-      render(<TransactionList searchQuery="Almuerzo" />, { wrapper: Wrapper });
+      render(<TransactionList searchQuery="Almuerzo" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.queryByTestId('transaction-tx-2')).not.toBeInTheDocument();
@@ -283,7 +278,7 @@ describe('TransactionList', () => {
     });
 
     it('should filter by category name', () => {
-      render(<TransactionList searchQuery="Restaurantes" />, { wrapper: Wrapper });
+      render(<TransactionList searchQuery="Restaurantes" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.queryByTestId('transaction-tx-2')).not.toBeInTheDocument();
@@ -307,19 +302,19 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList searchQuery="cliente" />, { wrapper: Wrapper });
+      render(<TransactionList searchQuery="cliente" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
     });
 
     it('should be case insensitive', () => {
-      render(<TransactionList searchQuery="ALMUERZO" />, { wrapper: Wrapper });
+      render(<TransactionList searchQuery="ALMUERZO" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
     });
 
     it('should handle empty search query', () => {
-      render(<TransactionList searchQuery="" />, { wrapper: Wrapper });
+      render(<TransactionList searchQuery="" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.getByTestId('transaction-tx-2')).toBeInTheDocument();
@@ -327,7 +322,7 @@ describe('TransactionList', () => {
     });
 
     it('should handle whitespace in search query', () => {
-      render(<TransactionList searchQuery="  Almuerzo  " />, { wrapper: Wrapper });
+      render(<TransactionList searchQuery="  Almuerzo  " />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.queryByTestId('transaction-tx-2')).not.toBeInTheDocument();
@@ -336,7 +331,7 @@ describe('TransactionList', () => {
 
   describe('Filtering by Type', () => {
     it('should show all transactions by default', () => {
-      render(<TransactionList filterType="all" />, { wrapper: Wrapper });
+      render(<TransactionList filterType="all" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.getByTestId('transaction-tx-2')).toBeInTheDocument();
@@ -344,7 +339,7 @@ describe('TransactionList', () => {
     });
 
     it('should filter only expenses', () => {
-      render(<TransactionList filterType="expense" />, { wrapper: Wrapper });
+      render(<TransactionList filterType="expense" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.queryByTestId('transaction-tx-2')).not.toBeInTheDocument();
@@ -352,7 +347,7 @@ describe('TransactionList', () => {
     });
 
     it('should filter only income', () => {
-      render(<TransactionList filterType="income" />, { wrapper: Wrapper });
+      render(<TransactionList filterType="income" />);
 
       expect(screen.queryByTestId('transaction-tx-1')).not.toBeInTheDocument();
       expect(screen.getByTestId('transaction-tx-2')).toBeInTheDocument();
@@ -384,7 +379,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList filterType="pending" />, { wrapper: Wrapper });
+      render(<TransactionList filterType="pending" />);
 
       expect(screen.getByTestId('transaction-tx-1')).toBeInTheDocument();
       expect(screen.queryByTestId('transaction-tx-2')).not.toBeInTheDocument();
@@ -392,7 +387,7 @@ describe('TransactionList', () => {
     });
 
     it('should combine type and search filters', () => {
-      render(<TransactionList filterType="expense" searchQuery="Taxi" />, { wrapper: Wrapper });
+      render(<TransactionList filterType="expense" searchQuery="Taxi" />);
 
       expect(screen.queryByTestId('transaction-tx-1')).not.toBeInTheDocument();
       expect(screen.queryByTestId('transaction-tx-2')).not.toBeInTheDocument();
@@ -412,7 +407,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(
         screen.queryByText(/Estás viendo un mes diferente al actual/)
@@ -429,7 +424,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(
         screen.getByText(/Estás viendo un mes diferente al actual/)
@@ -446,7 +441,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(
         screen.getByText(/Estás viendo un mes diferente al actual/)
@@ -478,7 +473,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(screen.getByText(/No category transaction - Unknown/)).toBeInTheDocument();
     });
@@ -526,7 +521,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       // Balance should be +35,000 (50,000 - 10,000 - 5,000)
       expect(screen.getByText(/\+\$35\.000/)).toBeInTheDocument();
@@ -556,7 +551,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       // Should only show March transactions
       expect(screen.queryByText(/February transaction/)).not.toBeInTheDocument();
@@ -586,7 +581,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       expect(screen.getByTestId('transaction-tx-zero')).toBeInTheDocument();
       // Zero amount (both income and expense are 0, so hasIncome and hasExpenses are false)
@@ -604,7 +599,7 @@ describe('TransactionList', () => {
         return selector(state);
       });
 
-      render(<TransactionList />, { wrapper: Wrapper });
+      render(<TransactionList />);
 
       // Should still render transactions with "Unknown" categories
       expect(screen.getByText(/Almuerzo - Unknown/)).toBeInTheDocument();

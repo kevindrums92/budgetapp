@@ -18,7 +18,8 @@
     "download": "Download",
     "upload": "Upload",
     "export": "Export",
-    "import": "Import"
+    "import": "Import",
+    "skip": "Skip"
   },
   "date": {
     "today": "Today",
@@ -31,6 +32,14 @@
     "previousMonth": "Previous month",
     "nextMonth": "Next month",
     "goToCurrentMonth": "Go to current month"
+  },
+  "datePicker": {
+    "selectDate": "Select date",
+    "close": "Close"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "General & Account"
   },
   "errors": {
     "generic": "An unexpected error occurred",

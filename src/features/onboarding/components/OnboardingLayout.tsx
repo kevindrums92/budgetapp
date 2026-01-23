@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import ProgressDots from './ProgressDots';
 
 interface OnboardingLayoutProps {
@@ -27,12 +28,13 @@ export default function OnboardingLayout({
   onBack,
   showSkip = false,
   onSkip,
-  skipLabel = 'Omitir',
+  skipLabel,
   showProgress = false,
   currentStep = 1,
   totalSteps = 6,
   className = '',
 }: OnboardingLayoutProps) {
+  const { t } = useTranslation('common');
   return (
     <div
       className={`relative flex min-h-dvh flex-col bg-gray-50 ${className}`}
@@ -69,7 +71,7 @@ export default function OnboardingLayout({
             onClick={onSkip}
             className="px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700"
           >
-            {skipLabel}
+            {skipLabel || t('buttons.skip')}
           </button>
         ) : (
           <div className="h-10 w-10" /> // Spacer

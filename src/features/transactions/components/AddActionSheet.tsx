@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 type Props = {
@@ -11,6 +12,7 @@ const SHEET_HEIGHT = 220;
 const DRAG_THRESHOLD = 0.3;
 
 export default function AddActionSheet({ open, onClose }: Props) {
+  const { t } = useTranslation('home');
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -129,7 +131,7 @@ export default function AddActionSheet({ open, onClose }: Props) {
         type="button"
         className="absolute inset-0 bg-black"
         onClick={onClose}
-        aria-label="Cerrar"
+        aria-label={t('addActionSheet.close')}
         style={{
           opacity: backdropOpacity,
           transition: isDragging ? "none" : "opacity 300ms ease-out",
@@ -161,7 +163,7 @@ export default function AddActionSheet({ open, onClose }: Props) {
         {/* Content */}
         <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
           <h3 className="mb-4 text-center text-lg font-semibold text-gray-900">
-            Nuevo registro
+            {t('addActionSheet.title')}
           </h3>
 
           <div className="space-y-2">
@@ -175,8 +177,8 @@ export default function AddActionSheet({ open, onClose }: Props) {
                 <TrendingUp className="h-6 w-6 text-emerald-600" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-gray-900">Agregar Ingreso</p>
-                <p className="text-sm text-gray-500">Salario, ventas, etc.</p>
+                <p className="font-semibold text-gray-900">{t('addActionSheet.addIncome')}</p>
+                <p className="text-sm text-gray-500">{t('addActionSheet.incomeHint')}</p>
               </div>
             </button>
 
@@ -190,8 +192,8 @@ export default function AddActionSheet({ open, onClose }: Props) {
                 <TrendingDown className="h-6 w-6 text-red-500" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-gray-900">Agregar Gasto</p>
-                <p className="text-sm text-gray-500">Compras, servicios, etc.</p>
+                <p className="font-semibold text-gray-900">{t('addActionSheet.addExpense')}</p>
+                <p className="text-sm text-gray-500">{t('addActionSheet.expenseHint')}</p>
               </div>
             </button>
           </div>

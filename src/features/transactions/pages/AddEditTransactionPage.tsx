@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -25,6 +26,7 @@ function getDateBefore(dateStr: string): string {
 
 export default function AddEditTransactionPage() {
   const { t } = useTranslation("transactions");
+  const { getLocale } = useLanguage();
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
@@ -485,7 +487,7 @@ export default function AddEditTransactionPage() {
                   onClick={() => setShowDatePicker(true)}
                   className="w-full text-left text-base text-gray-900"
                 >
-                  {new Date(date + "T12:00:00").toLocaleDateString("es-CO", {
+                  {new Date(date + "T12:00:00").toLocaleDateString(getLocale(), {
                     weekday: "short",
                     day: "numeric",
                     month: "short",

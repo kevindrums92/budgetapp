@@ -18,7 +18,8 @@
     "download": "Descargar",
     "upload": "Subir",
     "export": "Exportar",
-    "import": "Importar"
+    "import": "Importar",
+    "skip": "Omitir"
   },
   "date": {
     "today": "Hoy",
@@ -31,6 +32,14 @@
     "previousMonth": "Mes anterior",
     "nextMonth": "Mes siguiente",
     "goToCurrentMonth": "Ir al mes actual"
+  },
+  "datePicker": {
+    "selectDate": "Seleccionar fecha",
+    "close": "Cerrar"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "General y Cuenta"
   },
   "errors": {
     "generic": "Ocurrió un error inesperado",

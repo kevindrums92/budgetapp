@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
 import { User } from "lucide-react";
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export default function TopHeader({ showMonthSelector = true, isProfilePage = false }: Props) {
+  const { t } = useTranslation('common');
 
   // ✅ Read from Zustand store (single source of truth)
   const user = useBudgetStore((s) => s.user);
@@ -66,8 +68,8 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
             {/* Profile Mode: Configuration Title */}
             {isProfilePage ? (
               <div>
-                <h1 className="text-lg font-bold leading-tight text-gray-900">Configuración</h1>
-                <p className="text-sm text-gray-500 leading-tight">General y Cuenta</p>
+                <h1 className="text-lg font-bold leading-tight text-gray-900">{t('settings.title')}</h1>
+                <p className="text-sm text-gray-500 leading-tight">{t('settings.subtitle')}</p>
               </div>
             ) : (
               /* Default Mode: App Name + Month Selector */

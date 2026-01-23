@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type Props = {
   open: boolean;
@@ -8,13 +10,9 @@ type Props = {
   onChange: (date: string) => void;
 };
 
-const DAYS = ["D", "L", "M", "M", "J", "V", "S"];
-const MONTHS = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-];
-
 export default function DatePicker({ open, onClose, value, onChange }: Props) {
+  const { t } = useTranslation('common');
+  const { getLocale } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -105,13 +103,40 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
     setShowYearPicker(false);
   };
 
+  // Generate locale-aware day abbreviations (first letter of each day)
+  const DAYS = useMemo(() => {
+    const locale = getLocale();
+    const days: string[] = [];
+
+    // Start from Sunday (day 0)
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(2023, 11, 31 + i); // Dec 31, 2023 is Sunday
+      const dayName = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(day);
+      days.push(dayName.charAt(0).toUpperCase());
+    }
+    return days;
+  }, [getLocale]);
+
+  // Generate locale-aware month names
+  const MONTHS = useMemo(() => {
+    const locale = getLocale();
+    const months: string[] = [];
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(2024, i, 1);
+      const monthName = new Intl.DateTimeFormat(locale, { month: 'long' }).format(date);
+      months.push(monthName);
+    }
+    return months;
+  }, [getLocale]);
+
   const formatSelectedDate = useCallback(() => {
-    const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-    const dayName = days[selectedDate.getDay()];
-    const monthName = MONTHS[selectedDate.getMonth()].slice(0, 3);
-    const dayNum = selectedDate.getDate();
-    return `${dayName}, ${monthName} ${dayNum}`;
-  }, [selectedDate]);
+    const locale = getLocale();
+    return new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    }).format(selectedDate);
+  }, [selectedDate, getLocale]);
 
   if (!isVisible) return null;
 
@@ -134,7 +159,7 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
         type="button"
         className="absolute inset-0 bg-black"
         onClick={onClose}
-        aria-label="Cerrar"
+        aria-label={t('datePicker.close')}
         style={{
           opacity: isAnimating ? 0.5 : 0,
           transition: "opacity 300ms ease-out",
@@ -152,7 +177,7 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
       >
         {/* Header */}
         <div className="bg-white px-6 pt-5 pb-4">
-          <p className="text-sm font-medium text-gray-500">Seleccionar fecha</p>
+          <p className="text-sm font-medium text-gray-500">{t('datePicker.selectDate')}</p>
           <h2 className="mt-1 text-3xl font-semibold text-gray-900">
             {formatSelectedDate()}
           </h2>
@@ -274,14 +299,14 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
             onClick={onClose}
             className="px-4 py-2 text-sm font-semibold text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
           >
-            Cancelar
+            {t('buttons.cancel')}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
             className="px-4 py-2 text-sm font-semibold text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
           >
-            OK
+            {t('buttons.ok')}
           </button>
         </div>
       </div>

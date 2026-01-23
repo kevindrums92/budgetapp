@@ -1,10 +1,7 @@
 import { useBudgetStore } from "@/state/budget.store";
+import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const MONTHS = [
-  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
-];
 
 function parseMonthKey(monthKey: string) {
   const [yStr, mStr] = monthKey.split("-");
@@ -23,11 +20,19 @@ function addMonths(monthKey: string, delta: number) {
 }
 
 export default function MonthSelector() {
+  const { t } = useTranslation('common');
+  const { getLocale } = useLanguage();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const setSelectedMonth = useBudgetStore((s) => s.setSelectedMonth);
 
   const { y, m } = parseMonthKey(selectedMonth);
-  const monthLabel = `${MONTHS[m - 1]} ${y}`;
+
+  // Format month using Intl with user's locale
+  const date = new Date(y, m - 1, 1);
+  const monthLabel = new Intl.DateTimeFormat(getLocale(), {
+    month: 'short',
+    year: 'numeric'
+  }).format(date).toUpperCase();
 
   return (
     <div className="flex items-center gap-2">
@@ -35,7 +40,7 @@ export default function MonthSelector() {
         type="button"
         onClick={() => setSelectedMonth(addMonths(selectedMonth, -1))}
         className="p-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all"
-        aria-label="Mes anterior"
+        aria-label={t('date.previousMonth')}
       >
         <ChevronLeft size={18} strokeWidth={2} />
       </button>
@@ -48,7 +53,7 @@ export default function MonthSelector() {
         type="button"
         onClick={() => setSelectedMonth(addMonths(selectedMonth, 1))}
         className="p-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all"
-        aria-label="Mes siguiente"
+        aria-label={t('date.nextMonth')}
       >
         <ChevronRight size={18} strokeWidth={2} />
       </button>

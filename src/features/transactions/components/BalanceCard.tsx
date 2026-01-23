@@ -1,9 +1,11 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { formatCOP } from "@/shared/utils/currency.utils";
 
 export default function BalanceCard() {
+  const { t } = useTranslation('home');
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
 
@@ -34,7 +36,7 @@ export default function BalanceCard() {
           <div className="relative z-10">
             {/* Header: Label + Month Tag */}
             <div className="flex justify-between items-start mb-1">
-              <span className="block text-teal-100 text-sm font-medium">Balance Disponible</span>
+              <span className="block text-teal-100 text-sm font-medium">{t('balanceCard.title')}</span>
             </div>
 
             {/* Balance Amount */}
@@ -51,7 +53,7 @@ export default function BalanceCard() {
                 </div>
                 <div>
                   <p className="text-[10px] text-teal-200 uppercase tracking-wider font-semibold opacity-80">
-                    Ingresos
+                    {t('balanceCard.income')}
                   </p>
                   <p className="text-sm font-bold text-white">+{formatCOP(totals.income)}</p>
                 </div>
@@ -64,7 +66,7 @@ export default function BalanceCard() {
                 </div>
                 <div>
                   <p className="text-[10px] text-rose-200 uppercase tracking-wider font-semibold opacity-80">
-                    Gastos
+                    {t('balanceCard.expenses')}
                   </p>
                   <p className="text-sm font-bold text-white">-{formatCOP(totals.expense)}</p>
                 </div>

@@ -1,6 +1,19 @@
 {
   "search": "Search...",
   "filter": "Filter by",
+  "balanceCard": {
+    "title": "Available Balance",
+    "income": "Income",
+    "expenses": "Expenses"
+  },
+  "addActionSheet": {
+    "title": "New Record",
+    "close": "Close",
+    "addIncome": "Add Income",
+    "incomeHint": "Salary, sales, etc.",
+    "addExpense": "Add Expense",
+    "expenseHint": "Purchases, services, etc."
+  },
   "filters": {
     "all": "All",
     "expenses": "Expenses",

@@ -5,6 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 import { X, Calendar } from "lucide-react";
 import type { Schedule, ScheduleFrequency } from "@/types/budget.types";
 import { todayISO } from "@/services/dates.service";
@@ -20,6 +21,7 @@ type Props = {
 
 export default function ScheduleConfigDrawer({ open, onClose, schedule, transactionDate, onSave }: Props) {
   const { t } = useTranslation("transactions");
+  const { getLocale } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [frequency, setFrequency] = useState<ScheduleFrequency>(schedule?.frequency ?? "monthly");
   const [interval, setInterval] = useState(schedule?.interval ?? 1);
@@ -51,6 +53,16 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
       }
     }
   }, [schedule]);
+
+  // Update dayOfMonth and dayOfWeek when drawer opens, based on transactionDate
+  // Only if there's no existing schedule (to avoid overwriting user's schedule config)
+  useEffect(() => {
+    if (open && !schedule) {
+      const date = new Date(transactionDate + "T12:00:00");
+      setDayOfMonth(date.getDate());
+      setDayOfWeek(date.getDay());
+    }
+  }, [open, transactionDate, schedule]);
 
   useEffect(() => {
     if (open) {
@@ -102,7 +114,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
   function formatDate(dateStr: string) {
     if (!dateStr) return "";
     const date = new Date(dateStr + "T12:00:00");
-    return date.toLocaleDateString("es-CO", {
+    return date.toLocaleDateString(getLocale(), {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -350,7 +362,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                           frequency === "monthly" ? t(`scheduleConfig.interval.${interval === 1 ? "month" : "months"}`) :
                           t(`scheduleConfig.interval.${interval === 1 ? "year" : "years"}`),
                     endDate: hasEndDate ? t("scheduleConfig.infoUntil", {
-                      date: new Date(endDate + "T12:00:00").toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })
+                      date: new Date(endDate + "T12:00:00").toLocaleDateString(getLocale(), { day: "numeric", month: "long", year: "numeric" })
                     }) : ""
                   })}
                 </p>

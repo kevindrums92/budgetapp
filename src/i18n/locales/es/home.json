@@ -1,6 +1,19 @@
 {
   "search": "Buscar...",
   "filter": "Filtrar por",
+  "balanceCard": {
+    "title": "Balance Disponible",
+    "income": "Ingresos",
+    "expenses": "Gastos"
+  },
+  "addActionSheet": {
+    "title": "Nuevo registro",
+    "close": "Cerrar",
+    "addIncome": "Agregar Ingreso",
+    "incomeHint": "Salario, ventas, etc.",
+    "addExpense": "Agregar Gasto",
+    "expenseHint": "Compras, servicios, etc."
+  },
   "filters": {
     "all": "Todos",
     "expenses": "Gastos",
