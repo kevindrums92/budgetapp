@@ -69,11 +69,13 @@ function AppFrame() {
            location.pathname === "/stats";
   }, [location.pathname]);
 
+  const isProfilePage = location.pathname === "/profile";
+
   return (
     <>
       {/* App */}
       <div className="min-h-dvh bg-white">
-        {!isFormRoute && <TopHeader showMonthSelector={showMonthSelector} />}
+        {!isFormRoute && <TopHeader showMonthSelector={showMonthSelector} isProfilePage={isProfilePage} />}
 
         <Suspense fallback={<PageLoader />}>
           <Routes>

@@ -5,20 +5,21 @@ import { User } from "lucide-react";
 
 type Props = {
   showMonthSelector?: boolean;
+  isProfilePage?: boolean;
 };
 
-export default function TopHeader({ showMonthSelector = true }: Props) {
+export default function TopHeader({ showMonthSelector = true, isProfilePage = false }: Props) {
 
   // ✅ Read from Zustand store (single source of truth)
-  const avatarUrl = useBudgetStore((s) => s.user.avatarUrl);
+  const user = useBudgetStore((s) => s.user);
   const cloudMode = useBudgetStore((s) => s.cloudMode);
   const cloudStatus = useBudgetStore((s) => s.cloudStatus);
 
   const Avatar = useMemo(() => {
-    if (avatarUrl) {
+    if (user.avatarUrl) {
       return (
         <img
-          src={avatarUrl}
+          src={user.avatarUrl}
           alt="Avatar"
           className="h-10 w-10 rounded-full object-cover"
           referrerPolicy="no-referrer"
@@ -30,9 +31,9 @@ export default function TopHeader({ showMonthSelector = true }: Props) {
         <User size={20} strokeWidth={1.8} />
       </div>
     );
-  }, [avatarUrl]);
+  }, [user.avatarUrl]);
 
-  // Sync indicator (cloud status dot)
+  // Sync indicator dot (for default mode)
   const syncDot = useMemo(() => {
     if (cloudMode === "guest") {
       return "bg-gray-400";
@@ -50,7 +51,7 @@ export default function TopHeader({ showMonthSelector = true }: Props) {
     <header className="sticky top-0 z-20 border-b border-gray-100 bg-white shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
       <div className="mx-auto max-w-xl px-4 pt-6 pb-2">
         <div className="flex items-start justify-between">
-          {/* Left: Logo + App Name + Month Selector */}
+          {/* Left: Logo + Content */}
           <div className="flex items-center gap-3">
             {/* Logo */}
             <div className="h-11 w-11 shrink-0 flex items-center justify-center rounded-xl bg-[#18B7B0] shadow-lg shadow-[#18B7B0]/20">
@@ -62,23 +63,33 @@ export default function TopHeader({ showMonthSelector = true }: Props) {
               </svg>
             </div>
 
-            {/* Name + Month Selector */}
-            <div>
-              <h1 className="text-lg font-bold leading-tight text-gray-900">SmartSpend</h1>
-              {showMonthSelector && (
-                <div className="mt-1">
-                  <MonthSelector />
-                </div>
-              )}
-            </div>
+            {/* Profile Mode: Configuration Title */}
+            {isProfilePage ? (
+              <div>
+                <h1 className="text-lg font-bold leading-tight text-gray-900">Configuración</h1>
+                <p className="text-sm text-gray-500 leading-tight">General y Cuenta</p>
+              </div>
+            ) : (
+              /* Default Mode: App Name + Month Selector */
+              <div>
+                <h1 className="text-lg font-bold leading-tight text-gray-900">SmartSpend</h1>
+                {showMonthSelector && (
+                  <div className="mt-1">
+                    <MonthSelector />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Right: User Avatar + Sync Indicator */}
-          <div className="relative flex items-center justify-center">
-            {Avatar}
-            {/* Sync indicator dot */}
-            <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white ${syncDot}`} />
-          </div>
+          {/* Right: Avatar with Sync Dot - only show in default mode */}
+          {!isProfilePage && (
+            <div className="relative flex items-center justify-center">
+              {Avatar}
+              {/* Sync indicator dot */}
+              <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white ${syncDot}`} />
+            </div>
+          )}
         </div>
       </div>
     </header>

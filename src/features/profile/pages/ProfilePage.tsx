@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useBudgetStore } from "@/state/budget.store";
-import { User, FolderOpen, ChevronRight, Shield, Repeat } from "lucide-react";
+import { User, FolderOpen, ChevronRight, Shield, Repeat, RefreshCw } from "lucide-react";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
 
   // ✅ Read from Zustand store (single source of truth)
   const user = useBudgetStore((s) => s.user);
+  const cloudMode = useBudgetStore((s) => s.cloudMode);
+  const cloudStatus = useBudgetStore((s) => s.cloudStatus);
 
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -64,65 +66,91 @@ export default function ProfilePage() {
         .slice(0, 2)
     : null;
 
+  // Sync status badge
+  const syncBadge = useMemo(() => {
+    if (cloudMode === "guest") {
+      return { text: "MODO LOCAL", color: "bg-gray-100 text-gray-600", icon: false };
+    }
+    if (!navigator.onLine || cloudStatus === "offline") {
+      return { text: "SIN CONEXIÓN", color: "bg-gray-100 text-gray-600", icon: false };
+    }
+    if (cloudStatus === "syncing") {
+      return { text: "SINCRONIZANDO", color: "bg-teal-50 text-[#18B7B0]", icon: true };
+    }
+    return { text: "CLOUD SYNC ACTIVO", color: "bg-teal-50 text-[#18B7B0]", icon: false };
+  }, [cloudMode, cloudStatus]);
+
   return (
     <div className="min-h-dvh bg-gray-50 pb-28">
-      {/* Profile Header */}
-      <div className="px-6 pt-4 pb-6">
-        <div className="flex items-center gap-4">
-          {/* Avatar */}
-          {user.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt="Avatar"
-              className="h-16 w-16 rounded-full object-cover ring-2 ring-gray-100"
-              referrerPolicy="no-referrer"
-            />
-          ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 ring-2 ring-gray-100">
-              {initials ? (
-                <span className="text-xl font-semibold text-emerald-700">
-                  {initials}
-                </span>
-              ) : (
-                <User size={28} className="text-emerald-700" />
-              )}
-            </div>
-          )}
+      {/* User Account Card - Only for logged in users */}
+      {isLoggedIn && (
+        <div className="px-4 pt-6 pb-4">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden hover:border-teal-200 transition">
+            {/* Decorative element */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 rounded-bl-[4rem] -mr-4 -mt-4 transition-transform hover:scale-110" />
 
-          {/* User Info */}
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-semibold text-gray-900 truncate">
-              {isLoggedIn ? user.name || "Usuario" : "Invitado"}
-            </h1>
-            {isLoggedIn ? (
-              <p className="text-sm text-emerald-600 truncate">{user.email}</p>
-            ) : (
-              <p className="text-sm text-gray-500">No has iniciado sesión</p>
-            )}
+            <div className="flex items-center gap-4 relative z-10">
+              {/* Avatar with status dot */}
+              <div className="relative">
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt="Avatar"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white shadow-sm text-gray-400">
+                    {initials ? (
+                      <span className="text-2xl font-semibold text-gray-600">
+                        {initials}
+                      </span>
+                    ) : (
+                      <User size={32} />
+                    )}
+                  </div>
+                )}
+                {/* Status dot - green when synced */}
+                <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-2 border-white rounded-full" />
+              </div>
+
+              {/* User info */}
+              <div className="flex-1 min-w-0">
+                <h2 className="font-bold text-lg text-gray-900 leading-tight truncate">
+                  {user.name || "Usuario"}
+                </h2>
+                <p className="text-sm text-gray-500 mb-2 truncate">{user.email}</p>
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${syncBadge.color} text-xs font-bold uppercase tracking-wider`}>
+                  {syncBadge.icon && <RefreshCw size={12} className="animate-spin" />}
+                  {!syncBadge.icon && <RefreshCw size={12} />}
+                  {syncBadge.text}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Login button for guests */}
-        {!isLoggedIn && (
-          <div className="mt-6">
-            {!isOnline ? (
-              <p className="text-sm text-gray-500 text-center">Sin conexión</p>
-            ) : (
-              <button
-                type="button"
-                onClick={signInWithGoogle}
-                disabled={loading}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 active:scale-[0.98] disabled:opacity-50 transition-all"
-              >
-                {loading ? "Cargando..." : "Continuar con Google"}
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+      {/* Login button for guests */}
+      {!isLoggedIn && (
+        <div className="px-4 pt-6 pb-4">
+          {!isOnline ? (
+            <p className="text-sm text-gray-500 text-center">Sin conexión</p>
+          ) : (
+            <button
+              type="button"
+              onClick={signInWithGoogle}
+              disabled={loading}
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 active:scale-[0.98] disabled:opacity-50 transition-all"
+            >
+              {loading ? "Cargando..." : "Continuar con Google"}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Menu Sections */}
-      <div className="px-4 pt-4">
+      <div className={`px-4 ${isLoggedIn ? 'pt-4' : 'pt-6'}`}>
         {/* Main Menu */}
         <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
           <MenuItem

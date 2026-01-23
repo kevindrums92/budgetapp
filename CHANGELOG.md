@@ -50,9 +50,14 @@ All notable changes to SmartSpend will be documented in this file.
   - Nueva navegación: Home, Budget, Stats, Settings
   - Settings navega a ProfilePage
   - Ícono Settings (engranaje) en lugar de Plane
-- **ProfilePage**: Ahora es una página principal (muestra TopHeader y BottomBar)
-  - Removido header con botón X
-  - Ajustado espaciado para integración con TopHeader
+- **ProfilePage**: Rediseño completo de la página de configuración
+  - TopHeader especial con título "Configuración" y subtítulo "General y Cuenta"
+  - Card de cuenta del usuario con avatar, nombre, email y badge de sync
+  - Avatar con dot de estado verde (sincronizado)
+  - Badge dinámico: "CLOUD SYNC ACTIVO" (teal), "SINCRONIZANDO" (animado), "SIN CONEXIÓN" (gris), "MODO LOCAL" (gris)
+  - Elemento decorativo en la esquina superior derecha de la card
+  - Hover effects en la card del usuario
+  - Removida redundancia del avatar en TopHeader
   - Accesible solo vía BottomBar → Settings
 - **Creación de categorías**: Las categorías por defecto ya no se crean automáticamente al inicializar el store
   - Ahora se crean solo durante el onboarding según las selecciones del usuario
