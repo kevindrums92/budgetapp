@@ -14,23 +14,45 @@
     "title": "No tienes programaciones inactivas",
     "message": "Las programaciones desactivadas aparecerán aquí"
   },
+  "status": {
+    "active": "Activa",
+    "inactive": "Inactiva"
+  },
   "item": {
     "deactivate": "Desactivar",
-    "frequency": {
-      "daily": "Cada {{interval}} día",
-      "daily_other": "Cada {{interval}} días",
-      "weekly": "Cada {{interval}} semana",
-      "weekly_other": "Cada {{interval}} semanas",
-      "monthly": "Cada {{interval}} mes",
-      "monthly_other": "Cada {{interval}} meses",
-      "yearly": "Cada {{interval}} año",
-      "yearly_other": "Cada {{interval}} años"
-    },
     "nextDate": "Próxima: {{date}}"
+  },
+  "frequency": {
+    "daily": "Diario",
+    "dailyInterval": "Cada {{count}} días",
+    "weekly": "Semanal",
+    "weeklyInterval": "Cada {{count}} semanas",
+    "weeklyOn": "Semanal los {{day}}",
+    "weeklyIntervalOn": "Cada {{count}} semanas los {{day}}",
+    "monthly": "Mensual el día {{day}}",
+    "monthlyInterval": "Cada {{count}} meses el día {{day}}",
+    "yearly": "Anual",
+    "yearlyInterval": "Cada {{count}} años",
+    "scheduled": "Programada"
+  },
+  "daysOfWeek": {
+    "sunday": "domingos",
+    "monday": "lunes",
+    "tuesday": "martes",
+    "wednesday": "miércoles",
+    "thursday": "jueves",
+    "friday": "viernes",
+    "saturday": "sábados"
+  },
+  "dateFormat": {
+    "today": "Hoy",
+    "tomorrow": "Mañana"
   },
   "deactivate": {
     "title": "Desactivar programación",
-    "message": "¿Seguro que deseas desactivar esta programación? Esta acción es irreversible y no se generarán más transacciones.",
+    "message": "Esto desactivará la programación de \"{{name}}\". No se generarán más transacciones automáticamente.",
+    "warning": "Esta acción es irreversible. Si deseas activarla de nuevo, deberás crear una nueva programación.",
+    "note": "Las transacciones ya registradas no se verán afectadas.",
     "confirm": "Desactivar",
     "cancel": "Cancelar"
   }

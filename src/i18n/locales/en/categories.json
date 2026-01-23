@@ -29,6 +29,11 @@
       "cancel": "Cancel"
     }
   },
+  "iconColorPicker": {
+    "icon": "Icon",
+    "color": "Color",
+    "apply": "Apply"
+  },
   "groups": {
     "title": "Category Groups",
     "emptyExpenses": "No expense groups",
@@ -42,6 +47,10 @@
       "type": "Type",
       "typeExpense": "Expense",
       "typeIncome": "Income",
+      "typeWarning": "Type cannot be changed after creating the group",
+      "tapToChangeColor": "Tap to change color",
+      "selectColor": "Select color",
+      "cancel": "Cancel",
       "save": "Save",
       "saveChanges": "Save changes",
       "delete": {

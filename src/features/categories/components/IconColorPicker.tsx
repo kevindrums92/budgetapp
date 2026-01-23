@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { icons } from "lucide-react";
 import { CATEGORY_ICONS } from "@/constants/categories/category-icons";
 import { CATEGORY_COLORS } from "@/constants/categories/category-colors";
@@ -22,6 +23,7 @@ export default function IconColorPicker({
   onIconChange,
   onColorChange,
 }: Props) {
+  const { t } = useTranslation("categories");
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeTab, setActiveTab] = useState<"icon" | "color">("icon");
@@ -94,7 +96,7 @@ export default function IconColorPicker({
               }`}
               onClick={() => setActiveTab("icon")}
             >
-              Icono
+              {t("iconColorPicker.icon")}
             </button>
             <button
               type="button"
@@ -105,7 +107,7 @@ export default function IconColorPicker({
               }`}
               onClick={() => setActiveTab("color")}
             >
-              Color
+              {t("iconColorPicker.color")}
             </button>
           </div>
         </div>
@@ -168,7 +170,7 @@ export default function IconColorPicker({
             onClick={onClose}
             className="rounded-full px-6 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-50"
           >
-            Aplicar
+            {t("iconColorPicker.apply")}
           </button>
         </div>
       </div>

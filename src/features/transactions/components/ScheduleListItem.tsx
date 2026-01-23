@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 import { icons, Power } from "lucide-react";
 import { formatCOP } from "@/shared/utils/currency.utils";
 import { kebabToPascal } from "@/shared/utils/string.utils";
@@ -20,6 +22,8 @@ export default function ScheduleListItem({
   isEnded = false,
   onInactivate,
 }: ScheduleListItemProps) {
+  const { t } = useTranslation("scheduled");
+  const { getLocale } = useLanguage();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const IconComponent = category
@@ -73,7 +77,7 @@ export default function ScheduleListItem({
                     : "bg-emerald-50 text-emerald-700"
                 }`}
               >
-                {isEnded ? "Inactiva" : "Activa"}
+                {isEnded ? t("status.inactive") : t("status.active")}
               </span>
             </div>
             <p className="text-sm text-gray-500">
@@ -97,14 +101,14 @@ export default function ScheduleListItem({
           {/* Frequency */}
           {transaction.schedule && (
             <p className="text-sm text-gray-500">
-              {formatScheduleFrequency(transaction.schedule)}
+              {formatScheduleFrequency(transaction.schedule, t)}
             </p>
           )}
 
           {/* Next date (only for active) */}
           {nextDate && !isEnded && (
             <p className="text-sm text-gray-500">
-              Próxima: {formatNextDate(nextDate)}
+              {t("item.nextDate", { date: formatNextDate(nextDate, t, getLocale()) })}
             </p>
           )}
         </div>
@@ -118,7 +122,7 @@ export default function ScheduleListItem({
               className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-orange-50 py-2.5 text-sm font-medium text-orange-600 hover:bg-orange-100 transition-colors"
             >
               <Power className="h-4 w-4" />
-              Desactivar
+              {t("item.deactivate")}
             </button>
           </div>
         )}
@@ -136,19 +140,18 @@ export default function ScheduleListItem({
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Desactivar programación
+              {t("deactivate.title")}
             </h3>
             <p className="mb-3 text-sm text-gray-600">
-              Esto desactivará la programación de "{transaction.name}".
-              No se generarán más transacciones automáticamente.
+              {t("deactivate.message", { name: transaction.name })}
             </p>
             <div className="mb-4 rounded-lg bg-orange-50 p-3">
               <p className="text-xs font-medium text-orange-700">
-                Esta acción es irreversible. Si deseas activarla de nuevo, deberás crear una nueva programación.
+                {t("deactivate.warning")}
               </p>
             </div>
             <p className="mb-4 text-xs text-gray-500">
-              Las transacciones ya registradas no se verán afectadas.
+              {t("deactivate.note")}
             </p>
 
             {/* Actions */}
@@ -158,14 +161,14 @@ export default function ScheduleListItem({
                 onClick={() => setShowConfirm(false)}
                 className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
-                Cancelar
+                {t("deactivate.cancel")}
               </button>
               <button
                 type="button"
                 onClick={handleInactivateConfirm}
                 className="flex-1 rounded-xl bg-orange-500 py-3 text-sm font-medium text-white hover:bg-orange-600"
               >
-                Desactivar
+                {t("deactivate.confirm")}
               </button>
             </div>
           </div>

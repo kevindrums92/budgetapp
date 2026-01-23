@@ -5,6 +5,10 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **i18n: Internationalize chart month labels**: StatsPage charts now use user's locale for month abbreviations (Ago/Aug, Sept/Sep, etc.)
+- **i18n: Internationalize IconColorPicker modal**: Icon/color picker tabs and apply button now translated
+- **i18n: Internationalize category groups modals**: Category group creation/edit page now fully translated (color picker, type warning, buttons)
+- **i18n: Internationalize scheduled transactions page**: Complete internationalization including status badges, frequency text, next dates, deactivate modal
 - **Internacionalización (i18n)**: Sistema completo de traducción para soporte multiidioma en TODA la aplicación
   - **Idiomas soportados**: Español (es) e Inglés (en)
   - **react-i18next**: Integración con detección automática de idioma (localStorage → navigator.language → fallback español)

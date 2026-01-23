@@ -29,6 +29,11 @@
       "cancel": "Cancelar"
     }
   },
+  "iconColorPicker": {
+    "icon": "Icono",
+    "color": "Color",
+    "apply": "Aplicar"
+  },
   "groups": {
     "title": "Grupos de Categorías",
     "emptyExpenses": "No hay grupos de gastos",
@@ -42,6 +47,10 @@
       "type": "Tipo",
       "typeExpense": "Gasto",
       "typeIncome": "Ingreso",
+      "typeWarning": "El tipo no se puede cambiar después de crear el grupo",
+      "tapToChangeColor": "Toca para cambiar color",
+      "selectColor": "Seleccionar color",
+      "cancel": "Cancelar",
       "save": "Guardar",
       "saveChanges": "Guardar cambios",
       "delete": {

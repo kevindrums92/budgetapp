@@ -107,7 +107,7 @@ export default function AddEditCategoryGroupPage() {
               style={{ backgroundColor: color }}
             />
             <div className="mt-2 text-xs text-gray-500">
-              Toca para cambiar color
+              {t("groups.form.tapToChangeColor")}
             </div>
           </button>
         </div>
@@ -161,7 +161,7 @@ export default function AddEditCategoryGroupPage() {
             </div>
             {isEditing && (
               <p className="mt-2 text-xs text-gray-400">
-                El tipo no se puede cambiar después de crear el grupo
+                {t("groups.form.typeWarning")}
               </p>
             )}
           </div>
@@ -189,7 +189,7 @@ export default function AddEditCategoryGroupPage() {
           />
           <div className="relative w-full max-w-lg rounded-t-3xl bg-white px-6 py-8 shadow-xl">
             <h3 className="mb-4 text-lg font-semibold text-gray-900">
-              Seleccionar color
+              {t("groups.form.selectColor")}
             </h3>
             <div className="grid grid-cols-6 gap-3">
               {CATEGORY_COLORS.map((c) => (
@@ -212,7 +212,7 @@ export default function AddEditCategoryGroupPage() {
               onClick={() => setShowColorPicker(false)}
               className="mt-6 w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700"
             >
-                Cancelar
+              {t("groups.form.cancel")}
             </button>
           </div>
         </div>

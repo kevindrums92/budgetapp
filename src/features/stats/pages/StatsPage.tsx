@@ -37,10 +37,10 @@ function getLastMonths(count: number): string[] {
 }
 
 // Short month label (e.g., "Ene", "Feb")
-function shortMonthLabel(monthKey: string): string {
+function shortMonthLabel(monthKey: string, locale: string): string {
   const [yStr, mStr] = monthKey.split("-");
   const date = new Date(Number(yStr), Number(mStr) - 1, 1);
-  return new Intl.DateTimeFormat("es-CO", { month: "short" })
+  return new Intl.DateTimeFormat(locale, { month: "short" })
     .format(date)
     .replace(".", "")
     .replace(/^\w/, (c) => c.toUpperCase());
@@ -108,6 +108,7 @@ export default function StatsPage() {
   // Bar chart data (income vs expenses for last 6 months)
   const monthlyData = useMemo<MonthlyData[]>(() => {
     const months = getLastMonths(6);
+    const locale = getLocale();
 
     return months.map((monthKey) => {
       let income = 0;
@@ -121,18 +122,19 @@ export default function StatsPage() {
 
       return {
         month: monthKey,
-        label: shortMonthLabel(monthKey),
+        label: shortMonthLabel(monthKey, locale),
         income,
         expense,
       };
     });
-  }, [transactions]);
+  }, [transactions, getLocale]);
 
   const hasMonthlyData = monthlyData.some((d) => d.income > 0 || d.expense > 0);
 
   // Trend chart data (expenses for last 12 months)
   const trendData = useMemo<TrendData[]>(() => {
     const months = getLastMonths(12);
+    const locale = getLocale();
 
     return months.map((monthKey) => {
       let expense = 0;
@@ -144,11 +146,11 @@ export default function StatsPage() {
 
       return {
         month: monthKey,
-        label: shortMonthLabel(monthKey),
+        label: shortMonthLabel(monthKey, locale),
         expense,
       };
     });
-  }, [transactions]);
+  }, [transactions, getLocale]);
 
   const hasTrendData = trendData.some((d) => d.expense > 0);
 
