@@ -4,7 +4,6 @@
  * Visualización de patrones de gasto con gráficas
  */
 
-import React from 'react';
 import { TrendingUp, Calendar, DollarSign } from 'lucide-react';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';

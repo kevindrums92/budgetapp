@@ -3,7 +3,6 @@
  * Botón para opciones de autenticación (Google, Guest, Apple, Email)
  */
 
-import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 import type { AuthMethod } from '../utils/onboarding.types';
 

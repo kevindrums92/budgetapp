@@ -4,7 +4,6 @@
  * Transacciones recurrentes automáticas con timeline
  */
 
-import React from 'react';
 import { Repeat, Wifi, Calendar, CreditCard } from 'lucide-react';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';

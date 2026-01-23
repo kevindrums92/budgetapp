@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingWithCategories } from './test-helpers';
 
 /**
  * Tests for features released in current version
@@ -7,11 +8,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Release Features - v0.7.0', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator('text=Balance')).toBeVisible({ timeout: 10000 });

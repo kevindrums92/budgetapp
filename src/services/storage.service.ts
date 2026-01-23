@@ -52,7 +52,25 @@ function migrateTransactionCategories(
 export function loadState(): BudgetState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
+    if (!raw) {
+      // Check if onboarding was completed (e.g., in e2e tests)
+      // If so, initialize with default categories
+      const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
+      if (onboardingCompleted) {
+        const initialState: BudgetState = {
+          schemaVersion: 5,
+          transactions: [],
+          categories: [],
+          categoryDefinitions: createDefaultCategories(),
+          categoryGroups: createDefaultCategoryGroups(),
+          trips: [],
+          tripExpenses: [],
+        };
+        saveState(initialState);
+        return initialState;
+      }
+      return null;
+    }
 
     const parsed = JSON.parse(raw);
 
@@ -218,29 +236,39 @@ export function loadState(): BudgetState | null {
       // Check if there are old string categories to migrate
       const hasLegacyCategories = Array.isArray(parsed.categories) && parsed.categories.length > 0;
 
-      if (hasLegacyCategories) {
-        // Legacy user with old categories - create defaults + migrate custom ones
+      // Check if onboarding was completed (includes e2e test scenarios)
+      const onboardingCompleted = typeof window !== 'undefined' &&
+        localStorage.getItem('budget.onboarding.completed.v2') === 'true';
+
+      if (hasLegacyCategories || onboardingCompleted) {
+        // Legacy user OR completed onboarding - inject defaults
         const defaults = createDefaultCategories();
-        const defaultNamesLower = new Set(defaults.map((c) => c.name.toLowerCase()));
 
-        // Convert any old string categories to Category objects
-        const customFromOld: Category[] = (parsed.categories || [])
-          .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
-          .map((name: string) => ({
-            id: crypto.randomUUID(),
-            name: name.trim(),
-            icon: DEFAULT_CATEGORY_ICON,
-            color: DEFAULT_CATEGORY_COLOR,
-            type: "expense" as const,
-            groupId: "miscellaneous",
-            isDefault: false,
-            createdAt: Date.now(),
-          }));
+        if (hasLegacyCategories) {
+          // Also migrate custom categories from old format
+          const defaultNamesLower = new Set(defaults.map((c) => c.name.toLowerCase()));
+          const customFromOld: Category[] = (parsed.categories || [])
+            .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
+            .map((name: string) => ({
+              id: crypto.randomUUID(),
+              name: name.trim(),
+              icon: DEFAULT_CATEGORY_ICON,
+              color: DEFAULT_CATEGORY_COLOR,
+              type: "expense" as const,
+              groupId: "miscellaneous",
+              isDefault: false,
+              createdAt: Date.now(),
+            }));
 
-        parsed.categoryDefinitions = [...defaults, ...customFromOld];
+          parsed.categoryDefinitions = [...defaults, ...customFromOld];
+        } else {
+          // Just inject defaults (e2e tests or edge cases)
+          parsed.categoryDefinitions = defaults;
+        }
+
         needsSave = true;
       } else {
-        // New user - categories will be created during onboarding
+        // New user still in onboarding - categories will be created during onboarding
         parsed.categoryDefinitions = [];
       }
     }

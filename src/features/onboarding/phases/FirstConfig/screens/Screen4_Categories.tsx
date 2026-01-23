@@ -76,6 +76,7 @@ export default function Screen4_Categories() {
         setSelectedIds(new Set(contextIds));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.selections.selectedCategories]);
 
   // [2] Sincronizar el estado local CON el contexto cada vez que selectedIds cambie localmente

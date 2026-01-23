@@ -3,7 +3,6 @@
  * Tarjeta para mostrar características de la app en Welcome Onboarding
  */
 
-import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 interface FeatureCardProps {

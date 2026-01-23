@@ -4,14 +4,13 @@
  * Similar al WelcomeGate anterior pero con el nuevo sistema
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { determineStartScreen, migrateFromLegacyWelcome } from './utils/onboarding.helpers';
 
 export default function OnboardingGate() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     const checkOnboarding = async () => {
@@ -19,7 +18,6 @@ export default function OnboardingGate() {
       const searchParams = new URLSearchParams(location.search);
       if (searchParams.get('returnTo') === 'onboarding') {
         console.log('[OnboardingGate] Allowing auxiliary route during onboarding:', location.pathname);
-        setChecking(false);
         return;
       }
 
@@ -60,12 +58,10 @@ export default function OnboardingGate() {
           navigate('/', { replace: true });
         }
       }
-
-      setChecking(false);
     };
 
     checkOnboarding();
-  }, [navigate, location.pathname]);
+  }, [navigate, location.pathname, location.search]);
 
   // Este componente no renderiza nada, solo maneja la lógica de redirección
   return null;

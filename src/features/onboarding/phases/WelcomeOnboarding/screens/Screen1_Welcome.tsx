@@ -4,7 +4,6 @@
  * Primera impresión - Logo, título y features principales
  */
 
-import React from 'react';
 import { Wallet, WifiOff, Shield } from 'lucide-react';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import FeatureCard from '../../../components/FeatureCard';

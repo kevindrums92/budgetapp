@@ -4,7 +4,6 @@
  * Explicación de registro rápido y seguro
  */
 
-import React from 'react';
 import { Zap, Lock, Mail, User } from 'lucide-react';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';

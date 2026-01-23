@@ -3,7 +3,6 @@
  * Indicadores de progreso para navegación del onboarding
  */
 
-import React from 'react';
 
 interface ProgressDotsProps {
   total: number;

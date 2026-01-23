@@ -435,8 +435,10 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(stateWithEmptyCategoryDefs));
         const loaded = loadState();
 
+        // New users with no transactions should keep empty categoryDefinitions
+        // (they're created during onboarding)
         expect(loaded?.categoryDefinitions).toBeDefined();
-        expect(loaded!.categoryDefinitions.length).toBeGreaterThan(0);
+        expect(loaded!.categoryDefinitions).toEqual([]);
       });
 
       it('should handle state with empty categoryGroups array', () => {

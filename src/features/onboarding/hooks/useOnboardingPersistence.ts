@@ -9,7 +9,27 @@ import { ONBOARDING_KEYS, LEGACY_WELCOME_KEY } from '../utils/onboarding.constan
 import { supabase } from '@/lib/supabaseClient';
 
 export function useOnboardingPersistence() {
-  const { state, completeOnboarding, resetOnboarding } = useOnboarding();
+  const { state, resetOnboarding } = useOnboarding();
+
+  /**
+   * Marca el onboarding como completado
+   */
+  const markOnboardingComplete = useCallback(() => {
+    const now = Date.now();
+
+    localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+    localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, now.toString());
+
+    // Opcional: guardar selecciones finales
+    if (Object.keys(state.selections).length > 0) {
+      localStorage.setItem(
+        ONBOARDING_KEYS.SELECTIONS,
+        JSON.stringify(state.selections)
+      );
+    }
+
+    console.log('[Onboarding] Marked as completed at:', new Date(now).toLocaleString());
+  }, [state.selections]);
 
   /**
    * Determina qué pantalla mostrar al iniciar la app
@@ -51,28 +71,8 @@ export function useOnboardingPersistence() {
       // Usuario returning que se deslogueó, solo mostrar login
       return 'login';
     },
-    []
+    [markOnboardingComplete]
   );
-
-  /**
-   * Marca el onboarding como completado
-   */
-  const markOnboardingComplete = useCallback(() => {
-    const now = Date.now();
-
-    localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
-    localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, now.toString());
-
-    // Opcional: guardar selecciones finales
-    if (Object.keys(state.selections).length > 0) {
-      localStorage.setItem(
-        ONBOARDING_KEYS.SELECTIONS,
-        JSON.stringify(state.selections)
-      );
-    }
-
-    console.log('[Onboarding] Marked as completed at:', new Date(now).toLocaleString());
-  }, [state.selections]);
 
   /**
    * Migra desde el legacy welcome

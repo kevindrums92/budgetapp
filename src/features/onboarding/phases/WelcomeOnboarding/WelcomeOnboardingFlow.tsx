@@ -3,7 +3,6 @@
  * Router para las 6 pantallas de Welcome Onboarding
  */
 
-import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import Screen1_Welcome from './screens/Screen1_Welcome';
 import Screen2_QuickRegister from './screens/Screen2_QuickRegister';

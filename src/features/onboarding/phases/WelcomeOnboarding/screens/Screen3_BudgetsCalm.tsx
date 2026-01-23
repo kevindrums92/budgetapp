@@ -4,7 +4,6 @@
  * Gestión de presupuestos sin estrés con categorías
  */
 
-import React from 'react';
 import { Coffee, ShoppingBag, Home, TrendingDown } from 'lucide-react';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';

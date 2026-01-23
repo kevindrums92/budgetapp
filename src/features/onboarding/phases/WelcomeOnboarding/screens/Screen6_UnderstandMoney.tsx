@@ -4,7 +4,6 @@
  * Dashboard de insights financieros con donut chart
  */
 
-import React from 'react';
 import { PieChart, TrendingUp, Calendar, Award } from 'lucide-react';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';

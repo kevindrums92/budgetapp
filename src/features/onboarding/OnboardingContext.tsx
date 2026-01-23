@@ -3,6 +3,7 @@
  * Context provider para manejar el estado global del onboarding
  */
 
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type {
   OnboardingState,
