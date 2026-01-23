@@ -55,7 +55,6 @@ function AppFrame() {
 
   const isFormRoute =
     location.pathname === "/add" ||
-    location.pathname === "/profile" ||
     location.pathname === "/backup" ||
     location.pathname === "/scheduled" ||
     location.pathname.startsWith("/edit/") ||
@@ -63,14 +62,6 @@ function AppFrame() {
     location.pathname.startsWith("/category") ||
     location.pathname.startsWith("/categories") ||
     location.pathname.startsWith("/onboarding");
-
-  const title = useMemo(() => {
-    if (location.pathname === "/") return "Home";
-    if (location.pathname === "/budget") return "Budget";
-    if (location.pathname === "/stats") return "Stats";
-    if (location.pathname === "/trips") return "Trips";
-    return "Home";
-  }, [location.pathname]);
 
   const showMonthSelector = useMemo(() => {
     return location.pathname === "/" ||
@@ -82,7 +73,7 @@ function AppFrame() {
     <>
       {/* App */}
       <div className="min-h-dvh bg-white">
-        {!isFormRoute && <TopHeader title={title} showMonthSelector={showMonthSelector} />}
+        {!isFormRoute && <TopHeader showMonthSelector={showMonthSelector} />}
 
         <Suspense fallback={<PageLoader />}>
           <Routes>

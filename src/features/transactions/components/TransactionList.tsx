@@ -20,7 +20,7 @@ interface GroupedTransactions {
 
 interface TransactionListProps {
   searchQuery?: string;
-  filterType?: "all" | "expense" | "income" | "pending";
+  filterType?: "all" | "expense" | "income" | "pending" | "recurring";
 }
 
 export default function TransactionList({ searchQuery = "", filterType = "all" }: TransactionListProps) {
@@ -58,6 +58,7 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
         if (filterType === "expense" && t.type !== "expense") return false;
         if (filterType === "income" && t.type !== "income") return false;
         if (filterType === "pending" && t.status !== "pending" && t.status !== "planned") return false;
+        if (filterType === "recurring" && !t.isRecurring) return false;
         return true;
       })
       .filter((t) => {

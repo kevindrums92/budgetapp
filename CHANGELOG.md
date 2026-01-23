@@ -27,6 +27,33 @@ All notable changes to SmartSpend will be documented in this file.
   - Script de generación automática con Sharp (`scripts/generate-icons.js`)
 
 ### Changed
+- **HomePage Redesign**: Refactor completo del diseño de la página principal
+  - **TopHeader**: Nuevo diseño con logo + nombre de app + selector de mes a la izquierda, avatar con indicador de sync a la derecha
+    - Logo teal (#18B7B0) con gráfico de barras y línea de tendencia
+    - Avatar sin funcionalidad de click (navegación solo vía BottomBar)
+    - Indicador de estado de sync (dot): verde (sincronizado), teal (sincronizando), gris (offline/guest)
+  - **BalanceCard**: Rediseño con gradiente teal
+    - Gradiente de fondo: from-[#18B7B0] to-teal-800
+    - Elementos decorativos con blur para profundidad visual
+    - Layout actualizado: Balance Disponible arriba, tarjetas de Ingresos/Gastos con íconos TrendingUp/TrendingDown
+    - Corrección de signos "$" duplicados (formatCOP ya incluye el símbolo)
+  - **Daily Budget Banner**: Rediseño con fondo teal-50
+    - Ícono Calculator en lugar de Lightbulb
+    - Texto actualizado: "Podrías gastar X / día"
+  - **Search & Filters**: Nueva interfaz de filtros
+    - Reemplazados pills por dropdown menu con SlidersHorizontal icon
+    - Opciones: Todos, Gastos, Ingresos, Pendientes, Recurrentes
+    - Checkmarks visuales para opción activa
+    - Click fuera del dropdown para cerrar
+  - **FAB Button**: Color cambiado de negro a teal (#18B7B0)
+- **BottomBar**: Tab "Trips" reemplazado por "Settings"
+  - Nueva navegación: Home, Budget, Stats, Settings
+  - Settings navega a ProfilePage
+  - Ícono Settings (engranaje) en lugar de Plane
+- **ProfilePage**: Ahora es una página principal (muestra TopHeader y BottomBar)
+  - Removido header con botón X
+  - Ajustado espaciado para integración con TopHeader
+  - Accesible solo vía BottomBar → Settings
 - **Creación de categorías**: Las categorías por defecto ya no se crean automáticamente al inicializar el store
   - Ahora se crean solo durante el onboarding según las selecciones del usuario
   - Usuarios legacy (con datos existentes) mantienen sus categorías actuales sin cambios
@@ -38,6 +65,7 @@ All notable changes to SmartSpend will be documented in this file.
 ### Fixed
 - **CategoryPickerDrawer**: El gesto de drag-to-close ya no interfiere con el scroll de la lista de categorías
 - **Espaciado en ConfigScreen**: Corregido el espaciado entre las tarjetas de features y el botón "Comenzar a usar SmartSpend"
+- **Duplicate Currency Symbols**: Removidos signos "$" duplicados en BalanceCard y HomePage (formatCOP ya incluye el símbolo)
 
 ## [0.10.0] - 2026-01-22
 

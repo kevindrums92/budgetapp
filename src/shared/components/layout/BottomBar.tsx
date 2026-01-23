@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Wallet, BarChart3, Plane } from "lucide-react";
+import { Home, Wallet, BarChart3, Settings } from "lucide-react";
 
 function Tab({
   to,
@@ -47,7 +47,7 @@ export default function BottomBar() {
           <Tab to="/" label="Home" icon={Home} />
           <Tab to="/budget" label="Budget" icon={Wallet} />
           <Tab to="/stats" label="Stats" icon={BarChart3} />
-          <Tab to="/trips" label="Trips" icon={Plane} />
+          <Tab to="/profile" label="Settings" icon={Settings} />
         </div>
       </div>
     </div>

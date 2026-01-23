@@ -36,3 +36,5 @@ dist-ssr
 # coverage
 /coverage/
 test_output.txt
+
+/docs/roadmap/references/*

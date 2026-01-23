@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useBudgetStore } from "@/state/budget.store";
-import { X, User, FolderOpen, ChevronRight, Shield, Repeat } from "lucide-react";
+import { User, FolderOpen, ChevronRight, Shield, Repeat } from "lucide-react";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -65,23 +65,9 @@ export default function ProfilePage() {
     : null;
 
   return (
-    <div className="min-h-dvh bg-gray-50">
-      {/* Header with close button */}
-      <header className="sticky top-0 z-10 bg-gray-50">
-        <div className="flex items-center justify-end px-4 py-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-200 transition-colors"
-            aria-label="Cerrar"
-          >
-            <X size={24} className="text-gray-600" />
-          </button>
-        </div>
-      </header>
-
+    <div className="min-h-dvh bg-gray-50 pb-28">
       {/* Profile Header */}
-      <div className="px-6 pb-6">
+      <div className="px-6 pt-4 pb-6">
         <div className="flex items-center gap-4">
           {/* Avatar */}
           {user.avatarUrl ? (
@@ -136,7 +122,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Menu Sections */}
-      <div className="px-4">
+      <div className="px-4 pt-4">
         {/* Main Menu */}
         <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
           <MenuItem
@@ -158,7 +144,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Footer with logout and version */}
-      <div className="absolute bottom-0 left-0 right-0 px-4 pb-4">
+      <div className="px-4 pt-8 pb-4">
         {/* Logout button - only for logged in users */}
         {isLoggedIn && isOnline && (
           <button

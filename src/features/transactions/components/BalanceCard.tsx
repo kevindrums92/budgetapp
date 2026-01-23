@@ -20,47 +20,58 @@ export default function BalanceCard() {
     return { income, expense, balance: income - expense };
   }, [transactions, selectedMonth]);
 
+
   return (
     <div className="bg-gray-50">
       <div className="mx-auto max-w-xl px-4 pt-4">
-        {/* Balance Hero */}
-        <div className="text-center mb-4">
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-            Balance Total
-          </p>
-          <p className="text-5xl font-bold tracking-tight text-gray-900">
-            {formatCOP(totals.balance)}
-          </p>
-        </div>
+        {/* Hero Card with gradient */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#18B7B0] to-teal-800 rounded-[2rem] p-6 text-white shadow-xl shadow-teal-900/20 ring-1 ring-white/20">
+          {/* Decorative blur elements */}
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl" />
+          <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-teal-400 opacity-10 rounded-full blur-xl" />
 
-        {/* Income / Expense cards */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Income Card */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                <TrendingUp className="h-4 w-4 text-emerald-600" />
-              </div>
-              <span className="text-sm font-medium text-gray-600">Ingresos</span>
+          {/* Content */}
+          <div className="relative z-10">
+            {/* Header: Label + Month Tag */}
+            <div className="flex justify-between items-start mb-1">
+              <span className="block text-teal-100 text-sm font-medium">Balance Disponible</span>
             </div>
-            <p className="text-xl font-bold text-emerald-600">
-              {formatCOP(totals.income)}
-            </p>
-          </div>
 
-          {/* Expense Card */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
-                <TrendingDown className="h-4 w-4 text-red-600" />
-              </div>
-              <span className="text-sm font-medium text-gray-600">Gastos</span>
+            {/* Balance Amount */}
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-4xl font-bold tracking-tight">{formatCOP(totals.balance)}</span>
             </div>
-            <p className="text-xl font-bold text-red-600">
-              {formatCOP(totals.expense)}
-            </p>
+
+            {/* Income / Expense Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Income Card */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-teal-400/20 flex items-center justify-center text-teal-200">
+                  <TrendingUp size={16} />
+                </div>
+                <div>
+                  <p className="text-[10px] text-teal-200 uppercase tracking-wider font-semibold opacity-80">
+                    Ingresos
+                  </p>
+                  <p className="text-sm font-bold text-white">+{formatCOP(totals.income)}</p>
+                </div>
+              </div>
+
+              {/* Expense Card */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/5">
+                <div className="w-8 h-8 rounded-lg bg-rose-400/20 flex items-center justify-center text-rose-200">
+                  <TrendingDown size={16} />
+                </div>
+                <div>
+                  <p className="text-[10px] text-rose-200 uppercase tracking-wider font-semibold opacity-80">
+                    Gastos
+                  </p>
+                  <p className="text-sm font-bold text-white">-{formatCOP(totals.expense)}</p>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
