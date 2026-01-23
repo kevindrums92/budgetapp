@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -35,7 +35,6 @@ const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/C
 const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
 
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
-import SplashScreen from "@/shared/components/ui/SplashScreen";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
 
@@ -53,14 +52,6 @@ function PageLoader() {
 
 function AppFrame() {
   const location = useLocation();
-
-  // Splash: visible solo al inicio
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    const t = window.setTimeout(() => setShowSplash(false), 900);
-    return () => window.clearTimeout(t);
-  }, []);
 
   const isFormRoute =
     location.pathname === "/add" ||
@@ -89,11 +80,8 @@ function AppFrame() {
 
   return (
     <>
-      {/* Splash overlay (fade out por CSS/transition) */}
-      <SplashScreen visible={showSplash} />
-
       {/* App */}
-      <div className={`min-h-dvh bg-white ${showSplash ? "pointer-events-none" : ""}`}>
+      <div className="min-h-dvh bg-white">
         {!isFormRoute && <TopHeader title={title} showMonthSelector={showMonthSelector} />}
 
         <Suspense fallback={<PageLoader />}>

@@ -14,15 +14,30 @@ All notable changes to SmartSpend will be documented in this file.
   - **OnboardingGate**: Componente que determina automáticamente dónde debe comenzar el usuario (onboarding, login o app)
   - Migración automática desde sistema de welcome legacy
   - Progreso guardado: si el usuario cierra la app durante el onboarding, retoma donde dejó
+- **Splash Screen**: Nuevo splash screen con diseño del logo de la app (gráfico de barras + línea de tendencia)
+  - Tiempo mínimo de visualización: 1.2 segundos
+  - Animación de fade out suave (0.4s)
+  - Fondo teal (#0d9488) coherente con el brand
+  - Previene flash blanco durante la carga
+- **Nuevos iconos de la app**: Suite completa de iconos para PWA
+  - favicon.svg: Favicon SVG moderno (soporte nativo en navegadores)
+  - safari-pinned-tab.svg: Versión mono para Safari pinned tabs
+  - Iconos PNG en 15 tamaños (16px a 1024px)
+  - Iconos maskable para Android (192x192, 512x512) con safe zone del 40%
+  - Script de generación automática con Sharp (`scripts/generate-icons.js`)
 
 ### Changed
 - **Creación de categorías**: Las categorías por defecto ya no se crean automáticamente al inicializar el store
   - Ahora se crean solo durante el onboarding según las selecciones del usuario
   - Usuarios legacy (con datos existentes) mantienen sus categorías actuales sin cambios
   - CloudSyncGate solo inyecta defaults para usuarios legacy con transacciones pero sin categorías
+- **Theme color**: Actualizado a #0d9488 (teal) para coherencia visual con el nuevo brand
+- **Icono de bienvenida**: Pantalla de bienvenida del onboarding ahora muestra el logo real de la app en lugar del icono genérico de billetera
+- **Splash screen legacy**: Eliminado el splash screen anterior del componente React
 
 ### Fixed
 - **CategoryPickerDrawer**: El gesto de drag-to-close ya no interfiere con el scroll de la lista de categorías
+- **Espaciado en ConfigScreen**: Corregido el espaciado entre las tarjetas de features y el botón "Comenzar a usar SmartSpend"
 
 ## [0.10.0] - 2026-01-22
 

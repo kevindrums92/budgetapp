@@ -52,7 +52,7 @@ export default function ConfigScreen() {
       </div>
 
       {/* Features preview */}
-      <div className="mx-6 mb-8 space-y-3">
+      <div className="mx-6 space-y-3">
         <div className="rounded-xl bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-gray-900">📊 Registra tus movimientos</p>
           <p className="mt-1 text-xs text-gray-600">
@@ -76,7 +76,7 @@ export default function ConfigScreen() {
       </div>
 
       {/* Actions */}
-      <div className="flex-1 px-6 pb-8">
+      <div className="mt-16 flex-1 px-6 pb-8">
         <div className="space-y-3">
           {/* Botón principal: Comenzar */}
           <button

@@ -7,16 +7,38 @@
     <title>SmartSpend</title>
     <meta name="description" content="Gasta inteligente. Controla ingresos y gastos con claridad." />
 
-    <meta name="theme-color" content="#3ED598" />
+    <meta name="theme-color" content="#0d9488" />
 
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+    <link rel="alternate icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#0d9488" />
 
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="SmartSpend" />
+
+    <style>
+      #app-splash { position: fixed; inset: 0; background: #0d9488; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; transition: opacity 0.4s ease; }
+      .splash-icon { width: 80px; height: 80px; margin-bottom: 16px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+      .splash-title { font-family: system-ui, -apple-system, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.025em; margin: 0; }
+      .splash-loader { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; margin-top: 32px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      body { margin: 0; background: #0d9488; }
+    </style>
   </head>
   <body>
+    <div id="app-splash">
+      <svg class="splash-icon" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="35" width="8" height="15" rx="2" fill="white" fill-opacity="0.9"/>
+        <rect x="26" y="25" width="8" height="25" rx="2" fill="white" fill-opacity="0.9"/>
+        <rect x="42" y="20" width="8" height="30" rx="2" fill="white" fill-opacity="0.9"/>
+        <path d="M8 40 L22 28 L36 32 L52 14" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="52" cy="14" r="3" fill="white"/>
+      </svg>
+      <h1 class="splash-title">SmartSpend</h1>
+      <div class="splash-loader"></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

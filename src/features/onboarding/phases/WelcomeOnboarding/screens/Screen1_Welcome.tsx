@@ -4,7 +4,7 @@
  * Primera impresión - Logo, título y features principales
  */
 
-import { Wallet, WifiOff, Shield } from 'lucide-react';
+import { WifiOff, Shield, TrendingUp } from 'lucide-react';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import FeatureCard from '../../../components/FeatureCard';
 import SlideAnimation, { StaggeredAnimation } from '../../../components/SlideAnimation';
@@ -25,8 +25,14 @@ export default function Screen1_Welcome() {
       <div className="mb-8 text-center">
         <SlideAnimation direction="down" delay={0}>
           {/* Logo */}
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
-            <Wallet size={40} className="text-white" strokeWidth={2.5} />
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-[#0d9488] shadow-lg">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-12 w-12">
+              <rect x="10" y="35" width="8" height="15" rx="2" fill="white" fillOpacity="0.9"/>
+              <rect x="26" y="25" width="8" height="25" rx="2" fill="white" fillOpacity="0.9"/>
+              <rect x="42" y="20" width="8" height="30" rx="2" fill="white" fillOpacity="0.9"/>
+              <path d="M8 40 L22 28 L36 32 L52 14" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="52" cy="14" r="3" fill="white"/>
+            </svg>
           </div>
         </SlideAnimation>
 
@@ -69,7 +75,7 @@ export default function Screen1_Welcome() {
           />
 
           <FeatureCard
-            icon={Wallet}
+            icon={TrendingUp}
             title="Control financiero"
             description="Presupuestos, análisis y automatización en un solo lugar"
             iconBgColor="bg-emerald-100"
