@@ -58,7 +58,17 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
         if (filterType === "expense" && t.type !== "expense") return false;
         if (filterType === "income" && t.type !== "income") return false;
         if (filterType === "pending" && t.status !== "pending" && t.status !== "planned") return false;
-        if (filterType === "recurring" && !t.isRecurring) return false;
+        if (filterType === "recurring") {
+          // Una transacción es recurrente si:
+          // 1. Tiene schedule activo (es un template)
+          // 2. O tiene sourceTemplateId (es una instancia generada de un template)
+          // 3. O tiene isRecurring === true (legacy)
+          const hasSchedule = t.schedule?.enabled === true;
+          const isFromTemplate = !!t.sourceTemplateId;
+          const isMarkedRecurring = t.isRecurring === true;
+
+          if (!hasSchedule && !isFromTemplate && !isMarkedRecurring) return false;
+        }
         return true;
       })
       .filter((t) => {
