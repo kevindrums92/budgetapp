@@ -4,6 +4,23 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Sistema de Onboarding Completo**: Nuevo flujo de bienvenida para usuarios nuevos
+  - **Welcome Flow (6 pantallas)**: Introducción visual a las features principales de SmartSpend
+  - **Login Screen**: Selección entre modo invitado (local-first) o sincronización con la nube
+  - **First Config Flow (5 pantallas)**: Configuración inicial de idioma, tema, moneda y categorías
+  - **Pantalla de categorías**: Selección de categorías por defecto agrupadas por tipo, con opción de deseleccionar las no deseadas
+  - **OnboardingContext**: Gestión centralizada del estado de onboarding con persistencia en localStorage
+  - **OnboardingGate**: Componente que determina automáticamente dónde debe comenzar el usuario (onboarding, login o app)
+  - Migración automática desde sistema de welcome legacy
+  - Progreso guardado: si el usuario cierra la app durante el onboarding, retoma donde dejó
+
+### Changed
+- **Creación de categorías**: Las categorías por defecto ya no se crean automáticamente al inicializar el store
+  - Ahora se crean solo durante el onboarding según las selecciones del usuario
+  - Usuarios legacy (con datos existentes) mantienen sus categorías actuales sin cambios
+  - CloudSyncGate solo inyecta defaults para usuarios legacy con transacciones pero sin categorías
+
 ### Fixed
 - **CategoryPickerDrawer**: El gesto de drag-to-close ya no interfiere con el scroll de la lista de categorías
 

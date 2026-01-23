@@ -213,28 +213,36 @@ export function loadState(): BudgetState | null {
       needsSave = true;
     }
 
-    // Ensure categoryDefinitions has default categories
+    // Migrate old string categories to categoryDefinitions (only for legacy users)
     if (!Array.isArray(parsed.categoryDefinitions) || parsed.categoryDefinitions.length === 0) {
-      // No categories at all - create defaults plus any custom from old categories array
-      const defaults = createDefaultCategories();
-      const defaultNamesLower = new Set(defaults.map((c) => c.name.toLowerCase()));
+      // Check if there are old string categories to migrate
+      const hasLegacyCategories = Array.isArray(parsed.categories) && parsed.categories.length > 0;
 
-      // Convert any old string categories to Category objects
-      const customFromOld: Category[] = (parsed.categories || [])
-        .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
-        .map((name: string) => ({
-          id: crypto.randomUUID(),
-          name: name.trim(),
-          icon: DEFAULT_CATEGORY_ICON,
-          color: DEFAULT_CATEGORY_COLOR,
-          type: "expense" as const,
-          groupId: "miscellaneous",
-          isDefault: false,
-          createdAt: Date.now(),
-        }));
+      if (hasLegacyCategories) {
+        // Legacy user with old categories - create defaults + migrate custom ones
+        const defaults = createDefaultCategories();
+        const defaultNamesLower = new Set(defaults.map((c) => c.name.toLowerCase()));
 
-      parsed.categoryDefinitions = [...defaults, ...customFromOld];
-      needsSave = true;
+        // Convert any old string categories to Category objects
+        const customFromOld: Category[] = (parsed.categories || [])
+          .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
+          .map((name: string) => ({
+            id: crypto.randomUUID(),
+            name: name.trim(),
+            icon: DEFAULT_CATEGORY_ICON,
+            color: DEFAULT_CATEGORY_COLOR,
+            type: "expense" as const,
+            groupId: "miscellaneous",
+            isDefault: false,
+            createdAt: Date.now(),
+          }));
+
+        parsed.categoryDefinitions = [...defaults, ...customFromOld];
+        needsSave = true;
+      } else {
+        // New user - categories will be created during onboarding
+        parsed.categoryDefinitions = [];
+      }
     }
 
     const result = parsed as BudgetState;

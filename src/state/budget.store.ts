@@ -14,7 +14,6 @@ import type {
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey } from "@/services/dates.service";
-import { createDefaultCategories } from "@/constants/categories/default-categories";
 import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/category-groups/default-category-groups";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
@@ -142,8 +141,8 @@ const defaultState: BudgetState = {
   schemaVersion: 5,
   transactions: [],
   categories: [],
-  categoryDefinitions: createDefaultCategories(),
-  categoryGroups: createDefaultCategoryGroups(),
+  categoryDefinitions: [], // Las categorías se crean durante el onboarding
+  categoryGroups: createDefaultCategoryGroups(), // Los grupos sí se crean por defecto
   trips: [],
   tripExpenses: [],
 };

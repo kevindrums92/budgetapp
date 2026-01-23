@@ -35,8 +35,9 @@ const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/C
 const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
 
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
-import WelcomeGate from "@/shared/components/providers/WelcomeGate";
 import SplashScreen from "@/shared/components/ui/SplashScreen";
+import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
+import OnboardingGate from "@/features/onboarding/OnboardingGate";
 
 // Loading fallback component
 function PageLoader() {
@@ -69,7 +70,8 @@ function AppFrame() {
     location.pathname.startsWith("/edit/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
-    location.pathname.startsWith("/categories");
+    location.pathname.startsWith("/categories") ||
+    location.pathname.startsWith("/onboarding");
 
   const title = useMemo(() => {
     if (location.pathname === "/") return "Home";
@@ -96,6 +98,10 @@ function AppFrame() {
 
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            {/* Onboarding routes */}
+            <Route path="/onboarding/*" element={<OnboardingFlow />} />
+
+            {/* Main app routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/budget" element={<BudgetPage />} />
             <Route path="/stats" element={<StatsPage />} />
@@ -142,8 +148,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <CloudSyncGate />
+      <OnboardingGate />
       <AppFrame />
-      <WelcomeGate />
     </BrowserRouter>
   );
 }

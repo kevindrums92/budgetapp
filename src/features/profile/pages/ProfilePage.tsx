@@ -43,6 +43,11 @@ export default function ProfilePage() {
   async function signOut() {
     setLoading(true);
     await supabase.auth.signOut();
+
+    // Marcar logout para que OnboardingGate redirija a login
+    const { markLogout } = await import('@/features/onboarding/utils/onboarding.helpers');
+    markLogout();
+
     setLoading(false);
     navigate("/");
   }
