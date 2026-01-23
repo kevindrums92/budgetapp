@@ -7,7 +7,9 @@
 import { FolderKanban, Check } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { DEFAULT_CATEGORIES } from '@/constants/categories/default-categories';
+import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
 import * as icons from 'lucide-react';
 import { useOnboarding } from '../../../OnboardingContext';
 import { useBudgetStore } from '@/state/budget.store';
@@ -23,6 +25,7 @@ function kebabToPascal(str: string): string {
 type TabType = 'expense' | 'income';
 
 export default function Screen4_Categories() {
+  const { t } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const { state, setSelectedCategories } = useOnboarding();
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
@@ -126,11 +129,11 @@ export default function Screen4_Categories() {
         </div>
 
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-          Categorías por defecto
+          {t('categories.title')}
         </h1>
 
         <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
-          Selecciona las categorías que quieres usar. Puedes deseleccionar las que no necesites.
+          {t('categories.description')}
         </p>
       </div>
 
@@ -145,7 +148,7 @@ export default function Screen4_Categories() {
               : 'bg-white text-gray-600'
           }`}
         >
-          Gastos
+          {t('categories.expenses')}
         </button>
         <button
           type="button"
@@ -156,7 +159,7 @@ export default function Screen4_Categories() {
               : 'bg-white text-gray-600'
           }`}
         >
-          Ingresos
+          {t('categories.income')}
         </button>
       </div>
 
@@ -176,6 +179,7 @@ export default function Screen4_Categories() {
                   const catId = `default-${DEFAULT_CATEGORIES.indexOf(category)}`;
                   const isSelected = selectedIds.has(catId);
                   const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons] as any;
+                  const categoryName = getCategoryDisplayName(category.name, t);
 
                   return (
                     <button
@@ -196,7 +200,7 @@ export default function Screen4_Categories() {
                           )}
                         </div>
                         <span className="text-sm font-medium text-gray-900">
-                          {category.name}
+                          {categoryName}
                         </span>
                       </div>
 
@@ -222,7 +226,7 @@ export default function Screen4_Categories() {
         {/* Disclaimer */}
         <div className="rounded-xl bg-blue-50 p-4 mb-4">
           <p className="text-sm text-blue-900 leading-relaxed">
-            <span className="font-semibold">Nota:</span> Podrás crear categorías personalizadas más adelante desde la sección de Configuración.
+            {t('categories.note')}
           </p>
         </div>
       </div>
@@ -234,7 +238,7 @@ export default function Screen4_Categories() {
           onClick={handleContinue}
           className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
         >
-          Continuar
+          {t('categories.continue')}
         </button>
       </div>
     </div>

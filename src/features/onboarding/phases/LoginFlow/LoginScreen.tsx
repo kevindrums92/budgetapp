@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Shield, User, Chrome, Apple, Mail, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useOnboarding } from '../../OnboardingContext';
@@ -15,6 +16,7 @@ import { markOnboardingComplete } from '../../utils/onboarding.helpers';
 import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
 
 export default function LoginScreen() {
+  const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
   const { state, setAuthMethod } = useOnboarding();
   const [loading, setLoading] = useState(false);
@@ -101,7 +103,7 @@ export default function LoginScreen() {
       }
     } catch (err) {
       console.error('[LoginScreen] Error en guest mode:', err);
-      setError('Error al iniciar modo invitado');
+      setError(t('login.errorGuest'));
     } finally {
       setLoading(false);
     }
@@ -130,7 +132,7 @@ export default function LoginScreen() {
       console.log('[LoginScreen] Google OAuth initiated');
     } catch (err: any) {
       console.error('[LoginScreen] Error en Google login:', err);
-      setError(err.message || 'Error al iniciar sesión con Google');
+      setError(err.message || t('login.errorGoogle'));
       setLoading(false);
     }
   };
@@ -138,8 +140,9 @@ export default function LoginScreen() {
   /**
    * Placeholder para métodos próximamente
    */
-  const handleComingSoon = (method: string) => {
-    setError(`${method} estará disponible próximamente`);
+  const handleComingSoon = (method: 'apple' | 'email') => {
+    const errorKey = method === 'apple' ? 'login.errorApple' : 'login.errorEmail';
+    setError(t(errorKey));
     setTimeout(() => setError(null), 3000);
   };
 
@@ -152,13 +155,11 @@ export default function LoginScreen() {
         </div>
 
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-          Comienza a gestionar
-          <br />
-          tus finanzas
+          {t('login.title')}
         </h1>
 
         <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
-          Elige cómo quieres comenzar. Puedes iniciar sesión o explorar sin cuenta.
+          {t('login.subtitle')}
         </p>
       </div>
 
@@ -167,7 +168,7 @@ export default function LoginScreen() {
         <div className="flex items-start gap-2">
           <Shield className="h-4 w-4 shrink-0 text-emerald-600" />
           <p className="text-sm text-gray-600">
-            <span className="font-semibold text-gray-900">Cifrado de extremo a extremo.</span> Con inicio de sesión, sincroniza automáticamente en la nube.
+            {t('login.privacyNote')}
           </p>
         </div>
       </div>
@@ -186,8 +187,8 @@ export default function LoginScreen() {
               <User className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-white">Explorar como invitado</p>
-              <p className="mt-0.5 text-xs text-white/80">Sin cuenta, datos solo en este dispositivo</p>
+              <p className="text-sm font-semibold text-white">{t('login.guestTitle')}</p>
+              <p className="mt-0.5 text-xs text-white/80">{t('login.guestDesc')}</p>
             </div>
             {loading && <Loader2 className="h-5 w-5 animate-spin text-white" />}
           </button>
@@ -198,7 +199,7 @@ export default function LoginScreen() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-gray-50 px-2 text-gray-600">O inicia sesión con</span>
+              <span className="bg-gray-50 px-2 text-gray-600">{t('login.divider')}</span>
             </div>
           </div>
 
@@ -214,32 +215,32 @@ export default function LoginScreen() {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
                 <Chrome className="h-5 w-5 text-gray-700" />
               </div>
-              <span className="text-sm font-medium text-gray-900">Google</span>
+              <span className="text-sm font-medium text-gray-900">{t('login.google')}</span>
               {loading && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
             </button>
 
             {/* Apple Sign In - Coming Soon */}
             <button
               type="button"
-              onClick={() => handleComingSoon('Apple Sign In')}
+              onClick={() => handleComingSoon('apple')}
               disabled={loading}
               className="flex items-center justify-center gap-2 rounded-xl bg-white p-3 shadow-sm opacity-60 transition-all active:scale-[0.98]"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black">
                 <Apple className="h-5 w-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-gray-900">Apple</span>
+              <span className="text-sm font-medium text-gray-900">{t('login.apple')}</span>
             </button>
           </div>
 
           {/* 4. Link simple: Email/Password */}
           <button
             type="button"
-            onClick={() => handleComingSoon('Email/Contraseña')}
+            onClick={() => handleComingSoon('email')}
             className="flex w-full items-center justify-center gap-2 py-3 text-sm font-medium text-[#18B7B0] transition-colors hover:text-[#13948e]"
           >
             <Mail className="h-4 w-4" />
-            <span>Usar usuario y contraseña</span>
+            <span>{t('login.emailLink')}</span>
           </button>
         </div>
 
@@ -252,13 +253,13 @@ export default function LoginScreen() {
 
         {/* Privacy Notice */}
         <p className="mt-6 text-center text-xs leading-relaxed text-gray-500">
-          Al continuar, aceptas nuestros{' '}
+          {t('login.termsPrefix')}{' '}
           <button type="button" className="font-medium text-[#18B7B0] underline">
-            Términos de Servicio
+            {t('login.termsService')}
           </button>{' '}
-          y{' '}
+          {t('login.termsAnd')}{' '}
           <button type="button" className="font-medium text-[#18B7B0] underline">
-            Política de Privacidad
+            {t('login.termsPrivacy')}
           </button>
         </p>
       </div>

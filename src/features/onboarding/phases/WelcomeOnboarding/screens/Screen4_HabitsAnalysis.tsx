@@ -5,11 +5,13 @@
  */
 
 import { TrendingUp, Calendar, DollarSign } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen4_HabitsAnalysis() {
+  const { t } = useTranslation('onboarding');
   const { handleNext, handleBack, handleSkip } = useOnboardingProgress();
 
   return (
@@ -26,15 +28,13 @@ export default function Screen4_HabitsAnalysis() {
       <div className="mb-6">
         <SlideAnimation direction="right" delay={0}>
           <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-            Descubre tus
-            <br />
-            patrones de gasto
+            {t('welcome.screen4.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
           <p className="text-base leading-relaxed text-gray-600">
-            Visualiza tendencias y toma mejores decisiones financieras
+            {t('welcome.screen4.subtitle')}
           </p>
         </SlideAnimation>
       </div>
@@ -44,7 +44,7 @@ export default function Screen4_HabitsAnalysis() {
         <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
           {/* Chart Title */}
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">Últimos 7 días</p>
+            <p className="text-sm font-semibold text-gray-700">{t('welcome.screen4.chartTitle')}</p>
             <div className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1">
               <TrendingUp size={12} className="text-emerald-600" strokeWidth={3} />
               <span className="text-xs font-bold text-emerald-600">-12%</span>
@@ -57,7 +57,7 @@ export default function Screen4_HabitsAnalysis() {
               <div key={i} className="flex flex-1 flex-col items-center gap-1">
                 <div className="w-full rounded-t-lg bg-gradient-to-t from-[#18B7B0] to-[#18B7B0]/70" style={{ height: `${height}%` }} />
                 <span className="text-[10px] text-gray-400">
-                  {['L', 'M', 'M', 'J', 'V', 'S', 'D'][i]}
+                  {[t('welcome.screen4.dayMon'), t('welcome.screen4.dayTue'), t('welcome.screen4.dayWed'), t('welcome.screen4.dayThu'), t('welcome.screen4.dayFri'), t('welcome.screen4.daySat'), t('welcome.screen4.daySun')][i]}
                 </span>
               </div>
             ))}
@@ -66,11 +66,11 @@ export default function Screen4_HabitsAnalysis() {
           {/* Chart Stats */}
           <div className="flex items-center justify-between border-t border-gray-100 pt-3">
             <div>
-              <p className="text-xs text-gray-500">Promedio diario</p>
+              <p className="text-xs text-gray-500">{t('welcome.screen4.avgDaily')}</p>
               <p className="font-bold text-gray-900">$ 45.000</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500">Total semanal</p>
+              <p className="text-xs text-gray-500">{t('welcome.screen4.weeklyTotal')}</p>
               <p className="font-bold text-gray-900">$ 315.000</p>
             </div>
           </div>
@@ -85,8 +85,8 @@ export default function Screen4_HabitsAnalysis() {
               <Calendar size={18} className="text-purple-600" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Días pico de gasto</p>
-              <p className="text-sm text-gray-600">Identificamos que gastas más los viernes y sábados</p>
+              <p className="font-semibold text-gray-900">{t('welcome.screen4.insight1Title')}</p>
+              <p className="text-sm text-gray-600">{t('welcome.screen4.insight1Desc')}</p>
             </div>
           </div>
         </SlideAnimation>
@@ -97,8 +97,8 @@ export default function Screen4_HabitsAnalysis() {
               <DollarSign size={18} className="text-blue-600" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Categoría principal</p>
-              <p className="text-sm text-gray-600">El 40% de tus gastos son en alimentación</p>
+              <p className="font-semibold text-gray-900">{t('welcome.screen4.insight2Title')}</p>
+              <p className="text-sm text-gray-600">{t('welcome.screen4.insight2Desc')}</p>
             </div>
           </div>
         </SlideAnimation>
@@ -116,7 +116,7 @@ export default function Screen4_HabitsAnalysis() {
           onClick={handleNext}
           className="w-full rounded-2xl bg-gray-900 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          Continuar
+          {t('welcome.screen4.continue')}
         </button>
       </div>
     </OnboardingLayout>

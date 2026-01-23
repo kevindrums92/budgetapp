@@ -5,11 +5,13 @@
  */
 
 import { Repeat, Wifi, Calendar, CreditCard } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen5_AutomatedMovements() {
+  const { t } = useTranslation('onboarding');
   const { handleNext, handleBack, handleSkip } = useOnboardingProgress();
 
   return (
@@ -28,22 +30,20 @@ export default function Screen5_AutomatedMovements() {
           <div className="mb-4 inline-flex rounded-full bg-indigo-100 px-4 py-2">
             <span className="flex items-center gap-2 text-sm font-semibold text-indigo-700">
               <Repeat size={16} strokeWidth={3} />
-              Ahorra tiempo
+              {t('welcome.screen5.badge')}
             </span>
           </div>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
           <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-            Automatiza tus
-            <br />
-            gastos recurrentes
+            {t('welcome.screen5.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={100}>
           <p className="text-base leading-relaxed text-gray-600">
-            Configura una vez, olvídate del resto. Perfecto para suscripciones y pagos fijos.
+            {t('welcome.screen5.subtitle')}
           </p>
         </SlideAnimation>
       </div>
@@ -62,14 +62,14 @@ export default function Screen5_AutomatedMovements() {
             <div className="flex-1 rounded-xl bg-white p-4 shadow-sm">
               <div className="mb-1 flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-gray-900">Netflix</p>
-                  <p className="text-xs text-gray-500">Cada 1 de mes</p>
+                  <p className="font-semibold text-gray-900">{t('welcome.screen5.netflix')}</p>
+                  <p className="text-xs text-gray-500">{t('welcome.screen5.every1st')}</p>
                 </div>
                 <p className="font-bold text-gray-900">$ 45.000</p>
               </div>
               <div className="mt-2 flex items-center gap-1">
                 <div className="h-1 w-1 rounded-full bg-emerald-500" />
-                <p className="text-xs text-emerald-600">Activo</p>
+                <p className="text-xs text-emerald-600">{t('welcome.screen5.active')}</p>
               </div>
             </div>
           </div>
@@ -84,14 +84,14 @@ export default function Screen5_AutomatedMovements() {
             <div className="flex-1 rounded-xl bg-white p-4 shadow-sm">
               <div className="mb-1 flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-gray-900">Arriendo</p>
-                  <p className="text-xs text-gray-500">Cada 5 de mes</p>
+                  <p className="font-semibold text-gray-900">{t('welcome.screen5.rent')}</p>
+                  <p className="text-xs text-gray-500">{t('welcome.screen5.every5th')}</p>
                 </div>
                 <p className="font-bold text-gray-900">$ 800.000</p>
               </div>
               <div className="mt-2 flex items-center gap-1">
                 <div className="h-1 w-1 rounded-full bg-emerald-500" />
-                <p className="text-xs text-emerald-600">Activo</p>
+                <p className="text-xs text-emerald-600">{t('welcome.screen5.active')}</p>
               </div>
             </div>
           </div>
@@ -106,14 +106,14 @@ export default function Screen5_AutomatedMovements() {
             <div className="flex-1 rounded-xl bg-white p-4 shadow-sm">
               <div className="mb-1 flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-gray-900">Tarjeta de crédito</p>
-                  <p className="text-xs text-gray-500">Cada 15 de mes</p>
+                  <p className="font-semibold text-gray-900">{t('welcome.screen5.credit')}</p>
+                  <p className="text-xs text-gray-500">{t('welcome.screen5.every15th')}</p>
                 </div>
                 <p className="font-bold text-gray-900">$ 250.000</p>
               </div>
               <div className="mt-2 flex items-center gap-1">
                 <div className="h-1 w-1 rounded-full bg-emerald-500" />
-                <p className="text-xs text-emerald-600">Activo</p>
+                <p className="text-xs text-emerald-600">{t('welcome.screen5.active')}</p>
               </div>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function Screen5_AutomatedMovements() {
       <SlideAnimation direction="up" delay={300}>
         <div className="rounded-xl bg-emerald-50 p-4">
           <p className="text-sm leading-relaxed text-gray-700">
-            <span className="font-semibold text-emerald-700">Recordatorios automáticos:</span> Te avisamos antes de cada pago para que siempre estés al tanto
+            {t('welcome.screen5.reminderNote')}
           </p>
         </div>
       </SlideAnimation>
@@ -141,7 +141,7 @@ export default function Screen5_AutomatedMovements() {
           onClick={handleNext}
           className="w-full rounded-2xl bg-gray-900 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          Continuar
+          {t('welcome.screen5.continue')}
         </button>
       </div>
     </OnboardingLayout>

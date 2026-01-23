@@ -7,6 +7,7 @@
 import { DollarSign, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../../OnboardingContext';
 
 const CURRENCIES = [
@@ -18,6 +19,7 @@ const CURRENCIES = [
 ];
 
 export default function Screen3_Currency() {
+  const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
   const { state, setCurrency } = useOnboarding();
   const [selected, setSelected] = useState(state.selections.currency || 'COP');
@@ -50,11 +52,11 @@ export default function Screen3_Currency() {
         </div>
 
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-          Elige tu moneda
+          {t('currency.title')}
         </h1>
 
         <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
-          Selecciona la moneda principal para tus registros financieros.
+          {t('currency.description')}
         </p>
       </div>
 
@@ -98,7 +100,7 @@ export default function Screen3_Currency() {
 
         {/* Note */}
         <p className="mt-6 text-center text-xs text-gray-500">
-          Por ahora solo se usa como referencia visual. Multi-moneda estará disponible próximamente.
+          {t('currency.note')}
         </p>
       </div>
 
@@ -110,7 +112,7 @@ export default function Screen3_Currency() {
             onClick={handleContinue}
             className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
           >
-            Continuar
+            {t('currency.continue')}
           </button>
 
           <button
@@ -118,7 +120,7 @@ export default function Screen3_Currency() {
             onClick={handleSkip}
             className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
           >
-            Omitir configuración
+            {t('currency.skip')}
           </button>
         </div>
       </div>

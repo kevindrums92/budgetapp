@@ -1,0 +1,38 @@
+{
+  "menu": {
+    "categories": "Categories",
+    "scheduled": "Scheduled",
+    "backup": "Backup & Restore"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "language": {
+      "label": "Language",
+      "changed": "Language updated",
+      "cancel": "Cancel"
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "changed": "Theme updated"
+    },
+    "currency": {
+      "label": "Currency",
+      "changed": "Currency updated"
+    }
+  },
+  "account": {
+    "syncStatus": {
+      "local": "Local Mode",
+      "offline": "Offline",
+      "syncing": "Syncing",
+      "synced": "Cloud Sync Active"
+    }
+  },
+  "logout": "Log Out",
+  "loggingOut": "Logging out...",
+  "loginWithGoogle": "Continue with Google",
+  "noConnection": "No connection"
+}

@@ -5,12 +5,14 @@
  */
 
 import { WifiOff, Shield, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import FeatureCard from '../../../components/FeatureCard';
 import SlideAnimation, { StaggeredAnimation } from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen1_Welcome() {
+  const { t } = useTranslation('onboarding');
   const { handleNext, handleSkip } = useOnboardingProgress();
 
   return (
@@ -38,17 +40,17 @@ export default function Screen1_Welcome() {
 
         <SlideAnimation direction="up" delay={100}>
           <h1 className="mb-3 text-4xl font-extrabold leading-tight tracking-tight text-gray-900">
-            Bienvenido a
+            {t('welcome.screen1.title1')}
             <br />
             <span className="bg-gradient-to-r from-[#18B7B0] to-[#0F8580] bg-clip-text text-transparent">
-              SmartSpend
+              {t('welcome.screen1.title2')}
             </span>
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={150}>
           <p className="mx-auto max-w-sm text-base leading-relaxed text-gray-600">
-            La forma más inteligente de gestionar tus finanzas personales
+            {t('welcome.screen1.subtitle')}
           </p>
         </SlideAnimation>
       </div>
@@ -58,8 +60,8 @@ export default function Screen1_Welcome() {
         <StaggeredAnimation staggerDelay={80}>
           <FeatureCard
             icon={WifiOff}
-            title="Funciona sin conexión"
-            description="Tus datos están en tu dispositivo, siempre disponibles"
+            title={t('welcome.screen1.feature1Title')}
+            description={t('welcome.screen1.feature1Desc')}
             iconBgColor="bg-blue-100"
             iconColor="text-blue-600"
             compact
@@ -67,8 +69,8 @@ export default function Screen1_Welcome() {
 
           <FeatureCard
             icon={Shield}
-            title="Privacidad total"
-            description="Tú decides si sincronizar o mantener todo local"
+            title={t('welcome.screen1.feature2Title')}
+            description={t('welcome.screen1.feature2Desc')}
             iconBgColor="bg-purple-100"
             iconColor="text-purple-600"
             compact
@@ -76,8 +78,8 @@ export default function Screen1_Welcome() {
 
           <FeatureCard
             icon={TrendingUp}
-            title="Control financiero"
-            description="Presupuestos, análisis y automatización en un solo lugar"
+            title={t('welcome.screen1.feature3Title')}
+            description={t('welcome.screen1.feature3Desc')}
             iconBgColor="bg-emerald-100"
             iconColor="text-emerald-600"
             compact
@@ -97,7 +99,7 @@ export default function Screen1_Welcome() {
           onClick={handleNext}
           className="w-full rounded-2xl bg-gradient-to-r from-[#18B7B0] to-[#0F8580] py-4 text-base font-bold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
         >
-          Empezar
+          {t('welcome.screen1.start')}
         </button>
       </div>
     </OnboardingLayout>

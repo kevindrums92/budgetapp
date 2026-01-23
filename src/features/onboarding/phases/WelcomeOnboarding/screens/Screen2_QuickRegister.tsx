@@ -5,11 +5,13 @@
  */
 
 import { Zap, Lock, Mail, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen2_QuickRegister() {
+  const { t } = useTranslation('onboarding');
   const { handleNext, handleBack, handleSkip } = useOnboardingProgress();
 
   return (
@@ -28,22 +30,20 @@ export default function Screen2_QuickRegister() {
           <div className="mb-4 inline-flex rounded-full bg-amber-100 px-4 py-2">
             <span className="flex items-center gap-2 text-sm font-semibold text-amber-700">
               <Zap size={16} strokeWidth={3} />
-              Registro en segundos
+              {t('welcome.screen2.badge')}
             </span>
           </div>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
           <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-            Comienza en
-            <br />
-            menos de 1 minuto
+            {t('welcome.screen2.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={100}>
           <p className="text-base leading-relaxed text-gray-600">
-            Sin formularios complicados. Solo lo esencial para proteger tu información.
+            {t('welcome.screen2.subtitle')}
           </p>
         </SlideAnimation>
       </div>
@@ -92,8 +92,8 @@ export default function Screen2_QuickRegister() {
               <div className="h-2 w-2 rounded-full bg-emerald-600" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Cifrado de extremo a extremo</p>
-              <p className="text-sm text-gray-600">Tus datos están protegidos siempre</p>
+              <p className="font-semibold text-gray-900">{t('welcome.screen2.feature1Title')}</p>
+              <p className="text-sm text-gray-600">{t('welcome.screen2.feature1Desc')}</p>
             </div>
           </div>
 
@@ -102,8 +102,8 @@ export default function Screen2_QuickRegister() {
               <div className="h-2 w-2 rounded-full bg-blue-600" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">Sin spam ni publicidad</p>
-              <p className="text-sm text-gray-600">Solo notificaciones importantes</p>
+              <p className="font-semibold text-gray-900">{t('welcome.screen2.feature2Title')}</p>
+              <p className="text-sm text-gray-600">{t('welcome.screen2.feature2Desc')}</p>
             </div>
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function Screen2_QuickRegister() {
           onClick={handleNext}
           className="w-full rounded-2xl bg-gray-900 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          Continuar
+          {t('welcome.screen2.continue')}
         </button>
       </div>
     </OnboardingLayout>

@@ -1,0 +1,166 @@
+{
+  "welcome": {
+    "screen1": {
+      "title1": "Bienvenido a",
+      "title2": "SmartSpend",
+      "subtitle": "La forma más inteligente de gestionar tus finanzas personales",
+      "feature1Title": "Funciona sin conexión",
+      "feature1Desc": "Tus datos están en tu dispositivo, siempre disponibles",
+      "feature2Title": "Privacidad total",
+      "feature2Desc": "Tú decides si sincronizar o mantener todo local",
+      "feature3Title": "Control financiero",
+      "feature3Desc": "Presupuestos, análisis y automatización en un solo lugar",
+      "start": "Empezar"
+    },
+    "screen2": {
+      "badge": "Registro en segundos",
+      "title": "Comienza en\nmenos de 1 minuto",
+      "subtitle": "Sin formularios complicados. Solo lo esencial para proteger tu información.",
+      "feature1Title": "Cifrado de extremo a extremo",
+      "feature1Desc": "Tus datos están protegidos siempre",
+      "feature2Title": "Sin spam ni publicidad",
+      "feature2Desc": "Solo notificaciones importantes",
+      "continue": "Continuar"
+    },
+    "screen3": {
+      "title": "Presupuestos sin\nestrés ni complicaciones",
+      "subtitle": "Organiza tus gastos por categorías y mantén el control total",
+      "categoryFood": "Alimentación",
+      "categoryShop": "Compras",
+      "categoryHome": "Hogar",
+      "alertNote": "Alertas inteligentes te avisan cuando te acercas al límite de tu presupuesto",
+      "continue": "Continuar"
+    },
+    "screen4": {
+      "title": "Descubre tus\npatrones de gasto",
+      "subtitle": "Visualiza tendencias y toma mejores decisiones financieras",
+      "chartTitle": "Últimos 7 días",
+      "dayMon": "L",
+      "dayTue": "M",
+      "dayWed": "M",
+      "dayThu": "J",
+      "dayFri": "V",
+      "daySat": "S",
+      "daySun": "D",
+      "avgDaily": "Promedio diario",
+      "weeklyTotal": "Total semanal",
+      "insight1Title": "Días pico de gasto",
+      "insight1Desc": "Identificamos que gastas más los viernes y sábados",
+      "insight2Title": "Categoría principal",
+      "insight2Desc": "El 40% de tus gastos son en alimentación",
+      "continue": "Continuar"
+    },
+    "screen5": {
+      "badge": "Ahorra tiempo",
+      "title": "Automatiza tus\ngastos recurrentes",
+      "subtitle": "Configura una vez, olvídate del resto. Perfecto para suscripciones y pagos fijos.",
+      "netflix": "Netflix",
+      "rent": "Arriendo",
+      "credit": "Tarjeta de crédito",
+      "every1st": "Cada 1 de mes",
+      "every5th": "Cada 5 de mes",
+      "every15th": "Cada 15 de mes",
+      "active": "Activo",
+      "reminderNote": "Recordatorios automáticos: Te avisamos antes de cada pago para que siempre estés al tanto",
+      "continue": "Continuar"
+    },
+    "screen6": {
+      "title": "Entiende a dónde\nva tu dinero",
+      "subtitle": "Insights claros sobre tus finanzas para tomar mejores decisiones",
+      "distributionTitle": "Distribución de gastos",
+      "total": "Total",
+      "catFood": "Alimentación",
+      "catHome": "Hogar",
+      "catTransport": "Transporte",
+      "catOthers": "Otros",
+      "avgDaily": "Promedio diario",
+      "topCategory": "Categoría top",
+      "topCategoryFood": "Comida",
+      "peakDay": "Día pico",
+      "peakDayFriday": "Viernes",
+      "startNow": "Comenzar ahora"
+    }
+  },
+  "language": {
+    "title": "Elige tu idioma",
+    "description": "Selecciona el idioma en el que prefieres usar SmartSpend. Podrás cambiarlo después desde tu perfil.",
+    "continue": "Continuar",
+    "skip": "Omitir configuración"
+  },
+  "theme": {
+    "title": "Elige tu tema",
+    "description": "Personaliza la apariencia de SmartSpend según tu preferencia.",
+    "continue": "Continuar",
+    "skip": "Omitir configuración",
+    "note": "El tema se aplicará cuando se implemente el modo oscuro",
+    "light": {
+      "title": "Claro",
+      "description": "Interfaz luminosa ideal para el día"
+    },
+    "dark": {
+      "title": "Oscuro",
+      "description": "Reduce la fatiga visual en ambientes con poca luz"
+    },
+    "system": {
+      "title": "Automático",
+      "description": "Se adapta a la configuración de tu dispositivo"
+    }
+  },
+  "currency": {
+    "title": "Elige tu moneda",
+    "description": "Selecciona la moneda principal para tus registros financieros.",
+    "continue": "Continuar",
+    "skip": "Omitir configuración",
+    "note": "Por ahora solo se usa como referencia visual. Multi-moneda estará disponible próximamente."
+  },
+  "categories": {
+    "title": "Categorías por defecto",
+    "description": "Selecciona las categorías que quieres usar. Puedes deseleccionar las que no necesites.",
+    "expenses": "Gastos",
+    "income": "Ingresos",
+    "continue": "Continuar",
+    "note": "Nota: Podrás crear categorías personalizadas más adelante desde la sección de Configuración."
+  },
+  "complete": {
+    "title": "¡Todo listo para\ncomenzar!",
+    "subtitle": "Ya puedes empezar a gestionar tus finanzas de forma inteligente.",
+    "configTitle": "Tu configuración",
+    "language": "Idioma",
+    "languageEs": "Español",
+    "languageEn": "English",
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "themeSystem": "Automático",
+    "currency": "Moneda",
+    "categories": "Categorías",
+    "categoriesSelected": "seleccionadas",
+    "feature1": "📊 Registra tus movimientos",
+    "feature1Desc": "Agrega ingresos y gastos fácilmente",
+    "feature2": "💰 Crea presupuestos",
+    "feature2Desc": "Controla tus gastos por categorías",
+    "feature3": "📈 Analiza tus datos",
+    "feature3Desc": "Visualiza tus patrones de gasto",
+    "start": "Comenzar a usar SmartSpend",
+    "note": "Podrás modificar estas opciones desde tu perfil en cualquier momento"
+  },
+  "login": {
+    "title": "Comienza a gestionar\ntus finanzas",
+    "subtitle": "Elige cómo quieres comenzar. Puedes iniciar sesión o explorar sin cuenta.",
+    "privacyNote": "Cifrado de extremo a extremo. Con inicio de sesión, sincroniza automáticamente en la nube.",
+    "guestTitle": "Explorar como invitado",
+    "guestDesc": "Sin cuenta, datos solo en este dispositivo",
+    "divider": "O inicia sesión con",
+    "google": "Google",
+    "apple": "Apple",
+    "emailLink": "Usar usuario y contraseña",
+    "termsPrefix": "Al continuar, aceptas nuestros",
+    "termsService": "Términos de Servicio",
+    "termsAnd": "y",
+    "termsPrivacy": "Política de Privacidad",
+    "errorApple": "Apple Sign In estará disponible próximamente",
+    "errorEmail": "Email/Contraseña estará disponible próximamente",
+    "errorGuest": "Error al iniciar modo invitado",
+    "errorGoogle": "Error al iniciar sesión con Google"
+  }
+}

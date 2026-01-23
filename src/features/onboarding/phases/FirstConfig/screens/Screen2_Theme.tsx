@@ -7,42 +7,44 @@
 import { Palette, Sun, Moon, Smartphone, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../../OnboardingContext';
 
 type ThemeOption = 'light' | 'dark' | 'system';
 
-const THEME_OPTIONS: Array<{
-  value: ThemeOption;
-  icon: typeof Sun;
-  title: string;
-  description: string;
-}> = [
-  {
-    value: 'light',
-    icon: Sun,
-    title: 'Claro',
-    description: 'Interfaz luminosa ideal para el día',
-  },
-  {
-    value: 'dark',
-    icon: Moon,
-    title: 'Oscuro',
-    description: 'Reduce la fatiga visual en ambientes con poca luz',
-  },
-  {
-    value: 'system',
-    icon: Smartphone,
-    title: 'Automático',
-    description: 'Se adapta a la configuración de tu dispositivo',
-  },
-];
-
 export default function Screen2_Theme() {
+  const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
   const { state, setTheme } = useOnboarding();
   const [selected, setSelected] = useState<ThemeOption>(
     (state.selections.theme as ThemeOption) || 'system'
   );
+
+  const THEME_OPTIONS: Array<{
+    value: ThemeOption;
+    icon: typeof Sun;
+    title: string;
+    description: string;
+  }> = [
+    {
+      value: 'light',
+      icon: Sun,
+      title: t('theme.light.title'),
+      description: t('theme.light.description'),
+    },
+    {
+      value: 'dark',
+      icon: Moon,
+      title: t('theme.dark.title'),
+      description: t('theme.dark.description'),
+    },
+    {
+      value: 'system',
+      icon: Smartphone,
+      title: t('theme.system.title'),
+      description: t('theme.system.description'),
+    },
+  ];
 
   const handleContinue = () => {
     setTheme(selected);
@@ -72,11 +74,11 @@ export default function Screen2_Theme() {
         </div>
 
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-          Elige tu tema
+          {t('theme.title')}
         </h1>
 
         <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
-          Personaliza la apariencia de SmartSpend según tu preferencia.
+          {t('theme.description')}
         </p>
       </div>
 
@@ -130,7 +132,7 @@ export default function Screen2_Theme() {
 
         {/* Note */}
         <p className="mt-6 text-center text-xs text-gray-500">
-          El tema se aplicará cuando se implemente el modo oscuro
+          {t('theme.note')}
         </p>
       </div>
 
@@ -142,7 +144,7 @@ export default function Screen2_Theme() {
             onClick={handleContinue}
             className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
           >
-            Continuar
+            {t('theme.continue')}
           </button>
 
           <button
@@ -150,7 +152,7 @@ export default function Screen2_Theme() {
             onClick={handleSkip}
             className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
           >
-            Omitir configuración
+            {t('theme.skip')}
           </button>
         </div>
       </div>

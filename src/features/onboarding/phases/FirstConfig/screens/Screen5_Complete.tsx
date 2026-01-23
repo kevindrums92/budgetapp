@@ -5,12 +5,15 @@
 
 import { Sparkles, ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { markOnboardingComplete } from '../../../utils/onboarding.helpers';
 import { useOnboarding } from '../../../OnboardingContext';
 import { useBudgetStore } from '@/state/budget.store';
 import { DEFAULT_CATEGORIES } from '@/constants/categories/default-categories';
+import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
 
 export default function Screen4_Complete() {
+  const { t } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const { state } = useOnboarding();
   const addCategory = useBudgetStore((s) => s.addCategory);
@@ -32,14 +35,17 @@ export default function Screen4_Complete() {
           const categoryDef = DEFAULT_CATEGORIES[index];
 
           if (categoryDef) {
+            // Obtener el nombre traducido según el idioma seleccionado
+            const translatedName = getCategoryDisplayName(categoryDef.name, t);
+
             addCategory({
-              name: categoryDef.name,
+              name: translatedName,
               icon: categoryDef.icon,
               color: categoryDef.color,
               type: categoryDef.type,
               groupId: categoryDef.groupId,
             });
-            console.log('[ConfigScreen] Created category:', categoryDef.name);
+            console.log('[ConfigScreen] Created category:', translatedName);
           }
         }
         // Las categorías custom (custom-XXX) ya fueron creadas en AddEditCategoryPage
@@ -71,13 +77,11 @@ export default function Screen4_Complete() {
         </div>
 
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-          ¡Todo listo para
-          <br />
-          comenzar!
+          {t('complete.title')}
         </h1>
 
         <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
-          Ya puedes empezar a gestionar tus finanzas de forma inteligente.
+          {t('complete.subtitle')}
         </p>
       </div>
 
@@ -85,7 +89,7 @@ export default function Screen4_Complete() {
       <div className="flex-1 px-6">
         <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-gray-700">
-            Tu configuración
+            {t('complete.configTitle')}
           </h2>
 
           <div className="space-y-3">
@@ -95,10 +99,10 @@ export default function Screen4_Complete() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">Idioma</span>
+                <span className="text-sm text-gray-600">{t('complete.language')}</span>
               </div>
               <span className="text-sm font-medium text-gray-900">
-                {state.selections.language === 'es' ? 'Español' : 'English'}
+                {state.selections.language === 'es' ? t('complete.languageEs') : t('complete.languageEn')}
               </span>
             </div>
 
@@ -108,14 +112,14 @@ export default function Screen4_Complete() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">Tema</span>
+                <span className="text-sm text-gray-600">{t('complete.theme')}</span>
               </div>
               <span className="text-sm font-medium text-gray-900">
                 {state.selections.theme === 'light'
-                  ? 'Claro'
+                  ? t('complete.themeLight')
                   : state.selections.theme === 'dark'
-                  ? 'Oscuro'
-                  : 'Automático'}
+                  ? t('complete.themeDark')
+                  : t('complete.themeSystem')}
               </span>
             </div>
 
@@ -125,7 +129,7 @@ export default function Screen4_Complete() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">Moneda</span>
+                <span className="text-sm text-gray-600">{t('complete.currency')}</span>
               </div>
               <span className="text-sm font-medium text-gray-900">
                 {state.selections.currency || 'COP'}
@@ -138,10 +142,10 @@ export default function Screen4_Complete() {
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">Categorías</span>
+                <span className="text-sm text-gray-600">{t('complete.categories')}</span>
               </div>
               <span className="text-sm font-medium text-gray-900">
-                {selectedCategoriesCount} seleccionadas
+                {selectedCategoriesCount} {t('complete.categoriesSelected')}
               </span>
             </div>
           </div>
@@ -150,23 +154,23 @@ export default function Screen4_Complete() {
         {/* Features preview */}
         <div className="space-y-2">
           <div className="rounded-xl bg-white p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900">📊 Registra tus movimientos</p>
+            <p className="text-sm font-semibold text-gray-900">{t('complete.feature1')}</p>
             <p className="mt-0.5 text-xs text-gray-600">
-              Agrega ingresos y gastos fácilmente
+              {t('complete.feature1Desc')}
             </p>
           </div>
 
           <div className="rounded-xl bg-white p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900">💰 Crea presupuestos</p>
+            <p className="text-sm font-semibold text-gray-900">{t('complete.feature2')}</p>
             <p className="mt-0.5 text-xs text-gray-600">
-              Controla tus gastos por categorías
+              {t('complete.feature2Desc')}
             </p>
           </div>
 
           <div className="rounded-xl bg-white p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900">📈 Analiza tus datos</p>
+            <p className="text-sm font-semibold text-gray-900">{t('complete.feature3')}</p>
             <p className="mt-0.5 text-xs text-gray-600">
-              Visualiza tus patrones de gasto
+              {t('complete.feature3Desc')}
             </p>
           </div>
         </div>
@@ -179,12 +183,12 @@ export default function Screen4_Complete() {
           onClick={handleComplete}
           className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-4 font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all active:scale-[0.98]"
         >
-          <span>Comenzar a usar SmartSpend</span>
+          <span>{t('complete.start')}</span>
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </button>
 
         <p className="mt-4 text-center text-xs text-gray-500">
-          Podrás modificar estas opciones desde tu perfil en cualquier momento
+          {t('complete.note')}
         </p>
       </div>
     </div>

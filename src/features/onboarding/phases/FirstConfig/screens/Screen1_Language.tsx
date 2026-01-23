@@ -1,23 +1,28 @@
 /**
  * Screen1_Language
- * Pantalla 1 de First Config: Selección de idioma
- * Por ahora solo guarda la selección, no aplica i18n
+ * Pantalla 1 de First Config: Selección de idioma con i18n integrado
  */
 
 import { Languages, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/hooks/useLanguage';
 import { useOnboarding } from '../../../OnboardingContext';
-
-const LANGUAGES = [
-  { code: 'es', name: 'Español', nativeName: 'Español' },
-  { code: 'en', name: 'English', nativeName: 'English' },
-];
 
 export default function Screen1_Language() {
   const navigate = useNavigate();
+  const { t } = useTranslation('onboarding');
+  const { languages, currentLanguage, changeLanguage } = useLanguage();
   const { state, setLanguage } = useOnboarding();
-  const [selected, setSelected] = useState(state.selections.language || 'es');
+
+  const [selected, setSelected] = useState(state.selections.language || currentLanguage);
+
+  const handleLanguageSelect = async (code: string) => {
+    setSelected(code);
+    // Cambio instantáneo de idioma en la UI
+    await changeLanguage(code);
+  };
 
   const handleContinue = () => {
     setLanguage(selected);
@@ -47,22 +52,22 @@ export default function Screen1_Language() {
         </div>
 
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-          Elige tu idioma
+          {t('language.title')}
         </h1>
 
         <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
-          Selecciona el idioma en el que prefieres usar SmartSpend. Podrás cambiarlo después desde tu perfil.
+          {t('language.description')}
         </p>
       </div>
 
       {/* Language options */}
       <div className="flex-1 px-6">
         <div className="space-y-3">
-          {LANGUAGES.map((lang) => (
+          {languages.map((lang) => (
             <button
               key={lang.code}
               type="button"
-              onClick={() => setSelected(lang.code)}
+              onClick={() => handleLanguageSelect(lang.code)}
               className={`flex w-full items-center justify-between rounded-2xl bg-white p-4 shadow-sm transition-all active:scale-[0.98] ${
                 selected === lang.code
                   ? 'ring-2 ring-[#18B7B0]'
@@ -70,7 +75,7 @@ export default function Screen1_Language() {
               }`}
             >
               <div className="flex items-center gap-4">
-                <div className="text-3xl">{lang.code === 'es' ? '🇨🇴' : '🇺🇸'}</div>
+                <div className="text-3xl">{lang.flag}</div>
                 <div className="text-left">
                   <p className="text-base font-semibold text-gray-900">
                     {lang.nativeName}
@@ -87,11 +92,6 @@ export default function Screen1_Language() {
             </button>
           ))}
         </div>
-
-        {/* Note */}
-        <p className="mt-6 text-center text-xs text-gray-500">
-          Más idiomas estarán disponibles próximamente
-        </p>
       </div>
 
       {/* Actions */}
@@ -102,7 +102,7 @@ export default function Screen1_Language() {
             onClick={handleContinue}
             className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
           >
-            Continuar
+            {t('language.continue')}
           </button>
 
           <button
@@ -110,7 +110,7 @@ export default function Screen1_Language() {
             onClick={handleSkip}
             className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
           >
-            Omitir configuración
+            {t('language.skip')}
           </button>
         </div>
       </div>

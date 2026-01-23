@@ -5,11 +5,13 @@
  */
 
 import { Coffee, ShoppingBag, Home, TrendingDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen3_BudgetsCalm() {
+  const { t } = useTranslation('onboarding');
   const { handleNext, handleBack, handleSkip } = useOnboardingProgress();
 
   return (
@@ -26,15 +28,13 @@ export default function Screen3_BudgetsCalm() {
       <div className="mb-6">
         <SlideAnimation direction="right" delay={0}>
           <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-            Presupuestos sin
-            <br />
-            estrés ni complicaciones
+            {t('welcome.screen3.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
           <p className="text-base leading-relaxed text-gray-600">
-            Organiza tus gastos por categorías y mantén el control total
+            {t('welcome.screen3.subtitle')}
           </p>
         </SlideAnimation>
       </div>
@@ -50,7 +50,7 @@ export default function Screen3_BudgetsCalm() {
                   <Coffee size={20} className="text-orange-600" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Alimentación</p>
+                  <p className="font-semibold text-gray-900">{t('welcome.screen3.categoryFood')}</p>
                   <p className="text-xs text-gray-500">$ 245.000 de $ 400.000</p>
                 </div>
               </div>
@@ -72,7 +72,7 @@ export default function Screen3_BudgetsCalm() {
                   <ShoppingBag size={20} className="text-purple-600" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Compras</p>
+                  <p className="font-semibold text-gray-900">{t('welcome.screen3.categoryShop')}</p>
                   <p className="text-xs text-gray-500">$ 180.000 de $ 200.000</p>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function Screen3_BudgetsCalm() {
                   <Home size={20} className="text-blue-600" strokeWidth={2.5} />
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Hogar</p>
+                  <p className="font-semibold text-gray-900">{t('welcome.screen3.categoryHome')}</p>
                   <p className="text-xs text-gray-500">$ 320.000 de $ 500.000</p>
                 </div>
               </div>
@@ -113,7 +113,7 @@ export default function Screen3_BudgetsCalm() {
         <div className="flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
           <TrendingDown size={20} className="mt-0.5 shrink-0 text-[#18B7B0]" strokeWidth={2.5} />
           <p className="text-sm leading-relaxed text-gray-700">
-            <span className="font-semibold">Alertas inteligentes</span> te avisan cuando te acercas al límite de tu presupuesto
+            {t('welcome.screen3.alertNote')}
           </p>
         </div>
       </SlideAnimation>
@@ -130,7 +130,7 @@ export default function Screen3_BudgetsCalm() {
           onClick={handleNext}
           className="w-full rounded-2xl bg-gray-900 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          Continuar
+          {t('welcome.screen3.continue')}
         </button>
       </div>
     </OnboardingLayout>

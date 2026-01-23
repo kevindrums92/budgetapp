@@ -1,11 +1,16 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { supabase } from "@/lib/supabaseClient";
 import { useBudgetStore } from "@/state/budget.store";
-import { User, FolderOpen, ChevronRight, Shield, Repeat, RefreshCw } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
+import { User, FolderOpen, ChevronRight, Shield, Repeat, RefreshCw, Languages } from "lucide-react";
+import LanguageSelector from "@/components/LanguageSelector";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation('profile');
+  const { currentLanguageData } = useLanguage();
 
   // ✅ Read from Zustand store (single source of truth)
   const user = useBudgetStore((s) => s.user);
@@ -14,6 +19,7 @@ export default function ProfilePage() {
 
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
   // Online/offline listeners
   useEffect(() => {
@@ -69,16 +75,16 @@ export default function ProfilePage() {
   // Sync status badge
   const syncBadge = useMemo(() => {
     if (cloudMode === "guest") {
-      return { text: "MODO LOCAL", color: "bg-gray-100 text-gray-600", icon: false };
+      return { text: t('account.syncStatus.local').toUpperCase(), color: "bg-gray-100 text-gray-600", icon: false };
     }
     if (!navigator.onLine || cloudStatus === "offline") {
-      return { text: "SIN CONEXIÓN", color: "bg-gray-100 text-gray-600", icon: false };
+      return { text: t('account.syncStatus.offline').toUpperCase(), color: "bg-gray-100 text-gray-600", icon: false };
     }
     if (cloudStatus === "syncing") {
-      return { text: "SINCRONIZANDO", color: "bg-teal-50 text-[#18B7B0]", icon: true };
+      return { text: t('account.syncStatus.syncing').toUpperCase(), color: "bg-teal-50 text-[#18B7B0]", icon: true };
     }
-    return { text: "CLOUD SYNC ACTIVO", color: "bg-teal-50 text-[#18B7B0]", icon: false };
-  }, [cloudMode, cloudStatus]);
+    return { text: t('account.syncStatus.synced').toUpperCase(), color: "bg-teal-50 text-[#18B7B0]", icon: false };
+  }, [cloudMode, cloudStatus, t]);
 
   return (
     <div className="min-h-dvh bg-gray-50 pb-28">
@@ -135,7 +141,7 @@ export default function ProfilePage() {
       {!isLoggedIn && (
         <div className="px-4 pt-6 pb-4">
           {!isOnline ? (
-            <p className="text-sm text-gray-500 text-center">Sin conexión</p>
+            <p className="text-sm text-gray-500 text-center">{t('noConnection')}</p>
           ) : (
             <button
               type="button"
@@ -143,7 +149,7 @@ export default function ProfilePage() {
               disabled={loading}
               className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 active:scale-[0.98] disabled:opacity-50 transition-all"
             >
-              {loading ? "Cargando..." : "Continuar con Google"}
+              {loading ? t('loggingOut') : t('loginWithGoogle')}
             </button>
           )}
         </div>
@@ -151,21 +157,36 @@ export default function ProfilePage() {
 
       {/* Menu Sections */}
       <div className={`px-4 ${isLoggedIn ? 'pt-4' : 'pt-6'}`}>
+        {/* Preferencias Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-1">
+            {t('preferences.title')}
+          </h3>
+          <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
+            <MenuItem
+              icon={<Languages size={20} />}
+              label={t('preferences.language.label')}
+              sublabel={currentLanguageData.nativeName}
+              onClick={() => setShowLanguageSelector(true)}
+            />
+          </div>
+        </div>
+
         {/* Main Menu */}
         <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
           <MenuItem
             icon={<FolderOpen size={20} />}
-            label="Categorías"
+            label={t('menu.categories')}
             onClick={() => navigate("/categories")}
           />
           <MenuItem
             icon={<Repeat size={20} />}
-            label="Programadas"
+            label={t('menu.scheduled')}
             onClick={() => navigate("/scheduled")}
           />
           <MenuItem
             icon={<Shield size={20} />}
-            label="Backup & Restore"
+            label={t('menu.backup')}
             onClick={() => navigate("/backup")}
           />
         </div>
@@ -182,13 +203,19 @@ export default function ProfilePage() {
             className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-medium text-red-600 shadow-sm hover:bg-red-50 active:scale-[0.98] disabled:opacity-50 transition-all"
           >
             <LogoutIcon />
-            <span>{loading ? "Cerrando sesión..." : "Cerrar sesión"}</span>
+            <span>{loading ? t('loggingOut') : t('logout')}</span>
           </button>
         )}
         <p className="text-xs text-gray-400 text-center">
           v{__APP_VERSION__} ({__GIT_HASH__})
         </p>
       </div>
+
+      {/* Language Selector Modal */}
+      <LanguageSelector
+        open={showLanguageSelector}
+        onClose={() => setShowLanguageSelector(false)}
+      />
     </div>
   );
 }

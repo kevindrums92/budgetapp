@@ -5,11 +5,13 @@
  */
 
 import { PieChart, TrendingUp, Calendar, Award } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import SlideAnimation from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen6_UnderstandMoney() {
+  const { t } = useTranslation('onboarding');
   const { handleNext, handleBack, handleSkip } = useOnboardingProgress();
 
   return (
@@ -26,15 +28,13 @@ export default function Screen6_UnderstandMoney() {
       <div className="mb-6">
         <SlideAnimation direction="right" delay={0}>
           <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
-            Entiende a dónde
-            <br />
-            va tu dinero
+            {t('welcome.screen6.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
           <p className="text-base leading-relaxed text-gray-600">
-            Insights claros sobre tus finanzas para tomar mejores decisiones
+            {t('welcome.screen6.subtitle')}
           </p>
         </SlideAnimation>
       </div>
@@ -45,7 +45,7 @@ export default function Screen6_UnderstandMoney() {
           {/* Chart Title */}
           <div className="mb-4 flex items-center gap-2">
             <PieChart size={18} className="text-gray-700" strokeWidth={2.5} />
-            <p className="text-sm font-semibold text-gray-700">Distribución de gastos</p>
+            <p className="text-sm font-semibold text-gray-700">{t('welcome.screen6.distributionTitle')}</p>
           </div>
 
           {/* Simple Donut Chart */}
@@ -98,7 +98,7 @@ export default function Screen6_UnderstandMoney() {
               {/* Center text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <p className="text-2xl font-bold text-gray-900">100%</p>
-                <p className="text-xs text-gray-500">Total</p>
+                <p className="text-xs text-gray-500">{t('welcome.screen6.total')}</p>
               </div>
             </div>
           </div>
@@ -108,28 +108,28 @@ export default function Screen6_UnderstandMoney() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-[#FF6B6B]" />
-                <span className="text-sm text-gray-700">Alimentación</span>
+                <span className="text-sm text-gray-700">{t('welcome.screen6.catFood')}</span>
               </div>
               <span className="text-sm font-semibold text-gray-900">40%</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-[#4ECDC4]" />
-                <span className="text-sm text-gray-700">Hogar</span>
+                <span className="text-sm text-gray-700">{t('welcome.screen6.catHome')}</span>
               </div>
               <span className="text-sm font-semibold text-gray-900">30%</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-[#95E1D3]" />
-                <span className="text-sm text-gray-700">Transporte</span>
+                <span className="text-sm text-gray-700">{t('welcome.screen6.catTransport')}</span>
               </div>
               <span className="text-sm font-semibold text-gray-900">20%</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-3 w-3 rounded-full bg-[#F38181]" />
-                <span className="text-sm text-gray-700">Otros</span>
+                <span className="text-sm text-gray-700">{t('welcome.screen6.catOthers')}</span>
               </div>
               <span className="text-sm font-semibold text-gray-900">10%</span>
             </div>
@@ -142,7 +142,7 @@ export default function Screen6_UnderstandMoney() {
         <SlideAnimation direction="up" delay={150}>
           <div className="rounded-xl bg-white p-3 shadow-sm">
             <TrendingUp size={18} className="mb-2 text-[#18B7B0]" strokeWidth={2.5} />
-            <p className="text-xs text-gray-500">Promedio diario</p>
+            <p className="text-xs text-gray-500">{t('welcome.screen6.avgDaily')}</p>
             <p className="font-bold text-gray-900">$ 45K</p>
           </div>
         </SlideAnimation>
@@ -150,16 +150,16 @@ export default function Screen6_UnderstandMoney() {
         <SlideAnimation direction="up" delay={200}>
           <div className="rounded-xl bg-white p-3 shadow-sm">
             <Award size={18} className="mb-2 text-amber-500" strokeWidth={2.5} />
-            <p className="text-xs text-gray-500">Categoría top</p>
-            <p className="font-bold text-gray-900">Comida</p>
+            <p className="text-xs text-gray-500">{t('welcome.screen6.topCategory')}</p>
+            <p className="font-bold text-gray-900">{t('welcome.screen6.topCategoryFood')}</p>
           </div>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={250}>
           <div className="rounded-xl bg-white p-3 shadow-sm">
             <Calendar size={18} className="mb-2 text-purple-500" strokeWidth={2.5} />
-            <p className="text-xs text-gray-500">Día pico</p>
-            <p className="font-bold text-gray-900">Viernes</p>
+            <p className="text-xs text-gray-500">{t('welcome.screen6.peakDay')}</p>
+            <p className="font-bold text-gray-900">{t('welcome.screen6.peakDayFriday')}</p>
           </div>
         </SlideAnimation>
       </div>
@@ -176,7 +176,7 @@ export default function Screen6_UnderstandMoney() {
           onClick={handleNext}
           className="w-full rounded-2xl bg-gradient-to-r from-[#18B7B0] to-[#0F8580] py-4 text-base font-bold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
         >
-          Comenzar ahora
+          {t('welcome.screen6.startNow')}
         </button>
       </div>
     </OnboardingLayout>

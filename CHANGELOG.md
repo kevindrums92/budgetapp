@@ -5,6 +5,19 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Internacionalización (i18n)**: Sistema completo de traducción para soporte multiidioma
+  - **Idiomas soportados**: Español (es) e Inglés (en)
+  - **react-i18next**: Integración con detección automática de idioma (localStorage → navigator.language → fallback español)
+  - **Archivos de traducción**: Estructura por namespaces (onboarding, common, profile) en `src/i18n/locales/{lang}/`
+  - **Onboarding completamente traducido**: 13 pantallas migradas a usar traducciones (6 Welcome + 5 FirstConfig + 1 Login + 1 Language)
+  - **LanguageSelector**: Componente reutilizable para cambiar idioma con modal de confirmación
+  - **useLanguage hook**: Hook personalizado para gestionar cambio de idioma con i18next
+  - **Traducción de categorías por defecto**: 21 categorías traducidas (13 gastos + 8 ingresos)
+    - Categorías se crean con nombre en el idioma seleccionado durante onboarding
+    - Helper `getCategoryDisplayName()` para mostrar categorías traducidas en selección
+    - `category-translation-keys.ts`: Mapeo de nombres españoles a claves de traducción
+    - Categorías personalizadas del usuario mantienen su nombre original (no se traducen)
+  - **ProfilePage**: Selector de idioma agregado en configuración con LanguageSelector
 - **Sistema de Onboarding Completo**: Nuevo flujo de bienvenida para usuarios nuevos
   - **Welcome Flow (6 pantallas)**: Introducción visual a las features principales de SmartSpend
   - **Login Screen**: Selección entre modo invitado (local-first) o sincronización con la nube

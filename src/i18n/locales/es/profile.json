@@ -1,0 +1,38 @@
+{
+  "menu": {
+    "categories": "Categorías",
+    "scheduled": "Programadas",
+    "backup": "Backup & Restore"
+  },
+  "preferences": {
+    "title": "Preferencias",
+    "language": {
+      "label": "Idioma",
+      "changed": "Idioma actualizado",
+      "cancel": "Cancelar"
+    },
+    "theme": {
+      "label": "Tema",
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Automático",
+      "changed": "Tema actualizado"
+    },
+    "currency": {
+      "label": "Moneda",
+      "changed": "Moneda actualizada"
+    }
+  },
+  "account": {
+    "syncStatus": {
+      "local": "Modo Local",
+      "offline": "Sin Conexión",
+      "syncing": "Sincronizando",
+      "synced": "Cloud Sync Activo"
+    }
+  },
+  "logout": "Cerrar sesión",
+  "loggingOut": "Cerrando sesión...",
+  "loginWithGoogle": "Continuar con Google",
+  "noConnection": "Sin conexión"
+}
