@@ -40,6 +40,7 @@ const ScheduledPage = lazy(() => import("@/features/transactions/pages/Scheduled
 const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));
 const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSettingsPage"));
 const CurrencySettingsPage = lazy(() => import("@/features/profile/pages/CurrencySettingsPage"));
+const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"));
 
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
@@ -126,6 +127,7 @@ function AppFrame() {
             <Route path="/settings/language" element={<LanguageSettingsPage />} />
             <Route path="/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
+            <Route path="/settings/export-csv" element={<ExportCSVPage />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

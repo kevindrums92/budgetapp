@@ -251,10 +251,8 @@ export default function ProfilePage() {
             <MenuItem
               icon={<FileText size={20} />}
               label={t('menu.exportCSV')}
-              onClick={() => {
-                // TODO: Implementar exportación CSV
-                alert('Función de exportación CSV próximamente');
-              }}
+              sublabel={t('menu.exportCSVSubtitle')}
+              onClick={() => navigate('/settings/export-csv')}
             />
           </div>
         </div>

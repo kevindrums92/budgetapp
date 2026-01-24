@@ -11,7 +11,8 @@
     "scheduledSubtitle": "Transacciones automáticas",
     "backup": "Backup & Restore",
     "backupSubtitle": "Respaldar y restaurar datos",
-    "exportCSV": "Exportar CSV"
+    "exportCSV": "Exportar CSV",
+    "exportCSVSubtitle": "Descargar datos en formato CSV"
   },
   "preferences": {
     "title": "Preferencias",
@@ -52,5 +53,28 @@
     "title": "Protege tus finanzas",
     "subtitle": "Inicia sesión para respaldar tus gastos en la nube.",
     "action": "Conectar cuenta"
+  },
+  "export": {
+    "info": {
+      "title": "Exportar a CSV",
+      "description": "Los archivos CSV se pueden abrir en Excel, Google Sheets y otras aplicaciones de hojas de cálculo."
+    },
+    "transactions": {
+      "title": "Transacciones",
+      "description": "Exportar todos los movimientos"
+    },
+    "categories": {
+      "title": "Categorías",
+      "description": "Exportar categorías personalizadas"
+    },
+    "budgets": {
+      "title": "Presupuestos",
+      "description": "Exportar límites de gastos"
+    },
+    "all": {
+      "title": "Todo",
+      "description": "Exportar transacciones, categorías y presupuestos"
+    },
+    "items": "elementos"
   }
 }
