@@ -19,7 +19,7 @@ export default function PeriodPickerModal({
   value,
   onChange,
 }: PeriodPickerModalProps) {
-  const { t } = useTranslation("budget");
+  const { t, i18n } = useTranslation("budget");
 
   const PERIOD_TYPES: { value: BudgetPeriodType; label: string }[] = [
     { value: "week", label: t("periodPicker.week") },
@@ -105,7 +105,8 @@ export default function PeriodPickerModal({
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr + "T12:00:00");
-    return date.toLocaleDateString("es-CO", {
+    const locale = i18n.language === 'es' ? 'es-CO' : i18n.language === 'en' ? 'en-US' : i18n.language === 'pt' ? 'pt-BR' : i18n.language === 'fr' ? 'fr-FR' : 'es-CO';
+    return date.toLocaleDateString(locale, {
       day: "numeric",
       month: "short",
       year: "numeric",
