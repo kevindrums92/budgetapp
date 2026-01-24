@@ -106,7 +106,6 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteCategory: (id: string) => void;
   getCategoryById: (id: string) => Category | undefined;
-  setCategoryLimit: (id: string, limit: number | null) => void;
 
   // CRUD Category Groups
   addCategoryGroup: (input: AddCategoryGroupInput) => string; // Returns new group ID
@@ -534,28 +533,6 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     getCategoryById: (id) => {
       return get().categoryDefinitions.find((c) => c.id === id);
-    },
-
-    setCategoryLimit: (id, limit) => {
-      set((state) => {
-        const nextCategoryDefinitions = state.categoryDefinitions.map((c) => {
-          if (c.id !== id) return c;
-          return { ...c, monthlyLimit: limit ?? undefined };
-        });
-
-        const next: BudgetState = {
-          schemaVersion: 5,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: nextCategoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
-        saveState(next);
-        return next;
-      });
     },
 
     // ---------- CRUD CATEGORY GROUPS ----------

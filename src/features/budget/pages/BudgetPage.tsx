@@ -1,30 +1,12 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { icons, Plus, ChevronRight, Download } from "lucide-react";
+import { icons, Plus, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
-import SetLimitModal from "@/features/categories/components/SetLimitModal";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
 import type { Category } from "@/types/budget.types";
 import { kebabToPascal } from "@/shared/utils/string.utils";
-import { exportBudgetToCSV } from "@/shared/services/export.service";
-
-function getProgressColor(spent: number, limit: number | undefined): string {
-  if (!limit) return "bg-gray-200 dark:bg-gray-700";
-  const percent = (spent / limit) * 100;
-  if (percent >= 100) return "bg-red-500";
-  if (percent >= 75) return "bg-amber-500";
-  return "bg-emerald-500";
-}
-
-function getTextColor(spent: number, limit: number | undefined): string {
-  if (!limit) return "text-gray-500 dark:text-gray-400";
-  const percent = (spent / limit) * 100;
-  if (percent >= 100) return "text-red-600 dark:text-red-400";
-  if (percent >= 75) return "text-amber-600 dark:text-amber-400";
-  return "text-emerald-600 dark:text-emerald-400";
-}
 
 export default function BudgetPage() {
   const { t } = useTranslation('budget');
@@ -33,11 +15,9 @@ export default function BudgetPage() {
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
-  const setCategoryLimit = useBudgetStore((s) => s.setCategoryLimit);
   const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
   const setBudgetOnboardingSeen = useBudgetStore((s) => s.setBudgetOnboardingSeen);
 
-  const [modalCategory, setModalCategory] = useState<Category | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Check onboarding on mount
@@ -75,11 +55,9 @@ export default function BudgetPage() {
       .sort((a, b) => a.name.localeCompare(b.name, "es"));
   }, [categoryDefinitions]);
 
-  // Calculate totals
+  // Calculate totals (Placeholder - nueva implementación vendrá después)
   const totals = useMemo(() => {
-    const totalBudgeted = expenseCategories
-      .filter((c) => c.monthlyLimit)
-      .reduce((sum, c) => sum + (c.monthlyLimit ?? 0), 0);
+    const totalBudgeted = 0; // TODO: Calcular desde budgets array
 
     const totalSpent = expenseCategories.reduce(
       (sum, c) => sum + (spentByCategory[c.id] ?? 0),
@@ -94,45 +72,14 @@ export default function BudgetPage() {
     return { totalBudgeted, totalSpent, totalIncome };
   }, [expenseCategories, incomeCategories, spentByCategory]);
 
-  const overallProgress =
-    totals.totalBudgeted > 0
-      ? Math.min((totals.totalSpent / totals.totalBudgeted) * 100, 100)
-      : 0;
-
-  const handleSaveLimit = (limit: number | null) => {
-    if (modalCategory) {
-      setCategoryLimit(modalCategory.id, limit);
-    }
-  };
-
-  const handleExportBudget = () => {
-    // Create a map of spent per category
-    const spentMap = new Map<string, number>();
-    Object.entries(spentByCategory).forEach(([catId, amount]) => {
-      spentMap.set(catId, amount);
-    });
-
-    // Export budget
-    exportBudgetToCSV(
-      expenseCategories,
-      spentMap,
-      selectedMonth,
-      `presupuesto-${selectedMonth}`
-    );
-  };
-
-  const renderCategoryRow = (category: Category, showLimit: boolean = true) => {
+  const renderCategoryRow = (category: Category) => {
     const spent = spentByCategory[category.id] ?? 0;
-    const limit = category.monthlyLimit;
-    const progress = limit ? Math.min((spent / limit) * 100, 100) : 0;
     const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons];
 
     return (
-      <button
+      <div
         key={category.id}
-        type="button"
-        onClick={() => setModalCategory(category)}
-        className="flex w-full items-center gap-3 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        className="flex w-full items-center gap-3 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm"
       >
         {/* Icon */}
         <div
@@ -146,34 +93,14 @@ export default function BudgetPage() {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between">
             <span className="font-medium text-gray-900 dark:text-gray-50 truncate">{category.name}</span>
-            <span className={`text-sm font-medium ${getTextColor(spent, limit)}`}>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
               {formatAmount(spent)}
-              {showLimit && limit && (
-                <span className="text-gray-400 dark:text-gray-500">/{formatAmount(limit)}</span>
-              )}
             </span>
           </div>
-
-          {/* Progress Bar */}
-          {showLimit && (
-            <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-300 ${getProgressColor(spent, limit)}`}
-                style={{ width: limit ? `${progress}%` : "0%" }}
-              />
-            </div>
-          )}
-
-          {/* No limit text */}
-          {showLimit && !limit && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('setLimit')}</p>
-          )}
         </div>
-
-        <ChevronRight className="h-5 w-5 text-gray-300 dark:text-gray-600 shrink-0" />
-      </button>
+      </div>
     );
   };
 
@@ -206,70 +133,22 @@ export default function BudgetPage() {
               </div>
             </div>
 
-            {/* Overall Progress */}
-            {totals.totalBudgeted > 0 && (
-              <div className="space-y-2">
-                <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-300 ${getProgressColor(
-                      totals.totalSpent,
-                      totals.totalBudgeted
-                    )}`}
-                    style={{ width: `${overallProgress}%` }}
-                  />
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 text-right">
-                  {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}{t('summary.percentageLabel')}
-                </p>
-              </div>
-            )}
-
-            {totals.totalBudgeted === 0 && (
-              <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">
-                {t('emptyState')}
-              </p>
-            )}
+            <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">
+              Funcionalidad de presupuesto en desarrollo
+            </p>
           </div>
 
           {/* Expense Categories */}
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">{t('sections.expenses')}</h3>
           <div className="space-y-2 mb-8">
-            {expenseCategories.map((cat) => renderCategoryRow(cat, true))}
+            {expenseCategories.map((cat) => renderCategoryRow(cat))}
           </div>
 
           {/* Income Categories */}
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">{t('sections.income')}</h3>
           <div className="space-y-2 mb-8">
-            {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
+            {incomeCategories.map((cat) => renderCategoryRow(cat))}
           </div>
-
-          {/* Export Budget Button */}
-          <button
-            type="button"
-            onClick={handleExportBudget}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-3"
-          >
-            <Download className="h-5 w-5" />
-            {t('export')}
-          </button>
-
-          {/* Add Category Button */}
-          <button
-            type="button"
-            onClick={() => navigate("/category/new")}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:border-emerald-300 dark:hover:border-emerald-600 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            {t('newCategory')}
-          </button>
-
-          {/* Set Limit Modal */}
-          <SetLimitModal
-            open={!!modalCategory}
-            onClose={() => setModalCategory(null)}
-            category={modalCategory}
-            onSave={handleSaveLimit}
-          />
         </main>
       </div>
 

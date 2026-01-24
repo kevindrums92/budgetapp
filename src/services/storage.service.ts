@@ -58,11 +58,12 @@ export function loadState(): BudgetState | null {
       const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
       if (onboardingCompleted) {
         const initialState: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: [],
           categories: [],
           categoryDefinitions: createDefaultCategories(),
           categoryGroups: createDefaultCategoryGroups(),
+          budgets: [],
           trips: [],
           tripExpenses: [],
         };
@@ -185,6 +186,24 @@ export function loadState(): BudgetState | null {
       console.log(`[Storage] Migrated v4→v5: ${templatesMap.size} schedule templates, linked transactions to their source`);
     }
 
+    // Migrate v5 to v6: Add budgets array and remove monthlyLimit from categories
+    if (parsed.schemaVersion === 5) {
+      // Add budgets array (empty initially - nadie usa la feature)
+      parsed.budgets = [];
+
+      // Remove monthlyLimit from all categories
+      if (Array.isArray(parsed.categoryDefinitions)) {
+        parsed.categoryDefinitions = parsed.categoryDefinitions.map((cat: any) => {
+          const { monthlyLimit, ...rest } = cat;
+          return rest;
+        });
+      }
+
+      parsed.schemaVersion = 6;
+      needsSave = true;
+      console.log('[Storage] Migrated v5→v6: Added budgets array, removed monthlyLimit from categories');
+    }
+
     // Always repair: Ensure all transactions have sourceTemplateId if they match a template
     // This fixes transactions that were confirmed before sourceTemplateId was added
     if (parsed.schemaVersion >= 5) {
@@ -222,6 +241,7 @@ export function loadState(): BudgetState | null {
 
     // Ensure all arrays exist
     if (!Array.isArray(parsed.categories)) parsed.categories = [];
+    if (!Array.isArray(parsed.budgets)) parsed.budgets = [];
     if (!Array.isArray(parsed.trips)) parsed.trips = [];
     if (!Array.isArray(parsed.tripExpenses)) parsed.tripExpenses = [];
 

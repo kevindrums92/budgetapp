@@ -663,60 +663,6 @@ describe('budget.store', () => {
       });
     });
 
-    describe('setCategoryLimit', () => {
-      it('should set monthly limit', () => {
-        const store = useBudgetStore.getState();
-
-        const categoryId = store.addCategory({
-          name: 'Test',
-          icon: 'home',
-          color: '#FF5733',
-          type: 'expense',
-          groupId: 'miscellaneous',
-        });
-
-        store.setCategoryLimit(categoryId, 500000);
-
-        const category = store.getCategoryById(categoryId);
-        expect(category?.monthlyLimit).toBe(500000);
-      });
-
-      it('should remove limit when set to null', () => {
-        const store = useBudgetStore.getState();
-
-        const categoryId = store.addCategory({
-          name: 'Test',
-          icon: 'home',
-          color: '#FF5733',
-          type: 'expense',
-          groupId: 'miscellaneous',
-        });
-
-        store.setCategoryLimit(categoryId, 500000);
-        expect(store.getCategoryById(categoryId)?.monthlyLimit).toBe(500000);
-
-        store.setCategoryLimit(categoryId, null);
-        expect(store.getCategoryById(categoryId)?.monthlyLimit).toBeUndefined();
-      });
-
-      it('should call saveState', () => {
-        const store = useBudgetStore.getState();
-
-        const categoryId = store.addCategory({
-          name: 'Test',
-          icon: 'home',
-          color: '#FF5733',
-          type: 'expense',
-          groupId: 'miscellaneous',
-        });
-
-        vi.clearAllMocks();
-
-        store.setCategoryLimit(categoryId, 500000);
-
-        expect(storageService.saveState).toHaveBeenCalled();
-      });
-    });
   });
 
   // ==================== CATEGORY GROUPS CRUD ====================
