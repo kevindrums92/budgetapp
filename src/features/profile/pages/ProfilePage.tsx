@@ -7,9 +7,6 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
 import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder } from "lucide-react";
-import LanguageSelector from "@/components/LanguageSelector";
-import ThemeSelector from "@/components/ThemeSelector";
-import CurrencySelector from "@/components/CurrencySelector";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -25,9 +22,6 @@ export default function ProfilePage() {
 
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
-  const [showThemeSelector, setShowThemeSelector] = useState(false);
-  const [showCurrencySelector, setShowCurrencySelector] = useState(false);
 
   // Get current theme name for display
   const currentThemeName = useMemo(() => {
@@ -204,19 +198,19 @@ export default function ProfilePage() {
               icon={<Languages size={20} />}
               label={t('preferences.language.label')}
               sublabel={currentLanguageData.nativeName}
-              onClick={() => setShowLanguageSelector(true)}
+              onClick={() => navigate('/settings/language')}
             />
             <MenuItem
               icon={<Palette size={20} />}
               label={t('preferences.theme.label')}
               sublabel={currentThemeName}
-              onClick={() => setShowThemeSelector(true)}
+              onClick={() => navigate('/settings/theme')}
             />
             <MenuItem
               icon={<DollarSign size={20} />}
               label={t('preferences.currency.label')}
               sublabel={`${currencyInfo.flag} ${currencyInfo.code} - ${currencyInfo.name}`}
-              onClick={() => setShowCurrencySelector(true)}
+              onClick={() => navigate('/settings/currency')}
             />
           </div>
         </div>
@@ -284,24 +278,6 @@ export default function ProfilePage() {
           v{__APP_VERSION__} ({__GIT_HASH__})
         </p>
       </div>
-
-      {/* Language Selector Modal */}
-      <LanguageSelector
-        open={showLanguageSelector}
-        onClose={() => setShowLanguageSelector(false)}
-      />
-
-      {/* Theme Selector Modal */}
-      <ThemeSelector
-        open={showThemeSelector}
-        onClose={() => setShowThemeSelector(false)}
-      />
-
-      {/* Currency Selector Modal */}
-      <CurrencySelector
-        open={showCurrencySelector}
-        onClose={() => setShowCurrencySelector(false)}
-      />
     </div>
   );
 }
