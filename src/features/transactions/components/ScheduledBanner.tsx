@@ -37,31 +37,31 @@ export default function ScheduledBanner({
   return (
     <>
       <div className="mx-4 mb-5">
-        <section className="bg-violet-50 border border-violet-100 rounded-2xl p-4 shadow-sm relative overflow-hidden">
+        <section className="bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-800 rounded-2xl p-4 shadow-sm relative overflow-hidden">
           {/* Fondo decorativo sutil */}
-          <div className="absolute left-0 bottom-0 w-24 h-24 bg-violet-100/50 rounded-full -ml-8 -mb-8 blur-xl" />
+          <div className="absolute left-0 bottom-0 w-24 h-24 bg-violet-100/50 dark:bg-violet-800/30 rounded-full -ml-8 -mb-8 blur-xl" />
 
           {/* Main content */}
           <div className="relative z-10 flex items-center gap-3">
             {/* Ícono centrado verticalmente */}
-            <div className="w-10 h-10 rounded-full bg-white text-violet-600 flex items-center justify-center shadow-sm border border-violet-50 shrink-0">
+            <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-sm border border-violet-50 dark:border-violet-800 shrink-0">
               {/* Icono con animación de pulso */}
               <div className="relative">
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full animate-ping opacity-75" />
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full animate-ping opacity-75" />
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white dark:border-gray-800 rounded-full" />
                 <CalendarClock size={20} strokeWidth={2} />
               </div>
             </div>
 
             {/* Contenido: título + botón */}
             <div className="flex-1">
-              <p className="text-sm text-gray-800 font-bold leading-tight mb-1">
+              <p className="text-sm text-gray-800 dark:text-gray-100 font-bold leading-tight mb-1">
                 {count} {t(count === 1 ? "scheduledBanner.singular" : "scheduledBanner.plural")}
               </p>
               <button
                 type="button"
                 onClick={() => setShowConfirm(true)}
-                className="text-violet-600 font-bold text-sm flex items-center gap-1 hover:text-violet-700 active:scale-95 transition"
+                className="text-violet-600 dark:text-violet-400 font-bold text-sm flex items-center gap-1 hover:text-violet-700 dark:hover:text-violet-300 active:scale-95 transition"
               >
                 {t("scheduledBanner.review")}
                 <ChevronRight size={16} strokeWidth={2.5} />
@@ -76,9 +76,9 @@ export default function ScheduledBanner({
               e.stopPropagation();
               setShowDismissConfirm(true);
             }}
-            className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 hover:bg-white active:scale-95 transition-all z-20 shadow-sm"
+            className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 active:scale-95 transition-all z-20 shadow-sm"
           >
-            <X className="h-3.5 w-3.5 text-violet-600" />
+            <X className="h-3.5 w-3.5 text-violet-600 dark:text-violet-400" />
           </button>
         </section>
       </div>
@@ -93,11 +93,11 @@ export default function ScheduledBanner({
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("scheduledBanner.hideModal.title")}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               {t("scheduledBanner.hideModal.message")}
             </p>
 
@@ -109,7 +109,7 @@ export default function ScheduledBanner({
                   onDismissForMonth(selectedMonth);
                   setShowDismissConfirm(false);
                 }}
-                className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {t("scheduledBanner.hideModal.neverShowMonth")}
               </button>
@@ -126,7 +126,7 @@ export default function ScheduledBanner({
               <button
                 type="button"
                 onClick={() => setShowDismissConfirm(false)}
-                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               >
                 {t("scheduledBanner.hideModal.cancel")}
               </button>
@@ -145,20 +145,20 @@ export default function ScheduledBanner({
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("scheduledBanner.confirmModal.title")}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               {t("scheduledBanner.confirmModal.message", { count })}
             </p>
 
             {/* Transaction list preview */}
-            <div className="mb-4 max-h-40 overflow-y-auto rounded-xl bg-gray-50 p-3">
+            <div className="mb-4 max-h-40 overflow-y-auto rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
               {virtualTransactions.map((vt) => (
                 <div key={vt.id} className="flex items-center justify-between py-1.5 text-sm">
-                  <span className="text-gray-700 truncate flex-1 mr-2">{vt.name}</span>
-                  <span className={`font-medium whitespace-nowrap ${vt.type === "income" ? "text-emerald-600" : "text-gray-900"}`}>
+                  <span className="text-gray-700 dark:text-gray-300 truncate flex-1 mr-2">{vt.name}</span>
+                  <span className={`font-medium whitespace-nowrap ${vt.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"}`}>
                     {vt.type === "income" ? "+" : "-"}{formatCOP(vt.amount)}
                   </span>
                 </div>
@@ -170,7 +170,7 @@ export default function ScheduledBanner({
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {t("scheduledBanner.confirmModal.cancel")}
               </button>

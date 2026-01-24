@@ -135,13 +135,13 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
   return (
     <div className="mx-auto max-w-xl">
       {!isCurrent && (
-        <div className="mb-3 mx-4 border bg-white p-3 text-xs text-gray-600 rounded-lg">
+        <div className="mb-3 mx-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 text-xs text-gray-600 dark:text-gray-400 rounded-lg">
           {t("list.monthWarning")}
         </div>
       )}
 
       {groupedList.length === 0 ? (
-        <div className="mx-4 bg-white p-6 text-center text-sm text-gray-600 rounded-xl shadow-sm">
+        <div className="mx-4 bg-white dark:bg-gray-900 p-6 text-center text-sm text-gray-600 dark:text-gray-400 rounded-xl shadow-sm">
           {searchQuery
             ? t("list.searchEmpty", { query: searchQuery })
             : t("list.noTransactions")}
@@ -158,33 +158,33 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
               <div key={group.date}>
                 {/* Date Header - fondo gris con total */}
                 <div className="px-4 pb-1.5 flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-gray-600">
+                  <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400">
                     {group.dateLabel}
                   </h3>
                   {showBalance ? (
                     <span
                       className={`text-xs font-semibold ${
                         group.balance >= 0
-                          ? "text-emerald-600"
-                          : "text-gray-500"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-gray-500 dark:text-gray-400"
                       }`}
                     >
                       {group.balance >= 0 ? "+" : ""}
                       {formatCOP(group.balance)}
                     </span>
                   ) : hasExpenses ? (
-                    <span className="text-xs font-semibold text-gray-500">
+                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                       -{formatCOP(group.totalExpenses)}
                     </span>
                   ) : (
-                    <span className="text-xs font-semibold text-emerald-600">
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                       +{formatCOP(group.totalIncome)}
                     </span>
                   )}
                 </div>
 
                 {/* Transactions - card blanco con bordes redondeados */}
-                <div className="mx-4 bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="mx-4 bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden">
                   {group.transactions.map((tx) => (
                     <TransactionItem
                       key={tx.id}

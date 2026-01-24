@@ -90,7 +90,7 @@ export default function SetLimitModal({ open, onClose, category, onSave }: Props
 
       {/* Modal */}
       <div
-        className="relative mx-4 w-full max-w-sm rounded-3xl bg-white shadow-2xl transition-all duration-300"
+        className="relative mx-4 w-full max-w-sm rounded-3xl bg-white dark:bg-gray-900 shadow-2xl transition-all duration-300"
         style={{
           transform: isAnimating ? "scale(1)" : "scale(0.95)",
           opacity: isAnimating ? 1 : 0,
@@ -98,7 +98,7 @@ export default function SetLimitModal({ open, onClose, category, onSave }: Props
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex flex-col items-center pt-6 pb-4 border-b">
+        <div className="flex flex-col items-center pt-6 pb-4 border-b border-gray-200 dark:border-gray-700">
           <div
             className="flex h-14 w-14 items-center justify-center rounded-2xl mb-3"
             style={{ backgroundColor: category.color + "20" }}
@@ -107,19 +107,19 @@ export default function SetLimitModal({ open, onClose, category, onSave }: Props
               <IconComponent className="h-7 w-7" style={{ color: category.color }} />
             )}
           </div>
-          <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
-          <p className="text-sm text-gray-500">Establecer límite mensual</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{category.name}</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Establecer límite mensual</p>
         </div>
 
         {/* Content */}
         <div className="px-6 py-5 space-y-4">
           {/* Amount Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Límite mensual
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
               <input
                 type="text"
                 inputMode="numeric"
@@ -127,8 +127,10 @@ export default function SetLimitModal({ open, onClose, category, onSave }: Props
                 onChange={handleLimitChange}
                 placeholder="0"
                 disabled={noLimit}
-                className={`w-full rounded-xl border border-gray-200 py-3 pl-8 pr-4 text-lg font-medium outline-none transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 ${
-                  noLimit ? "bg-gray-100 text-gray-400" : "bg-white text-gray-900"
+                className={`w-full rounded-xl border py-3 pl-8 pr-4 text-lg font-medium outline-none transition-colors focus:border-emerald-500 dark:focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 dark:focus:ring-emerald-400/20 ${
+                  noLimit
+                    ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-700"
+                    : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-700"
                 }`}
               />
             </div>
@@ -145,18 +147,18 @@ export default function SetLimitModal({ open, onClose, category, onSave }: Props
                   setLimitValue("");
                 }
               }}
-              className="h-5 w-5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+              className="h-5 w-5 rounded border-gray-300 dark:border-gray-600 text-emerald-500 focus:ring-emerald-500 dark:bg-gray-800"
             />
-            <span className="text-sm text-gray-700">Sin límite</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Sin límite</span>
           </label>
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 border-t px-6 py-4">
+        <div className="flex gap-3 border-t border-gray-200 dark:border-gray-700 px-6 py-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             Cancelar
           </button>

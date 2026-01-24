@@ -11,7 +11,7 @@ import { kebabToPascal } from "@/shared/utils/string.utils";
 import { exportBudgetToCSV } from "@/shared/services/export.service";
 
 function getProgressColor(spent: number, limit: number | undefined): string {
-  if (!limit) return "bg-gray-200";
+  if (!limit) return "bg-gray-200 dark:bg-gray-700";
   const percent = (spent / limit) * 100;
   if (percent >= 100) return "bg-red-500";
   if (percent >= 75) return "bg-amber-500";
@@ -19,11 +19,11 @@ function getProgressColor(spent: number, limit: number | undefined): string {
 }
 
 function getTextColor(spent: number, limit: number | undefined): string {
-  if (!limit) return "text-gray-500";
+  if (!limit) return "text-gray-500 dark:text-gray-400";
   const percent = (spent / limit) * 100;
-  if (percent >= 100) return "text-red-600";
-  if (percent >= 75) return "text-amber-600";
-  return "text-emerald-600";
+  if (percent >= 100) return "text-red-600 dark:text-red-400";
+  if (percent >= 75) return "text-amber-600 dark:text-amber-400";
+  return "text-emerald-600 dark:text-emerald-400";
 }
 
 export default function BudgetPage() {
@@ -131,7 +131,7 @@ export default function BudgetPage() {
         key={category.id}
         type="button"
         onClick={() => setModalCategory(category)}
-        className="flex w-full items-center gap-3 rounded-xl bg-white p-4 shadow-sm hover:bg-gray-50 transition-colors"
+        className="flex w-full items-center gap-3 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       >
         {/* Icon */}
         <div
@@ -146,18 +146,18 @@ export default function BudgetPage() {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <span className="font-medium text-gray-900 truncate">{category.name}</span>
+            <span className="font-medium text-gray-900 dark:text-gray-50 truncate">{category.name}</span>
             <span className={`text-sm font-medium ${getTextColor(spent, limit)}`}>
               {formatCOP(spent)}
               {showLimit && limit && (
-                <span className="text-gray-400">/{formatCOP(limit)}</span>
+                <span className="text-gray-400 dark:text-gray-500">/{formatCOP(limit)}</span>
               )}
             </span>
           </div>
 
           {/* Progress Bar */}
           {showLimit && (
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div
                 className={`h-full transition-all duration-300 ${getProgressColor(spent, limit)}`}
                 style={{ width: limit ? `${progress}%` : "0%" }}
@@ -167,37 +167,37 @@ export default function BudgetPage() {
 
           {/* No limit text */}
           {showLimit && !limit && (
-            <p className="text-xs text-gray-400 mt-1">{t('setLimit')}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('setLimit')}</p>
           )}
         </div>
 
-        <ChevronRight className="h-5 w-5 text-gray-300 shrink-0" />
+        <ChevronRight className="h-5 w-5 text-gray-300 dark:text-gray-600 shrink-0" />
       </button>
     );
   };
 
   return (
     <>
-      <div className="bg-gray-50 min-h-screen">
+      <div className="bg-gray-50 dark:bg-gray-950 min-h-screen">
         <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
           {/* Summary Section */}
-          <h2 className="text-base font-semibold mb-3">{t('summary.title')}</h2>
-          <div className="rounded-2xl bg-white p-5 shadow-sm mb-6">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">{t('summary.title')}</h2>
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm mb-6">
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-xs text-gray-400">{t('summary.budgeted')}</p>
-                <p className="text-lg font-semibold text-gray-900">
+                <p className="text-xs text-gray-400 dark:text-gray-500">{t('summary.budgeted')}</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
                   {formatCOP(totals.totalBudgeted)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-400">{t('summary.spent')}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">{t('summary.spent')}</p>
                 <p
                   className={`text-lg font-semibold ${
                     totals.totalSpent > totals.totalBudgeted && totals.totalBudgeted > 0
-                      ? "text-red-600"
-                      : "text-gray-900"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-gray-900 dark:text-gray-50"
                   }`}
                 >
                   {formatCOP(totals.totalSpent)}
@@ -208,7 +208,7 @@ export default function BudgetPage() {
             {/* Overall Progress */}
             {totals.totalBudgeted > 0 && (
               <div className="space-y-2">
-                <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                   <div
                     className={`h-full transition-all duration-300 ${getProgressColor(
                       totals.totalSpent,
@@ -217,27 +217,27 @@ export default function BudgetPage() {
                     style={{ width: `${overallProgress}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 text-right">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-right">
                   {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}{t('summary.percentageLabel')}
                 </p>
               </div>
             )}
 
             {totals.totalBudgeted === 0 && (
-              <p className="text-sm text-gray-400 text-center py-2">
+              <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">
                 {t('emptyState')}
               </p>
             )}
           </div>
 
           {/* Expense Categories */}
-          <h3 className="text-base font-semibold mb-3">{t('sections.expenses')}</h3>
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">{t('sections.expenses')}</h3>
           <div className="space-y-2 mb-8">
             {expenseCategories.map((cat) => renderCategoryRow(cat, true))}
           </div>
 
           {/* Income Categories */}
-          <h3 className="text-base font-semibold mb-3">{t('sections.income')}</h3>
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">{t('sections.income')}</h3>
           <div className="space-y-2 mb-8">
             {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
           </div>
@@ -246,7 +246,7 @@ export default function BudgetPage() {
           <button
             type="button"
             onClick={handleExportBudget}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors mb-3"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 py-4 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors mb-3"
           >
             <Download className="h-5 w-5" />
             {t('export')}
@@ -256,7 +256,7 @@ export default function BudgetPage() {
           <button
             type="button"
             onClick={() => navigate("/category/new")}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm font-medium text-gray-500 hover:border-emerald-300 hover:text-emerald-600 transition-colors"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 py-4 text-sm font-medium text-gray-500 dark:text-gray-400 hover:border-emerald-300 dark:hover:border-emerald-600 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
           >
             <Plus className="h-5 w-5" />
             {t('newCategory')}

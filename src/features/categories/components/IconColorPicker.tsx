@@ -67,7 +67,7 @@ export default function IconColorPicker({
 
       {/* Modal */}
       <div
-        className="relative mx-4 w-full max-w-sm rounded-3xl bg-white shadow-2xl transition-all duration-300"
+        className="relative mx-4 w-full max-w-sm rounded-3xl bg-white dark:bg-gray-900 shadow-2xl transition-all duration-300"
         style={{
           transform: isAnimating ? "scale(1)" : "scale(0.95)",
           opacity: isAnimating ? 1 : 0,
@@ -86,13 +86,13 @@ export default function IconColorPicker({
           </div>
 
           {/* Tabs */}
-          <div className="mt-4 flex w-full border-b">
+          <div className="mt-4 flex w-full border-b border-gray-200 dark:border-gray-700">
             <button
               type="button"
               className={`flex-1 pb-2 text-sm font-medium transition-colors ${
                 activeTab === "icon"
-                  ? "border-b-2 border-emerald-500 text-emerald-500"
-                  : "text-gray-400"
+                  ? "border-b-2 border-emerald-500 text-emerald-500 dark:text-emerald-400"
+                  : "text-gray-400 dark:text-gray-500"
               }`}
               onClick={() => setActiveTab("icon")}
             >
@@ -102,8 +102,8 @@ export default function IconColorPicker({
               type="button"
               className={`flex-1 pb-2 text-sm font-medium transition-colors ${
                 activeTab === "color"
-                  ? "border-b-2 border-emerald-500 text-emerald-500"
-                  : "text-gray-400"
+                  ? "border-b-2 border-emerald-500 text-emerald-500 dark:text-emerald-400"
+                  : "text-gray-400 dark:text-gray-500"
               }`}
               onClick={() => setActiveTab("color")}
             >
@@ -129,11 +129,11 @@ export default function IconColorPicker({
                     type="button"
                     onClick={() => onIconChange(iconName)}
                     className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${
-                      isSelected ? "bg-emerald-100" : "hover:bg-gray-100"
+                      isSelected ? "bg-emerald-100 dark:bg-emerald-900/40" : "hover:bg-gray-100 dark:hover:bg-gray-800"
                     }`}
                   >
                     <IconComponent
-                      className={`h-6 w-6 ${isSelected ? "text-emerald-600" : "text-gray-700"}`}
+                      className={`h-6 w-6 ${isSelected ? "text-emerald-600 dark:text-emerald-400" : "text-gray-700 dark:text-gray-300"}`}
                     />
                   </button>
                 );
@@ -164,11 +164,11 @@ export default function IconColorPicker({
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t px-4 py-3">
+        <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-700 px-4 py-3">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full px-6 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-50"
+            className="rounded-full px-6 py-2.5 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30"
           >
             {t("iconColorPicker.apply")}
           </button>

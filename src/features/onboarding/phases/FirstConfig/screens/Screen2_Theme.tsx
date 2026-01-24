@@ -1,24 +1,31 @@
 /**
  * Screen2_Theme
  * Pantalla 2 de First Config: Selección de tema
- * Por ahora solo guarda la selección, no aplica dark mode
+ * Aplica el tema inmediatamente cuando el usuario lo selecciona
  */
 
 import { Palette, Sun, Moon, Smartphone, Check } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useOnboarding } from '../../../OnboardingContext';
+import { useTheme, type Theme } from '@/features/theme';
 
 type ThemeOption = 'light' | 'dark' | 'system';
 
 export default function Screen2_Theme() {
   const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
-  const { state, setTheme } = useOnboarding();
+  const { state, setTheme: setOnboardingTheme } = useOnboarding();
+  const { theme: currentTheme, setTheme: applyTheme } = useTheme();
   const [selected, setSelected] = useState<ThemeOption>(
-    (state.selections.theme as ThemeOption) || 'system'
+    (state.selections.theme as ThemeOption) || currentTheme || 'system'
   );
+
+  // Apply theme immediately when selection changes
+  useEffect(() => {
+    applyTheme(selected as Theme);
+  }, [selected, applyTheme]);
 
   const THEME_OPTIONS: Array<{
     value: ThemeOption;
@@ -47,7 +54,7 @@ export default function Screen2_Theme() {
   ];
 
   const handleContinue = () => {
-    setTheme(selected);
+    setOnboardingTheme(selected);
     navigate('/onboarding/config/3', { replace: true });
   };
 
@@ -57,14 +64,14 @@ export default function Screen2_Theme() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50">
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
       {/* Progress */}
       <div className="flex gap-1.5 px-6 pt-4">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
       </div>
 
       {/* Header */}
@@ -73,11 +80,11 @@ export default function Screen2_Theme() {
           <Palette size={40} className="text-white" strokeWidth={2.5} />
         </div>
 
-        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
           {t('theme.title')}
         </h1>
 
-        <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
+        <p className="max-w-md text-center text-base leading-relaxed text-gray-600 dark:text-gray-300">
           {t('theme.description')}
         </p>
       </div>
@@ -94,28 +101,28 @@ export default function Screen2_Theme() {
                 key={option.value}
                 type="button"
                 onClick={() => setSelected(option.value)}
-                className={`flex w-full items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-all active:scale-[0.98] ${
-                  isSelected ? 'ring-2 ring-[#18B7B0]' : 'ring-1 ring-gray-200'
+                className={`flex w-full items-center gap-4 rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm transition-all active:scale-[0.98] ${
+                  isSelected ? 'ring-2 ring-[#18B7B0]' : 'ring-1 ring-gray-200 dark:ring-gray-700'
                 }`}
               >
                 <div
                   className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-                    isSelected ? 'bg-[#18B7B0]' : 'bg-gray-100'
+                    isSelected ? 'bg-[#18B7B0]' : 'bg-gray-100 dark:bg-gray-800'
                   }`}
                 >
                   <Icon
                     className={`h-6 w-6 ${
-                      isSelected ? 'text-white' : 'text-gray-600'
+                      isSelected ? 'text-white' : 'text-gray-600 dark:text-gray-300'
                     }`}
                     strokeWidth={2.5}
                   />
                 </div>
 
                 <div className="flex-1 text-left">
-                  <p className="text-base font-semibold text-gray-900">
+                  <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
                     {option.title}
                   </p>
-                  <p className="mt-0.5 text-sm text-gray-500">
+                  <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
                     {option.description}
                   </p>
                 </div>
@@ -130,10 +137,6 @@ export default function Screen2_Theme() {
           })}
         </div>
 
-        {/* Note */}
-        <p className="mt-6 text-center text-xs text-gray-500">
-          {t('theme.note')}
-        </p>
       </div>
 
       {/* Actions */}
@@ -150,7 +153,7 @@ export default function Screen2_Theme() {
           <button
             type="button"
             onClick={handleSkip}
-            className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
+            className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors hover:text-gray-900 dark:hover:text-gray-200"
           >
             {t('theme.skip')}
           </button>

@@ -29,7 +29,7 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
       );
     }
     return (
-      <div className="grid h-10 w-10 place-items-center rounded-full bg-gray-100 text-gray-500">
+      <div className="grid h-10 w-10 place-items-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
         <User size={20} strokeWidth={1.8} />
       </div>
     );
@@ -50,7 +50,7 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   }, [cloudMode, cloudStatus]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-gray-100 bg-white shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+    <header className="sticky top-0 z-20 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.30)]">
       <div className="mx-auto max-w-xl px-4 pt-6 pb-2">
         <div className="flex items-start justify-between">
           {/* Left: Logo + Content */}
@@ -68,13 +68,13 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
             {/* Profile Mode: Configuration Title */}
             {isProfilePage ? (
               <div>
-                <h1 className="text-lg font-bold leading-tight text-gray-900">{t('settings.title')}</h1>
-                <p className="text-sm text-gray-500 leading-tight">{t('settings.subtitle')}</p>
+                <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-50">{t('settings.title')}</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-tight">{t('settings.subtitle')}</p>
               </div>
             ) : (
               /* Default Mode: App Name + Month Selector */
               <div>
-                <h1 className="text-lg font-bold leading-tight text-gray-900">SmartSpend</h1>
+                <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-50">SmartSpend</h1>
                 {showMonthSelector && (
                   <div className="mt-1">
                     <MonthSelector />
@@ -89,7 +89,7 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
             <div className="relative flex items-center justify-center">
               {Avatar}
               {/* Sync indicator dot */}
-              <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white ${syncDot}`} />
+              <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
             </div>
           )}
         </div>

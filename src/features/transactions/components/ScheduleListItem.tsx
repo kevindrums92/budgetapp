@@ -43,7 +43,7 @@ export default function ScheduleListItem({
 
   return (
     <>
-      <div className="rounded-2xl bg-white p-4 shadow-sm">
+      <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
         {/* Header: Icon + Name + Badge */}
         <div className="flex items-start gap-3">
           {/* Category Icon */}
@@ -59,28 +59,28 @@ export default function ScheduleListItem({
                 style={{ color: category?.color }}
               />
             ) : (
-              <div className="h-5 w-5 rounded-full bg-gray-300" />
+              <div className="h-5 w-5 rounded-full bg-gray-300 dark:bg-gray-600" />
             )}
           </div>
 
           {/* Info */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <p className="truncate font-semibold text-gray-900">
+              <p className="truncate font-semibold text-gray-900 dark:text-gray-50">
                 {transaction.name}
               </p>
               {/* Status Badge */}
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                   isEnded
-                    ? "bg-gray-100 text-gray-500"
-                    : "bg-emerald-50 text-emerald-700"
+                    ? "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                    : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                 }`}
               >
                 {isEnded ? t("status.inactive") : t("status.active")}
               </span>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {category?.name || transaction.category}
             </p>
           </div>
@@ -91,7 +91,7 @@ export default function ScheduleListItem({
           {/* Amount */}
           <p
             className={`font-semibold ${
-              transaction.type === "income" ? "text-emerald-600" : "text-gray-900"
+              transaction.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"
             }`}
           >
             {transaction.type === "income" ? "+" : "-"}
@@ -100,14 +100,14 @@ export default function ScheduleListItem({
 
           {/* Frequency */}
           {transaction.schedule && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {formatScheduleFrequency(transaction.schedule, t)}
             </p>
           )}
 
           {/* Next date (only for active) */}
           {nextDate && !isEnded && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {t("item.nextDate", { date: formatNextDate(nextDate, t, getLocale()) })}
             </p>
           )}
@@ -119,7 +119,7 @@ export default function ScheduleListItem({
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-orange-50 py-2.5 text-sm font-medium text-orange-600 hover:bg-orange-100 transition-colors"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-orange-50 dark:bg-orange-900/30 py-2.5 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
             >
               <Power className="h-4 w-4" />
               {t("item.deactivate")}
@@ -138,19 +138,19 @@ export default function ScheduleListItem({
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("deactivate.title")}
             </h3>
-            <p className="mb-3 text-sm text-gray-600">
+            <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
               {t("deactivate.message", { name: transaction.name })}
             </p>
-            <div className="mb-4 rounded-lg bg-orange-50 p-3">
-              <p className="text-xs font-medium text-orange-700">
+            <div className="mb-4 rounded-lg bg-orange-50 dark:bg-orange-900/30 p-3">
+              <p className="text-xs font-medium text-orange-700 dark:text-orange-300">
                 {t("deactivate.warning")}
               </p>
             </div>
-            <p className="mb-4 text-xs text-gray-500">
+            <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
               {t("deactivate.note")}
             </p>
 
@@ -159,7 +159,7 @@ export default function ScheduleListItem({
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {t("deactivate.cancel")}
               </button>

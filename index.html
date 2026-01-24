@@ -18,6 +18,24 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="SmartSpend" />
 
+    <!-- Prevent theme flicker - must run before any rendering -->
+    <script>
+      (function() {
+        var stored = localStorage.getItem('app_theme');
+        var theme = stored || 'system';
+        var resolved = theme;
+        if (theme === 'system') {
+          resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.classList.add(resolved);
+        // Update theme-color meta tag for dark mode
+        if (resolved === 'dark') {
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#030712');
+        }
+      })();
+    </script>
+
     <style>
       #app-splash { position: fixed; inset: 0; background: #0d9488; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; transition: opacity 0.4s ease; }
       .splash-icon { width: 80px; height: 80px; margin-bottom: 16px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
@@ -25,6 +43,9 @@
       .splash-loader { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; margin-top: 32px; }
       @keyframes spin { to { transform: rotate(360deg); } }
       body { margin: 0; background: #0d9488; }
+      /* Dark mode splash */
+      html.dark #app-splash { background: #030712; }
+      html.dark body { background: #030712; }
     </style>
   </head>
   <body>

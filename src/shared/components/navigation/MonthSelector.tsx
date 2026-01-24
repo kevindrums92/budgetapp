@@ -39,20 +39,20 @@ export default function MonthSelector() {
       <button
         type="button"
         onClick={() => setSelectedMonth(addMonths(selectedMonth, -1))}
-        className="p-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all"
+        className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 active:scale-95 transition-all"
         aria-label={t('date.previousMonth')}
       >
         <ChevronLeft size={18} strokeWidth={2} />
       </button>
 
-      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide min-w-[70px] text-center">
+      <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide min-w-[70px] text-center">
         {monthLabel}
       </span>
 
       <button
         type="button"
         onClick={() => setSelectedMonth(addMonths(selectedMonth, 1))}
-        className="p-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all"
+        className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 active:scale-95 transition-all"
         aria-label={t('date.nextMonth')}
       >
         <ChevronRight size={18} strokeWidth={2} />

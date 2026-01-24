@@ -141,7 +141,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
       <BalanceCard />
 
       {/* Daily Budget Banner */}
@@ -150,17 +150,17 @@ export default function HomePage() {
         !isDailyBudgetPermanentlyHidden &&
         !hideDailyBudgetSession && (
         <div className="mx-auto max-w-xl px-4 mt-6">
-          <section className="bg-teal-50 border border-teal-100/50 rounded-2xl p-4 flex items-center justify-between shadow-sm relative overflow-hidden transition-all duration-300">
-            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-teal-100/40 to-transparent" />
+          <section className="bg-teal-50 dark:bg-teal-900/30 border border-teal-100/50 dark:border-teal-800/50 rounded-2xl p-4 flex items-center justify-between shadow-sm relative overflow-hidden transition-all duration-300">
+            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-teal-100/40 dark:from-teal-800/20 to-transparent" />
             <div className="flex items-center gap-4 relative z-10">
-              <div className="w-10 h-10 rounded-full bg-white text-[#18B7B0] flex items-center justify-center shadow-sm border border-teal-50 shrink-0">
+              <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-[#18B7B0] flex items-center justify-center shadow-sm border border-teal-50 dark:border-teal-800 shrink-0">
                 <Calculator size={20} strokeWidth={2} />
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider font-bold text-[#18B7B0] mb-0.5">
                   {t('dailyBudget.remaining', { count: dailyBudgetInfo.daysRemaining })}
                 </p>
-                <p className="text-sm text-gray-700 font-medium leading-tight">
+                <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight">
                   {t('dailyBudget.couldSpend', { amount: formatCOP(dailyBudgetInfo.dailyBudget) })}
                 </p>
               </div>
@@ -169,9 +169,9 @@ export default function HomePage() {
             <button
               type="button"
               onClick={() => setShowDailyBudgetConfirm(true)}
-              className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-teal-100/60 active:scale-95 transition-all z-10"
+              className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-teal-100/60 dark:hover:bg-teal-800/40 active:scale-95 transition-all z-10"
             >
-              <X className="h-4 w-4 text-teal-600" />
+              <X className="h-4 w-4 text-teal-600 dark:text-teal-400" />
             </button>
           </section>
         </div>
@@ -180,14 +180,14 @@ export default function HomePage() {
       {/* Sticky Search Bar & Filter Dropdown */}
       {hasTransactions && (
         <div
-          className="sticky top-[80px] z-20 bg-gray-50 pb-3 pt-6"
+          className="sticky top-[80px] z-20 bg-gray-50 dark:bg-gray-950 pb-3 pt-6"
           onClick={() => showFilterMenu && setShowFilterMenu(false)}
         >
           <div className="mx-auto max-w-xl px-4">
             <div className="flex gap-3 relative">
               {/* Search Input */}
               <div className="relative flex-1 group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#18B7B0] transition">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 group-focus-within:text-[#18B7B0] transition">
                   <Search size={18} />
                 </div>
                 <input
@@ -195,13 +195,13 @@ export default function HomePage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('search')}
-                  className="w-full bg-white border border-gray-200 rounded-xl py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20 shadow-sm transition"
+                  className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20 shadow-sm transition"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                   >
                     <X size={14} />
                   </button>
@@ -218,8 +218,8 @@ export default function HomePage() {
                   }}
                   className={`w-11 h-11 border rounded-xl flex items-center justify-center shadow-sm transition active:scale-95 ${
                     filterType !== "all" || showFilterMenu
-                      ? "bg-teal-50 border-teal-200 text-[#18B7B0]"
-                      : "bg-white border-gray-200 text-gray-500 hover:border-teal-300 hover:text-[#18B7B0]"
+                      ? "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700 text-[#18B7B0]"
+                      : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-teal-300 dark:hover:border-teal-600 hover:text-[#18B7B0]"
                   }`}
                 >
                   <SlidersHorizontal size={20} />
@@ -227,8 +227,8 @@ export default function HomePage() {
 
                 {/* Dropdown Menu */}
                 {showFilterMenu && (
-                  <div className="absolute right-0 top-full mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
-                    <p className="px-3 py-2 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                  <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <p className="px-3 py-2 text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">
                       {t('filter')}
                     </p>
 
@@ -238,9 +238,9 @@ export default function HomePage() {
                         setFilterType("all");
                         setShowFilterMenu(false);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
                     >
-                      <span className={filterType === "all" ? "text-[#18B7B0]" : "text-gray-700"}>
+                      <span className={filterType === "all" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
                         {t('filters.all')}
                       </span>
                       {filterType === "all" && <Check size={14} className="text-[#18B7B0]" />}
@@ -252,12 +252,12 @@ export default function HomePage() {
                         setFilterType("expense");
                         setShowFilterMenu(false);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
                     >
-                      <span className={filterType === "expense" ? "text-rose-600" : "text-gray-700"}>
+                      <span className={filterType === "expense" ? "text-rose-600 dark:text-rose-400" : "text-gray-700 dark:text-gray-200"}>
                         {t('filters.expenses')}
                       </span>
-                      {filterType === "expense" && <Check size={14} className="text-rose-600" />}
+                      {filterType === "expense" && <Check size={14} className="text-rose-600 dark:text-rose-400" />}
                     </button>
 
                     <button
@@ -266,9 +266,9 @@ export default function HomePage() {
                         setFilterType("income");
                         setShowFilterMenu(false);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
                     >
-                      <span className={filterType === "income" ? "text-[#18B7B0]" : "text-gray-700"}>
+                      <span className={filterType === "income" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
                         {t('filters.income')}
                       </span>
                       {filterType === "income" && <Check size={14} className="text-[#18B7B0]" />}
@@ -280,9 +280,9 @@ export default function HomePage() {
                         setFilterType("pending");
                         setShowFilterMenu(false);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
                     >
-                      <span className={filterType === "pending" ? "text-[#18B7B0]" : "text-gray-700"}>
+                      <span className={filterType === "pending" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
                         {t('filters.pending')}
                       </span>
                       {filterType === "pending" && <Check size={14} className="text-[#18B7B0]" />}
@@ -294,9 +294,9 @@ export default function HomePage() {
                         setFilterType("recurring");
                         setShowFilterMenu(false);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 flex items-center justify-between group"
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
                     >
-                      <span className={filterType === "recurring" ? "text-[#18B7B0]" : "text-gray-700"}>
+                      <span className={filterType === "recurring" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
                         {t('filters.recurring')}
                       </span>
                       {filterType === "recurring" && <Check size={14} className="text-[#18B7B0]" />}
@@ -354,16 +354,16 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 dark:bg-black/70"
             onClick={() => setShowDailyBudgetConfirm(false)}
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t('hideDailyBudget.title')}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
               {t('hideDailyBudget.message')}
             </p>
 
@@ -377,7 +377,7 @@ export default function HomePage() {
                   // Force re-render by navigating to same page
                   window.location.reload();
                 }}
-                className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {t('hideDailyBudget.neverShow')}
               </button>
@@ -387,14 +387,14 @@ export default function HomePage() {
                   setHideDailyBudgetSession(true);
                   setShowDailyBudgetConfirm(false);
                 }}
-                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+                className="w-full rounded-xl bg-emerald-500 dark:bg-emerald-600 py-3 text-sm font-medium text-white hover:bg-emerald-600 dark:hover:bg-emerald-500"
               >
                 {t('hideDailyBudget.hideOnce')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowDailyBudgetConfirm(false)}
-                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               >
                 {t('hideDailyBudget.cancel')}
               </button>
@@ -408,24 +408,24 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 dark:bg-black/70"
             onClick={() => setShowExportModal(false)}
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t('export.title')}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
               {t('export.info')}
             </p>
 
             {/* Info */}
-            <div className="mb-6 rounded-xl bg-gray-50 p-4">
+            <div className="mb-6 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">{t('export.total')}</span>
-                <span className="font-semibold text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">{t('export.total')}</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-50">
                   {transactions.filter((t) => t.date.slice(0, 7) === selectedMonth).length}
                 </span>
               </div>
@@ -436,14 +436,14 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setShowExportModal(false)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {t('hideDailyBudget.cancel')}
               </button>
               <button
                 type="button"
                 onClick={handleExport}
-                className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+                className="flex-1 rounded-xl bg-emerald-500 dark:bg-emerald-600 py-3 text-sm font-medium text-white hover:bg-emerald-600 dark:hover:bg-emerald-500"
               >
                 {t('export.title')}
               </button>

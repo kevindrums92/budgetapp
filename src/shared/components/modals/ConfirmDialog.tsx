@@ -44,11 +44,11 @@ export default function ConfirmDialog({
       />
 
       {/* Modal Card */}
-      <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-        <h3 className="mb-2 text-lg font-semibold text-gray-900">
+      <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+        <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
           {title || t('buttons.confirm')}
         </h3>
-        <p className="mb-4 text-sm text-gray-600">
+        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
           {message}
         </p>
 
@@ -57,7 +57,7 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             {cancelText || t('buttons.cancel')}
           </button>

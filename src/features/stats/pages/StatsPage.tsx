@@ -250,27 +250,27 @@ export default function StatsPage() {
   }, [transactions, selectedMonth, categoryDefinitions]);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen">
       <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
         {/* Header */}
-        <h2 className="text-base font-semibold">{t('title')}</h2>
-        <p className="text-sm text-gray-500">{monthLabel(selectedMonth, getLocale())}</p>
+        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50">{t('title')}</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{monthLabel(selectedMonth, getLocale())}</p>
 
       {/* Quick Stats */}
       {quickStats.hasData && (
         <div className="mt-4 grid grid-cols-2 gap-3">
           {/* Daily Average */}
-          <div className="rounded-xl bg-white p-4 shadow-sm">
-            <p className="text-xs text-gray-500">{t('quickStats.dailyAverage')}</p>
-            <p className="mt-1 text-lg font-semibold">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.dailyAverage')}</p>
+            <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {formatCOP(quickStats.dailyAverage)}
             </p>
           </div>
 
           {/* Top Category */}
           {quickStats.topCategory && (
-            <div className="rounded-xl bg-white p-4 shadow-sm">
-              <p className="text-xs text-gray-500">{t('quickStats.topCategory')}</p>
+            <div className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topCategory')}</p>
               <div className="mt-1 flex items-center gap-2">
                 {(() => {
                   const IconComponent =
@@ -286,7 +286,7 @@ export default function StatsPage() {
                     )
                   );
                 })()}
-                <span className="text-sm font-medium">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                   {quickStats.topCategory.name}
                 </span>
               </div>
@@ -295,30 +295,30 @@ export default function StatsPage() {
 
           {/* Top Day of Week */}
           {quickStats.topDayName && (
-            <div className="rounded-xl bg-white p-4 shadow-sm">
-              <p className="text-xs text-gray-500">{t('quickStats.topDay')}</p>
-              <p className="mt-1 text-sm font-medium">{quickStats.topDayName}</p>
+            <div className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topDay')}</p>
+              <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-50">{quickStats.topDayName}</p>
             </div>
           )}
 
           {/* Month Comparison */}
-          <div className="rounded-xl bg-white p-4 shadow-sm">
-            <p className="text-xs text-gray-500">{t('quickStats.monthComparison')}</p>
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.monthComparison')}</p>
             <div className="mt-1 flex items-center gap-1">
               {quickStats.monthDiff > 0 ? (
-                <icons.TrendingUp className="h-4 w-4 text-red-500" />
+                <icons.TrendingUp className="h-4 w-4 text-red-500 dark:text-red-400" />
               ) : quickStats.monthDiff < 0 ? (
-                <icons.TrendingDown className="h-4 w-4 text-emerald-500" />
+                <icons.TrendingDown className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
               ) : (
-                <icons.Minus className="h-4 w-4 text-gray-400" />
+                <icons.Minus className="h-4 w-4 text-gray-400 dark:text-gray-500" />
               )}
               <span
                 className={`text-sm font-medium ${
                   quickStats.monthDiff > 0
-                    ? "text-red-600"
+                    ? "text-red-600 dark:text-red-400"
                     : quickStats.monthDiff < 0
-                    ? "text-emerald-600"
-                    : "text-gray-600"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-gray-600 dark:text-gray-400"
                 }`}
               >
                 {quickStats.monthDiff > 0 ? "+" : ""}
@@ -331,12 +331,12 @@ export default function StatsPage() {
 
       {/* Donut Chart Section */}
       <div className="mt-6">
-        <h3 className="mb-4 text-sm font-medium text-gray-700">
+        <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('expensesByCategory.title')}
         </h3>
 
         {categoryChartData.length === 0 ? (
-          <div className="py-12 text-center text-gray-500">
+          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
             <PieChartIcon className="mx-auto mb-2 h-12 w-12 opacity-50" />
             <p>{t('expensesByCategory.noData')}</p>
           </div>
@@ -367,10 +367,10 @@ export default function StatsPage() {
 
               {/* Center label */}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold">
+                <span className="text-2xl font-bold text-gray-900 dark:text-gray-50">
                   {formatCOP(totalExpenses)}
                 </span>
-                <span className="text-sm text-gray-500">{t('expensesByCategory.spent')}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">{t('expensesByCategory.spent')}</span>
               </div>
             </div>
 
@@ -385,7 +385,7 @@ export default function StatsPage() {
                     key={item.id}
                     type="button"
                     onClick={() => navigate(`/category/${item.id}/month/${selectedMonth}`)}
-                    className="w-full flex items-center justify-between rounded-lg bg-white px-3 py-2 shadow-sm active:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-between rounded-lg bg-white dark:bg-gray-900 px-3 py-2 shadow-sm active:bg-gray-50 dark:active:bg-gray-800 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span
@@ -398,9 +398,9 @@ export default function StatsPage() {
                           style={{ color: item.color }}
                         />
                       )}
-                      <span className="text-sm">{item.name}</span>
+                      <span className="text-sm text-gray-900 dark:text-gray-50">{item.name}</span>
                     </div>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                       {formatCOP(item.value)}
                     </span>
                   </button>
@@ -413,12 +413,12 @@ export default function StatsPage() {
 
       {/* Bar Chart Section */}
       <div className="mt-8">
-        <h3 className="mb-4 text-sm font-medium text-gray-700">
+        <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('incomeVsExpenses.title')}
         </h3>
 
         {!hasMonthlyData ? (
-          <div className="py-12 text-center text-gray-500">
+          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
             <BarChart3 className="mx-auto mb-2 h-12 w-12 opacity-50" />
             <p>{t('incomeVsExpenses.noData')}</p>
           </div>
@@ -430,7 +430,7 @@ export default function StatsPage() {
                   dataKey="label"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: "#6B7280" }}
+                  tick={{ fontSize: 12, fill: "#9CA3AF" }}
                 />
                 <YAxis hide />
                 <Tooltip
@@ -440,6 +440,7 @@ export default function StatsPage() {
                     borderRadius: "8px",
                     border: "none",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                    backgroundColor: "var(--tooltip-bg, white)",
                   }}
                 />
                 <Bar
@@ -463,11 +464,11 @@ export default function StatsPage() {
             <div className="mt-4 flex justify-center gap-6">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-emerald-500" />
-                <span className="text-sm text-gray-600">{t('incomeVsExpenses.income')}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{t('incomeVsExpenses.income')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full bg-red-500" />
-                <span className="text-sm text-gray-600">{t('incomeVsExpenses.expenses')}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{t('incomeVsExpenses.expenses')}</span>
               </div>
             </div>
           </>
@@ -476,12 +477,12 @@ export default function StatsPage() {
 
       {/* Trend Chart Section */}
       <div className="mt-8">
-        <h3 className="mb-4 text-sm font-medium text-gray-700">
+        <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
           {t('expenseTrend.title')}
         </h3>
 
         {!hasTrendData ? (
-          <div className="py-12 text-center text-gray-500">
+          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
             <TrendingUp className="mx-auto mb-2 h-12 w-12 opacity-50" />
             <p>{t('expenseTrend.noData')}</p>
           </div>

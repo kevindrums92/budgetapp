@@ -24,7 +24,7 @@ export default function BalanceCard() {
 
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50 dark:bg-gray-950">
       <div className="mx-auto max-w-xl px-4 pt-4">
         {/* Hero Card with gradient */}
         <section className="relative overflow-hidden bg-gradient-to-br from-[#18B7B0] to-teal-800 rounded-[2rem] p-6 text-white shadow-xl shadow-teal-900/20 ring-1 ring-white/20">

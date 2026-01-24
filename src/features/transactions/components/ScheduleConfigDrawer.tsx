@@ -159,7 +159,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
 
       {/* Drawer */}
       <div
-        className="absolute inset-x-0 bottom-0 max-h-[85vh] flex flex-col rounded-t-3xl bg-white shadow-2xl"
+        className="absolute inset-x-0 bottom-0 max-h-[85vh] flex flex-col rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
         style={{
           transform: open ? `translateY(${dragOffset}px)` : "translateY(100%)",
           transition: isDragging ? "none" : "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
@@ -172,26 +172,26 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
           onTouchMove={handleDragMove}
           onTouchEnd={handleDragEnd}
         >
-          <div className="h-1 w-10 rounded-full bg-gray-300" />
+          <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
         </div>
 
         {/* Header */}
         <div
-          className="sticky top-0 z-10 bg-white border-b border-gray-200"
+          className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
           onTouchStart={handleDragStart}
           onTouchMove={handleDragMove}
           onTouchEnd={handleDragEnd}
         >
           <div className="flex items-center justify-between px-4 py-4">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("scheduleConfig.title")}
             </h3>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full p-2 hover:bg-gray-100 active:scale-95 transition-all"
+              className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
             >
-              <X className="h-5 w-5 text-gray-500" />
+              <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </button>
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
         <div className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+100px)] pt-4">
           {/* Frequency */}
               <div className="mb-6">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("scheduleConfig.frequency.label")}
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -212,7 +212,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                       className={`rounded-xl py-3 text-sm font-medium transition-colors ${
                         frequency === freq
                           ? "bg-emerald-500 text-white"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
                       }`}
                     >
                       {t(`scheduleConfig.frequency.${freq}`)}
@@ -223,7 +223,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
 
               {/* Interval */}
               <div className="mb-6">
-                <label className="mb-2 block text-sm font-medium text-gray-700">
+                <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("scheduleConfig.interval.label")}
                 </label>
                 <div className="flex items-center gap-3">
@@ -231,13 +231,13 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                     type="button"
                     onClick={() => setInterval(Math.max(1, interval - 1))}
                     disabled={interval <= 1}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
                   >
                     −
                   </button>
                   <div className="flex-1 text-center">
-                    <span className="text-2xl font-semibold text-gray-900">{interval}</span>
-                    <span className="ml-2 text-sm text-gray-500">
+                    <span className="text-2xl font-semibold text-gray-900 dark:text-gray-50">{interval}</span>
+                    <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
                       {frequency === "daily" && t(`scheduleConfig.interval.${interval === 1 ? "day" : "days"}`)}
                       {frequency === "weekly" && t(`scheduleConfig.interval.${interval === 1 ? "week" : "weeks"}`)}
                       {frequency === "monthly" && t(`scheduleConfig.interval.${interval === 1 ? "month" : "months"}`)}
@@ -247,7 +247,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                   <button
                     type="button"
                     onClick={() => setInterval(interval + 1)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
                   >
                     +
                   </button>
@@ -257,7 +257,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               {/* Day of Week (for weekly) */}
               {frequency === "weekly" && (
                 <div className="mb-6">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {t("scheduleConfig.dayOfWeek.label")}
                   </label>
                   <div className="grid grid-cols-7 gap-2">
@@ -269,7 +269,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                         className={`aspect-square rounded-xl text-xs font-medium transition-colors ${
                           dayOfWeek === index
                             ? "bg-emerald-500 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
                         }`}
                       >
                         {label}
@@ -282,7 +282,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               {/* Day of Month (for monthly) */}
               {frequency === "monthly" && (
                 <div className="mb-6">
-                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {t("scheduleConfig.dayOfMonth.label")}
                   </label>
                   <div className="flex items-center gap-3">
@@ -290,24 +290,24 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                       type="button"
                       onClick={() => setDayOfMonth(Math.max(1, dayOfMonth - 1))}
                       disabled={dayOfMonth <= 1}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
                     >
                       −
                     </button>
                     <div className="flex-1 text-center">
-                      <span className="text-2xl font-semibold text-gray-900">{dayOfMonth}</span>
-                      <span className="ml-2 text-sm text-gray-500">{t("scheduleConfig.dayOfMonth.suffix")}</span>
+                      <span className="text-2xl font-semibold text-gray-900 dark:text-gray-50">{dayOfMonth}</span>
+                      <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">{t("scheduleConfig.dayOfMonth.suffix")}</span>
                     </div>
                     <button
                       type="button"
                       onClick={() => setDayOfMonth(Math.min(31, dayOfMonth + 1))}
                       disabled={dayOfMonth >= 31}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
                     >
                       +
                     </button>
                   </div>
-                  <p className="mt-2 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                     {t("scheduleConfig.dayOfMonth.validation")}
                   </p>
                 </div>
@@ -318,14 +318,14 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                 <button
                   type="button"
                   onClick={() => setHasEndDate(!hasEndDate)}
-                  className="flex w-full items-center justify-between rounded-xl bg-gray-50 p-4"
+                  className="flex w-full items-center justify-between rounded-xl bg-gray-50 dark:bg-gray-800 p-4"
                 >
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                     {t("scheduleConfig.endDate.label")}
                   </span>
                   <div
                     className={`relative h-8 w-14 shrink-0 rounded-full transition-all duration-200 ${
-                      hasEndDate ? "bg-emerald-500" : "bg-gray-300"
+                      hasEndDate ? "bg-emerald-500" : "bg-gray-300 dark:bg-gray-600"
                     }`}
                   >
                     <span
@@ -340,11 +340,11 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                   <button
                     type="button"
                     onClick={() => setShowDatePicker(true)}
-                    className="mt-3 w-full rounded-xl border border-gray-300 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                    className="mt-3 w-full rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     <div className="flex items-center gap-2">
                       <Calendar size={18} className="text-gray-400" />
-                      <span className="text-sm text-gray-900">
+                      <span className="text-sm text-gray-900 dark:text-gray-50">
                         {endDate ? formatDate(endDate) : t("scheduleConfig.endDate.placeholder")}
                       </span>
                     </div>
@@ -353,8 +353,8 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               </div>
 
               {/* Info */}
-              <div className="rounded-xl bg-blue-50 p-4">
-                <p className="text-sm text-blue-900">
+              <div className="rounded-xl bg-blue-50 dark:bg-blue-900/30 p-4">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
                   {t("scheduleConfig.info", {
                     interval: interval > 1 ? interval : "",
                     unit: frequency === "daily" ? t(`scheduleConfig.interval.${interval === 1 ? "day" : "days"}`) :
@@ -370,7 +370,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
         </div>
 
         {/* Fixed Bottom Buttons */}
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white border-t border-gray-200 px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
           <div className="flex gap-3">
             {schedule && (
               <button
@@ -379,7 +379,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
                   onSave(null);
                   onClose();
                 }}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 active:scale-[0.98] transition-all"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-[0.98] transition-all"
               >
                 {t("scheduleConfig.delete")}
               </button>

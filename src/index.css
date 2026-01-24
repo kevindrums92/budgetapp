@@ -4,6 +4,18 @@
 
 html, body, #root { height: 100%; }
 
+/* Smooth theme transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Disable transitions during initial page load to prevent flash */
+html:not(.light):not(.dark) * {
+  transition: none !important;
+}
+
 /* Deshabilitar el gesto nativo de swipe back/forward del navegador */
 html {
   overscroll-behavior-x: none;

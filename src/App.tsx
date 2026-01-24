@@ -7,6 +7,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { ThemeProvider } from "@/features/theme";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 
@@ -41,10 +42,10 @@ import OnboardingGate from "@/features/onboarding/OnboardingGate";
 // Loading fallback component
 function PageLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="flex flex-col items-center gap-3">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-emerald-500" />
-        <p className="text-sm text-gray-500">Cargando...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-emerald-500 dark:border-gray-700 dark:border-t-emerald-400" />
+        <p className="text-sm text-gray-500 dark:text-gray-400">Cargando...</p>
       </div>
     </div>
   );
@@ -74,7 +75,7 @@ function AppFrame() {
   return (
     <>
       {/* App */}
-      <div className="min-h-dvh bg-white">
+      <div className="min-h-dvh bg-white dark:bg-gray-950">
         {!isFormRoute && <TopHeader showMonthSelector={showMonthSelector} isProfilePage={isProfilePage} />}
 
         <Suspense fallback={<PageLoader />}>
@@ -127,10 +128,12 @@ function AppFrame() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <CloudSyncGate />
-      <OnboardingGate />
-      <AppFrame />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <CloudSyncGate />
+        <OnboardingGate />
+        <AppFrame />
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }

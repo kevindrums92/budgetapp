@@ -51,7 +51,7 @@ export default function TransactionItem({
     <button
       type="button"
       onClick={handleClick}
-      className={`w-full flex items-center gap-3 bg-white px-4 py-3 active:bg-gray-50 transition-colors ${
+      className={`w-full flex items-center gap-3 bg-white dark:bg-gray-900 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-800 transition-colors ${
         isVirtual ? "opacity-50" : ""
       }`}
     >
@@ -75,21 +75,21 @@ export default function TransactionItem({
       {/* Info */}
       <div className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-1.5">
-          <p className="truncate font-semibold text-gray-900 text-sm">
+          <p className="truncate font-semibold text-gray-900 dark:text-gray-50 text-sm">
             {transaction.name}
           </p>
           {/* Show repeat icon only for active scheduled transactions */}
           {transaction.schedule?.enabled && (
-            <Repeat className="h-3 w-3 shrink-0 text-gray-400" />
+            <Repeat className="h-3 w-3 shrink-0 text-gray-400 dark:text-gray-500" />
           )}
         </div>
         <div className="flex items-center gap-1.5">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             {category?.name || transaction.category}
           </p>
           {/* Virtual transaction badge */}
           {isVirtual && (
-            <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-purple-50 text-purple-700">
+            <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
               Programada
             </span>
           )}
@@ -98,8 +98,8 @@ export default function TransactionItem({
             <span
               className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${
                 transaction.status === "pending"
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-blue-50 text-blue-700"
+                  ? "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300"
+                  : "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
               }`}
             >
               {transaction.status === "pending" ? "Pendiente" : "Planeado"}
@@ -112,7 +112,7 @@ export default function TransactionItem({
       <div className="text-right">
         <p
           className={`whitespace-nowrap font-semibold text-sm ${
-            transaction.type === "income" ? "text-emerald-600" : "text-gray-900"
+            transaction.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-100"
           }`}
         >
           {transaction.type === "income" ? "+" : "-"}{formatCOP(transaction.amount)}

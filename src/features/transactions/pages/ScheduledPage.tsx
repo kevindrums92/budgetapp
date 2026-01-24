@@ -55,18 +55,18 @@ export default function ScheduledPage() {
   const isEmpty = currentList.length === 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
       <PageHeader title={t("title")} />
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-white px-4 pt-3 pb-4">
+      <div className="flex gap-2 bg-white dark:bg-gray-900 px-4 pt-3 pb-4">
         <button
           type="button"
           onClick={() => setActiveTab("active")}
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === "active"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
           }`}
         >
           {t("tabs.active", { count: active.length })}
@@ -76,8 +76,8 @@ export default function ScheduledPage() {
           onClick={() => setActiveTab("inactive")}
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === "inactive"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
           }`}
         >
           {t("tabs.inactive", { count: inactive.length })}
@@ -87,14 +87,14 @@ export default function ScheduledPage() {
       <div className="flex-1 px-4 pt-4 pb-8">
         {/* Empty State */}
         {isEmpty && (
-          <div className="rounded-xl bg-white p-6 text-center shadow-sm">
-            <Calendar className="mx-auto h-10 w-10 text-gray-300" />
-            <p className="mt-3 text-sm font-medium text-gray-600">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 text-center shadow-sm">
+            <Calendar className="mx-auto h-10 w-10 text-gray-300 dark:text-gray-600" />
+            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">
               {activeTab === "active"
                 ? t("emptyActive.title")
                 : t("emptyInactive.title")}
             </p>
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
               {activeTab === "active"
                 ? t("emptyActive.message")
                 : t("emptyInactive.message")}

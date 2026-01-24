@@ -184,32 +184,32 @@ export default function CloudBackupList() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Cloud className="h-5 w-5 text-blue-500" />
-          <h3 className="text-base font-semibold text-gray-900">
+          <Cloud className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">
             Backups en la Nube
           </h3>
         </div>
-        <p className="text-sm text-gray-500">Cargando backups...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Cargando backups...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Cloud className="h-5 w-5 text-blue-500" />
-          <h3 className="text-base font-semibold text-gray-900">
+          <Cloud className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">
             Backups en la Nube
           </h3>
         </div>
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         <button
           type="button"
           onClick={loadBackups}
-          className="mt-3 text-sm text-blue-500 hover:underline"
+          className="mt-3 text-sm text-blue-500 dark:text-blue-400 hover:underline"
         >
           Reintentar
         </button>
@@ -219,11 +219,11 @@ export default function CloudBackupList() {
 
   return (
     <>
-      <div className="rounded-2xl bg-white p-6 shadow-sm">
+      <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Cloud className="h-5 w-5 text-blue-500" />
-            <h3 className="text-base font-semibold text-gray-900">
+            <Cloud className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50">
               Backups en la Nube
             </h3>
           </div>
@@ -231,14 +231,14 @@ export default function CloudBackupList() {
             type="button"
             onClick={handleCreateManualBackup}
             disabled={creating}
-            className="rounded-xl bg-blue-500 px-4 py-2 text-xs font-medium text-white hover:bg-blue-600 disabled:bg-gray-300"
+            className="rounded-xl bg-blue-500 px-4 py-2 text-xs font-medium text-white hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-700"
           >
             {creating ? "Creando..." : "Crear Backup"}
           </button>
         </div>
 
         {backups.length === 0 ? (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             No hay backups en la nube. Crea tu primer backup manual o espera el
             backup automático semanal.
           </p>
@@ -247,18 +247,18 @@ export default function CloudBackupList() {
             {backups.map((backup, index) => (
               <div
                 key={backup.id}
-                className="flex items-center justify-between rounded-xl border border-gray-200 p-3"
+                className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-700 p-3"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
                       {formatDate(backup.created_at)}
                     </p>
-                    <span className="rounded-md bg-blue-50 px-2 py-0.5 text-xs text-blue-600">
+                    <span className="rounded-md bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-xs text-blue-600 dark:text-blue-400">
                       {getBackupTypeLabel(backup.backup_type)}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     {backup.total_transactions} transacciones • {backup.total_trips}{" "}
                     viajes • {formatSize(backup.size_bytes)}
                   </p>
@@ -268,7 +268,7 @@ export default function CloudBackupList() {
                   <button
                     type="button"
                     onClick={() => setConfirmRestore({ backup, index })}
-                    className="rounded-lg bg-emerald-50 p-2 text-emerald-600 hover:bg-emerald-100"
+                    className="rounded-lg bg-emerald-50 dark:bg-emerald-900/30 p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
                     aria-label="Restaurar backup"
                   >
                     <Download className="h-4 w-4" />
@@ -276,7 +276,7 @@ export default function CloudBackupList() {
                   <button
                     type="button"
                     onClick={() => setConfirmDelete({ backup, index })}
-                    className="rounded-lg bg-red-50 p-2 text-red-500 hover:bg-red-100"
+                    className="rounded-lg bg-red-50 dark:bg-red-900/30 p-2 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50"
                     aria-label="Eliminar backup"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -287,7 +287,7 @@ export default function CloudBackupList() {
           </div>
         )}
 
-        <p className="mt-4 text-xs text-gray-400">
+        <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
           Los backups se eliminan automáticamente después de 30 días. Se crea un
           backup automático cada 7 días.
         </p>
@@ -300,18 +300,18 @@ export default function CloudBackupList() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setConfirmRestore(null)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               ¿Restaurar backup de la nube?
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               Esto reemplazará tus datos actuales con el backup del{" "}
               <span className="font-medium">
                 {formatDate(confirmRestore.backup.created_at)}
               </span>
               .
             </p>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
               Se creará un backup de seguridad local automáticamente antes de
               restaurar.
             </p>
@@ -319,7 +319,7 @@ export default function CloudBackupList() {
               <button
                 type="button"
                 onClick={() => setConfirmRestore(null)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Cancelar
               </button>
@@ -342,25 +342,25 @@ export default function CloudBackupList() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setConfirmDelete(null)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               ¿Eliminar backup?
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               ¿Estás seguro de que deseas eliminar el backup del{" "}
               <span className="font-medium">
                 {formatDate(confirmDelete.backup.created_at)}
               </span>
               ?
             </p>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
               Esta acción no se puede deshacer.
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Cancelar
               </button>
@@ -383,11 +383,11 @@ export default function CloudBackupList() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowResult(null)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {showResult.type === "success" ? "✅ Éxito" : "❌ Error"}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">{showResult.message}</p>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">{showResult.message}</p>
             <button
               type="button"
               onClick={() => setShowResult(null)}

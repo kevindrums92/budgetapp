@@ -5,6 +5,17 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Dark Mode Support**: Complete dark/light/system theme implementation
+  - Three theme modes: Light, Dark, and System (auto-detect from OS preference)
+  - ThemeProvider context with useTheme hook for theme management
+  - Anti-flicker script in index.html prevents flash of wrong theme on load
+  - ThemeSelector component in ProfilePage for easy theme switching
+  - All UI components updated with dark mode variants using Tailwind's `dark:` prefix
+  - Dark palette: `dark:bg-gray-950` backgrounds, `dark:bg-gray-900` cards, `dark:text-gray-50` text
+  - Splash screen adapts to dark mode (gray-950 background instead of teal)
+  - Theme preference persisted in localStorage (`app_theme`)
+
+### Added
 - **i18n: Internationalize chart month labels**: StatsPage charts now use user's locale for month abbreviations (Ago/Aug, Sept/Sep, etc.)
 - **i18n: Internationalize IconColorPicker modal**: Icon/color picker tabs and apply button now translated
 - **i18n: Internationalize category groups modals**: Category group creation/edit page now fully translated (color picker, type warning, buttons)

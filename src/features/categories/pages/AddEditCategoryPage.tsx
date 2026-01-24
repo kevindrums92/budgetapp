@@ -109,7 +109,7 @@ export default function AddEditCategoryPage() {
   const IconComponent = icons[kebabToPascal(icon) as keyof typeof icons];
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header */}
       <PageHeader
         title={isEditing ? t("form.editTitle") : t("form.newTitle")}
@@ -118,7 +118,7 @@ export default function AddEditCategoryPage() {
             <button
               type="button"
               onClick={handleDelete}
-              className="rounded-full p-2 hover:bg-red-50"
+              className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-900/30"
             >
               <Trash2 className="h-5 w-5 text-red-500" />
             </button>
@@ -143,7 +143,7 @@ export default function AddEditCategoryPage() {
                 <IconComponent className="h-10 w-10" style={{ color }} />
               )}
             </div>
-            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-gray-800 text-white shadow-lg">
+            <div className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 shadow-lg">
               <ChevronDown className="h-4 w-4" />
             </div>
           </button>
@@ -152,8 +152,8 @@ export default function AddEditCategoryPage() {
         {/* Form Fields */}
         <div className="space-y-4">
           {/* Name */}
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <label className="mb-1 block text-xs font-medium text-gray-500">
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
               {t("form.name")}
             </label>
             <input
@@ -161,13 +161,13 @@ export default function AddEditCategoryPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("form.namePlaceholder")}
-              className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
+              className="w-full text-base text-gray-900 dark:text-gray-50 bg-transparent outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
 
           {/* Type */}
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <label className="mb-2 block text-xs font-medium text-gray-500">
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
               {t("form.type")}
             </label>
             <div className="flex gap-2">
@@ -176,8 +176,8 @@ export default function AddEditCategoryPage() {
                 onClick={() => setType("expense")}
                 className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
                   type === "expense"
-                    ? "bg-gray-900 text-white"
-                    : "bg-gray-100 text-gray-600"
+                    ? "bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                 }`}
               >
                 {t("form.typeExpense")}
@@ -188,7 +188,7 @@ export default function AddEditCategoryPage() {
                 className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
                   type === "income"
                     ? "bg-emerald-500 text-white"
-                    : "bg-gray-100 text-gray-600"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                 }`}
               >
                 {t("form.typeIncome")}
@@ -197,8 +197,8 @@ export default function AddEditCategoryPage() {
           </div>
 
           {/* Group */}
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <label className="mb-1 block text-xs font-medium text-gray-500">
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
               {t("form.group")}
             </label>
             <button
@@ -206,18 +206,18 @@ export default function AddEditCategoryPage() {
               onClick={() => setShowGroupPicker(!showGroupPicker)}
               className="flex w-full items-center justify-between"
             >
-              <span className="text-base text-gray-900">
+              <span className="text-base text-gray-900 dark:text-gray-50">
                 {currentGroup?.name || t("form.selectGroup")}
               </span>
               <ChevronDown
-                className={`h-5 w-5 text-gray-400 transition-transform ${
+                className={`h-5 w-5 text-gray-400 dark:text-gray-500 transition-transform ${
                   showGroupPicker ? "rotate-180" : ""
                 }`}
               />
             </button>
 
             {showGroupPicker && (
-              <div className="mt-3 space-y-1 border-t pt-3">
+              <div className="mt-3 space-y-1 border-t border-gray-200 dark:border-gray-700 pt-3">
                 {availableGroups.map((g) => (
                   <button
                     key={g.id}
@@ -228,8 +228,8 @@ export default function AddEditCategoryPage() {
                     }}
                     className={`w-full rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
                       g.id === groupId
-                        ? "bg-emerald-50 font-medium text-emerald-700"
-                        : "text-gray-700 hover:bg-gray-50"
+                        ? "bg-emerald-50 dark:bg-emerald-900/30 font-medium text-emerald-700 dark:text-emerald-300"
+                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                     }`}
                   >
                     {g.name}
@@ -242,12 +242,12 @@ export default function AddEditCategoryPage() {
       </div>
 
       {/* Save Button */}
-      <div className="sticky bottom-0 bg-white p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="sticky bottom-0 bg-white dark:bg-gray-900 p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)]">
         <button
           type="button"
           onClick={handleSave}
           disabled={!name.trim()}
-          className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300"
+          className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300 dark:disabled:bg-gray-700"
         >
           {t("form.save")}
         </button>
@@ -270,18 +270,18 @@ export default function AddEditCategoryPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setConfirmDelete(false)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("form.delete.title")}
             </h3>
-            <p className="mb-4 text-gray-600">
+            <p className="mb-4 text-gray-600 dark:text-gray-400">
               {t("form.delete.message")}
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {t("form.delete.cancel")}
               </button>

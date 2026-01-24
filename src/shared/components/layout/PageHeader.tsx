@@ -19,17 +19,17 @@ export default function PageHeader({ title, onBack, rightActions }: Props) {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between bg-white px-4 py-4 shadow-sm">
+    <header className="sticky top-0 z-10 flex items-center justify-between bg-white dark:bg-gray-900 px-4 py-4 shadow-sm dark:shadow-black/30">
       <div className="flex items-center gap-3">
         <button
           onClick={handleBack}
-          className="text-gray-900"
+          className="text-gray-900 dark:text-gray-50"
           aria-label="Volver"
         >
           <ChevronLeft size={24} />
         </button>
         {typeof title === "string" ? (
-          <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{title}</h1>
         ) : (
           title
         )}
