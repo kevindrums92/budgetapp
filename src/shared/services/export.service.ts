@@ -59,6 +59,71 @@ export function exportTransactionsToCSV(
   downloadBlob(blob, `${filename}.csv`);
 }
 
+/**
+ * Export budget (categories with limits) to CSV
+ *
+ * @param categories - Array of category definitions
+ * @param spent - Map of category ID to spent amount
+ * @param month - Month in YYYY-MM format
+ * @param filename - Output filename (without extension)
+ */
+export function exportBudgetToCSV(
+  categories: Category[],
+  spent: Map<string, number>,
+  month: string,
+  filename: string = "presupuesto"
+): void {
+  // CSV headers
+  const headers = ["Categoría", "Límite", "Gastado", "Disponible", "Porcentaje"];
+
+  // Convert categories to CSV rows
+  const rows = categories
+    .filter((cat) => cat.monthlyLimit && cat.monthlyLimit > 0)
+    .map((cat) => {
+      const spentAmount = spent.get(cat.id) || 0;
+      const available = cat.monthlyLimit! - spentAmount;
+      const percentage = cat.monthlyLimit! > 0 ? (spentAmount / cat.monthlyLimit!) * 100 : 0;
+
+      return [
+        cat.name,
+        cat.monthlyLimit!.toString(),
+        spentAmount.toString(),
+        available.toString(),
+        percentage.toFixed(1) + "%",
+      ];
+    });
+
+  // Add summary row
+  const totalLimit = rows.reduce((sum, row) => sum + Number(row[2]), 0);
+  const totalSpent = rows.reduce((sum, row) => sum + Number(row[3]), 0);
+  const totalAvailable = totalLimit - totalSpent;
+  const totalPercentage = totalLimit > 0 ? (totalSpent / totalLimit) * 100 : 0;
+
+  rows.push([
+    "TOTAL",
+    totalLimit.toString(),
+    totalSpent.toString(),
+    totalAvailable.toString(),
+    totalPercentage.toFixed(1) + "%",
+  ]);
+
+  // Generate CSV content
+  const csvContent = [
+    [`Presupuesto del mes: ${month}`],
+    [],
+    headers.join(","),
+    ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")),
+  ]
+    .map((row) => (Array.isArray(row) ? row : row))
+    .join("\n");
+
+  // Add UTF-8 BOM for Excel compatibility
+  const bom = "\uFEFF";
+  const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+
+  // Trigger download
+  downloadBlob(blob, `${filename}-${month}.csv`);
+}
 
 /**
  * Export trips to CSV

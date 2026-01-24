@@ -37,7 +37,6 @@ describe('cloudState.service', () => {
     categories: ['food'],
     categoryDefinitions: [],
     categoryGroups: [],
-    budgets: [],
     trips: [],
     tripExpenses: [],
   };
@@ -193,7 +192,6 @@ describe('cloudState.service', () => {
             createdAt: Date.now(),
           },
         ],
-        budgets: [],
         trips: [
           {
             id: 'trip-1',
@@ -314,7 +312,6 @@ describe('cloudState.service', () => {
         categories: [],
         categoryDefinitions: [],
         categoryGroups: [],
-        budgets: [],
         trips: [],
         tripExpenses: [],
       };
@@ -350,7 +347,6 @@ describe('cloudState.service', () => {
         categories: ['food'],
         categoryDefinitions: [],
         categoryGroups: [],
-        budgets: [],
         trips: [],
         tripExpenses: [],
       };
