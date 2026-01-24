@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { icons, Repeat } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/shared/components/layout/PageHeader";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
 // Format date for display
@@ -20,6 +20,7 @@ function formatDate(dateStr: string) {
 export default function CategoryMonthDetailPage() {
   const { categoryId, month } = useParams<{ categoryId: string; month: string }>();
   const navigate = useNavigate();
+  const { formatAmount } = useCurrency();
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -103,7 +104,7 @@ export default function CategoryMonthDetailPage() {
 
         {/* Total */}
         <p className="text-4xl font-bold text-gray-900 mb-2">
-          {formatCOP(totalSpent)}
+          {formatAmount(totalSpent)}
         </p>
         <p className="text-sm text-gray-500">
           {filteredTransactions.length}{" "}
@@ -149,7 +150,7 @@ export default function CategoryMonthDetailPage() {
                 {/* Amount */}
                 <div className="text-right">
                   <p className="whitespace-nowrap font-semibold text-sm text-gray-900">
-                    -{formatCOP(transaction.amount)}
+                    -{formatAmount(transaction.amount)}
                   </p>
                 </div>
               </button>

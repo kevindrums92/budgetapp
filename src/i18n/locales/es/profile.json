@@ -20,7 +20,10 @@
     },
     "currency": {
       "label": "Moneda",
-      "changed": "Moneda actualizada"
+      "changed": "Moneda actualizada",
+      "search": "Buscar moneda...",
+      "noResults": "No se encontraron monedas",
+      "recommended": "Recomendada para ti"
     }
   },
   "account": {

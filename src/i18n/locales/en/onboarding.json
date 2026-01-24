@@ -109,6 +109,9 @@
   "currency": {
     "title": "Choose your currency",
     "description": "Select the main currency for your financial records.",
+    "search": "Search currency...",
+    "recommended": "Recommended for you",
+    "noResults": "No currency found",
     "continue": "Continue",
     "skip": "Skip setup",
     "note": "For now it's only used as a visual reference. Multi-currency will be available soon."

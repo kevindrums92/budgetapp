@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Pencil, Power, X } from "lucide-react";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { useBudgetStore } from "@/state/budget.store";
 import {
   materializeTransaction,
@@ -21,6 +21,7 @@ export default function VirtualTransactionModal({
   onClose,
 }: VirtualTransactionModalProps) {
   const navigate = useNavigate();
+  const { formatAmount } = useCurrency();
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
   const transactions = useBudgetStore((s) => s.transactions);
@@ -107,7 +108,7 @@ export default function VirtualTransactionModal({
           </div>
           <div className="text-lg font-semibold text-gray-900 dark:text-gray-50">
             {transaction.type === "income" ? "+" : "-"}
-            {formatCOP(transaction.amount)}
+            {formatAmount(transaction.amount)}
           </div>
         </div>
 

@@ -27,13 +27,13 @@ export default function Screen4_HabitsAnalysis() {
       {/* Header */}
       <div className="mb-6">
         <SlideAnimation direction="right" delay={0}>
-          <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+          <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
             {t('welcome.screen4.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
-          <p className="text-base leading-relaxed text-gray-600">
+          <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
             {t('welcome.screen4.subtitle')}
           </p>
         </SlideAnimation>
@@ -41,10 +41,10 @@ export default function Screen4_HabitsAnalysis() {
 
       {/* Chart Example */}
       <SlideAnimation direction="up" delay={100}>
-        <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
+        <div className="mb-6 rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
           {/* Chart Title */}
           <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">{t('welcome.screen4.chartTitle')}</p>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('welcome.screen4.chartTitle')}</p>
             <div className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1">
               <TrendingUp size={12} className="text-emerald-600" strokeWidth={3} />
               <span className="text-xs font-bold text-emerald-600">-12%</span>
@@ -64,14 +64,14 @@ export default function Screen4_HabitsAnalysis() {
           </div>
 
           {/* Chart Stats */}
-          <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+          <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-3">
             <div>
-              <p className="text-xs text-gray-500">{t('welcome.screen4.avgDaily')}</p>
-              <p className="font-bold text-gray-900">$ 45.000</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('welcome.screen4.avgDaily')}</p>
+              <p className="font-bold text-gray-900 dark:text-gray-50">$ 45.000</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-500">{t('welcome.screen4.weeklyTotal')}</p>
-              <p className="font-bold text-gray-900">$ 315.000</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('welcome.screen4.weeklyTotal')}</p>
+              <p className="font-bold text-gray-900 dark:text-gray-50">$ 315.000</p>
             </div>
           </div>
         </div>
@@ -85,8 +85,8 @@ export default function Screen4_HabitsAnalysis() {
               <Calendar size={18} className="text-purple-600" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{t('welcome.screen4.insight1Title')}</p>
-              <p className="text-sm text-gray-600">{t('welcome.screen4.insight1Desc')}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-50">{t('welcome.screen4.insight1Title')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('welcome.screen4.insight1Desc')}</p>
             </div>
           </div>
         </SlideAnimation>
@@ -97,8 +97,8 @@ export default function Screen4_HabitsAnalysis() {
               <DollarSign size={18} className="text-blue-600" strokeWidth={2.5} />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{t('welcome.screen4.insight2Title')}</p>
-              <p className="text-sm text-gray-600">{t('welcome.screen4.insight2Desc')}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-50">{t('welcome.screen4.insight2Title')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('welcome.screen4.insight2Desc')}</p>
             </div>
           </div>
         </SlideAnimation>
@@ -106,7 +106,7 @@ export default function Screen4_HabitsAnalysis() {
 
       {/* CTA Button - Fixed Bottom */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent px-6 pt-8"
+        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
         style={{
           paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
         }}

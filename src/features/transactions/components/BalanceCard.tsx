@@ -2,10 +2,11 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 
 export default function BalanceCard() {
   const { t } = useTranslation('home');
+  const { formatAmount } = useCurrency();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
 
@@ -41,7 +42,7 @@ export default function BalanceCard() {
 
             {/* Balance Amount */}
             <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-4xl font-bold tracking-tight">{formatCOP(totals.balance)}</span>
+              <span className="text-4xl font-bold tracking-tight">{formatAmount(totals.balance)}</span>
             </div>
 
             {/* Income / Expense Grid */}
@@ -55,7 +56,7 @@ export default function BalanceCard() {
                   <p className="text-[10px] text-teal-200 uppercase tracking-wider font-semibold opacity-80">
                     {t('balanceCard.income')}
                   </p>
-                  <p className="text-sm font-bold text-white">+{formatCOP(totals.income)}</p>
+                  <p className="text-sm font-bold text-white">+{formatAmount(totals.income)}</p>
                 </div>
               </div>
 
@@ -68,7 +69,7 @@ export default function BalanceCard() {
                   <p className="text-[10px] text-rose-200 uppercase tracking-wider font-semibold opacity-80">
                     {t('balanceCard.expenses')}
                   </p>
-                  <p className="text-sm font-bold text-white">-{formatCOP(totals.expense)}</p>
+                  <p className="text-sm font-bold text-white">-{formatAmount(totals.expense)}</p>
                 </div>
               </div>
             </div>

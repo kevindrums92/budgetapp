@@ -150,18 +150,18 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50">
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header con icono de seguridad */}
       <div className="flex flex-col items-center px-6 pt-12 pb-8">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
           <Shield size={40} className="text-white" strokeWidth={2.5} />
         </div>
 
-        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
           {t('login.title')}
         </h1>
 
-        <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
+        <p className="max-w-md text-center text-base leading-relaxed text-gray-600 dark:text-gray-400">
           {t('login.subtitle')}
         </p>
       </div>
@@ -170,7 +170,7 @@ export default function LoginScreen() {
       <div className="mx-6 mb-8">
         <div className="flex items-start gap-2">
           <Shield className="h-4 w-4 shrink-0 text-emerald-600" />
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             {t('login.privacyNote')}
           </p>
         </div>
@@ -199,10 +199,10 @@ export default function LoginScreen() {
           {/* 2. Separador */}
           <div className="relative py-2">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200" />
+              <div className="w-full border-t border-gray-200 dark:border-gray-700" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-gray-50 px-2 text-gray-600">{t('login.divider')}</span>
+              <span className="bg-gray-50 dark:bg-gray-950 px-2 text-gray-600 dark:text-gray-400">{t('login.divider')}</span>
             </div>
           </div>
 
@@ -213,12 +213,12 @@ export default function LoginScreen() {
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white p-3 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
-                <Chrome className="h-5 w-5 text-gray-700" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-gray-900 shadow-sm">
+                <Chrome className="h-5 w-5 text-gray-700 dark:text-gray-300" />
               </div>
-              <span className="text-sm font-medium text-gray-900">{t('login.google')}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.google')}</span>
               {loading && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
             </button>
 
@@ -227,12 +227,12 @@ export default function LoginScreen() {
               type="button"
               onClick={() => handleComingSoon('apple')}
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white p-3 shadow-sm opacity-60 transition-all active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm opacity-60 transition-all active:scale-[0.98]"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black">
                 <Apple className="h-5 w-5 text-white" />
               </div>
-              <span className="text-sm font-medium text-gray-900">{t('login.apple')}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.apple')}</span>
             </button>
           </div>
 
@@ -249,13 +249,13 @@ export default function LoginScreen() {
 
         {/* Error Message */}
         {error && (
-          <div className="mt-4 rounded-xl bg-red-50 p-3 text-center text-sm text-red-700">
+          <div className="mt-4 rounded-xl bg-red-50 dark:bg-red-900/20 p-3 text-center text-sm text-red-700 dark:text-red-300">
             {error}
           </div>
         )}
 
         {/* Privacy Notice */}
-        <p className="mt-6 text-center text-xs leading-relaxed text-gray-500">
+        <p className="mt-6 text-center text-xs leading-relaxed text-gray-500 dark:text-gray-400">
           {t('login.termsPrefix')}{' '}
           <button type="button" className="font-medium text-[#18B7B0] underline">
             {t('login.termsService')}

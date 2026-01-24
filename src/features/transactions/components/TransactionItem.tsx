@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { icons, Repeat } from "lucide-react";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import type { Transaction, Category } from "@/types/budget.types";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import { isVirtualTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
@@ -20,6 +20,7 @@ export default function TransactionItem({
   category,
 }: TransactionItemProps) {
   const navigate = useNavigate();
+  const { formatAmount } = useCurrency();
   const [showModal, setShowModal] = useState(false);
 
   const IconComponent = category
@@ -115,7 +116,7 @@ export default function TransactionItem({
             transaction.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-100"
           }`}
         >
-          {transaction.type === "income" ? "+" : "-"}{formatCOP(transaction.amount)}
+          {transaction.type === "income" ? "+" : "-"}{formatAmount(transaction.amount)}
         </p>
       </div>
     </button>

@@ -20,7 +20,7 @@ export default function ProgressDots({
     const percentage = (current / total) * 100;
 
     return (
-      <div className="flex h-2 w-24 items-center overflow-hidden rounded-full bg-gray-200">
+      <div className="flex h-2 w-24 items-center overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
         <div
           className="h-full rounded-full bg-[#18B7B0] transition-all duration-300"
           style={{ width: `${percentage}%` }}
@@ -45,7 +45,7 @@ export default function ProgressDots({
                 ? 'w-6 bg-[#18B7B0]'
                 : isPast
                   ? 'w-2 bg-[#18B7B0] opacity-50'
-                  : 'w-2 bg-gray-300'
+                  : 'w-2 bg-gray-300 dark:bg-gray-600'
             }`}
             aria-label={`Paso ${dotNumber} de ${total}`}
             aria-current={isActive ? 'step' : undefined}

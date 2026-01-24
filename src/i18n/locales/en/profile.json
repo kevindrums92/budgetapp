@@ -20,7 +20,10 @@
     },
     "currency": {
       "label": "Currency",
-      "changed": "Currency updated"
+      "changed": "Currency updated",
+      "search": "Search currency...",
+      "noResults": "No currencies found",
+      "recommended": "Recommended for you"
     }
   },
   "account": {

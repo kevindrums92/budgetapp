@@ -36,13 +36,13 @@ export default function Screen5_AutomatedMovements() {
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
-          <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+          <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
             {t('welcome.screen5.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={100}>
-          <p className="text-base leading-relaxed text-gray-600">
+          <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
             {t('welcome.screen5.subtitle')}
           </p>
         </SlideAnimation>
@@ -51,7 +51,7 @@ export default function Screen5_AutomatedMovements() {
       {/* Timeline of Recurring Transactions */}
       <div className="relative mb-6 space-y-4">
         {/* Vertical Line */}
-        <div className="absolute left-5 top-6 bottom-6 w-0.5 bg-gray-200" />
+        <div className="absolute left-5 top-6 bottom-6 w-0.5 bg-gray-200 dark:bg-gray-700" />
 
         <SlideAnimation direction="up" delay={150}>
           {/* Transaction 1 - Netflix */}
@@ -59,13 +59,13 @@ export default function Screen5_AutomatedMovements() {
             <div className="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 shadow-sm">
               <Wifi size={18} className="text-red-600" strokeWidth={2.5} />
             </div>
-            <div className="flex-1 rounded-xl bg-white p-4 shadow-sm">
+            <div className="flex-1 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
               <div className="mb-1 flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-gray-900">{t('welcome.screen5.netflix')}</p>
-                  <p className="text-xs text-gray-500">{t('welcome.screen5.every1st')}</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-50">{t('welcome.screen5.netflix')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('welcome.screen5.every1st')}</p>
                 </div>
-                <p className="font-bold text-gray-900">$ 45.000</p>
+                <p className="font-bold text-gray-900 dark:text-gray-50">$ 45.000</p>
               </div>
               <div className="mt-2 flex items-center gap-1">
                 <div className="h-1 w-1 rounded-full bg-emerald-500" />
@@ -81,13 +81,13 @@ export default function Screen5_AutomatedMovements() {
             <div className="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 shadow-sm">
               <Calendar size={18} className="text-blue-600" strokeWidth={2.5} />
             </div>
-            <div className="flex-1 rounded-xl bg-white p-4 shadow-sm">
+            <div className="flex-1 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
               <div className="mb-1 flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-gray-900">{t('welcome.screen5.rent')}</p>
-                  <p className="text-xs text-gray-500">{t('welcome.screen5.every5th')}</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-50">{t('welcome.screen5.rent')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('welcome.screen5.every5th')}</p>
                 </div>
-                <p className="font-bold text-gray-900">$ 800.000</p>
+                <p className="font-bold text-gray-900 dark:text-gray-50">$ 800.000</p>
               </div>
               <div className="mt-2 flex items-center gap-1">
                 <div className="h-1 w-1 rounded-full bg-emerald-500" />
@@ -103,13 +103,13 @@ export default function Screen5_AutomatedMovements() {
             <div className="z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 shadow-sm">
               <CreditCard size={18} className="text-purple-600" strokeWidth={2.5} />
             </div>
-            <div className="flex-1 rounded-xl bg-white p-4 shadow-sm">
+            <div className="flex-1 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
               <div className="mb-1 flex items-start justify-between">
                 <div>
-                  <p className="font-semibold text-gray-900">{t('welcome.screen5.credit')}</p>
-                  <p className="text-xs text-gray-500">{t('welcome.screen5.every15th')}</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-50">{t('welcome.screen5.credit')}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('welcome.screen5.every15th')}</p>
                 </div>
-                <p className="font-bold text-gray-900">$ 250.000</p>
+                <p className="font-bold text-gray-900 dark:text-gray-50">$ 250.000</p>
               </div>
               <div className="mt-2 flex items-center gap-1">
                 <div className="h-1 w-1 rounded-full bg-emerald-500" />
@@ -122,8 +122,8 @@ export default function Screen5_AutomatedMovements() {
 
       {/* Info callout */}
       <SlideAnimation direction="up" delay={300}>
-        <div className="rounded-xl bg-emerald-50 p-4">
-          <p className="text-sm leading-relaxed text-gray-700">
+        <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-4">
+          <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
             {t('welcome.screen5.reminderNote')}
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function Screen5_AutomatedMovements() {
 
       {/* CTA Button - Fixed Bottom */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent px-6 pt-8"
+        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
         style={{
           paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
         }}

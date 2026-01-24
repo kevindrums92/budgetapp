@@ -36,13 +36,13 @@ export default function Screen2_QuickRegister() {
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={50}>
-          <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+          <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
             {t('welcome.screen2.title')}
           </h1>
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={100}>
-          <p className="text-base leading-relaxed text-gray-600">
+          <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
             {t('welcome.screen2.subtitle')}
           </p>
         </SlideAnimation>
@@ -50,34 +50,34 @@ export default function Screen2_QuickRegister() {
 
       {/* Visual Form Preview */}
       <SlideAnimation direction="up" delay={150}>
-        <div className="mb-6 space-y-3 rounded-2xl bg-white p-6 shadow-lg">
+        <div className="mb-6 space-y-3 rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-lg">
           {/* Email Field */}
-          <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
+          <div className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
             <Mail size={20} className="text-gray-400" />
             <div className="flex-1">
-              <div className="h-2 w-32 rounded bg-gray-200" />
+              <div className="h-2 w-32 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
             <div className="h-6 w-6 rounded-full bg-emerald-500 flex items-center justify-center">
-              <div className="h-2 w-2 rounded-full bg-white" />
+              <div className="h-2 w-2 rounded-full bg-white dark:bg-gray-900" />
             </div>
           </div>
 
           {/* Password Field */}
-          <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
+          <div className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
             <Lock size={20} className="text-gray-400" />
             <div className="flex-1">
-              <div className="h-2 w-24 rounded bg-gray-200" />
+              <div className="h-2 w-24 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
             <div className="h-6 w-6 rounded-full bg-emerald-500 flex items-center justify-center">
-              <div className="h-2 w-2 rounded-full bg-white" />
+              <div className="h-2 w-2 rounded-full bg-white dark:bg-gray-900" />
             </div>
           </div>
 
           {/* Name Field */}
-          <div className="flex items-center gap-3 rounded-xl bg-gray-50 p-4">
+          <div className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
             <User size={20} className="text-gray-400" />
             <div className="flex-1">
-              <div className="h-2 w-28 rounded bg-gray-200" />
+              <div className="h-2 w-28 rounded bg-gray-200 dark:bg-gray-700" />
             </div>
             <div className="h-6 w-6 rounded-full border-2 border-gray-300" />
           </div>
@@ -92,8 +92,8 @@ export default function Screen2_QuickRegister() {
               <div className="h-2 w-2 rounded-full bg-emerald-600" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{t('welcome.screen2.feature1Title')}</p>
-              <p className="text-sm text-gray-600">{t('welcome.screen2.feature1Desc')}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-50">{t('welcome.screen2.feature1Title')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('welcome.screen2.feature1Desc')}</p>
             </div>
           </div>
 
@@ -102,8 +102,8 @@ export default function Screen2_QuickRegister() {
               <div className="h-2 w-2 rounded-full bg-blue-600" />
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{t('welcome.screen2.feature2Title')}</p>
-              <p className="text-sm text-gray-600">{t('welcome.screen2.feature2Desc')}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-50">{t('welcome.screen2.feature2Title')}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('welcome.screen2.feature2Desc')}</p>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function Screen2_QuickRegister() {
 
       {/* CTA Button - Fixed Bottom */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent px-6 pt-8"
+        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
         style={{
           paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
         }}

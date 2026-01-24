@@ -6,7 +6,7 @@ import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, Ch
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
 import ScheduleConfigDrawer from "@/features/transactions/components/ScheduleConfigDrawer";
@@ -27,6 +27,7 @@ function getDateBefore(dateStr: string): string {
 export default function AddEditTransactionPage() {
   const { t } = useTranslation("transactions");
   const { getLocale } = useLanguage();
+  const { formatAmount, currencyInfo } = useCurrency();
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
@@ -429,7 +430,7 @@ export default function AddEditTransactionPage() {
         <div className="text-center">
           <p className="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">{t("form.amount")}</p>
           <div className="flex items-center justify-center px-4">
-            <span className={`${amountFontSize} font-semibold tracking-tight ${type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"}`}>$</span>
+            <span className={`${amountFontSize} font-semibold tracking-tight ${type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"}`}>{currencyInfo.symbol}</span>
             <input
               type="text"
               inputMode="decimal"
@@ -718,7 +719,7 @@ export default function AddEditTransactionPage() {
       <ConfirmDialog
         open={confirmDelete}
         title={t("form.delete.title")}
-        message={t("form.delete.message", { name: tx?.name || "", amount: tx ? formatCOP(tx.amount) : "" })}
+        message={t("form.delete.message", { name: tx?.name || "", amount: tx ? formatAmount(tx.amount) : "" })}
         confirmText={t("form.delete.confirm")}
         cancelText={t("form.delete.cancel")}
         destructive

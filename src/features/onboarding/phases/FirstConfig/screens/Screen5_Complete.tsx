@@ -60,7 +60,7 @@ export default function Screen4_Complete() {
   const selectedCategoriesCount = state.selections.selectedCategories?.length || DEFAULT_CATEGORIES.length;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50">
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
       {/* Progress - All complete */}
       <div className="flex gap-1.5 px-6 pt-4">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
@@ -76,19 +76,19 @@ export default function Screen4_Complete() {
           <Sparkles size={40} className="text-white" strokeWidth={2.5} />
         </div>
 
-        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
           {t('complete.title')}
         </h1>
 
-        <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
+        <p className="max-w-md text-center text-base leading-relaxed text-gray-600 dark:text-gray-400">
           {t('complete.subtitle')}
         </p>
       </div>
 
       {/* Configuration summary */}
       <div className="flex-1 px-6">
-        <div className="mb-6 rounded-2xl bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-gray-700">
+        <div className="mb-6 rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
             {t('complete.configTitle')}
           </h2>
 
@@ -96,12 +96,12 @@ export default function Screen4_Complete() {
             {/* Language */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">{t('complete.language')}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.language')}</span>
               </div>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                 {state.selections.language === 'es' ? t('complete.languageEs') : t('complete.languageEn')}
               </span>
             </div>
@@ -109,12 +109,12 @@ export default function Screen4_Complete() {
             {/* Theme */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">{t('complete.theme')}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.theme')}</span>
               </div>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                 {state.selections.theme === 'light'
                   ? t('complete.themeLight')
                   : state.selections.theme === 'dark'
@@ -126,12 +126,12 @@ export default function Screen4_Complete() {
             {/* Currency */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">{t('complete.currency')}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.currency')}</span>
               </div>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                 {state.selections.currency || 'COP'}
               </span>
             </div>
@@ -139,12 +139,12 @@ export default function Screen4_Complete() {
             {/* Categories */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
                   <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
                 </div>
-                <span className="text-sm text-gray-600">{t('complete.categories')}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.categories')}</span>
               </div>
-              <span className="text-sm font-medium text-gray-900">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                 {selectedCategoriesCount} {t('complete.categoriesSelected')}
               </span>
             </div>
@@ -153,23 +153,23 @@ export default function Screen4_Complete() {
 
         {/* Features preview */}
         <div className="space-y-2">
-          <div className="rounded-xl bg-white p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900">{t('complete.feature1')}</p>
-            <p className="mt-0.5 text-xs text-gray-600">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature1')}</p>
+            <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
               {t('complete.feature1Desc')}
             </p>
           </div>
 
-          <div className="rounded-xl bg-white p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900">{t('complete.feature2')}</p>
-            <p className="mt-0.5 text-xs text-gray-600">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature2')}</p>
+            <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
               {t('complete.feature2Desc')}
             </p>
           </div>
 
-          <div className="rounded-xl bg-white p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900">{t('complete.feature3')}</p>
-            <p className="mt-0.5 text-xs text-gray-600">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature3')}</p>
+            <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
               {t('complete.feature3Desc')}
             </p>
           </div>
@@ -187,7 +187,7 @@ export default function Screen4_Complete() {
           <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </button>
 
-        <p className="mt-4 text-center text-xs text-gray-500">
+        <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
           {t('complete.note')}
         </p>
       </div>

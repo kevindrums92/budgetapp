@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { icons, Plus, ChevronRight, Download } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import SetLimitModal from "@/features/categories/components/SetLimitModal";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
 import type { Category } from "@/types/budget.types";
@@ -29,6 +29,7 @@ function getTextColor(spent: number, limit: number | undefined): string {
 export default function BudgetPage() {
   const { t } = useTranslation('budget');
   const navigate = useNavigate();
+  const { formatAmount } = useCurrency();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
@@ -148,9 +149,9 @@ export default function BudgetPage() {
           <div className="flex items-center justify-between mb-1">
             <span className="font-medium text-gray-900 dark:text-gray-50 truncate">{category.name}</span>
             <span className={`text-sm font-medium ${getTextColor(spent, limit)}`}>
-              {formatCOP(spent)}
+              {formatAmount(spent)}
               {showLimit && limit && (
-                <span className="text-gray-400 dark:text-gray-500">/{formatCOP(limit)}</span>
+                <span className="text-gray-400 dark:text-gray-500">/{formatAmount(limit)}</span>
               )}
             </span>
           </div>
@@ -188,7 +189,7 @@ export default function BudgetPage() {
               <div>
                 <p className="text-xs text-gray-400 dark:text-gray-500">{t('summary.budgeted')}</p>
                 <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                  {formatCOP(totals.totalBudgeted)}
+                  {formatAmount(totals.totalBudgeted)}
                 </p>
               </div>
               <div>
@@ -200,7 +201,7 @@ export default function BudgetPage() {
                       : "text-gray-900 dark:text-gray-50"
                   }`}
                 >
-                  {formatCOP(totals.totalSpent)}
+                  {formatAmount(totals.totalSpent)}
                 </p>
               </div>
             </div>

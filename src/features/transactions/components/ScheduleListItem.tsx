@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
 import { icons, Power } from "lucide-react";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import { formatScheduleFrequency, formatNextDate } from "@/shared/utils/schedule.utils";
 import { calculateNextDate } from "@/shared/services/scheduler.service";
@@ -24,6 +24,7 @@ export default function ScheduleListItem({
 }: ScheduleListItemProps) {
   const { t } = useTranslation("scheduled");
   const { getLocale } = useLanguage();
+  const { formatAmount } = useCurrency();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const IconComponent = category
@@ -95,7 +96,7 @@ export default function ScheduleListItem({
             }`}
           >
             {transaction.type === "income" ? "+" : "-"}
-            {formatCOP(transaction.amount)}
+            {formatAmount(transaction.amount)}
           </p>
 
           {/* Frequency */}

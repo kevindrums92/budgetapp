@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import { ThemeProvider } from "@/features/theme";
+import { CurrencyProvider } from "@/features/currency";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 
@@ -129,11 +130,13 @@ function AppFrame() {
 export default function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <CloudSyncGate />
-        <OnboardingGate />
-        <AppFrame />
-      </BrowserRouter>
+      <CurrencyProvider>
+        <BrowserRouter>
+          <CloudSyncGate />
+          <OnboardingGate />
+          <AppFrame />
+        </BrowserRouter>
+      </CurrencyProvider>
     </ThemeProvider>
   );
 }

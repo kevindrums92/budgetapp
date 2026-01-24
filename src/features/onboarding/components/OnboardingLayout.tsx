@@ -37,7 +37,7 @@ export default function OnboardingLayout({
   const { t } = useTranslation('common');
   return (
     <div
-      className={`relative flex min-h-dvh flex-col bg-gray-50 ${className}`}
+      className={`relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950 ${className}`}
       style={{
         paddingTop: 'max(env(safe-area-inset-top), 16px)',
         paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
@@ -50,10 +50,10 @@ export default function OnboardingLayout({
           <button
             type="button"
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100"
+            className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
             aria-label="Volver"
           >
-            <ChevronLeft size={24} className="text-gray-700" />
+            <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
           </button>
         ) : (
           <div className="h-10 w-10" /> // Spacer
@@ -69,7 +69,7 @@ export default function OnboardingLayout({
           <button
             type="button"
             onClick={onSkip}
-            className="px-4 py-2 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700"
+            className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
           >
             {skipLabel || t('buttons.skip')}
           </button>

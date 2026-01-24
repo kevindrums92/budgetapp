@@ -112,14 +112,14 @@ export default function Screen4_Categories() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50">
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
       {/* Progress */}
       <div className="flex gap-1.5 px-6 pt-4">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
       </div>
 
       {/* Header */}
@@ -128,11 +128,11 @@ export default function Screen4_Categories() {
           <FolderKanban size={40} className="text-white" strokeWidth={2.5} />
         </div>
 
-        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
           {t('categories.title')}
         </h1>
 
-        <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
+        <p className="max-w-md text-center text-base leading-relaxed text-gray-600 dark:text-gray-400">
           {t('categories.description')}
         </p>
       </div>
@@ -145,7 +145,7 @@ export default function Screen4_Categories() {
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === 'expense'
               ? 'bg-gray-900 text-white'
-              : 'bg-white text-gray-600'
+              : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400'
           }`}
         >
           {t('categories.expenses')}
@@ -156,7 +156,7 @@ export default function Screen4_Categories() {
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === 'income'
               ? 'bg-emerald-500 text-white'
-              : 'bg-white text-gray-600'
+              : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400'
           }`}
         >
           {t('categories.income')}
@@ -169,7 +169,7 @@ export default function Screen4_Categories() {
           {categoriesByGroup.map(({ group, categories }) => (
             <div key={group.id}>
               {/* Group header */}
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 {group.name}
               </h3>
 
@@ -186,7 +186,7 @@ export default function Screen4_Categories() {
                       key={catId}
                       type="button"
                       onClick={() => toggleCategory(catId)}
-                      className={`flex w-full items-center justify-between rounded-xl bg-white p-3 shadow-sm transition-all active:scale-[0.98] ${
+                      className={`flex w-full items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] ${
                         !isSelected ? 'opacity-50' : ''
                       }`}
                     >
@@ -199,7 +199,7 @@ export default function Screen4_Categories() {
                             <IconComponent className="h-5 w-5" style={{ color: category.color }} />
                           )}
                         </div>
-                        <span className="text-sm font-medium text-gray-900">
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
                           {categoryName}
                         </span>
                       </div>
@@ -208,7 +208,7 @@ export default function Screen4_Categories() {
                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
                           isSelected
                             ? 'bg-emerald-500'
-                            : 'bg-gray-200'
+                            : 'bg-gray-200 dark:bg-gray-700'
                         }`}
                       >
                         {isSelected && (
@@ -224,15 +224,15 @@ export default function Screen4_Categories() {
         </div>
 
         {/* Disclaimer */}
-        <div className="rounded-xl bg-blue-50 p-4 mb-4">
-          <p className="text-sm text-blue-900 leading-relaxed">
+        <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4 mb-4">
+          <p className="text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
             {t('categories.note')}
           </p>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="fixed inset-x-0 bottom-0 z-30 bg-white px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-900 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button
           type="button"
           onClick={handleContinue}

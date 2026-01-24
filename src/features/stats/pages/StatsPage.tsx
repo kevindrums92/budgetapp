@@ -18,7 +18,7 @@ import { icons, PieChart as PieChartIcon, BarChart3, TrendingUp } from "lucide-r
 import { useBudgetStore } from "@/state/budget.store";
 import { monthLabel } from "@/services/dates.service";
 import { useLanguage } from "@/hooks/useLanguage";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
 // Get last N months as YYYY-MM strings
@@ -70,6 +70,7 @@ type TrendData = {
 export default function StatsPage() {
   const { t } = useTranslation('stats');
   const { getLocale } = useLanguage();
+  const { formatAmount } = useCurrency();
   const navigate = useNavigate();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -263,7 +264,7 @@ export default function StatsPage() {
           <div className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
             <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.dailyAverage')}</p>
             <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {formatCOP(quickStats.dailyAverage)}
+              {formatAmount(quickStats.dailyAverage)}
             </p>
           </div>
 
@@ -368,7 +369,7 @@ export default function StatsPage() {
               {/* Center label */}
               <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-                  {formatCOP(totalExpenses)}
+                  {formatAmount(totalExpenses)}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">{t('expensesByCategory.spent')}</span>
               </div>
@@ -401,7 +402,7 @@ export default function StatsPage() {
                       <span className="text-sm text-gray-900 dark:text-gray-50">{item.name}</span>
                     </div>
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                      {formatCOP(item.value)}
+                      {formatAmount(item.value)}
                     </span>
                   </button>
                 );
@@ -434,7 +435,7 @@ export default function StatsPage() {
                 />
                 <YAxis hide />
                 <Tooltip
-                  formatter={(value) => formatCOP(Number(value))}
+                  formatter={(value) => formatAmount(Number(value))}
                   labelFormatter={(label) => String(label)}
                   contentStyle={{
                     borderRadius: "8px",
@@ -498,7 +499,7 @@ export default function StatsPage() {
               />
               <YAxis hide />
               <Tooltip
-                formatter={(value) => formatCOP(Number(value))}
+                formatter={(value) => formatAmount(Number(value))}
                 labelFormatter={(label) => String(label)}
                 contentStyle={{
                   borderRadius: "8px",

@@ -6,13 +6,14 @@ import TransactionList from "@/features/transactions/components/TransactionList"
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";
 import ScheduledBanner from "@/features/transactions/components/ScheduledBanner";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { generateVirtualTransactions, generatePastDueTransactions, materializeTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 import { todayISO } from "@/services/dates.service";
 
 export default function HomePage() {
   const { t } = useTranslation('home');
+  const { formatAmount } = useCurrency();
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
@@ -161,7 +162,7 @@ export default function HomePage() {
                   {t('dailyBudget.remaining', { count: dailyBudgetInfo.daysRemaining })}
                 </p>
                 <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight">
-                  {t('dailyBudget.couldSpend', { amount: formatCOP(dailyBudgetInfo.dailyBudget) })}
+                  {t('dailyBudget.couldSpend', { amount: formatAmount(dailyBudgetInfo.dailyBudget) })}
                 </p>
               </div>
             </div>

@@ -5,6 +5,21 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Multi-Currency Support**: Complete currency selection system with 50+ currencies
+  - CurrencyProvider context with useCurrency hook for currency management
+  - Auto-detection of user's currency based on timezone and locale
+  - CurrencySelector modal component for ProfilePage
+  - Dynamic amount formatting via `formatAmount()` replacing hardcoded `formatCOP()`
+  - Grouped currencies by region (America, Europe, Asia, Africa) with search
+  - Screen3_Currency in onboarding redesigned with recommended currency and search
+  - Currency preference persisted in localStorage (`app_currency`)
+  - Migrated 11 components from formatCOP to useCurrency hook
+- **Dark Mode for Onboarding**: All onboarding screens now respect system/user theme preference
+  - Updated OnboardingLayout, FeatureCard, ProgressDots components
+  - Updated all 6 WelcomeOnboarding screens (Screen1-Screen6)
+  - Updated all 5 FirstConfig screens (Language, Theme, Currency, Categories, Complete)
+  - Updated LoginScreen with proper dark mode classes
+
 - **Dark Mode Support**: Complete dark/light/system theme implementation
   - Three theme modes: Light, Dark, and System (auto-detect from OS preference)
   - ThemeProvider context with useTheme hook for theme management

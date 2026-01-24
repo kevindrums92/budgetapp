@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const MONTHS = [
@@ -25,6 +25,7 @@ function addMonths(monthKey: string, delta: number) {
 }
 
 export default function HeaderBalance() {
+  const { formatAmount } = useCurrency();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const setSelectedMonth = useBudgetStore((s) => s.setSelectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
@@ -78,7 +79,7 @@ export default function HeaderBalance() {
         {/* Balance */}
         <div className="text-center mb-4">
           <p className={`text-3xl font-bold tracking-tight ${balanceColor}`}>
-            {formatCOP(totals.balance)}
+            {formatAmount(totals.balance)}
           </p>
           <p className="text-xs text-gray-400 mt-1">balance</p>
         </div>
@@ -91,7 +92,7 @@ export default function HeaderBalance() {
               <span className="text-xs text-emerald-700">Ingresos</span>
             </div>
             <p className="text-base font-bold text-emerald-700">
-              {formatCOP(totals.income)}
+              {formatAmount(totals.income)}
             </p>
           </div>
 
@@ -101,7 +102,7 @@ export default function HeaderBalance() {
               <span className="text-xs text-red-700">Gastos</span>
             </div>
             <p className="text-base font-bold text-red-700">
-              {formatCOP(totals.expense)}
+              {formatAmount(totals.expense)}
             </p>
           </div>
         </div>

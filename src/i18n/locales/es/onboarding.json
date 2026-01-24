@@ -109,6 +109,9 @@
   "currency": {
     "title": "Elige tu moneda",
     "description": "Selecciona la moneda principal para tus registros financieros.",
+    "search": "Buscar moneda...",
+    "recommended": "Recomendada para ti",
+    "noResults": "No se encontró ninguna moneda",
     "continue": "Continuar",
     "skip": "Omitir configuración",
     "note": "Por ahora solo se usa como referencia visual. Multi-moneda estará disponible próximamente."

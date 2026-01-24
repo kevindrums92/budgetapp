@@ -5,7 +5,7 @@ import { formatDateGroupHeaderI18n, todayISO } from "@/services/dates.service";
 import { useLanguage } from "@/hooks/useLanguage";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { generateVirtualTransactions, isVirtualTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 
 // Extended transaction type that includes virtual transactions
@@ -29,6 +29,7 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
   const { t } = useTranslation("transactions");
   const { t: tCommon } = useTranslation("common");
   const { getLocale } = useLanguage();
+  const { formatAmount } = useCurrency();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -170,15 +171,15 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
                       }`}
                     >
                       {group.balance >= 0 ? "+" : ""}
-                      {formatCOP(group.balance)}
+                      {formatAmount(group.balance)}
                     </span>
                   ) : hasExpenses ? (
                     <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                      -{formatCOP(group.totalExpenses)}
+                      -{formatAmount(group.totalExpenses)}
                     </span>
                   ) : (
                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      +{formatCOP(group.totalIncome)}
+                      +{formatAmount(group.totalIncome)}
                     </span>
                   )}
                 </div>

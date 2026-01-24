@@ -35,14 +35,14 @@ export default function Screen1_Language() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50">
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
       {/* Progress */}
       <div className="flex gap-1.5 px-6 pt-4">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
       </div>
 
       {/* Header */}
@@ -51,11 +51,11 @@ export default function Screen1_Language() {
           <Languages size={40} className="text-white" strokeWidth={2.5} />
         </div>
 
-        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900">
+        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
           {t('language.title')}
         </h1>
 
-        <p className="max-w-md text-center text-base leading-relaxed text-gray-600">
+        <p className="max-w-md text-center text-base leading-relaxed text-gray-600 dark:text-gray-400">
           {t('language.description')}
         </p>
       </div>
@@ -68,19 +68,19 @@ export default function Screen1_Language() {
               key={lang.code}
               type="button"
               onClick={() => handleLanguageSelect(lang.code)}
-              className={`flex w-full items-center justify-between rounded-2xl bg-white p-4 shadow-sm transition-all active:scale-[0.98] ${
+              className={`flex w-full items-center justify-between rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm transition-all active:scale-[0.98] ${
                 selected === lang.code
                   ? 'ring-2 ring-[#18B7B0]'
-                  : 'ring-1 ring-gray-200'
+                  : 'ring-1 ring-gray-200 dark:ring-gray-700'
               }`}
             >
               <div className="flex items-center gap-4">
                 <div className="text-3xl">{lang.flag}</div>
                 <div className="text-left">
-                  <p className="text-base font-semibold text-gray-900">
+                  <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
                     {lang.nativeName}
                   </p>
-                  <p className="text-sm text-gray-500">{lang.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{lang.name}</p>
                 </div>
               </div>
 
@@ -108,7 +108,7 @@ export default function Screen1_Language() {
           <button
             type="button"
             onClick={handleSkip}
-            className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
+            className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors hover:text-gray-900 dark:hover:text-gray-200 dark:text-gray-50"
           >
             {t('language.skip')}
           </button>

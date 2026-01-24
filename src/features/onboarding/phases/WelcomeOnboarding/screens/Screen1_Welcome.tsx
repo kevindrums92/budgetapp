@@ -39,7 +39,7 @@ export default function Screen1_Welcome() {
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={100}>
-          <h1 className="mb-3 text-4xl font-extrabold leading-tight tracking-tight text-gray-900">
+          <h1 className="mb-3 text-4xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
             {t('welcome.screen1.title1')}
             <br />
             <span className="bg-gradient-to-r from-[#18B7B0] to-[#0F8580] bg-clip-text text-transparent">
@@ -49,7 +49,7 @@ export default function Screen1_Welcome() {
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={150}>
-          <p className="mx-auto max-w-sm text-base leading-relaxed text-gray-600">
+          <p className="mx-auto max-w-sm text-base leading-relaxed text-gray-600 dark:text-gray-400">
             {t('welcome.screen1.subtitle')}
           </p>
         </SlideAnimation>
@@ -89,7 +89,7 @@ export default function Screen1_Welcome() {
 
       {/* CTA Button - Fixed Bottom */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent px-6 pt-8"
+        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent dark:from-gray-950 dark:via-gray-950 px-6 pt-8"
         style={{
           paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
         }}

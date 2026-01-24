@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import {
   Plus,
   MapPin,
@@ -32,6 +32,7 @@ const CATEGORY_CONFIG: Record<
 export default function TripDetailPage() {
   const { t } = useTranslation('trips');
   const navigate = useNavigate();
+  const { formatAmount } = useCurrency();
   const params = useParams<{ id: string }>();
 
   const trips = useBudgetStore((s) => s.trips);
@@ -106,7 +107,7 @@ export default function TripDetailPage() {
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-600">{t('labels.spent')}</span>
               <span className={isOverBudget ? "text-red-600 font-medium" : "text-gray-900"}>
-                {formatCOP(totalSpent)} / {formatCOP(trip.budget)}
+                {formatAmount(totalSpent)} / {formatAmount(trip.budget)}
               </span>
             </div>
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -126,7 +127,7 @@ export default function TripDetailPage() {
                 isOverBudget ? "text-red-600" : "text-emerald-600"
               }`}
             >
-              {isOverBudget ? "-" : ""}{formatCOP(Math.abs(remaining))}
+              {isOverBudget ? "-" : ""}{formatAmount(Math.abs(remaining))}
             </p>
             <p className="text-xs text-gray-500">
               {isOverBudget ? t('labels.exceeded') : t('labels.available')}
@@ -162,7 +163,7 @@ export default function TripDetailPage() {
                       <div className={`rounded-full p-1 ${config.color}`}>
                         <Icon size={10} />
                       </div>
-                      <span className="text-xs text-gray-700">{formatCOP(amount)}</span>
+                      <span className="text-xs text-gray-700">{formatAmount(amount)}</span>
                     </div>
                   );
                 }
@@ -217,7 +218,7 @@ export default function TripDetailPage() {
                     </div>
 
                     <span className="whitespace-nowrap font-semibold text-gray-900">
-                      {formatCOP(e.amount)}
+                      {formatAmount(e.amount)}
                     </span>
                   </button>
                 );

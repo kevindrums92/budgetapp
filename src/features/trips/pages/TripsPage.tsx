@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { Plus, MapPin, Calendar, Plane, Download } from "lucide-react";
 import type { Trip } from "@/types/budget.types";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
@@ -18,6 +18,7 @@ const STATUS_COLORS: Record<Trip["status"], string> = {
 export default function TripsPage() {
   const { t } = useTranslation('trips');
   const navigate = useNavigate();
+  const { formatAmount } = useCurrency();
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
   const deleteTrip = useBudgetStore((s) => s.deleteTrip);
@@ -109,6 +110,7 @@ export default function TripsPage() {
                 trip={activeTrip}
                 spent={getTripSpent(activeTrip.id)}
                 formatDateRange={formatDateRange}
+                formatAmount={formatAmount}
                 onView={() => navigate(`/trips/${activeTrip.id}`)}
                 onEdit={() => navigate(`/trips/${activeTrip.id}/edit`)}
                 onDelete={() => onAskDelete(activeTrip)}
@@ -130,6 +132,7 @@ export default function TripsPage() {
                     trip={trip}
                     spent={getTripSpent(trip.id)}
                     formatDateRange={formatDateRange}
+                    formatAmount={formatAmount}
                     statusLabel={STATUS_LABELS[trip.status]}
                     onView={() => navigate(`/trips/${trip.id}`)}
                     onEdit={() => navigate(`/trips/${trip.id}/edit`)}
@@ -209,6 +212,7 @@ function ActiveTripCard({
   trip,
   spent,
   formatDateRange,
+  formatAmount,
   onView,
   onEdit,
   onDelete,
@@ -217,6 +221,7 @@ function ActiveTripCard({
   trip: Trip;
   spent: number;
   formatDateRange: (start: string, end: string | null) => string;
+  formatAmount: (value: number) => string;
   onView: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -249,7 +254,7 @@ function ActiveTripCard({
         <div className="flex justify-between text-xs mb-1">
           <span className="text-gray-500">{t('labels.spent')}</span>
           <span className={isOverBudget ? "text-red-600 font-medium" : "text-gray-600"}>
-            {formatCOP(spent)} / {formatCOP(trip.budget)}
+            {formatAmount(spent)} / {formatAmount(trip.budget)}
           </span>
         </div>
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -274,8 +279,8 @@ function ActiveTripCard({
           }`}
         >
           {isOverBudget
-            ? `${t('labels.exceeded')} ${formatCOP(Math.abs(remaining))}`
-            : `${t('labels.available')} ${formatCOP(remaining)}`}
+            ? `${t('labels.exceeded')} ${formatAmount(Math.abs(remaining))}`
+            : `${t('labels.available')} ${formatAmount(remaining)}`}
         </div>
       </div>
     </div>
@@ -286,6 +291,7 @@ function TripCard({
   trip,
   spent,
   formatDateRange,
+  formatAmount,
   statusLabel,
   onView,
   onEdit,
@@ -294,6 +300,7 @@ function TripCard({
   trip: Trip;
   spent: number;
   formatDateRange: (start: string, end: string | null) => string;
+  formatAmount: (value: number) => string;
   statusLabel: string;
   onView: () => void;
   onEdit: () => void;
@@ -337,8 +344,8 @@ function TripCard({
       {/* Mini progress */}
       <div className="mt-2">
         <div className="flex justify-between text-xs mb-1">
-          <span className="text-gray-400">{formatCOP(spent)}</span>
-          <span className="text-gray-400">{formatCOP(trip.budget)}</span>
+          <span className="text-gray-400">{formatAmount(spent)}</span>
+          <span className="text-gray-400">{formatAmount(trip.budget)}</span>
         </div>
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
