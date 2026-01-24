@@ -165,5 +165,92 @@
     "errorEmail": "Email/Contraseña estará disponible próximamente",
     "errorGuest": "Error al iniciar modo invitado",
     "errorGoogle": "Error al iniciar sesión con Google"
+  },
+  "auth": {
+    "title": "Inicia sesión o regístrate",
+    "subtitle": "Gestiona tus finanzas de forma segura",
+    "tabs": {
+      "login": "Iniciar sesión",
+      "register": "Registrarse"
+    },
+    "fields": {
+      "emailOrPhone": "Correo o teléfono",
+      "password": "Contraseña",
+      "name": "Nombre"
+    },
+    "placeholders": {
+      "emailOrPhone": "ejemplo@correo.com o +57...",
+      "password": "Tu contraseña",
+      "passwordCreate": "Crea una contraseña",
+      "name": "Tu nombre"
+    },
+    "buttons": {
+      "login": "Iniciar sesión",
+      "register": "Crear cuenta"
+    },
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "divider": "o continúa con",
+    "google": "Continuar con Google",
+    "backToGuest": "Volver y usar como invitado",
+    "otpInfo": "Se enviará un código de verificación para asegurar tu cuenta.",
+    "passwordStrength": {
+      "weak": "Débil",
+      "medium": "Moderada",
+      "strong": "Fuerte"
+    },
+    "terms": {
+      "prefix": "Al crear una cuenta, aceptas nuestros ",
+      "termsLink": "Términos de Servicio",
+      "and": "y",
+      "privacyLink": "Política de Privacidad"
+    },
+    "verify": {
+      "title": "Verificación",
+      "subtitle": "Ingresa el código",
+      "message": "Enviamos un código de 6 dígitos a",
+      "resend": "Reenviar código",
+      "resendIn": "Reenviar en {{seconds}}s",
+      "button": "Verificar",
+      "error": "El código ingresado es incorrecto. Intenta de nuevo."
+    },
+    "trustDevice": {
+      "title": "¿Confiar en este dispositivo?",
+      "message": "No te pediremos el código de verificación en este dispositivo durante 90 días.",
+      "trust": "Sí, confiar en este dispositivo",
+      "skip": "No, gracias",
+      "note": "Solo confía en dispositivos personales y seguros."
+    },
+    "errors": {
+      "invalidEmail": "El correo electrónico no es válido",
+      "invalidPhone": "El número de teléfono no es válido",
+      "invalidCredentials": "Credenciales incorrectas. Verifica tu correo y contraseña.",
+      "userExists": "Ya existe una cuenta con este correo o teléfono",
+      "otpInvalid": "El código de verificación es incorrecto",
+      "otpExpired": "El código ha expirado. Solicita uno nuevo.",
+      "networkError": "Error de conexión. Verifica tu internet.",
+      "generic": "Ha ocurrido un error. Intenta de nuevo."
+    },
+    "forgotPassword": {
+      "link": "Olvidé mi contraseña",
+      "title": "Recuperar contraseña",
+      "message": "Ingresa tu email y te enviaremos un link para restablecer tu contraseña",
+      "send": "Enviar link",
+      "cancel": "Cancelar",
+      "emailSent": "¡Email enviado!",
+      "checkInbox": "Revisa tu bandeja de entrada y sigue el link para restablecer tu contraseña",
+      "close": "Entendido"
+    },
+    "resetPassword": {
+      "title": "Nueva contraseña",
+      "message": "Ingresa tu nueva contraseña. Debe tener al menos 8 caracteres",
+      "confirmPassword": "Confirmar contraseña",
+      "passwordsDontMatch": "Las contraseñas no coinciden",
+      "button": "Actualizar contraseña",
+      "success": "¡Contraseña actualizada!",
+      "redirecting": "Redirigiendo al login...",
+      "invalidLink": "Link inválido o expirado",
+      "requestNew": "Solicita un nuevo link de recuperación desde el login",
+      "backToLogin": "Volver al login"
+    }
   }
 }

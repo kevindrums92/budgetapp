@@ -12,6 +12,9 @@ import WelcomeOnboardingFlow from './phases/WelcomeOnboarding';
 import LoginFlow from './phases/LoginFlow';
 import FirstConfigFlow from './phases/FirstConfig';
 
+// Import auth pages
+import { AuthPage, OTPVerificationPage, ResetPasswordPage } from '@/features/auth';
+
 /**
  * OnboardingRouter - Componente interno que maneja el routing
  * IMPORTANTE: Este componente NO determina dónde empezar el onboarding.
@@ -25,6 +28,13 @@ function OnboardingRouter() {
 
       {/* Login Flow - 1 screen */}
       <Route path="login" element={<LoginFlow />} />
+
+      {/* Auth Flow - Email/Password + OTP */}
+      <Route path="auth" element={<AuthPage />} />
+      <Route path="auth/verify" element={<OTPVerificationPage />} />
+
+      {/* Password Reset */}
+      <Route path="reset-password" element={<ResetPasswordPage />} />
 
       {/* First Config - 4 screens */}
       <Route path="config/:step" element={<FirstConfigFlow />} />

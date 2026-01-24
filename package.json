@@ -31,6 +31,7 @@
     "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run && npm run test:e2e"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@supabase/supabase-js": "^2.89.0",
     "embla-carousel": "^8.6.0",
     "embla-carousel-react": "^8.6.0",

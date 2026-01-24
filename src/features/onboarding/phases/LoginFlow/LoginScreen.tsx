@@ -141,11 +141,17 @@ export default function LoginScreen() {
   };
 
   /**
-   * Placeholder para métodos próximamente
+   * Navegar a la página de autenticación con email/contraseña
    */
-  const handleComingSoon = (method: 'apple' | 'email') => {
-    const errorKey = method === 'apple' ? 'login.errorApple' : 'login.errorEmail';
-    setError(t(errorKey));
+  const handleEmailAuth = () => {
+    navigate('/onboarding/auth');
+  };
+
+  /**
+   * Placeholder para Apple (próximamente)
+   */
+  const handleAppleComingSoon = () => {
+    setError(t('login.errorApple'));
     setTimeout(() => setError(null), 3000);
   };
 
@@ -225,7 +231,7 @@ export default function LoginScreen() {
             {/* Apple Sign In - Coming Soon */}
             <button
               type="button"
-              onClick={() => handleComingSoon('apple')}
+              onClick={handleAppleComingSoon}
               disabled={loading}
               className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm opacity-60 transition-all active:scale-[0.98]"
             >
@@ -239,7 +245,7 @@ export default function LoginScreen() {
           {/* 4. Link simple: Email/Password */}
           <button
             type="button"
-            onClick={() => handleComingSoon('email')}
+            onClick={handleEmailAuth}
             className="flex w-full items-center justify-center gap-2 py-3 text-sm font-medium text-[#18B7B0] transition-colors hover:text-[#13948e]"
           >
             <Mail className="h-4 w-4" />

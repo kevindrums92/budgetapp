@@ -165,5 +165,92 @@
     "errorEmail": "Email/Password will be available soon",
     "errorGuest": "Error starting guest mode",
     "errorGoogle": "Error signing in with Google"
+  },
+  "auth": {
+    "title": "Sign in or register",
+    "subtitle": "Manage your finances securely",
+    "tabs": {
+      "login": "Sign in",
+      "register": "Register"
+    },
+    "fields": {
+      "emailOrPhone": "Email or phone",
+      "password": "Password",
+      "name": "Name"
+    },
+    "placeholders": {
+      "emailOrPhone": "example@email.com or +1...",
+      "password": "Your password",
+      "passwordCreate": "Create a password",
+      "name": "Your name"
+    },
+    "buttons": {
+      "login": "Sign in",
+      "register": "Create account"
+    },
+    "forgotPassword": "Forgot your password?",
+    "divider": "or continue with",
+    "google": "Continue with Google",
+    "backToGuest": "Go back and use as guest",
+    "otpInfo": "A verification code will be sent to secure your account.",
+    "passwordStrength": {
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong"
+    },
+    "terms": {
+      "prefix": "By creating an account, you agree to our ",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy"
+    },
+    "verify": {
+      "title": "Verification",
+      "subtitle": "Enter the code",
+      "message": "We sent a 6-digit code to",
+      "resend": "Resend code",
+      "resendIn": "Resend in {{seconds}}s",
+      "button": "Verify",
+      "error": "The code entered is incorrect. Please try again."
+    },
+    "trustDevice": {
+      "title": "Trust this device?",
+      "message": "We won't ask for the verification code on this device for 90 days.",
+      "trust": "Yes, trust this device",
+      "skip": "No, thanks",
+      "note": "Only trust personal and secure devices."
+    },
+    "errors": {
+      "invalidEmail": "The email address is not valid",
+      "invalidPhone": "The phone number is not valid",
+      "invalidCredentials": "Invalid credentials. Please check your email and password.",
+      "userExists": "An account with this email or phone already exists",
+      "otpInvalid": "The verification code is incorrect",
+      "otpExpired": "The code has expired. Request a new one.",
+      "networkError": "Connection error. Check your internet.",
+      "generic": "An error occurred. Please try again."
+    },
+    "forgotPassword": {
+      "link": "Forgot password",
+      "title": "Recover password",
+      "message": "Enter your email and we'll send you a link to reset your password",
+      "send": "Send link",
+      "cancel": "Cancel",
+      "emailSent": "Email sent!",
+      "checkInbox": "Check your inbox and follow the link to reset your password",
+      "close": "Got it"
+    },
+    "resetPassword": {
+      "title": "New password",
+      "message": "Enter your new password. It must be at least 8 characters long",
+      "confirmPassword": "Confirm password",
+      "passwordsDontMatch": "Passwords don't match",
+      "button": "Update password",
+      "success": "Password updated!",
+      "redirecting": "Redirecting to login...",
+      "invalidLink": "Invalid or expired link",
+      "requestNew": "Request a new recovery link from login",
+      "backToLogin": "Back to login"
+    }
   }
 }

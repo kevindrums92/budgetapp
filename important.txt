@@ -15,3 +15,9 @@ https://finanzapp-3fdebe7ccb68.herokuapp.com/
 
 user Prod c612018d-f020-4a62-bfc0-c28a03bacd40
 user Dev d30e9c0c-abb2-422a-bd2c-978539e972aa
+
+
+
+
+Resend API Key
+re_QNi8SiFy_G4R698j5mmA4ycFCPgbSmHPm

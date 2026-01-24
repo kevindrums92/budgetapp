@@ -44,8 +44,13 @@ export default function OnboardingGate() {
       }
       // CASO 3: Debe ir a login directo (returning user)
       else if (startScreen === 'login') {
-        // Si no estamos en login, redirigir
-        if (location.pathname !== '/onboarding/login') {
+        // Permitir rutas de auth (login, auth pages)
+        const isAuthRoute =
+          location.pathname === '/onboarding/login' ||
+          location.pathname.startsWith('/onboarding/auth');
+
+        // Si no estamos en una ruta de auth, redirigir a login
+        if (!isAuthRoute) {
           console.log('[OnboardingGate] Redirecting to login');
           navigate('/onboarding/login', { replace: true });
         }
