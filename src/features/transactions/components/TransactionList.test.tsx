@@ -39,6 +39,16 @@ vi.mock('@/shared/utils/currency.utils', () => ({
   formatCOP: (value: number) => `$${value.toLocaleString('es-CO')}`,
 }));
 
+// Mock useCurrency hook
+vi.mock('@/features/currency', () => ({
+  useCurrency: () => ({
+    currency: 'COP',
+    currencyInfo: { code: 'COP', symbol: '$', name: 'Peso Colombiano', flag: '🇨🇴', locale: 'es-CO', decimals: 0, region: 'america' },
+    setCurrency: vi.fn(),
+    formatAmount: (value: number) => `$${value.toLocaleString('es-CO')}`,
+  }),
+}));
+
 describe('TransactionList', () => {
   const mockCategories: Category[] = [
     {
