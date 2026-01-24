@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { Home, Wallet, BarChart3, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function Tab({
   to,
@@ -31,6 +32,8 @@ function Tab({
 }
 
 export default function BottomBar() {
+  const { t } = useTranslation();
+
   return (
     <div className="fixed inset-x-0 -bottom-1 z-50 bg-white dark:bg-gray-900 pt-1">
       {/* iOS-ish: blur + borde sutil + sombra hacia arriba */}
@@ -44,10 +47,10 @@ export default function BottomBar() {
         ].join(" ")}
       >
         <div className="grid grid-cols-4">
-          <Tab to="/" label="Home" icon={Home} />
-          <Tab to="/budget" label="Budget" icon={Wallet} />
-          <Tab to="/stats" label="Stats" icon={BarChart3} />
-          <Tab to="/profile" label="Settings" icon={Settings} />
+          <Tab to="/" label={t("navigation.home")} icon={Home} />
+          <Tab to="/budget" label={t("navigation.budget")} icon={Wallet} />
+          <Tab to="/stats" label={t("navigation.stats")} icon={BarChart3} />
+          <Tab to="/profile" label={t("navigation.settings")} icon={Settings} />
         </div>
       </div>
     </div>

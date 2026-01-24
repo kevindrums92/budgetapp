@@ -10,10 +10,14 @@ vi.mock('@/services/storage.service', () => ({
   clearState: vi.fn(),
 }));
 
-// Mock dates service
-vi.mock('@/services/dates.service', () => ({
-  currentMonthKey: vi.fn(() => '2026-01'),
-}));
+// Mock dates service with partial mock to allow todayISO to use real implementation
+vi.mock('@/services/dates.service', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/services/dates.service')>();
+  return {
+    ...actual,
+    currentMonthKey: vi.fn(() => '2026-01'),
+  };
+});
 
 // Mock default categories and groups
 vi.mock('@/constants/categories/default-categories', () => ({
@@ -1387,7 +1391,7 @@ describe('budget.store', () => {
 
         const snapshot = store.getSnapshot();
 
-        expect(snapshot.schemaVersion).toBe(5);
+        expect(snapshot.schemaVersion).toBe(6);
         expect(snapshot.transactions).toHaveLength(1);
         expect(snapshot.transactions[0].name).toBe('Test');
         expect(snapshot.categories).toBeDefined();
@@ -1457,7 +1461,7 @@ describe('budget.store', () => {
         const store = useBudgetStore.getState();
 
         const newData: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: [],
           categories: [],
           categoryDefinitions: [],
@@ -1469,10 +1473,10 @@ describe('budget.store', () => {
 
         store.replaceAllData(newData);
 
-        // replaceAllData normalizes to v5 before saving
+        // replaceAllData normalizes to v6 before saving
         expect(storageService.saveState).toHaveBeenCalledWith({
           ...newData,
-          schemaVersion: 5,
+          schemaVersion: 6,
         });
       });
     });
@@ -1575,6 +1579,374 @@ describe('budget.store', () => {
 
         store.setBudgetOnboardingSeen(false);
         expect(localStorage.getItem('budget.budgetOnboardingSeen.v1')).toBeNull();
+      });
+    });
+
+    describe('Budget CRUD operations', () => {
+      beforeEach(() => {
+        localStorage.clear();
+        const store = useBudgetStore.getState();
+        store.replaceAllData({
+          schemaVersion: 6,
+          transactions: [],
+          categories: [],
+          categoryDefinitions: [],
+          categoryGroups: [],
+          budgets: [],
+          trips: [],
+          tripExpenses: [],
+        });
+      });
+
+      describe('createBudget', () => {
+        it('should create a new budget', () => {
+          const store = useBudgetStore.getState();
+
+          const budgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          expect(budgetId).toBeTruthy();
+
+          const budgets = useBudgetStore.getState().budgets;
+          expect(budgets).toHaveLength(1);
+          expect(budgets[0].categoryId).toBe('cat-groceries');
+          expect(budgets[0].amount).toBe(500000);
+          expect(budgets[0].period.type).toBe('month');
+          expect(budgets[0].isRecurring).toBe(true);
+          expect(budgets[0].status).toBe('active');
+        });
+
+        it('should return null if amount is invalid', () => {
+          const store = useBudgetStore.getState();
+
+          const budgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: -100,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: false,
+          });
+
+          expect(budgetId).toBeNull();
+          expect(useBudgetStore.getState().budgets).toHaveLength(0);
+        });
+
+        it('should return null if there is overlap with existing budget', () => {
+          const store = useBudgetStore.getState();
+
+          // Create first budget
+          const firstBudgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          expect(firstBudgetId).toBeTruthy();
+
+          // Try to create overlapping budget (same category, overlapping period)
+          const secondBudgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 300000,
+            period: {
+              type: 'custom',
+              startDate: '2026-01-15',
+              endDate: '2026-02-15',
+            },
+            isRecurring: false,
+          });
+
+          expect(secondBudgetId).toBeNull();
+          expect(useBudgetStore.getState().budgets).toHaveLength(1);
+        });
+
+        it('should allow budgets for different categories in same period', () => {
+          const store = useBudgetStore.getState();
+
+          const budget1 = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          const budget2 = store.createBudget({
+            categoryId: 'cat-restaurant',
+            amount: 300000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          expect(budget1).toBeTruthy();
+          expect(budget2).toBeTruthy();
+          expect(useBudgetStore.getState().budgets).toHaveLength(2);
+        });
+      });
+
+      describe('updateBudget', () => {
+        it('should update budget properties', () => {
+          const store = useBudgetStore.getState();
+
+          const budgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          store.updateBudget(budgetId!, {
+            amount: 600000,
+            isRecurring: false,
+          });
+
+          const updatedBudget = useBudgetStore.getState().budgets[0];
+          expect(updatedBudget.amount).toBe(600000);
+          expect(updatedBudget.isRecurring).toBe(false);
+        });
+
+        it('should not update if would create overlap', () => {
+          const store = useBudgetStore.getState();
+
+          // Create two budgets for different periods
+          store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          const budget2 = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-02-01',
+              endDate: '2026-02-28',
+            },
+            isRecurring: true,
+          });
+
+          // Try to update budget2 period to overlap with budget1
+          store.updateBudget(budget2!, {
+            period: {
+              type: 'custom',
+              startDate: '2026-01-15',
+              endDate: '2026-02-15',
+            },
+          });
+
+          // Period should not have changed
+          const budget2After = store.getBudgetById(budget2!);
+          expect(budget2After?.period.startDate).toBe('2026-02-01');
+          expect(budget2After?.period.endDate).toBe('2026-02-28');
+        });
+      });
+
+      describe('deleteBudget', () => {
+        it('should delete a budget', () => {
+          const store = useBudgetStore.getState();
+
+          const budgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          expect(useBudgetStore.getState().budgets).toHaveLength(1);
+
+          store.deleteBudget(budgetId!);
+
+          expect(useBudgetStore.getState().budgets).toHaveLength(0);
+        });
+      });
+
+      describe('archiveBudget', () => {
+        it('should archive a budget', () => {
+          const store = useBudgetStore.getState();
+
+          const budgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          store.archiveBudget(budgetId!);
+
+          const budget = store.getBudgetById(budgetId!);
+          expect(budget?.status).toBe('archived');
+        });
+      });
+
+      describe('getBudgetById', () => {
+        it('should return budget by id', () => {
+          const store = useBudgetStore.getState();
+
+          const budgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          const budget = store.getBudgetById(budgetId!);
+
+          expect(budget).toBeTruthy();
+          expect(budget?.id).toBe(budgetId);
+          expect(budget?.categoryId).toBe('cat-groceries');
+        });
+
+        it('should return undefined if budget not found', () => {
+          const store = useBudgetStore.getState();
+
+          const budget = store.getBudgetById('non-existent-id');
+
+          expect(budget).toBeUndefined();
+        });
+      });
+
+      describe('renewExpiredBudgets', () => {
+        it('should renew expired recurring budgets', () => {
+          vi.useFakeTimers();
+          vi.setSystemTime(new Date('2026-02-01T12:00:00'));
+
+          const store = useBudgetStore.getState();
+
+          // Create a recurring budget for January (expired by Feb 1)
+          const budgetId = store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          expect(useBudgetStore.getState().budgets).toHaveLength(1);
+
+          // Renew expired budgets
+          store.renewExpiredBudgets();
+
+          const budgets = useBudgetStore.getState().budgets;
+
+          // Should have 2 budgets now: old one (completed) + new one (active)
+          expect(budgets).toHaveLength(2);
+
+          const oldBudget = budgets.find((b) => b.id === budgetId);
+          expect(oldBudget?.status).toBe('completed');
+
+          const newBudget = budgets.find((b) => b.id !== budgetId);
+          expect(newBudget?.status).toBe('active');
+          expect(newBudget?.period.startDate).toBe('2026-02-01');
+          expect(newBudget?.period.endDate).toBe('2026-02-28');
+          expect(newBudget?.amount).toBe(500000);
+          expect(newBudget?.categoryId).toBe('cat-groceries');
+          expect(newBudget?.isRecurring).toBe(true);
+
+          vi.useRealTimers();
+        });
+
+        it('should not renew non-recurring budgets', () => {
+          vi.useFakeTimers();
+          vi.setSystemTime(new Date('2026-02-01T12:00:00'));
+
+          const store = useBudgetStore.getState();
+
+          // Create a non-recurring budget for January
+          store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: false,
+          });
+
+          expect(useBudgetStore.getState().budgets).toHaveLength(1);
+
+          store.renewExpiredBudgets();
+
+          // Should still have only 1 budget (not renewed)
+          expect(useBudgetStore.getState().budgets).toHaveLength(1);
+
+          vi.useRealTimers();
+        });
+
+        it('should not renew active budgets', () => {
+          vi.useFakeTimers();
+          vi.setSystemTime(new Date('2026-01-15T12:00:00'));
+
+          const store = useBudgetStore.getState();
+
+          // Create a recurring budget for January (still active on Jan 15)
+          store.createBudget({
+            categoryId: 'cat-groceries',
+            amount: 500000,
+            period: {
+              type: 'month',
+              startDate: '2026-01-01',
+              endDate: '2026-01-31',
+            },
+            isRecurring: true,
+          });
+
+          expect(useBudgetStore.getState().budgets).toHaveLength(1);
+
+          store.renewExpiredBudgets();
+
+          // Should still have only 1 budget (not yet expired)
+          expect(useBudgetStore.getState().budgets).toHaveLength(1);
+
+          vi.useRealTimers();
+        });
       });
     });
   });

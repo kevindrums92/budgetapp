@@ -1,0 +1,253 @@
+{
+  "welcome": {
+    "screen1": {
+      "title1": "Bem-vindo ao",
+      "title2": "SmartSpend",
+      "subtitle": "A forma mais inteligente de gerenciar suas finanças pessoais",
+      "feature1Title": "Funciona offline",
+      "feature1Desc": "Seus dados estão no seu dispositivo, sempre disponíveis",
+      "feature2Title": "Privacidade total",
+      "feature2Desc": "Você decide se sincroniza ou mantém tudo local",
+      "feature3Title": "Controle financeiro",
+      "feature3Desc": "Orçamentos, análises e automação em um só lugar",
+      "start": "Começar"
+    },
+    "screen2": {
+      "badge": "Registro em segundos",
+      "title": "Comece em\nmenos de 1 minuto",
+      "subtitle": "Sem formulários complicados. Apenas o essencial para proteger suas informações.",
+      "feature1Title": "Criptografia de ponta a ponta",
+      "feature1Desc": "Seus dados estão sempre protegidos",
+      "feature2Title": "Sem spam ou publicidade",
+      "feature2Desc": "Apenas notificações importantes",
+      "continue": "Continuar"
+    },
+    "screen3": {
+      "title": "Orçamentos sem\nestresse ou complicações",
+      "subtitle": "Organize suas despesas por categorias e mantenha o controle total",
+      "categoryFood": "Alimentação",
+      "categoryShop": "Compras",
+      "categoryHome": "Casa",
+      "alertNote": "Alertas inteligentes avisam quando você se aproxima do limite do seu orçamento",
+      "continue": "Continuar"
+    },
+    "screen4": {
+      "title": "Descubra seus\npadrões de gastos",
+      "subtitle": "Visualize tendências e tome melhores decisões financeiras",
+      "chartTitle": "Últimos 7 dias",
+      "dayMon": "S",
+      "dayTue": "T",
+      "dayWed": "Q",
+      "dayThu": "Q",
+      "dayFri": "S",
+      "daySat": "S",
+      "daySun": "D",
+      "avgDaily": "Média diária",
+      "weeklyTotal": "Total semanal",
+      "insight1Title": "Dias de pico de gastos",
+      "insight1Desc": "Identificamos que você gasta mais às sextas e sábados",
+      "insight2Title": "Categoria principal",
+      "insight2Desc": "40% dos seus gastos são em alimentação",
+      "continue": "Continuar"
+    },
+    "screen5": {
+      "badge": "Economize tempo",
+      "title": "Automatize suas\ndespesas recorrentes",
+      "subtitle": "Configure uma vez, esqueça o resto. Perfeito para assinaturas e pagamentos fixos.",
+      "netflix": "Netflix",
+      "rent": "Aluguel",
+      "credit": "Cartão de crédito",
+      "every1st": "Todo dia 1",
+      "every5th": "Todo dia 5",
+      "every15th": "Todo dia 15",
+      "active": "Ativo",
+      "reminderNote": "Lembretes automáticos: Avisamos antes de cada pagamento para que você sempre esteja ciente",
+      "continue": "Continuar"
+    },
+    "screen6": {
+      "title": "Entenda para onde\nvai seu dinheiro",
+      "subtitle": "Insights claros sobre suas finanças para tomar melhores decisões",
+      "distributionTitle": "Distribuição de despesas",
+      "total": "Total",
+      "catFood": "Alimentação",
+      "catHome": "Casa",
+      "catTransport": "Transporte",
+      "catOthers": "Outros",
+      "avgDaily": "Média diária",
+      "topCategory": "Categoria principal",
+      "topCategoryFood": "Comida",
+      "peakDay": "Dia de pico",
+      "peakDayFriday": "Sexta-feira",
+      "startNow": "Começar agora"
+    }
+  },
+  "language": {
+    "title": "Escolha seu idioma",
+    "description": "Selecione o idioma no qual você prefere usar o SmartSpend. Você pode alterá-lo depois no seu perfil.",
+    "continue": "Continuar",
+    "skip": "Pular configuração"
+  },
+  "theme": {
+    "title": "Escolha seu tema",
+    "description": "Personalize a aparência do SmartSpend de acordo com sua preferência.",
+    "continue": "Continuar",
+    "skip": "Pular configuração",
+    "note": "O tema será aplicado quando o modo escuro for implementado",
+    "light": {
+      "title": "Claro",
+      "description": "Interface luminosa ideal para o dia"
+    },
+    "dark": {
+      "title": "Escuro",
+      "description": "Reduz a fadiga visual em ambientes com pouca luz"
+    },
+    "system": {
+      "title": "Automático",
+      "description": "Adapta-se às configurações do seu dispositivo"
+    }
+  },
+  "currency": {
+    "title": "Escolha sua moeda",
+    "description": "Selecione a moeda principal para seus registros financeiros.",
+    "search": "Buscar moeda...",
+    "recommended": "Recomendada para você",
+    "noResults": "Nenhuma moeda encontrada",
+    "continue": "Continuar",
+    "skip": "Pular configuração",
+    "note": "Por enquanto, é usado apenas como referência visual. Multi-moeda estará disponível em breve."
+  },
+  "categories": {
+    "title": "Categorias padrão",
+    "description": "Selecione as categorias que você deseja usar. Você pode desmarcar as que não precisa.",
+    "expenses": "Despesas",
+    "income": "Receitas",
+    "continue": "Continuar",
+    "note": "Nota: Você pode criar categorias personalizadas mais tarde na seção de Configurações."
+  },
+  "complete": {
+    "title": "Tudo pronto para\ncomeçar!",
+    "subtitle": "Você já pode começar a gerenciar suas finanças de forma inteligente.",
+    "configTitle": "Sua configuração",
+    "language": "Idioma",
+    "languageEs": "Español",
+    "languageEn": "English",
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Escuro",
+    "themeSystem": "Automático",
+    "currency": "Moeda",
+    "categories": "Categorias",
+    "categoriesSelected": "selecionadas",
+    "feature1": "📊 Registre suas transações",
+    "feature1Desc": "Adicione receitas e despesas facilmente",
+    "feature2": "💰 Crie orçamentos",
+    "feature2Desc": "Controle suas despesas por categorias",
+    "feature3": "📈 Analise seus dados",
+    "feature3Desc": "Visualize seus padrões de gastos",
+    "start": "Começar a usar o SmartSpend",
+    "note": "Você pode modificar essas opções no seu perfil a qualquer momento"
+  },
+  "login": {
+    "title": "Comece a gerenciar\nsuas finanças",
+    "subtitle": "Escolha como você deseja começar. Você pode fazer login ou explorar sem conta.",
+    "privacyNote": "Criptografia de ponta a ponta. Com login, sincroniza automaticamente na nuvem.",
+    "guestTitle": "Explorar como convidado",
+    "guestDesc": "Sem conta, dados apenas neste dispositivo",
+    "divider": "Ou faça login com",
+    "google": "Google",
+    "apple": "Apple",
+    "emailLink": "Usar usuário e senha",
+    "termsPrefix": "Ao continuar, você aceita nossos",
+    "termsService": "Termos de Serviço",
+    "termsAnd": "e",
+    "termsPrivacy": "Política de Privacidade",
+    "errorApple": "Apple Sign In estará disponível em breve",
+    "errorEmail": "Email/Senha estará disponível em breve",
+    "errorGuest": "Erro ao iniciar modo convidado",
+    "errorGoogle": "Erro ao fazer login com Google"
+  },
+  "auth": {
+    "title": "Faça login ou cadastre-se",
+    "subtitle": "Gerencie suas finanças com segurança",
+    "tabs": {
+      "login": "Fazer login",
+      "register": "Cadastrar-se"
+    },
+    "fields": {
+      "emailOrPhone": "E-mail ou telefone",
+      "password": "Senha",
+      "name": "Nome"
+    },
+    "placeholders": {
+      "emailOrPhone": "exemplo@email.com ou +55...",
+      "password": "Sua senha",
+      "passwordCreate": "Crie uma senha",
+      "name": "Seu nome"
+    },
+    "buttons": {
+      "login": "Fazer login",
+      "register": "Criar conta"
+    },
+    "forgotPassword": "Esqueceu sua senha?",
+    "divider": "ou continue com",
+    "google": "Continuar com Google",
+    "backToGuest": "Voltar e usar como convidado",
+    "otpInfo": "Um código de verificação será enviado para proteger sua conta.",
+    "passwordStrength": {
+      "weak": "Fraca",
+      "medium": "Moderada",
+      "strong": "Forte"
+    },
+    "terms": {
+      "prefix": "Ao criar uma conta, você aceita nossos ",
+      "termsLink": "Termos de Serviço",
+      "and": "e",
+      "privacyLink": "Política de Privacidade"
+    },
+    "verify": {
+      "title": "Verificação",
+      "subtitle": "Digite o código",
+      "message": "Enviamos um código de 6 dígitos para",
+      "resend": "Reenviar código",
+      "resendIn": "Reenviar em {{seconds}}s",
+      "button": "Verificar",
+      "error": "O código digitado está incorreto. Tente novamente."
+    },
+    "trustDevice": {
+      "title": "Confiar neste dispositivo?",
+      "message": "Não pediremos o código de verificação neste dispositivo por 90 dias.",
+      "trust": "Sim, confiar neste dispositivo",
+      "skip": "Não, obrigado",
+      "note": "Confie apenas em dispositivos pessoais e seguros."
+    },
+    "errors": {
+      "invalidEmail": "O e-mail não é válido",
+      "invalidPhone": "O número de telefone não é válido",
+      "invalidCredentials": "Credenciais incorretas. Verifique seu e-mail e senha.",
+      "userExists": "Já existe uma conta com este e-mail ou telefone",
+      "otpInvalid": "O código de verificação está incorreto",
+      "otpExpired": "O código expirou. Solicite um novo.",
+      "networkError": "Erro de conexão. Verifique sua internet.",
+      "generic": "Ocorreu um erro. Tente novamente."
+    },
+    "forgotPassword": {
+      "link": "Esqueci minha senha",
+      "title": "Recuperar senha",
+      "message": "Digite seu e-mail e enviaremos um código para redefinir sua senha",
+      "send": "Enviar código",
+      "cancel": "Cancelar"
+    },
+    "resetPassword": {
+      "title": "Nova senha",
+      "message": "Digite sua nova senha. Deve ter pelo menos 8 caracteres",
+      "confirmPassword": "Confirmar senha",
+      "passwordsDontMatch": "As senhas não coincidem",
+      "button": "Atualizar senha",
+      "success": "Senha atualizada!",
+      "redirecting": "Redirecionando...",
+      "invalidLink": "Link inválido ou expirado",
+      "requestNew": "Solicite um novo link de recuperação no login",
+      "backToLogin": "Voltar ao login"
+    }
+  }
+}

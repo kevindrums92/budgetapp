@@ -1,0 +1,70 @@
+{
+  "title": "Catégories",
+  "tabs": {
+    "expenses": "Dépenses",
+    "income": "Revenus"
+  },
+  "emptyExpenses": "Aucune catégorie de dépenses",
+  "emptyIncome": "Aucune catégorie de revenus",
+  "createButton": "Créer une catégorie",
+  "form": {
+    "editTitle": "Modifier la Catégorie",
+    "newTitle": "Nouvelle Catégorie",
+    "name": "Nom",
+    "namePlaceholder": "Nom de la catégorie",
+    "type": "Type",
+    "typeExpense": "Dépense",
+    "typeIncome": "Revenu",
+    "icon": "Icône",
+    "selectIcon": "Sélectionner une icône",
+    "color": "Couleur",
+    "group": "Groupe",
+    "selectGroup": "Sélectionner un groupe",
+    "save": "Enregistrer",
+    "saveChanges": "Enregistrer les modifications",
+    "delete": {
+      "title": "Supprimer la catégorie",
+      "message": "Êtes-vous sûr de vouloir supprimer cette catégorie ? Les transactions existantes conserveront le nom de la catégorie.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    }
+  },
+  "iconColorPicker": {
+    "icon": "Icône",
+    "color": "Couleur",
+    "apply": "Appliquer"
+  },
+  "groups": {
+    "title": "Groupes de Catégories",
+    "emptyExpenses": "Aucun groupe de dépenses",
+    "emptyIncome": "Aucun groupe de revenus",
+    "createButton": "Créer un groupe",
+    "form": {
+      "editTitle": "Modifier le Groupe",
+      "newTitle": "Nouveau Groupe",
+      "name": "Nom du groupe",
+      "namePlaceholder": "Ex : Logement",
+      "type": "Type",
+      "typeExpense": "Dépense",
+      "typeIncome": "Revenu",
+      "typeWarning": "Le type ne peut pas être modifié après la création du groupe",
+      "tapToChangeColor": "Appuyez pour changer la couleur",
+      "selectColor": "Sélectionner une couleur",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saveChanges": "Enregistrer les modifications",
+      "delete": {
+        "title": "Supprimer le groupe",
+        "message": "Êtes-vous sûr de vouloir supprimer ce groupe ? Les catégories seront réattribuées au groupe \"Autres\".",
+        "confirm": "Supprimer",
+        "cancel": "Annuler"
+      }
+    }
+  },
+  "monthDetail": {
+    "transaction": "transaction",
+    "transactions": "transactions",
+    "empty": "Aucune transaction dans cette catégorie ce mois-ci",
+    "error": "Catégorie introuvable"
+  }
+}

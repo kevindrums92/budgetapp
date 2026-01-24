@@ -1,0 +1,70 @@
+{
+  "title": "Categorias",
+  "tabs": {
+    "expenses": "Despesas",
+    "income": "Receitas"
+  },
+  "emptyExpenses": "Não há categorias de despesas",
+  "emptyIncome": "Não há categorias de receitas",
+  "createButton": "Criar categoria",
+  "form": {
+    "editTitle": "Editar Categoria",
+    "newTitle": "Nova Categoria",
+    "name": "Nome",
+    "namePlaceholder": "Nome da categoria",
+    "type": "Tipo",
+    "typeExpense": "Despesa",
+    "typeIncome": "Receita",
+    "icon": "Ícone",
+    "selectIcon": "Selecionar ícone",
+    "color": "Cor",
+    "group": "Grupo",
+    "selectGroup": "Selecionar grupo",
+    "save": "Salvar",
+    "saveChanges": "Salvar alterações",
+    "delete": {
+      "title": "Excluir categoria",
+      "message": "Tem certeza de que deseja excluir esta categoria? As transações existentes manterão o nome da categoria.",
+      "confirm": "Excluir",
+      "cancel": "Cancelar"
+    }
+  },
+  "iconColorPicker": {
+    "icon": "Ícone",
+    "color": "Cor",
+    "apply": "Aplicar"
+  },
+  "groups": {
+    "title": "Grupos de Categorias",
+    "emptyExpenses": "Não há grupos de despesas",
+    "emptyIncome": "Não há grupos de receitas",
+    "createButton": "Criar grupo",
+    "form": {
+      "editTitle": "Editar Grupo",
+      "newTitle": "Novo Grupo",
+      "name": "Nome do grupo",
+      "namePlaceholder": "Ex: Moradia",
+      "type": "Tipo",
+      "typeExpense": "Despesa",
+      "typeIncome": "Receita",
+      "typeWarning": "O tipo não pode ser alterado após criar o grupo",
+      "tapToChangeColor": "Toque para alterar a cor",
+      "selectColor": "Selecionar cor",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "saveChanges": "Salvar alterações",
+      "delete": {
+        "title": "Excluir grupo",
+        "message": "Tem certeza de que deseja excluir este grupo? As categorias serão reatribuídas ao grupo \"Outros\".",
+        "confirm": "Excluir",
+        "cancel": "Cancelar"
+      }
+    }
+  },
+  "monthDetail": {
+    "transaction": "transação",
+    "transactions": "transações",
+    "empty": "Não há transações nesta categoria este mês",
+    "error": "Categoria não encontrada"
+  }
+}

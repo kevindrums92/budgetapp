@@ -1,0 +1,117 @@
+{
+  "form": {
+    "edit": "Editar",
+    "newIncome": "Nova Receita",
+    "newExpense": "Nova Despesa",
+    "amount": "Valor",
+    "description": "Descrição",
+    "placeholderIncome": "De onde vem?",
+    "placeholderExpense": "No que você gastou?",
+    "date": "Data",
+    "category": "Categoria",
+    "categoryPlaceholder": "Selecionar categoria",
+    "notes": "Notas",
+    "notesPlaceholder": "Adicionar notas... (opcional)",
+    "status": "Status",
+    "statusPaid": "Pago",
+    "statusPending": "Pendente",
+    "statusPlanned": "Planejado",
+    "schedule": {
+      "title": "Programar automaticamente",
+      "enabled": "Programado automaticamente",
+      "tapToConfig": "Toque para configurar",
+      "inactive": "Programação inativa",
+      "inactiveMessage": "Esta programação foi desativada"
+    },
+    "save": "Salvar",
+    "saveChanges": "Salvar alterações",
+    "delete": {
+      "title": "Excluir transação",
+      "message": "Tem certeza de que deseja excluir \"{{name}}\" por {{amount}}?",
+      "confirm": "Excluir",
+      "cancel": "Cancelar"
+    },
+    "saveModal": {
+      "title": "Salvar alterações",
+      "message": "Este é um registro programado. Como você deseja salvar as alterações?",
+      "onlyThis": "Apenas este registro",
+      "onlyThisDesc": "Cria uma transação individual com esses valores. A programação continua com os valores originais.",
+      "thisAndFollowing": "Este e os seguintes",
+      "thisAndFollowingDesc": "Finaliza o modelo atual e cria um novo com essas alterações. As transações passadas não são modificadas.",
+      "cancel": "Cancelar"
+    },
+    "noChanges": {
+      "title": "Sem alterações",
+      "message": "Você não fez nenhuma alteração neste registro.",
+      "ok": "Entendido"
+    }
+  },
+  "list": {
+    "monthWarning": "Você está visualizando um mês diferente do atual. Você pode adicionar transações de qualquer forma, mas verifique a data.",
+    "searchEmpty": "Nenhum resultado encontrado para \"{{query}}\"",
+    "noTransactions": "Você ainda não tem transações este mês."
+  },
+  "scheduleConfig": {
+    "title": "Configurar programação",
+    "frequency": {
+      "label": "Frequência",
+      "daily": "Diário",
+      "weekly": "Semanal",
+      "monthly": "Mensal",
+      "yearly": "Anual"
+    },
+    "interval": {
+      "label": "A cada",
+      "day": "dia",
+      "days": "dias",
+      "week": "semana",
+      "weeks": "semanas",
+      "month": "mês",
+      "months": "meses",
+      "year": "ano",
+      "years": "anos"
+    },
+    "dayOfWeek": {
+      "label": "Dia da semana",
+      "sun": "Dom",
+      "mon": "Seg",
+      "tue": "Ter",
+      "wed": "Qua",
+      "thu": "Qui",
+      "fri": "Sex",
+      "sat": "Sáb"
+    },
+    "dayOfMonth": {
+      "label": "Dia do mês",
+      "suffix": "do mês",
+      "validation": "Se o mês tiver menos dias, será usado o último dia do mês"
+    },
+    "endDate": {
+      "label": "Data de término",
+      "placeholder": "Selecionar data"
+    },
+    "info": "Esta transação será gerada automaticamente a cada {{interval}} {{unit}}{{endDate}}",
+    "infoUntil": " até {{date}}",
+    "delete": "Excluir programação",
+    "save": "Salvar"
+  },
+  "scheduledBanner": {
+    "singular": "Transação programada",
+    "plural": "Transações programadas",
+    "review": "Revisar",
+    "hideModal": {
+      "title": "Ocultar transações programadas",
+      "message": "Como você deseja ocultar este banner?",
+      "neverShowMonth": "Não mostrar novamente este mês",
+      "hideOnce": "Apenas desta vez",
+      "cancel": "Cancelar"
+    },
+    "confirmModal": {
+      "title": "Registrar transações",
+      "message": "{{count}} transações programadas serão registradas.",
+      "message_one": "{{count}} transação programada será registrada.",
+      "confirm": "Registrar todas",
+      "cancel": "Cancelar"
+    }
+  }
+}

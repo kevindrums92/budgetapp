@@ -1,0 +1,117 @@
+{
+  "form": {
+    "edit": "Modifier",
+    "newIncome": "Nouveau Revenu",
+    "newExpense": "Nouvelle Dépense",
+    "amount": "Montant",
+    "description": "Description",
+    "placeholderIncome": "D'où provient-il ?",
+    "placeholderExpense": "Sur quoi avez-vous dépensé ?",
+    "date": "Date",
+    "category": "Catégorie",
+    "categoryPlaceholder": "Sélectionner une catégorie",
+    "notes": "Notes",
+    "notesPlaceholder": "Ajouter des notes... (optionnel)",
+    "status": "Statut",
+    "statusPaid": "Payé",
+    "statusPending": "En attente",
+    "statusPlanned": "Prévu",
+    "schedule": {
+      "title": "Programmer automatiquement",
+      "enabled": "Programmé automatiquement",
+      "tapToConfig": "Appuyez pour configurer",
+      "inactive": "Programmation inactive",
+      "inactiveMessage": "Cette programmation a été désactivée"
+    },
+    "save": "Enregistrer",
+    "saveChanges": "Enregistrer les modifications",
+    "delete": {
+      "title": "Supprimer la transaction",
+      "message": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" pour {{amount}} ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "saveModal": {
+      "title": "Enregistrer les modifications",
+      "message": "Ceci est un enregistrement programmé. Comment souhaitez-vous enregistrer les modifications ?",
+      "onlyThis": "Seulement cet enregistrement",
+      "onlyThisDesc": "Crée une transaction individuelle avec ces valeurs. La programmation continue avec les valeurs d'origine.",
+      "thisAndFollowing": "Celui-ci et les suivants",
+      "thisAndFollowingDesc": "Termine le modèle actuel et en crée un nouveau avec ces modifications. Les transactions passées ne sont pas modifiées.",
+      "cancel": "Annuler"
+    },
+    "noChanges": {
+      "title": "Aucun changement",
+      "message": "Vous n'avez apporté aucun changement à cet enregistrement.",
+      "ok": "Compris"
+    }
+  },
+  "list": {
+    "monthWarning": "Vous consultez un mois différent du mois actuel. Vous pouvez ajouter des transactions de toute façon, mais vérifiez la date.",
+    "searchEmpty": "Aucun résultat trouvé pour \"{{query}}\"",
+    "noTransactions": "Vous n'avez pas encore de transactions ce mois-ci."
+  },
+  "scheduleConfig": {
+    "title": "Configurer la programmation",
+    "frequency": {
+      "label": "Fréquence",
+      "daily": "Quotidien",
+      "weekly": "Hebdomadaire",
+      "monthly": "Mensuel",
+      "yearly": "Annuel"
+    },
+    "interval": {
+      "label": "Tous les",
+      "day": "jour",
+      "days": "jours",
+      "week": "semaine",
+      "weeks": "semaines",
+      "month": "mois",
+      "months": "mois",
+      "year": "an",
+      "years": "ans"
+    },
+    "dayOfWeek": {
+      "label": "Jour de la semaine",
+      "sun": "Dim",
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mer",
+      "thu": "Jeu",
+      "fri": "Ven",
+      "sat": "Sam"
+    },
+    "dayOfMonth": {
+      "label": "Jour du mois",
+      "suffix": "du mois",
+      "validation": "Si le mois a moins de jours, le dernier jour du mois sera utilisé"
+    },
+    "endDate": {
+      "label": "Date de fin",
+      "placeholder": "Sélectionner une date"
+    },
+    "info": "Cette transaction sera générée automatiquement tous les {{interval}} {{unit}}{{endDate}}",
+    "infoUntil": " jusqu'au {{date}}",
+    "delete": "Supprimer la programmation",
+    "save": "Enregistrer"
+  },
+  "scheduledBanner": {
+    "singular": "Transaction programmée",
+    "plural": "Transactions programmées",
+    "review": "Réviser",
+    "hideModal": {
+      "title": "Masquer les transactions programmées",
+      "message": "Comment souhaitez-vous masquer cette bannière ?",
+      "neverShowMonth": "Ne plus afficher ce mois-ci",
+      "hideOnce": "Seulement cette fois",
+      "cancel": "Annuler"
+    },
+    "confirmModal": {
+      "title": "Enregistrer les transactions",
+      "message": "{{count}} transactions programmées seront enregistrées.",
+      "message_one": "{{count}} transaction programmée sera enregistrée.",
+      "confirm": "Enregistrer toutes",
+      "cancel": "Annuler"
+    }
+  }
+}

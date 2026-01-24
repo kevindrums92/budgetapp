@@ -1,0 +1,86 @@
+{
+  "title": "Mes Voyages",
+  "subtitle": "Planifiez et suivez vos dépenses",
+  "sections": {
+    "current": "Voyage actuel",
+    "upcoming": "Voyages à venir",
+    "other": "Autres voyages"
+  },
+  "labels": {
+    "spent": "Dépensé",
+    "available": "Disponible",
+    "exceeded": "Dépassé",
+    "from": "Depuis {{date}}",
+    "planning": "Planification",
+    "inProgress": "En cours",
+    "completed": "Terminé"
+  },
+  "export": "Exporter les Voyages en CSV",
+  "emptyState": {
+    "title": "Vous n'avez pas de voyages",
+    "message": "Créez votre premier voyage pour commencer à suivre les dépenses",
+    "button": "Créer un voyage"
+  },
+  "delete": {
+    "title": "Supprimer le voyage",
+    "message": "Êtes-vous sûr de vouloir supprimer ce voyage ? Toutes les dépenses associées seront également supprimées.",
+    "confirm": "Supprimer",
+    "cancel": "Annuler"
+  },
+  "form": {
+    "editTitle": "Modifier le Voyage",
+    "newTitle": "Nouveau Voyage",
+    "name": "Nom du voyage",
+    "namePlaceholder": "Ex : Vacances à Carthagène",
+    "budget": "Budget",
+    "startDate": "Date de début",
+    "endDate": "Date de fin (optionnelle)",
+    "destination": "Destination (optionnelle)",
+    "destinationPlaceholder": "Ex : Carthagène, Colombie",
+    "save": "Enregistrer",
+    "saveChanges": "Enregistrer les modifications"
+  },
+  "detail": {
+    "expenses": "DÉPENSES ({{count}})",
+    "expenses_one": "DÉPENSE ({{count}})",
+    "newExpense": "Nouvelle Dépense",
+    "emptyExpenses": {
+      "title": "Aucune dépense",
+      "message": "Ajoutez votre première dépense de voyage"
+    },
+    "byCategory": "Par catégorie",
+    "emptyExpensesMessage": "Il n'y a pas encore de dépenses enregistrées pour ce voyage.",
+    "addExpenseButton": "Ajouter une dépense",
+    "addExpenseButtonAria": "Ajouter une dépense",
+    "ongoing": "(en cours)"
+  },
+  "expense": {
+    "editTitle": "Modifier la Dépense",
+    "newTitle": "Nouvelle Dépense",
+    "description": "Description",
+    "descriptionPlaceholder": "Sur quoi avez-vous dépensé ?",
+    "amount": "Montant",
+    "date": "Date",
+    "category": "Catégorie",
+    "categoryPlaceholder": "Sélectionner une catégorie",
+    "save": "Enregistrer",
+    "saveChanges": "Enregistrer les modifications",
+    "delete": {
+      "title": "Supprimer la dépense",
+      "message": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ?",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "categories": {
+      "transport": "Transport",
+      "accommodation": "Hébergement",
+      "food": "Nourriture",
+      "activities": "Activités",
+      "shopping": "Achats",
+      "other": "Autres"
+    },
+    "notes": "Notes",
+    "notesPlaceholder": "Détails supplémentaires...",
+    "optional": "(optionnel)"
+  }
+}

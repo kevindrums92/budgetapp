@@ -194,6 +194,7 @@ export function loadState(): BudgetState | null {
       // Remove monthlyLimit from all categories
       if (Array.isArray(parsed.categoryDefinitions)) {
         parsed.categoryDefinitions = parsed.categoryDefinitions.map((cat: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { monthlyLimit, ...rest } = cat;
           return rest;
         });

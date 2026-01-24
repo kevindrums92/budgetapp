@@ -1,0 +1,112 @@
+{
+  "page": {
+    "title": "Orçamentos",
+    "activeBudgets": "Orçamentos ativos",
+    "remaining": "Restam {{amount}} ({{percentage}}%)",
+    "exceeded": "Excedido por {{amount}} ({{percentage}}%)",
+    "noActiveBudgets": "Sem orçamentos ativos neste período"
+  },
+  "summary": {
+    "budgeted": "Orçado",
+    "spent": "Gasto"
+  },
+  "emptyState": {
+    "title": "Criar meu primeiro limite",
+    "description": "Defina um valor máximo para despesas como Restaurantes ou Transporte.",
+    "cta": "Começar agora"
+  },
+  "modal": {
+    "titleNew": "Novo Orçamento",
+    "titleEdit": "Editar Orçamento",
+    "category": "Categoria",
+    "selectCategory": "Selecionar categoria",
+    "amount": "Orçamento",
+    "period": "Período",
+    "selectPeriod": "Selecionar período",
+    "recurring": "Recorrente",
+    "recurringDescription": "Renovar automaticamente ao finalizar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "deleteConfirmTitle": "Excluir orçamento?",
+    "deleteConfirmMessage": "Tem certeza de que deseja excluir este orçamento?",
+    "cancel": "Cancelar"
+  },
+  "periodPicker": {
+    "title": "Selecionar Período",
+    "week": "Semana",
+    "month": "Mês",
+    "quarter": "Trimestre",
+    "year": "Ano",
+    "custom": "Personalizado",
+    "select": "Selecionar",
+    "startDate": "Data de início",
+    "endDate": "Data de término"
+  },
+  "card": {
+    "budgetWeekly": "Orçamento semanal",
+    "budgetMonthly": "Orçamento mensal",
+    "budgetQuarterly": "Orçamento trimestral",
+    "budgetYearly": "Orçamento anual",
+    "budgetCustom": "Orçamento personalizado",
+    "remaining": "Restam {{amount}}",
+    "exceeded": "Excedido por {{amount}}",
+    "statusGood": "Em boa forma",
+    "statusWarning": "Perto do limite",
+    "statusExceeded": "Limite excedido"
+  },
+  "onboarding": {
+    "screen1": {
+      "title": "Orçamentos Inteligentes",
+      "subtitle": "Controle seus gastos com orçamentos flexíveis e renováveis automaticamente",
+      "feature1Title": "Períodos Flexíveis",
+      "feature1Description": "Crie orçamentos semanais, mensais, trimestrais, anuais ou personalizados",
+      "feature2Title": "Renovação Automática",
+      "feature2Description": "Ative a opção recorrente e esqueça de criar orçamentos todo mês",
+      "feature3Title": "Acompanhamento Visual",
+      "feature3Description": "Veja seu progresso em tempo real com barras coloridas e alertas inteligentes",
+      "continue": "Continuar"
+    },
+    "screen2": {
+      "title": "Escolha Seu Período",
+      "subtitle": "Você não está limitado a orçamentos mensais. Escolha o período que melhor se adapta a você.",
+      "weekTitle": "Semana",
+      "weekDescription": "Controle semanal de gastos",
+      "monthTitle": "Mês",
+      "monthDescription": "O período mais comum",
+      "quarterTitle": "Trimestre",
+      "quarterDescription": "Planeje por 3 meses",
+      "yearTitle": "Ano / Personalizado",
+      "yearDescription": "Ou defina suas próprias datas",
+      "example": "Crie um orçamento semanal de $ 100.000 para restaurantes, ou um anual de $ 5.000.000 para viagens.",
+      "continue": "Continuar"
+    },
+    "screen3": {
+      "title": "Configure e Esqueça",
+      "subtitle": "Ative a renovação automática e seus orçamentos se recriarão sozinhos ao finalizar cada período.",
+      "exampleCategory": "Mercado",
+      "examplePeriod": "Orçamento mensal",
+      "month1": "Janeiro 2026",
+      "month1Amount": "$ 500.000 orçados",
+      "month2": "Fevereiro 2026",
+      "month2Status": "✓ Renovado automaticamente",
+      "month3": "Março 2026",
+      "month3Status": "✓ Renovado automaticamente",
+      "infoText": "Os orçamentos são renovados automaticamente com o mesmo valor e período. Você pode desativar a renovação a qualquer momento.",
+      "continue": "Continuar"
+    },
+    "screen4": {
+      "title": "Acompanhamento em Tempo Real",
+      "subtitle": "Visualize seu progresso com barras de status, cores intuitivas e alertas quando você se aproxima do limite.",
+      "exampleTransport": "Transporte",
+      "exampleEntertainment": "Entretenimento",
+      "exampleRestaurants": "Restaurantes",
+      "statusGood": "✓ Em boa forma",
+      "statusWarning": "⚠ Perto do limite",
+      "statusExceeded": "⛔ Limite excedido",
+      "colorsTitle": "Cores intuitivas",
+      "colorsDescription": "Verde = boa forma, Amarelo = perto do limite, Vermelho = excedido. Você sempre saberá o status do seu orçamento de relance.",
+      "start": "Começar!"
+    },
+    "skip": "Pular"
+  }
+}

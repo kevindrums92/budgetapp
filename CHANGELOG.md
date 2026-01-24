@@ -4,6 +4,27 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Budget Module Complete Implementation**: Full budget tracking system with flexible periods and cloud sync
+  - Create budgets for any category with weekly, monthly, quarterly, yearly, or custom periods
+  - Recurring budgets that auto-renew at the end of each period
+  - Real-time progress tracking with color-coded visual indicators (green/yellow/red)
+  - Budget cards show spent amount, remaining amount, and progress percentage
+  - Support for multiple budgets per category with different time periods
+  - Budget onboarding wizard with 4 animated screens explaining features
+  - Complete i18n support (es, en, pt, fr) for all budget components
+  - Dark mode support throughout entire budget module
+
+### Fixed
+- **Budget Cloud Sync**: Fixed budgets and onboarding flags not syncing to cloud
+  - Added `budgets`, `welcomeSeen`, and `budgetOnboardingSeen` to CloudSyncGate dependencies
+  - Updated BudgetState type to include onboarding flags in cloud-synced state
+  - Fixed Budget CRUD operations preserving all state fields (welcomeSeen, budgetOnboardingSeen, lastSchedulerRun)
+  - Budget data now syncs automatically after create/update/delete operations
+- **Budget Edit Modal**: Fixed edit mode not pre-loading existing budget data
+  - Modal now properly loads category, amount, period, and recurring settings when editing
+  - Separated data loading logic from animation effects for reliability
+
 ### Changed
 - **Transaction Save Button**: Unified button style to emerald color for all transaction types (income/expense)
 - **CategoryMonthDetailPage Dark Mode & i18n**: Complete internationalization and dark mode support

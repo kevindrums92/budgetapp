@@ -71,8 +71,11 @@ export default function CloudSyncGate() {
   const categories = useBudgetStore((s) => s.categories);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
+  const budgets = useBudgetStore((s) => s.budgets);
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
+  const welcomeSeen = useBudgetStore((s) => s.welcomeSeen);
+  const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
 
   const initializedRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
@@ -523,7 +526,7 @@ export default function CloudSyncGate() {
     }, 1200);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, categoryGroups, trips, tripExpenses]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen]);
 
   const mode = useBudgetStore.getState().cloudMode;
 

@@ -11,10 +11,14 @@ import type {
   TripExpenseCategory,
   Category,
   CategoryGroup,
+  Budget,
+  BudgetPeriod,
+  BudgetStatus,
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
-import { currentMonthKey } from "@/services/dates.service";
+import { currentMonthKey, todayISO } from "@/services/dates.service";
 import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/category-groups/default-category-groups";
+import { getBudgetsToRenew, renewRecurringBudget, validateBudgetOverlap } from "@/features/budget/services/budget.service";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
 type CloudMode = "guest" | "cloud";
@@ -62,6 +66,14 @@ type AddCategoryGroupInput = {
   name: string;
   type: TransactionType;
   color: string;
+};
+
+type CreateBudgetInput = {
+  categoryId: string;
+  amount: number;
+  period: BudgetPeriod;
+  accountId?: string;
+  isRecurring: boolean;
 };
 
 type BudgetStore = BudgetState & {
@@ -115,6 +127,17 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteCategoryGroup: (id: string) => void;
   getCategoryGroupById: (id: string) => CategoryGroup | undefined;
+
+  // CRUD Budgets
+  createBudget: (input: CreateBudgetInput) => string | null; // Returns new budget ID or null if overlap
+  updateBudget: (
+    id: string,
+    patch: Partial<Omit<Budget, "id" | "createdAt">>
+  ) => void;
+  deleteBudget: (id: string) => void;
+  archiveBudget: (id: string) => void;
+  getBudgetById: (id: string) => Budget | undefined;
+  renewExpiredBudgets: () => void;
 
   // Landing
   welcomeSeen: boolean;
@@ -176,6 +199,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         else localStorage.removeItem("budget.welcomeSeen.v1");
       } catch { }
       set({ welcomeSeen: v });
+      saveState(get());
     },
 
     budgetOnboardingSeen: (() => {
@@ -188,6 +212,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         else localStorage.removeItem("budget.budgetOnboardingSeen.v1");
       } catch { }
       set({ budgetOnboardingSeen: v });
+      saveState(get());
     },
 
     // UI month
@@ -640,6 +665,209 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       return get().categoryGroups.find((g) => g.id === id);
     },
 
+    // ---------- CRUD BUDGETS ----------
+    createBudget: (input) => {
+      // Validate amount
+      if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
+
+      const state = get();
+
+      // Check for overlaps
+      const hasOverlap = validateBudgetOverlap(
+        {
+          categoryId: input.categoryId,
+          amount: Math.round(input.amount),
+          period: input.period,
+          accountId: input.accountId,
+          isRecurring: input.isRecurring,
+          status: "active",
+        },
+        state.budgets
+      );
+
+      if (hasOverlap) {
+        console.warn("[Budget Store] Cannot create budget: overlaps with existing budget");
+        return null;
+      }
+
+      const newBudget: Budget = {
+        id: crypto.randomUUID(),
+        categoryId: input.categoryId,
+        amount: Math.round(input.amount),
+        period: input.period,
+        accountId: input.accountId,
+        isRecurring: input.isRecurring,
+        status: "active",
+        createdAt: Date.now(),
+      };
+
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: [...state.budgets, newBudget],
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+
+      return newBudget.id;
+    },
+
+    updateBudget: (id, patch) => {
+      set((state) => {
+        const budgetToUpdate = state.budgets.find((b) => b.id === id);
+        if (!budgetToUpdate) return state;
+
+        // If updating period or categoryId, validate overlaps
+        if (patch.period || patch.categoryId) {
+          const updatedBudget = { ...budgetToUpdate, ...patch };
+          const hasOverlap = validateBudgetOverlap(
+            {
+              categoryId: updatedBudget.categoryId,
+              amount: updatedBudget.amount,
+              period: updatedBudget.period,
+              accountId: updatedBudget.accountId,
+              isRecurring: updatedBudget.isRecurring,
+              status: updatedBudget.status,
+            },
+            state.budgets,
+            id // Exclude current budget from overlap check
+          );
+
+          if (hasOverlap) {
+            console.warn("[Budget Store] Cannot update budget: would overlap with existing budget");
+            return state;
+          }
+        }
+
+        const nextBudgets = state.budgets.map((b) => {
+          if (b.id !== id) return b;
+          return { ...b, ...patch };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: nextBudgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    deleteBudget: (id) => {
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: state.budgets.filter((b) => b.id !== id),
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    archiveBudget: (id) => {
+      set((state) => {
+        const nextBudgets = state.budgets.map((b) => {
+          if (b.id !== id) return b;
+          return { ...b, status: "archived" as BudgetStatus };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: nextBudgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    getBudgetById: (id) => {
+      return get().budgets.find((b) => b.id === id);
+    },
+
+    renewExpiredBudgets: () => {
+      const state = get();
+      const today = todayISO();
+
+      const budgetsToRenew = getBudgetsToRenew(state.budgets, today);
+
+      if (budgetsToRenew.length === 0) return;
+
+      console.log(`[Budget Store] Renewing ${budgetsToRenew.length} expired budgets`);
+
+      set((state) => {
+        let nextBudgets = [...state.budgets];
+
+        budgetsToRenew.forEach((oldBudget) => {
+          // Mark old budget as completed
+          nextBudgets = nextBudgets.map((b) => {
+            if (b.id === oldBudget.id) {
+              return { ...b, status: "completed" as BudgetStatus };
+            }
+            return b;
+          });
+
+          // Create new budget for next period
+          const newBudget = renewRecurringBudget(oldBudget);
+          nextBudgets.push(newBudget);
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: nextBudgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
     // ---------- SYNC HELPERS ----------
     getSnapshot: () => {
       const s = get();
@@ -652,6 +880,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         budgets: s.budgets ?? [],
         trips: s.trips ?? [],
         tripExpenses: s.tripExpenses ?? [],
+        welcomeSeen: s.welcomeSeen,
+        budgetOnboardingSeen: s.budgetOnboardingSeen,
         lastSchedulerRun: s.lastSchedulerRun,
       };
     },
@@ -672,6 +902,20 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       const normalizedData = { ...data, schemaVersion: 6 as const };
       saveState(normalizedData);
 
+      // Sync onboarding flags to localStorage
+      if (data.welcomeSeen !== undefined) {
+        try {
+          if (data.welcomeSeen) localStorage.setItem("budget.welcomeSeen.v1", "1");
+          else localStorage.removeItem("budget.welcomeSeen.v1");
+        } catch { }
+      }
+      if (data.budgetOnboardingSeen !== undefined) {
+        try {
+          if (data.budgetOnboardingSeen) localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
+          else localStorage.removeItem("budget.budgetOnboardingSeen.v1");
+        } catch { }
+      }
+
       // set explícito (NO meter funciones del store dentro)
       set({
         schemaVersion: 6,
@@ -682,6 +926,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         budgets: data.budgets ?? [],
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
+        welcomeSeen: data.welcomeSeen ?? false,
+        budgetOnboardingSeen: data.budgetOnboardingSeen ?? false,
         lastSchedulerRun: data.lastSchedulerRun,
       });
     },

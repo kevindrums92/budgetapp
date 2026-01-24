@@ -1,0 +1,86 @@
+{
+  "title": "Minhas Viagens",
+  "subtitle": "Planeje e acompanhe suas despesas",
+  "sections": {
+    "current": "Viagem atual",
+    "upcoming": "Próximas viagens",
+    "other": "Outras viagens"
+  },
+  "labels": {
+    "spent": "Gasto",
+    "available": "Disponível",
+    "exceeded": "Excedido",
+    "from": "Desde {{date}}",
+    "planning": "Planejando",
+    "inProgress": "Em andamento",
+    "completed": "Concluído"
+  },
+  "export": "Exportar Viagens para CSV",
+  "emptyState": {
+    "title": "Você não tem viagens",
+    "message": "Crie sua primeira viagem para começar a acompanhar despesas",
+    "button": "Criar viagem"
+  },
+  "delete": {
+    "title": "Excluir viagem",
+    "message": "Tem certeza de que deseja excluir esta viagem? Todas as despesas associadas também serão excluídas.",
+    "confirm": "Excluir",
+    "cancel": "Cancelar"
+  },
+  "form": {
+    "editTitle": "Editar Viagem",
+    "newTitle": "Nova Viagem",
+    "name": "Nome da viagem",
+    "namePlaceholder": "Ex: Férias em Cartagena",
+    "budget": "Orçamento",
+    "startDate": "Data de início",
+    "endDate": "Data de término (opcional)",
+    "destination": "Destino (opcional)",
+    "destinationPlaceholder": "Ex: Cartagena, Colômbia",
+    "save": "Salvar",
+    "saveChanges": "Salvar alterações"
+  },
+  "detail": {
+    "expenses": "DESPESAS ({{count}})",
+    "expenses_one": "DESPESA ({{count}})",
+    "newExpense": "Nova Despesa",
+    "emptyExpenses": {
+      "title": "Sem despesas",
+      "message": "Adicione sua primeira despesa de viagem"
+    },
+    "byCategory": "Por categoria",
+    "emptyExpensesMessage": "Ainda não há despesas registradas nesta viagem.",
+    "addExpenseButton": "Adicionar despesa",
+    "addExpenseButtonAria": "Adicionar despesa",
+    "ongoing": "(em andamento)"
+  },
+  "expense": {
+    "editTitle": "Editar Despesa",
+    "newTitle": "Nova Despesa",
+    "description": "Descrição",
+    "descriptionPlaceholder": "No que você gastou?",
+    "amount": "Valor",
+    "date": "Data",
+    "category": "Categoria",
+    "categoryPlaceholder": "Selecionar categoria",
+    "save": "Salvar",
+    "saveChanges": "Salvar alterações",
+    "delete": {
+      "title": "Excluir despesa",
+      "message": "Tem certeza de que deseja excluir \"{{name}}\"?",
+      "confirm": "Excluir",
+      "cancel": "Cancelar"
+    },
+    "categories": {
+      "transport": "Transporte",
+      "accommodation": "Hospedagem",
+      "food": "Alimentação",
+      "activities": "Atividades",
+      "shopping": "Compras",
+      "other": "Outros"
+    },
+    "notes": "Notas",
+    "notesPlaceholder": "Detalhes adicionais...",
+    "optional": "(opcional)"
+  }
+}

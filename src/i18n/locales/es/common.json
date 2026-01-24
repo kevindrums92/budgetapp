@@ -37,6 +37,12 @@
     "selectDate": "Seleccionar fecha",
     "close": "Cerrar"
   },
+  "navigation": {
+    "home": "Inicio",
+    "budget": "Presupuesto",
+    "stats": "Estadísticas",
+    "settings": "Ajustes"
+  },
   "settings": {
     "title": "Configuración",
     "subtitle": "General y Cuenta"

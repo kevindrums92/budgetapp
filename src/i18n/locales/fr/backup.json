@@ -1,0 +1,82 @@
+{
+  "title": "Sauvegarde & Restauration",
+  "activeMethod": "Méthode active :",
+  "methods": {
+    "manual": "Manuel",
+    "local": "Sauvegardes Automatiques Locales",
+    "cloud": "Sauvegardes dans le Cloud"
+  },
+  "manual": {
+    "title": "Sauvegarde Manuelle",
+    "description": "Exportez et importez vos données au format JSON",
+    "export": {
+      "title": "Exporter",
+      "description": "Téléchargez vos données au format JSON",
+      "button": "Exporter"
+    },
+    "restore": {
+      "title": "Restaurer",
+      "warning": "Cela remplacera vos données actuelles",
+      "button": "Restaurer"
+    },
+    "includes": {
+      "title": "Qu'est-ce qui est inclus dans la sauvegarde ?",
+      "transactions": "Toutes vos transactions",
+      "trips": "Voyages et dépenses de voyage",
+      "categories": "Catégories personnalisées",
+      "checksum": "Vérification SHA-256"
+    },
+    "advice": "Conservez vos sauvegardes dans un endroit sûr comme Google Drive ou Dropbox"
+  },
+  "local": {
+    "authRequired": "Authentification Requise",
+    "authMessage": "Connectez-vous pour utiliser les sauvegardes automatiques locales",
+    "description": "Créées automatiquement toutes les 24 heures",
+    "howItWorks": {
+      "title": "Comment ça marche ?",
+      "frequency": "Créées automatiquement toutes les 24 heures",
+      "retention": "Les 5 dernières sauvegardes sont conservées",
+      "sizeLimit": "Taille maximale totale : 5MB",
+      "timing": "Créées avant les opérations critiques"
+    },
+    "emptyState": "Aucune sauvegarde automatique locale",
+    "backupItem": {
+      "restore": "Restaurer",
+      "delete": "Supprimer"
+    }
+  },
+  "cloud": {
+    "authRequired": "Authentification Requise",
+    "authMessage": "Connectez-vous pour utiliser les sauvegardes dans le cloud",
+    "description": "Créées automatiquement tous les 7 jours",
+    "howItWorks": {
+      "title": "Comment ça marche ?",
+      "frequency": "Créées automatiquement tous les 7 jours",
+      "retention": "Conservées pendant 30 jours",
+      "storage": "Stockées sur Supabase",
+      "accessible": "Accessibles depuis n'importe quel appareil"
+    },
+    "emptyState": "Aucune sauvegarde dans le cloud",
+    "backupItem": {
+      "restore": "Restaurer",
+      "delete": "Supprimer"
+    }
+  },
+  "changeMethod": "Changer la méthode de sauvegarde",
+  "selectMethod": {
+    "title": "Sélectionner la méthode de sauvegarde",
+    "manual": {
+      "title": "Manuel",
+      "description": "Vous décidez quand sauvegarder"
+    },
+    "local": {
+      "title": "Automatique Local",
+      "description": "Sauvegardes toutes les 24h sur cet appareil"
+    },
+    "cloud": {
+      "title": "Cloud",
+      "description": "Sauvegardes tous les 7 jours sur Supabase"
+    },
+    "cancel": "Annuler"
+  }
+}

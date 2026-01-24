@@ -26,6 +26,30 @@ import enCategories from './locales/en/categories.json';
 import enBackup from './locales/en/backup.json';
 import enScheduled from './locales/en/scheduled.json';
 
+import ptCommon from './locales/pt/common.json';
+import ptOnboarding from './locales/pt/onboarding.json';
+import ptProfile from './locales/pt/profile.json';
+import ptHome from './locales/pt/home.json';
+import ptBudget from './locales/pt/budget.json';
+import ptStats from './locales/pt/stats.json';
+import ptTrips from './locales/pt/trips.json';
+import ptTransactions from './locales/pt/transactions.json';
+import ptCategories from './locales/pt/categories.json';
+import ptBackup from './locales/pt/backup.json';
+import ptScheduled from './locales/pt/scheduled.json';
+
+import frCommon from './locales/fr/common.json';
+import frOnboarding from './locales/fr/onboarding.json';
+import frProfile from './locales/fr/profile.json';
+import frHome from './locales/fr/home.json';
+import frBudget from './locales/fr/budget.json';
+import frStats from './locales/fr/stats.json';
+import frTrips from './locales/fr/trips.json';
+import frTransactions from './locales/fr/transactions.json';
+import frCategories from './locales/fr/categories.json';
+import frBackup from './locales/fr/backup.json';
+import frScheduled from './locales/fr/scheduled.json';
+
 const resources = {
   es: {
     common: esCommon,
@@ -52,6 +76,32 @@ const resources = {
     categories: enCategories,
     backup: enBackup,
     scheduled: enScheduled,
+  },
+  pt: {
+    common: ptCommon,
+    onboarding: ptOnboarding,
+    profile: ptProfile,
+    home: ptHome,
+    budget: ptBudget,
+    stats: ptStats,
+    trips: ptTrips,
+    transactions: ptTransactions,
+    categories: ptCategories,
+    backup: ptBackup,
+    scheduled: ptScheduled,
+  },
+  fr: {
+    common: frCommon,
+    onboarding: frOnboarding,
+    profile: frProfile,
+    home: frHome,
+    budget: frBudget,
+    stats: frStats,
+    trips: frTrips,
+    transactions: frTransactions,
+    categories: frCategories,
+    backup: frBackup,
+    scheduled: frScheduled,
   },
 };
 

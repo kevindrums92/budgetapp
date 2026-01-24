@@ -121,6 +121,9 @@ export type BudgetState = {
   // Trips
   trips: Trip[];
   tripExpenses: TripExpense[];
+  // Onboarding flags
+  welcomeSeen?: boolean;             // First-time welcome onboarding completed
+  budgetOnboardingSeen?: boolean;    // Budget module onboarding completed
   // Scheduler
   lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull

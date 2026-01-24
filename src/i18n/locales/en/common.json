@@ -37,6 +37,12 @@
     "selectDate": "Select date",
     "close": "Close"
   },
+  "navigation": {
+    "home": "Home",
+    "budget": "Budget",
+    "stats": "Stats",
+    "settings": "Settings"
+  },
   "settings": {
     "title": "Settings",
     "subtitle": "General & Account"

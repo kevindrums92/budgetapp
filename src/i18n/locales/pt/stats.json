@@ -1,0 +1,43 @@
+{
+  "title": "Estatísticas",
+  "quickStats": {
+    "dailyAverage": "Média de Gasto Diário",
+    "topCategory": "Categoria Principal",
+    "topDay": "Dia com mais gastos",
+    "monthComparison": "vs Mês Anterior",
+    "noExpenses": "Não há despesas este mês"
+  },
+  "expensesByCategory": {
+    "title": "Despesas por Categoria",
+    "spent": "gasto",
+    "noData": "Não há despesas este mês"
+  },
+  "incomeVsExpenses": {
+    "title": "Receitas vs Despesas",
+    "income": "Receitas",
+    "expenses": "Despesas",
+    "noData": "Não há dados nos últimos 6 meses"
+  },
+  "expenseTrend": {
+    "title": "Tendência de Despesas",
+    "noData": "Não há dados de despesas"
+  },
+  "days": {
+    "sunday": "Domingo",
+    "monday": "Segunda-feira",
+    "tuesday": "Terça-feira",
+    "wednesday": "Quarta-feira",
+    "thursday": "Quinta-feira",
+    "friday": "Sexta-feira",
+    "saturday": "Sábado"
+  },
+  "daysShort": {
+    "sun": "Dom",
+    "mon": "Seg",
+    "tue": "Ter",
+    "wed": "Qua",
+    "thu": "Qui",
+    "fri": "Sex",
+    "sat": "Sáb"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "menu": {
+    "categories": "Categorias",
+    "scheduled": "Programadas",
+    "backup": "Backup & Restaurar"
+  },
+  "preferences": {
+    "title": "Preferências",
+    "language": {
+      "label": "Idioma",
+      "changed": "Idioma atualizado",
+      "cancel": "Cancelar"
+    },
+    "theme": {
+      "label": "Tema",
+      "light": "Claro",
+      "dark": "Escuro",
+      "system": "Automático",
+      "changed": "Tema atualizado"
+    },
+    "currency": {
+      "label": "Moeda",
+      "changed": "Moeda atualizada",
+      "search": "Buscar moeda...",
+      "noResults": "Nenhuma moeda encontrada",
+      "recommended": "Recomendada para você"
+    }
+  },
+  "account": {
+    "syncStatus": {
+      "local": "Modo Local",
+      "offline": "Sem Conexão",
+      "syncing": "Sincronizando",
+      "synced": "Sincronização em Nuvem Ativa"
+    }
+  },
+  "login": "Fazer login",
+  "logout": "Sair",
+  "loggingOut": "Saindo...",
+  "loginWithGoogle": "Continuar com Google",
+  "noConnection": "Sem conexão",
+  "loginBanner": {
+    "title": "Proteja suas finanças",
+    "subtitle": "Faça login para fazer backup de suas despesas na nuvem.",
+    "action": "Conectar conta"
+  }
+}

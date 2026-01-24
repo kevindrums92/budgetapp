@@ -1,0 +1,59 @@
+{
+  "title": "Programadas",
+  "tabs": {
+    "active": "Ativas ({{count}})",
+    "active_zero": "Ativas (0)",
+    "inactive": "Inativas ({{count}})",
+    "inactive_zero": "Inativas (0)"
+  },
+  "emptyActive": {
+    "title": "Você não tem programações ativas",
+    "message": "Ative a programação ao criar uma transação"
+  },
+  "emptyInactive": {
+    "title": "Você não tem programações inativas",
+    "message": "As programações desativadas aparecerão aqui"
+  },
+  "status": {
+    "active": "Ativa",
+    "inactive": "Inativa"
+  },
+  "item": {
+    "deactivate": "Desativar",
+    "nextDate": "Próxima: {{date}}"
+  },
+  "frequency": {
+    "daily": "Diário",
+    "dailyInterval": "A cada {{count}} dias",
+    "weekly": "Semanal",
+    "weeklyInterval": "A cada {{count}} semanas",
+    "weeklyOn": "Semanal às {{day}}",
+    "weeklyIntervalOn": "A cada {{count}} semanas às {{day}}",
+    "monthly": "Mensal no dia {{day}}",
+    "monthlyInterval": "A cada {{count}} meses no dia {{day}}",
+    "yearly": "Anual",
+    "yearlyInterval": "A cada {{count}} anos",
+    "scheduled": "Programada"
+  },
+  "daysOfWeek": {
+    "sunday": "domingos",
+    "monday": "segundas-feiras",
+    "tuesday": "terças-feiras",
+    "wednesday": "quartas-feiras",
+    "thursday": "quintas-feiras",
+    "friday": "sextas-feiras",
+    "saturday": "sábados"
+  },
+  "dateFormat": {
+    "today": "Hoje",
+    "tomorrow": "Amanhã"
+  },
+  "deactivate": {
+    "title": "Desativar programação",
+    "message": "Isso desativará a programação de \"{{name}}\". Não serão mais geradas transações automaticamente.",
+    "warning": "Esta ação é irreversível. Se você deseja ativá-la novamente, deverá criar uma nova programação.",
+    "note": "As transações já registradas não serão afetadas.",
+    "confirm": "Desativar",
+    "cancel": "Cancelar"
+  }
+}
