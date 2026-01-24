@@ -40,7 +40,8 @@
     "custom": "Personalizado",
     "select": "Selecionar",
     "startDate": "Data de início",
-    "endDate": "Data de término"
+    "endDate": "Data de término",
+    "selectedPeriod": "Período selecionado"
   },
   "card": {
     "budgetWeekly": "Orçamento semanal",

@@ -40,7 +40,8 @@
     "custom": "Custom",
     "select": "Select",
     "startDate": "Start date",
-    "endDate": "End date"
+    "endDate": "End date",
+    "selectedPeriod": "Selected period"
   },
   "card": {
     "budgetWeekly": "Weekly budget",

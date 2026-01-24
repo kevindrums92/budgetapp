@@ -143,22 +143,22 @@ export default function PeriodPickerModal({
       onClick={onClose}
     >
       <div
-        className={`relative mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl transform transition-all duration-200 ${
+        className={`relative mx-4 w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl transform transition-all duration-200 ${
           isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
             {t("periodPicker.title")}
           </h3>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-1 hover:bg-gray-100 transition-colors"
+            className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            <X size={20} className="text-gray-500" />
+            <X size={20} className="text-gray-500 dark:text-gray-400" />
           </button>
         </div>
 
@@ -172,7 +172,7 @@ export default function PeriodPickerModal({
               className={`rounded-xl py-3 text-sm font-medium transition-colors ${
                 selectedType === periodType.value
                   ? "bg-emerald-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
             >
               {periodType.label}
@@ -185,13 +185,13 @@ export default function PeriodPickerModal({
           <div className="mb-4 space-y-3">
             {/* Start Date */}
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-500">
+              <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
                 {t("periodPicker.startDate")}
               </label>
               <button
                 type="button"
                 onClick={() => setShowStartDatePicker(true)}
-                className="w-full rounded-xl bg-gray-50 p-3 text-left text-sm text-gray-900 hover:bg-gray-100 transition-colors"
+                className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-3 text-left text-sm text-gray-900 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 {formatDate(customStartDate)}
               </button>
@@ -199,13 +199,13 @@ export default function PeriodPickerModal({
 
             {/* End Date */}
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-500">
+              <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
                 {t("periodPicker.endDate")}
               </label>
               <button
                 type="button"
                 onClick={() => setShowEndDatePicker(true)}
-                className="w-full rounded-xl bg-gray-50 p-3 text-left text-sm text-gray-900 hover:bg-gray-100 transition-colors"
+                className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-3 text-left text-sm text-gray-900 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 {formatDate(customEndDate)}
               </button>
@@ -214,11 +214,11 @@ export default function PeriodPickerModal({
         )}
 
         {/* Period Preview */}
-        <div className="mb-6 rounded-xl bg-gray-50 p-3">
-          <p className="text-xs font-medium text-gray-500 mb-1">
-            Período seleccionado
+        <div className="mb-6 rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
+          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+            {t("periodPicker.selectedPeriod")}
           </p>
-          <p className="text-sm font-medium text-gray-900">
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
             {getPeriodPreview()}
           </p>
         </div>
@@ -228,7 +228,7 @@ export default function PeriodPickerModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+            className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           >
             {t("modal.cancel")}
           </button>
