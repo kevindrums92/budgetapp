@@ -47,20 +47,6 @@ export default function ProfilePage() {
   }, []);
 
   // Auth actions
-  async function signInWithGoogle() {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-        queryParams: {
-          prompt: "select_account",
-        },
-      },
-    });
-    if (error) setLoading(false);
-  }
-
   async function signOut() {
     setLoading(true);
     await supabase.auth.signOut();
@@ -150,21 +136,59 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Login button for guests */}
+      {/* Login banner for guests */}
       {!isLoggedIn && (
         <div className="px-4 pt-6 pb-4">
-          {!isOnline ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400 text-center">{t('noConnection')}</p>
-          ) : (
-            <button
-              type="button"
-              onClick={signInWithGoogle}
-              disabled={loading}
-              className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-[0.98] disabled:opacity-50 transition-all"
-            >
-              {loading ? t('loggingOut') : t('loginWithGoogle')}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => navigate('/onboarding/login')}
+            className="w-full rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm border border-[#18B7B0] hover:shadow-md transition-all active:scale-[0.98] text-left"
+          >
+            {/* Cloud icon */}
+            <div className="mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#18B7B0]/10">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-[#18B7B0]"
+                >
+                  <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div>
+              <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-50">
+                {t('loginBanner.title', 'Protege tus finanzas')}
+              </h3>
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                {t('loginBanner.subtitle', 'Inicia sesión para respaldar tus gastos en la nube.')}
+              </p>
+              <div className="flex items-center gap-1 text-sm font-semibold text-[#18B7B0]">
+                <span>{t('loginBanner.action', 'Conectar cuenta')}</span>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </button>
         </div>
       )}
 

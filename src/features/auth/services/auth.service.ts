@@ -325,7 +325,8 @@ export async function signOut(): Promise<boolean> {
 }
 
 /**
- * Send password reset email
+ * Send password reset OTP
+ * Sends a 6-digit OTP to the user's email for password reset
  * @param email Email address
  * @returns Promise<{ success: boolean; error?: string }>
  */
@@ -335,28 +336,85 @@ export async function sendPasswordResetEmail(
   try {
     const normalizedEmail = normalizeEmail(email);
 
-    const { error } = await supabase.auth.resetPasswordForEmail(
-      normalizedEmail,
-      {
-        redirectTo: `${window.location.origin}/reset-password`,
-      }
-    );
+    // Use signInWithOtp to send OTP for password reset
+    const { error } = await supabase.auth.signInWithOtp({
+      email: normalizedEmail,
+      options: {
+        shouldCreateUser: false, // Don't create user if doesn't exist
+      },
+    });
 
     if (error) {
-      console.error('[AuthService] Password reset email error:', error);
+      console.error('[AuthService] Password reset OTP error:', error);
+
+      // Check if it's a rate limiting error
+      const errorMessage = error.message?.toLowerCase() || '';
+      if (errorMessage.includes('security purposes') || errorMessage.includes('after')) {
+        // Extract seconds from error message like "you can only request this after 39 seconds"
+        const match = errorMessage.match(/(\d+)\s*second/);
+        const seconds = match ? match[1] : '60';
+        return {
+          success: false,
+          error: `Debes esperar ${seconds} segundos antes de solicitar otro código`,
+        };
+      }
+
+      // For other errors, return generic success for security (don't reveal if email exists)
       return {
-        success: false,
-        error: mapSupabaseError(error.message),
+        success: true, // Always return success to prevent email enumeration
       };
     }
 
-    console.log('[AuthService] Password reset email sent to:', normalizedEmail);
+    console.log('[AuthService] Password reset OTP sent to:', normalizedEmail);
     return { success: true };
   } catch (err) {
     console.error('[AuthService] Password reset unexpected error:', err);
     return {
       success: false,
-      error: 'Error al enviar el email. Intenta de nuevo.',
+      error: 'Error al enviar el código. Intenta de nuevo.',
+    };
+  }
+}
+
+/**
+ * Verify OTP for password reset
+ * Uses 'email' type instead of 'signup' for password recovery flow
+ * @param email Email address
+ * @param token 6-digit OTP code
+ * @returns Promise<{ success: boolean; error?: string }>
+ */
+export async function verifyPasswordResetOTP(
+  email: string,
+  token: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const normalizedEmail = normalizeEmail(email);
+
+    console.log('[AuthService] Verifying password reset OTP for:', normalizedEmail);
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: normalizedEmail,
+      token,
+      type: 'email', // Use 'email' type for password reset (not 'signup')
+    });
+
+    if (error) {
+      console.error('[AuthService] Password reset OTP verify error:', error);
+      return {
+        success: false,
+        error: error.message.includes('expired')
+          ? 'El código ha expirado. Solicita uno nuevo.'
+          : 'Código incorrecto',
+      };
+    }
+
+    console.log('[AuthService] Password reset OTP verified successfully');
+    return { success: true };
+  } catch (err) {
+    console.error('[AuthService] Password reset OTP verify exception:', err);
+    return {
+      success: false,
+      error: 'Error al verificar el código. Intenta de nuevo.',
     };
   }
 }

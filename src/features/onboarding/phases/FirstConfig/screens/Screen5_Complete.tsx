@@ -11,6 +11,8 @@ import { useOnboarding } from '../../../OnboardingContext';
 import { useBudgetStore } from '@/state/budget.store';
 import { DEFAULT_CATEGORIES } from '@/constants/categories/default-categories';
 import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
+import { upsertCloudState } from '@/services/cloudState.service';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Screen4_Complete() {
   const { t } = useTranslation(['onboarding', 'common']);
@@ -18,7 +20,7 @@ export default function Screen4_Complete() {
   const { state } = useOnboarding();
   const addCategory = useBudgetStore((s) => s.addCategory);
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     console.log('[ConfigScreen] Completing onboarding → App');
 
     // Crear las categorías seleccionadas
@@ -50,6 +52,37 @@ export default function Screen4_Complete() {
         }
         // Las categorías custom (custom-XXX) ya fueron creadas en AddEditCategoryPage
       });
+    } else {
+      // Si no hay categorías seleccionadas (skip), crear TODAS las categorías por defecto
+      console.log('[ConfigScreen] No categories selected (skipped), creating all default categories');
+
+      DEFAULT_CATEGORIES.forEach((categoryDef) => {
+        const translatedName = getCategoryDisplayName(categoryDef.name, t);
+
+        addCategory({
+          name: translatedName,
+          icon: categoryDef.icon,
+          color: categoryDef.color,
+          type: categoryDef.type,
+          groupId: categoryDef.groupId,
+        });
+        console.log('[ConfigScreen] Created category:', translatedName);
+      });
+    }
+
+    // ✅ CRITICAL: Push categories to cloud immediately before marking onboarding complete
+    // This ensures that if user logs out/clears localStorage, cloud data exists
+    const { data } = await supabase.auth.getSession();
+    if (data.session) {
+      try {
+        console.log('[ConfigScreen] Pushing categories to cloud immediately');
+        const getSnapshot = useBudgetStore.getState().getSnapshot;
+        await upsertCloudState(getSnapshot());
+        console.log('[ConfigScreen] Categories pushed to cloud successfully');
+      } catch (err) {
+        console.error('[ConfigScreen] Failed to push categories to cloud:', err);
+        // Continue anyway - CloudSyncGate will retry later
+      }
     }
 
     markOnboardingComplete();

@@ -5,6 +5,34 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Password Reset Flow**: Complete password recovery with email OTP verification
+  - New ResetPasswordOTPPage for 6-digit OTP verification with paste support
+  - ForgotPasswordModal navigates to OTP verification instead of showing success state
+  - Users remain logged in after password reset (redirect to home instead of login)
+  - Integrated with Supabase Auth passwordless flow
+- **Guest User Login Access**: Guest users who completed onboarding can now access login screen
+  - ProfilePage banner "Conectar cuenta" now properly navigates to login
+  - OnboardingGate allows login/auth routes for users in 'app' state
+  - Enables seamless transition from guest mode to authenticated mode
+
+### Fixed
+- **First Config Categories on Skip**: Users who skip category selection now get all default categories created
+- **Cloud Sync for Categories**: Categories are now pushed to cloud immediately after First Config completion
+  - Prevents re-onboarding when user logs out/clears localStorage
+  - Ensures cloud data exists before user can logout
+- **Returning User Detection**: CloudSyncGate and onboarding.helpers now check cloud data to detect returning users
+  - Auto-marks onboarding as complete when cloud has data but localStorage was cleared
+  - Fixes bug where users were asked to complete First Config again after clearing localStorage
+- **OTP Paste Functionality**: Fixed paste not working in OTP input (only last digit was populating)
+  - Changed to functional setState pattern for rapid state updates
+
+### Changed
+- **ProfilePage Login Banner**: Redesigned login button as attractive card-style banner
+  - White/gray background with teal border matching preferences cards
+  - Cloud icon, title, subtitle, and call-to-action text
+  - Fully translated (es/en) with loginBanner keys
+
+### Added
 - **Multi-Currency Support**: Complete currency selection system with 50+ currencies
   - CurrencyProvider context with useCurrency hook for currency management
   - Auto-detection of user's currency based on timezone and locale

@@ -89,7 +89,7 @@ export default function LoginForm({
           className="text-sm font-medium text-[#18B7B0] hover:underline"
           onClick={() => setShowForgotPassword(true)}
         >
-          {t('auth.forgotPassword', '¿Olvidaste tu contraseña?')}
+          {t('auth.forgotPassword.link', '¿Olvidaste tu contraseña?')}
         </button>
       </div>
 

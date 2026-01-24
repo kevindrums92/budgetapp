@@ -34,8 +34,14 @@
       "synced": "Cloud Sync Active"
     }
   },
+  "login": "Log In",
   "logout": "Log Out",
   "loggingOut": "Logging out...",
   "loginWithGoogle": "Continue with Google",
-  "noConnection": "No connection"
+  "noConnection": "No connection",
+  "loginBanner": {
+    "title": "Protect your finances",
+    "subtitle": "Sign in to back up your expenses to the cloud.",
+    "action": "Connect account"
+  }
 }

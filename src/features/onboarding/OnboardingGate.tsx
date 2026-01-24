@@ -37,17 +37,25 @@ export default function OnboardingGate() {
           navigate('/onboarding/welcome/1', { replace: true });
         }
       }
-      // CASO 2: Continuar desde progreso guardado (no redirigir)
+      // CASO 2: Continuar desde progreso guardado
       else if (startScreen === 'continue') {
         console.log('[OnboardingGate] Continuing from saved progress');
-        // No hacer nada, dejar que el usuario continúe donde estaba
+
+        // Si el usuario está fuera del onboarding (ej: OAuth callback a '/'),
+        // redirigir a First Config para usuarios nuevos
+        if (!location.pathname.startsWith('/onboarding')) {
+          console.log('[OnboardingGate] New authenticated user, redirecting to First Config');
+          navigate('/onboarding/config/1', { replace: true });
+        }
+        // Sino, dejar que el usuario continúe donde estaba
       }
       // CASO 3: Debe ir a login directo (returning user)
       else if (startScreen === 'login') {
-        // Permitir rutas de auth (login, auth pages)
+        // Permitir rutas de auth (login, auth pages, reset password)
         const isAuthRoute =
           location.pathname === '/onboarding/login' ||
-          location.pathname.startsWith('/onboarding/auth');
+          location.pathname.startsWith('/onboarding/auth') ||
+          location.pathname.startsWith('/onboarding/reset-password');
 
         // Si no estamos en una ruta de auth, redirigir a login
         if (!isAuthRoute) {
@@ -57,8 +65,18 @@ export default function OnboardingGate() {
       }
       // CASO 4: Debe ir a app
       else if (startScreen === 'app') {
-        // Si estamos en onboarding, salir a app
-        if (location.pathname.startsWith('/onboarding')) {
+        // Allow specific onboarding routes even with active session:
+        // - Password reset flow (OTP verification creates session, user needs to change password)
+        // - First config flow (New user just verified OTP, needs to complete config)
+        // - Login/Auth routes (Guest users who completed onboarding can sign in)
+        const isPasswordResetRoute = location.pathname.startsWith('/onboarding/reset-password');
+        const isConfigRoute = location.pathname.startsWith('/onboarding/config');
+        const isLoginRoute =
+          location.pathname === '/onboarding/login' ||
+          location.pathname.startsWith('/onboarding/auth');
+
+        // Si estamos en onboarding (pero no en rutas permitidas), salir a app
+        if (location.pathname.startsWith('/onboarding') && !isPasswordResetRoute && !isConfigRoute && !isLoginRoute) {
           console.log('[OnboardingGate] Redirecting to app');
           navigate('/', { replace: true });
         }

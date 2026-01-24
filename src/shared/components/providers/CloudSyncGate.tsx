@@ -226,12 +226,25 @@ export default function CloudSyncGate() {
 
         let needsPush = false;
 
+        // ✅ IMPORTANT: If cloud has data (categories or transactions), mark onboarding as complete
+        // This handles the case where localStorage was cleared but cloud has user's data
+        const hasCloudData = (cloud.categoryDefinitions && cloud.categoryDefinitions.length > 0) ||
+                             (cloud.transactions && cloud.transactions.length > 0) ||
+                             (cloud.trips && cloud.trips.length > 0);
+
+        const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
+
+        if (hasCloudData && !onboardingCompleted) {
+          logger.info("CloudSync", "Cloud has data but localStorage was cleared, marking onboarding as complete");
+          localStorage.setItem('budget.onboarding.completed.v2', 'true');
+          localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
+        }
+
         // Check if cloud data has empty categoryDefinitions
         // Only inject defaults for legacy users who completed onboarding but have no categories
         // New users will create categories during onboarding
-        const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
         if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
-          if (onboardingCompleted && cloud.transactions && cloud.transactions.length > 0) {
+          if (hasCloudData && cloud.transactions && cloud.transactions.length > 0) {
             // Legacy user with transactions but no categories - inject defaults
             logger.info("CloudSync", "Cloud missing categoryDefinitions for legacy user, injecting defaults");
             cloud.categoryDefinitions = createDefaultCategories();

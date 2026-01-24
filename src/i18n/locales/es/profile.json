@@ -34,8 +34,14 @@
       "synced": "Cloud Sync Activo"
     }
   },
+  "login": "Iniciar sesión",
   "logout": "Cerrar sesión",
   "loggingOut": "Cerrando sesión...",
   "loginWithGoogle": "Continuar con Google",
-  "noConnection": "Sin conexión"
+  "noConnection": "Sin conexión",
+  "loginBanner": {
+    "title": "Protege tus finanzas",
+    "subtitle": "Inicia sesión para respaldar tus gastos en la nube.",
+    "action": "Conectar cuenta"
+  }
 }

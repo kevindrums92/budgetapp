@@ -233,12 +233,9 @@
     "forgotPassword": {
       "link": "Olvidé mi contraseña",
       "title": "Recuperar contraseña",
-      "message": "Ingresa tu email y te enviaremos un link para restablecer tu contraseña",
-      "send": "Enviar link",
-      "cancel": "Cancelar",
-      "emailSent": "¡Email enviado!",
-      "checkInbox": "Revisa tu bandeja de entrada y sigue el link para restablecer tu contraseña",
-      "close": "Entendido"
+      "message": "Ingresa tu email y te enviaremos un código para restablecer tu contraseña",
+      "send": "Enviar código",
+      "cancel": "Cancelar"
     },
     "resetPassword": {
       "title": "Nueva contraseña",
@@ -247,7 +244,7 @@
       "passwordsDontMatch": "Las contraseñas no coinciden",
       "button": "Actualizar contraseña",
       "success": "¡Contraseña actualizada!",
-      "redirecting": "Redirigiendo al login...",
+      "redirecting": "Redirigiendo...",
       "invalidLink": "Link inválido o expirado",
       "requestNew": "Solicita un nuevo link de recuperación desde el login",
       "backToLogin": "Volver al login"

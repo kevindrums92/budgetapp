@@ -25,6 +25,7 @@ export {
   signInWithEmail,
   signInWithPhone,
   verifyOTP,
+  verifyPasswordResetOTP,
   resendOTP,
   getCurrentUser,
   getCurrentSession,
@@ -73,4 +74,5 @@ export { default as TrustDevicePrompt } from './components/TrustDevicePrompt';
 // Pages
 export { default as AuthPage } from './pages/AuthPage';
 export { default as OTPVerificationPage } from './pages/OTPVerificationPage';
+export { default as ResetPasswordOTPPage } from './pages/ResetPasswordOTPPage';
 export { default as ResetPasswordPage } from './pages/ResetPasswordPage';

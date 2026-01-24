@@ -233,12 +233,9 @@
     "forgotPassword": {
       "link": "Forgot password",
       "title": "Recover password",
-      "message": "Enter your email and we'll send you a link to reset your password",
-      "send": "Send link",
-      "cancel": "Cancel",
-      "emailSent": "Email sent!",
-      "checkInbox": "Check your inbox and follow the link to reset your password",
-      "close": "Got it"
+      "message": "Enter your email and we'll send you a code to reset your password",
+      "send": "Send code",
+      "cancel": "Cancel"
     },
     "resetPassword": {
       "title": "New password",
@@ -247,7 +244,7 @@
       "passwordsDontMatch": "Passwords don't match",
       "button": "Update password",
       "success": "Password updated!",
-      "redirecting": "Redirecting to login...",
+      "redirecting": "Redirecting...",
       "invalidLink": "Invalid or expired link",
       "requestNew": "Request a new recovery link from login",
       "backToLogin": "Back to login"

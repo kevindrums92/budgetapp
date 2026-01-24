@@ -36,17 +36,45 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
     logoutKey: localStorage.getItem(ONBOARDING_KEYS.LOGOUT),
   });
 
-  // CASO 1: Usuario con sesión activa → APP
+  // CASO 1: Usuario con sesión activa → Verificar si completó onboarding
   if (hasActiveSession) {
-    // Si tiene sesión pero nunca hizo onboarding, marcarlo como completado
-    // (esto cubre casos edge como deep links o sesiones previas)
-    if (!onboardingEverCompleted) {
-      markOnboardingComplete();
-    }
     // Limpiar flag de logout ya que ahora está logueado
     localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
-    console.log('[determineStartScreen] → APP (sesión activa)');
-    return 'app';
+
+    // Si ya completó onboarding, ir a app
+    if (onboardingEverCompleted) {
+      console.log('[determineStartScreen] → APP (sesión activa y onboarding completado)');
+      return 'app';
+    }
+
+    // ✅ IMPORTANT: Check cloud data to detect returning users who cleared localStorage
+    // If cloud has user data, skip onboarding and go directly to app
+    try {
+      const { getCloudState } = await import('@/services/cloudState.service');
+      const cloudData = await getCloudState();
+
+      if (cloudData) {
+        const hasCloudData = (cloudData.categoryDefinitions && cloudData.categoryDefinitions.length > 0) ||
+                             (cloudData.transactions && cloudData.transactions.length > 0) ||
+                             (cloudData.trips && cloudData.trips.length > 0);
+
+        if (hasCloudData) {
+          console.log('[determineStartScreen] → APP (cloud has data, returning user)');
+          // Mark onboarding as complete to avoid checking again
+          localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+          localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+          return 'app';
+        }
+      }
+    } catch (err) {
+      console.error('[determineStartScreen] Error checking cloud data:', err);
+      // Continue with normal flow if cloud check fails
+    }
+
+    // Si tiene sesión pero NO completó onboarding, debe continuar con First Config
+    // Esto cubre el caso de usuarios nuevos que acaban de verificar OTP
+    console.log('[determineStartScreen] → CONTINUE (sesión activa pero onboarding incompleto)');
+    return 'continue';
   }
 
   // CASO 2: Logout explícito → LOGIN
