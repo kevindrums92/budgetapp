@@ -5,6 +5,7 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Changed
+- **Transaction Save Button**: Unified button style to emerald color for all transaction types (income/expense)
 - **CategoryMonthDetailPage Dark Mode & i18n**: Complete internationalization and dark mode support
   - All UI elements now support dark theme (backgrounds, text, borders, active states)
   - Date formatting respects user's language preference (es-CO or en-US)

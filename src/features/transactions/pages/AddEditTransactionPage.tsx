@@ -671,11 +671,7 @@ export default function AddEditTransactionPage() {
             type="button"
             onClick={handleSave}
             disabled={!canSave}
-            className={`w-full rounded-2xl py-4 text-base font-semibold text-white transition-all active:scale-[0.98] disabled:opacity-40 ${
-              type === "income"
-                ? "bg-emerald-500 hover:bg-emerald-600"
-                : "bg-gray-900 dark:bg-gray-50 dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
-            }`}
+            className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:opacity-40"
           >
             {isEdit ? t("form.saveChanges") : t("form.save")}
           </button>
