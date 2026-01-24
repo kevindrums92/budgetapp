@@ -174,10 +174,8 @@ export default function StatsPage() {
     // Daily average (total spent / days in month)
     const dailyAverage = totalExpensesCurrent / daysInMonth;
 
-    // Total monthly budget (sum of all category limits)
-    const totalBudget = categoryDefinitions
-      .filter((c) => c.type === "expense" && c.monthlyLimit)
-      .reduce((sum, c) => sum + (c.monthlyLimit ?? 0), 0);
+    // Total monthly budget (will be calculated from budgets array in future)
+    const totalBudget = 0; // TODO: Calculate from budgets array when Budget feature is implemented
 
     // Days remaining in month
     const today = new Date();

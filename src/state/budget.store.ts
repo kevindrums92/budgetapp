@@ -142,6 +142,7 @@ const defaultState: BudgetState = {
   categories: [],
   categoryDefinitions: [], // Las categorías se crean durante el onboarding
   categoryGroups: createDefaultCategoryGroups(), // Los grupos sí se crean por defecto
+  budgets: [],
   trips: [],
   tripExpenses: [],
 };
@@ -232,6 +233,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -284,6 +286,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -301,6 +304,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -336,6 +340,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: [trip, ...state.trips],
           tripExpenses: state.tripExpenses,
         };
@@ -358,6 +363,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: nextTrips,
           tripExpenses: state.tripExpenses,
         };
@@ -375,6 +381,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips.filter((t) => t.id !== id),
           // También eliminar los gastos asociados al viaje
           tripExpenses: state.tripExpenses.filter((e) => e.tripId !== id),
@@ -410,6 +417,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: [expense, ...state.tripExpenses],
         };
@@ -432,6 +440,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: nextExpenses,
         };
@@ -449,6 +458,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses.filter((e) => e.id !== id),
         };
@@ -481,6 +491,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -505,6 +516,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -522,6 +534,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -556,6 +569,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: [...state.categoryGroups, newGroup],
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -580,6 +594,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: nextCategoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -611,6 +626,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
           categoryGroups: state.categoryGroups.filter((g) => g.id !== id),
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -633,6 +649,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
         categoryGroups: s.categoryGroups ?? [],
+        budgets: s.budgets ?? [],
         trips: s.trips ?? [],
         tripExpenses: s.tripExpenses ?? [],
         lastSchedulerRun: s.lastSchedulerRun,
@@ -662,6 +679,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
         categoryGroups: data.categoryGroups ?? [],
+        budgets: data.budgets ?? [],
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
         lastSchedulerRun: data.lastSchedulerRun,

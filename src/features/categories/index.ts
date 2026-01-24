@@ -9,4 +9,3 @@ export { default as CategoryMonthDetailPage } from "./pages/CategoryMonthDetailP
 export { default as CategoryInput } from "./components/CategoryInput";
 export { default as CategoryPickerDrawer } from "./components/CategoryPickerDrawer";
 export { default as IconColorPicker } from "./components/IconColorPicker";
-export { default as SetLimitModal } from "./components/SetLimitModal";

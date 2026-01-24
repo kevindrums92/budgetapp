@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { icons, Plus, ChevronRight } from "lucide-react";
+import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
@@ -10,7 +9,6 @@ import { kebabToPascal } from "@/shared/utils/string.utils";
 
 export default function BudgetPage() {
   const { t } = useTranslation('budget');
-  const navigate = useNavigate();
   const { formatAmount } = useCurrency();
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);

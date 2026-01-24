@@ -57,6 +57,7 @@ describe('backup.service', () => {
     categories: ['food'],
     categoryDefinitions: [],
     categoryGroups: [],
+    budgets: [],
     trips: [],
     tripExpenses: [],
   };
@@ -101,6 +102,7 @@ describe('backup.service', () => {
         categories: ['food', 'salary'],
         categoryDefinitions: [],
         categoryGroups: [],
+        budgets: [],
         trips: [
           {
             id: 'trip-1',
@@ -152,6 +154,7 @@ describe('backup.service', () => {
         categories: [],
         categoryDefinitions: [],
         categoryGroups: [],
+        budgets: [],
         trips: [],
         tripExpenses: [],
       };
@@ -197,6 +200,7 @@ describe('backup.service', () => {
         categories: ['food'],
         categoryDefinitions: [],
         categoryGroups: [],
+        budgets: [],
         trips: [],
         tripExpenses: [],
       };
@@ -397,6 +401,7 @@ describe('backup.service', () => {
         categories: [],
         categoryDefinitions: [],
         categoryGroups: [],
+        budgets: [],
         trips: [],
         tripExpenses: [],
       };
@@ -445,6 +450,7 @@ describe('backup.service', () => {
             createdAt: Date.now(),
           },
         ],
+        budgets: [],
         trips: [
           {
             id: 'trip-1',

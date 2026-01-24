@@ -77,6 +77,7 @@ describe('budget.store', () => {
       categories: [],
       categoryDefinitions: [],
       categoryGroups: [],
+      budgets: [],
       trips: [],
       tripExpenses: [],
     });
@@ -1439,6 +1440,7 @@ describe('budget.store', () => {
           categories: ['Salary'],
           categoryDefinitions: [],
           categoryGroups: [],
+          budgets: [],
           trips: [],
           tripExpenses: [],
         };
@@ -1460,6 +1462,7 @@ describe('budget.store', () => {
           categories: [],
           categoryDefinitions: [],
           categoryGroups: [],
+          budgets: [],
           trips: [],
           tripExpenses: [],
         };

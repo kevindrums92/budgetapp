@@ -145,7 +145,7 @@ export default function CloudSyncGate() {
       clearPendingSnapshot();
       clearState();
       // Categories will be created during onboarding
-      replaceAllData({ schemaVersion: 3, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), trips: [], tripExpenses: [] });
+      replaceAllData({ schemaVersion: 5, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
 
       // Reset welcome para que vuelva a salir en guest
       try {
@@ -473,7 +473,7 @@ export default function CloudSyncGate() {
         clearPendingSnapshot();
         clearState();
         // Leave categories empty - user will recover them when logging back in
-        replaceAllData({ schemaVersion: 3, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), trips: [], tripExpenses: [] });
+        replaceAllData({ schemaVersion: 5, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
 
         // Reset welcome
         try {
