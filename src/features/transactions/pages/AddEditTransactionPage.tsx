@@ -388,8 +388,6 @@ export default function AddEditTransactionPage() {
     ? t("form.newIncome")
     : t("form.newExpense");
 
-  const accentColor = type === "income" ? "text-emerald-600" : "text-gray-900";
-
   // Format amount with thousands separator for display
   const displayAmount = useMemo(() => {
     if (!amount) return "";

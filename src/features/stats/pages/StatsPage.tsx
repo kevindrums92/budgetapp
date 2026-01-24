@@ -247,7 +247,7 @@ export default function StatsPage() {
       daysRemaining,
       isCurrentMonth,
     };
-  }, [transactions, selectedMonth, categoryDefinitions]);
+  }, [transactions, selectedMonth, categoryDefinitions, t]);
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen">

@@ -4,7 +4,7 @@
  */
 
 import { Sun, Moon, Smartphone, type LucideIcon } from 'lucide-react';
-import type { Theme } from '../components/ThemeProvider';
+import type { Theme } from '../context/ThemeContext';
 
 export interface ThemeOption {
   value: Theme;

@@ -1,7 +1,17 @@
 /**
  * useTheme hook
- * Re-export del hook desde ThemeProvider
+ * Hook para acceder al contexto del tema
  */
 
-export { useTheme } from '../components/ThemeProvider';
-export type { Theme, ResolvedTheme } from '../components/ThemeProvider';
+import { useContext } from 'react';
+import { ThemeContext } from '../context/ThemeContext';
+
+export type { Theme, ResolvedTheme } from '../context/ThemeContext';
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+  return context;
+}

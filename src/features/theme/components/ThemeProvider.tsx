@@ -3,18 +3,8 @@
  * Context provider para manejar el tema de la aplicación (claro/oscuro/sistema)
  */
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-export type Theme = 'light' | 'dark' | 'system';
-export type ResolvedTheme = 'light' | 'dark';
-
-interface ThemeContextValue {
-  theme: Theme;
-  resolvedTheme: ResolvedTheme;
-  setTheme: (theme: Theme) => void;
-}
-
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+import React, { useEffect, useState } from 'react';
+import { ThemeContext, type Theme, type ResolvedTheme } from '../context/ThemeContext';
 
 const STORAGE_KEY = 'app_theme';
 
@@ -107,12 +97,4 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       {children}
     </ThemeContext.Provider>
   );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within ThemeProvider');
-  }
-  return context;
 }
