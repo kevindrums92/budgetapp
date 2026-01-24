@@ -16,7 +16,6 @@ export default function LanguageSettingsPage() {
 
   const handleLanguageSelect = async (code: string) => {
     await changeLanguage(code);
-    navigate(-1);
   };
 
   return (

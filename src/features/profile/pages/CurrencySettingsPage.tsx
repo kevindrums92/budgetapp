@@ -50,7 +50,6 @@ export default function CurrencySettingsPage() {
 
   const handleCurrencySelect = (code: string) => {
     setCurrency(code);
-    navigate(-1);
   };
 
   const renderCurrencyButton = (curr: CurrencyInfo) => {

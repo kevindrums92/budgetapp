@@ -26,7 +26,6 @@ export default function ThemeSettingsPage() {
 
   const handleThemeSelect = (value: Theme) => {
     setTheme(value);
-    navigate(-1);
   };
 
   return (
