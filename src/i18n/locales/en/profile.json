@@ -1,8 +1,17 @@
 {
+  "sections": {
+    "appearance": "Appearance",
+    "expenseManagement": "Expense Management",
+    "dataSecurity": "Data & Security"
+  },
   "menu": {
     "categories": "Categories",
+    "categoriesSubtitle": "Manage categories",
     "scheduled": "Scheduled",
-    "backup": "Backup & Restore"
+    "scheduledSubtitle": "Automatic transactions",
+    "backup": "Backup & Restore",
+    "backupSubtitle": "Backup and restore data",
+    "exportCSV": "Export CSV"
   },
   "preferences": {
     "title": "Preferences",

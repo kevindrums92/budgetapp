@@ -6,7 +6,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
-import { User, FolderOpen, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign } from "lucide-react";
+import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder } from "lucide-react";
 import LanguageSelector from "@/components/LanguageSelector";
 import ThemeSelector from "@/components/ThemeSelector";
 import CurrencySelector from "@/components/CurrencySelector";
@@ -194,10 +194,10 @@ export default function ProfilePage() {
 
       {/* Menu Sections */}
       <div className={`px-4 ${isLoggedIn ? 'pt-4' : 'pt-6'}`}>
-        {/* Preferencias Section */}
+        {/* Apariencia Section */}
         <div className="mb-6">
           <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">
-            {t('preferences.title')}
+            {t('sections.appearance')}
           </h3>
           <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
             <MenuItem
@@ -221,23 +221,48 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Main Menu */}
-        <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
-          <MenuItem
-            icon={<FolderOpen size={20} />}
-            label={t('menu.categories')}
-            onClick={() => navigate("/categories")}
-          />
-          <MenuItem
-            icon={<Repeat size={20} />}
-            label={t('menu.scheduled')}
-            onClick={() => navigate("/scheduled")}
-          />
-          <MenuItem
-            icon={<Shield size={20} />}
-            label={t('menu.backup')}
-            onClick={() => navigate("/backup")}
-          />
+        {/* Gestión de Gastos Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">
+            {t('sections.expenseManagement')}
+          </h3>
+          <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+            <MenuItem
+              icon={<Folder size={20} />}
+              label={t('menu.categories')}
+              sublabel={t('menu.categoriesSubtitle')}
+              onClick={() => navigate("/categories")}
+            />
+            <MenuItem
+              icon={<Repeat size={20} />}
+              label={t('menu.scheduled')}
+              sublabel={t('menu.scheduledSubtitle')}
+              onClick={() => navigate("/scheduled")}
+            />
+          </div>
+        </div>
+
+        {/* Datos y Seguridad Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">
+            {t('sections.dataSecurity')}
+          </h3>
+          <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+            <MenuItem
+              icon={<Shield size={20} />}
+              label={t('menu.backup')}
+              sublabel={t('menu.backupSubtitle')}
+              onClick={() => navigate("/backup")}
+            />
+            <MenuItem
+              icon={<FileText size={20} />}
+              label={t('menu.exportCSV')}
+              onClick={() => {
+                // TODO: Implementar exportación CSV
+                alert('Función de exportación CSV próximamente');
+              }}
+            />
+          </div>
         </div>
       </div>
 
