@@ -4,7 +4,6 @@
  */
 
 import type { Transaction, CategoryDefinition, Budget } from '@/types/budget.types';
-import { formatCOP } from '@/services/dates.service';
 
 /**
  * Convierte un array de objetos a formato CSV
