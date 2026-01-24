@@ -1,26 +1,29 @@
 import { useMemo, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { icons, Repeat } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import { useCurrency } from "@/features/currency";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
-// Format date for display
-function formatDate(dateStr: string) {
-  if (!dateStr) return "";
-  const date = new Date(dateStr + "T12:00:00");
-  return date.toLocaleDateString("es-CO", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-}
-
 export default function CategoryMonthDetailPage() {
   const { categoryId, month } = useParams<{ categoryId: string; month: string }>();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation("categories");
   const { formatAmount } = useCurrency();
+
+  // Format date for display using current locale
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr + "T12:00:00");
+    const locale = i18n.language === "en" ? "en-US" : "es-CO";
+    return date.toLocaleDateString(locale, {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
+  };
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -54,11 +57,12 @@ export default function CategoryMonthDetailPage() {
     if (!month) return "";
     const [year, monthNum] = month.split("-");
     const date = new Date(Number(year), Number(monthNum) - 1, 1);
-    return date.toLocaleDateString("es-CO", {
+    const locale = i18n.language === "en" ? "en-US" : "es-CO";
+    return date.toLocaleDateString(locale, {
       month: "long",
       year: "numeric",
     });
-  }, [month]);
+  }, [month, i18n.language]);
 
   // Get icon component
   const IconComponent = category
@@ -72,21 +76,21 @@ export default function CategoryMonthDetailPage() {
 
   if (!category || !categoryId || !month) {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50">
+      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <PageHeader title="Error" />
         <div className="flex-1 px-4 pt-6 pb-8">
-          <p className="text-sm text-gray-500">Categoría no encontrada</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{t("monthDetail.error")}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
       <PageHeader title={category.name} />
 
       {/* Stats Header */}
-      <div className="bg-white px-4 pt-6 pb-5 text-center border-b border-gray-100">
+      <div className="bg-white dark:bg-gray-900 px-4 pt-6 pb-5 text-center border-b border-gray-100 dark:border-gray-800">
         {/* Icon */}
         <div className="flex justify-center mb-4">
           <div
@@ -103,14 +107,14 @@ export default function CategoryMonthDetailPage() {
         </div>
 
         {/* Total */}
-        <p className="text-4xl font-bold text-gray-900 mb-2">
+        <p className="text-4xl font-bold text-gray-900 dark:text-gray-50 mb-2">
           {formatAmount(totalSpent)}
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           {filteredTransactions.length}{" "}
-          {filteredTransactions.length === 1 ? "transacción" : "transacciones"}
+          {filteredTransactions.length === 1 ? t("monthDetail.transaction") : t("monthDetail.transactions")}
         </p>
-        <p className="text-xs text-gray-400 mt-1 capitalize">
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 capitalize">
           {monthLabel}
         </p>
       </div>
@@ -119,9 +123,9 @@ export default function CategoryMonthDetailPage() {
         {/* Transactions List */}
         <div className="space-y-2">
           {filteredTransactions.length === 0 ? (
-            <div className="rounded-xl bg-white p-8 text-center mt-4">
-              <p className="text-sm text-gray-500">
-                No hay transacciones en esta categoría este mes
+            <div className="rounded-xl bg-white dark:bg-gray-900 p-8 text-center mt-4">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t("monthDetail.empty")}
               </p>
             </div>
           ) : (
@@ -130,26 +134,26 @@ export default function CategoryMonthDetailPage() {
                 key={transaction.id}
                 type="button"
                 onClick={() => navigate(`/edit/${transaction.id}`)}
-                className="w-full flex items-center gap-3 bg-white rounded-xl px-4 py-3 shadow-sm active:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-3 bg-white dark:bg-gray-900 rounded-xl px-4 py-3 shadow-sm active:bg-gray-50 dark:active:bg-gray-800 transition-colors"
               >
                 {/* Info */}
                 <div className="min-w-0 flex-1 text-left">
                   <div className="flex items-center gap-1.5">
-                    <p className="truncate font-semibold text-gray-900 text-sm">
+                    <p className="truncate font-semibold text-gray-900 dark:text-gray-50 text-sm">
                       {transaction.name}
                     </p>
                     {transaction.isRecurring && (
-                      <Repeat className="h-3 w-3 shrink-0 text-gray-400" />
+                      <Repeat className="h-3 w-3 shrink-0 text-gray-400 dark:text-gray-500" />
                     )}
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     {formatDate(transaction.date)}
                   </p>
                 </div>
 
                 {/* Amount */}
                 <div className="text-right">
-                  <p className="whitespace-nowrap font-semibold text-sm text-gray-900">
+                  <p className="whitespace-nowrap font-semibold text-sm text-gray-900 dark:text-gray-50">
                     -{formatAmount(transaction.amount)}
                   </p>
                 </div>

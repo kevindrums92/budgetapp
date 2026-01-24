@@ -4,6 +4,14 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Changed
+- **CategoryMonthDetailPage Dark Mode & i18n**: Complete internationalization and dark mode support
+  - All UI elements now support dark theme (backgrounds, text, borders, active states)
+  - Date formatting respects user's language preference (es-CO or en-US)
+  - Transaction count uses proper pluralization ("1 transacción" vs "2 transacciones")
+  - All hardcoded Spanish text replaced with translation keys
+  - Added `monthDetail` namespace with transaction, error, and empty state translations
+
 ### Added
 - **Password Reset Flow**: Complete password recovery with email OTP verification
   - New ResetPasswordOTPPage for 6-digit OTP verification with paste support

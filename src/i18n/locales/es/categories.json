@@ -60,5 +60,11 @@
         "cancel": "Cancelar"
       }
     }
+  },
+  "monthDetail": {
+    "transaction": "transacción",
+    "transactions": "transacciones",
+    "empty": "No hay transacciones en esta categoría este mes",
+    "error": "Categoría no encontrada"
   }
 }
