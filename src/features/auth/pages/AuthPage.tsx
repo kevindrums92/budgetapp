@@ -23,7 +23,6 @@ export default function AuthPage() {
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
 
   const loginHook = useLogin();
   const registerHook = useRegister();
@@ -49,27 +48,6 @@ export default function AuthPage() {
       console.error('[AuthPage] Google login exception:', err);
     } finally {
       setGoogleLoading(false);
-    }
-  };
-
-  // Handle Apple OAuth
-  const handleAppleLogin = async () => {
-    setAppleLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: window.location.origin,
-        },
-      });
-
-      if (error) {
-        console.error('[AuthPage] Apple login error:', error);
-      }
-    } catch (err) {
-      console.error('[AuthPage] Apple login exception:', err);
-    } finally {
-      setAppleLoading(false);
     }
   };
 
@@ -145,7 +123,7 @@ export default function AuthPage() {
         <button
           type="button"
           onClick={handleGoogleLogin}
-          disabled={googleLoading || appleLoading || loginHook.isLoading || registerHook.isLoading}
+          disabled={googleLoading || loginHook.isLoading || registerHook.isLoading}
           className="flex w-full items-center justify-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-4 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-[0.98] disabled:opacity-50"
         >
           {/* Google icon */}
@@ -168,20 +146,6 @@ export default function AuthPage() {
             />
           </svg>
           <span>{t('auth.google', 'Continuar con Google')}</span>
-        </button>
-
-        {/* Apple OAuth button */}
-        <button
-          type="button"
-          onClick={handleAppleLogin}
-          disabled={appleLoading || googleLoading || loginHook.isLoading || registerHook.isLoading}
-          className="mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-4 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-[0.98] disabled:opacity-50"
-        >
-          {/* Apple icon */}
-          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-          </svg>
-          <span>{t('auth.apple', 'Continuar con Apple')}</span>
         </button>
 
         {/* Back to guest button */}

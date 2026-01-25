@@ -5,7 +5,13 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
-- **Apple Sign In**: Added Sign in with Apple OAuth provider to AuthPage alongside Google OAuth
+- **Security Audit**: Comprehensive security analysis document (docs/SECURITY_AUDIT.md) covering RLS, localStorage security, E2E encryption roadmap, and industry standard comparison
+- **Pre-Launch Checklist**: Security checklist (docs/PRE_LAUNCH_CHECKLIST.md) with CRITICAL, RECOMMENDED, and OPTIONAL tasks before production deployment
+- **RLS Database Migrations**: Row Level Security migrations for user_state table (20260125_create_user_state_with_rls.sql and 20260125_fix_user_state_schema.sql) to prevent unauthorized data access
+- **Features Documentation**: Expanded docs/FEATURES.md from 120 to 600+ lines with complete feature list including i18n (4 languages), multi-currency (50+), themes, transactions, categories (140+ icons), budgets, stats, trips, auth, and backups
+
+### Removed
+- **Apple Sign In**: Removed Sign in with Apple OAuth integration (requires Apple Developer membership)
 
 ### Fixed
 - **Stats Modals Safe Area**: Fixed Close button being cut off on iPhone with notch in Top Day, Top Category, and Daily Average Breakdown modals by adding safe area inset padding
