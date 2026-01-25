@@ -6,7 +6,6 @@ import "./index.css";
 
 import { registerSW } from "virtual:pwa-register";
 import { App as CapacitorApp } from '@capacitor/app';
-import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { isNative } from '@/shared/utils/platform';
 
@@ -35,25 +34,21 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );
 
-// Remove splash screen after app renders (with minimum display time)
-const startTime = Date.now();
-const MIN_SPLASH_TIME = 1200; // Minimum 1.2 seconds
+// Remove splash screen after app renders (web only - native auto-hides)
+if (!isNative()) {
+  const startTime = Date.now();
+  const MIN_SPLASH_TIME = 1200; // Minimum 1.2 seconds
 
-requestAnimationFrame(() => {
-  const elapsed = Date.now() - startTime;
-  const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
+  requestAnimationFrame(() => {
+    const elapsed = Date.now() - startTime;
+    const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
 
-  setTimeout(() => {
-    if (isNative()) {
-      // Native: Hide Capacitor splash screen
-      SplashScreen.hide({ fadeOutDuration: 400 }).catch(() => {});
-    } else {
-      // Web: Hide HTML splash screen
+    setTimeout(() => {
       const splash = document.getElementById('app-splash');
       if (splash) {
         splash.style.opacity = '0';
         setTimeout(() => splash.remove(), 400);
       }
-    }
-  }, remainingTime);
-});
+    }, remainingTime);
+  });
+}

@@ -6,6 +6,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Budget Onboarding Wizard Button Spacing**: Fixed bottom button being cut off on iPhone by changing from absolute to fixed positioning with proper safe area spacing (calc(env(safe-area-inset-bottom) + 24px))
+- **Native Splash Screen**: Configured Capacitor splash screen to auto-hide after 2 seconds with 400ms fade-out animation, removed manual hide logic for native platform
+
 ## [0.11.1] - 2026-01-25
 
 ### Added
