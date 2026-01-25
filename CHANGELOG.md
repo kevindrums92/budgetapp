@@ -3,7 +3,10 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.11.1] - 2026-01-25
 
 ### Added
 - **Capacitor Integration**: Native mobile app compilation support via Capacitor
