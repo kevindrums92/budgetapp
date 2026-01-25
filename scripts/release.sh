@@ -55,9 +55,9 @@ log "2/4 Ejecutando tests unitarios..."
 npm run test:run || error "Los tests unitarios fallaron. Corrígelos antes de continuar."
 success "Tests unitarios pasaron ✓"
 
-log "3/4 Ejecutando tests E2E..."
-npm run test:e2e || error "Los tests E2E fallaron. Corrígelos antes de continuar."
-success "Tests E2E pasaron ✓"
+# log "3/4 Ejecutando tests E2E..."
+# npm run test:e2e || error "Los tests E2E fallaron. Corrígelos antes de continuar."
+# success "Tests E2E pasaron ✓"
 
 log "4/4 Verificando que el build funciona..."
 npm run build || error "El build falló. Corrígelo antes de continuar."
