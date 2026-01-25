@@ -33,6 +33,23 @@
     "allIncluded": "Toutes les catégories incluses",
     "close": "Fermer"
   },
+  "dailyAverageBreakdownModal": {
+    "title": "Moyenne de Dépense Quotidienne",
+    "howCalculated": "Comment c'est calculé",
+    "formula": "Total dépensé ÷ Jours écoulés",
+    "totalSpent": "Total Dépensé",
+    "daysInMonth": "Jours du Mois",
+    "daysElapsed": "Jours Écoulés",
+    "average": "Moyenne Quotidienne",
+    "projection": "Projection du Mois",
+    "projectionText": "Si vous continuez à ce rythme, vous dépenserez environ",
+    "thisMonth": "ce mois-ci",
+    "categoriesExcluded": "{{count}} catégorie exclue de ce calcul",
+    "categoriesExcluded_other": "{{count}} catégories exclues de ce calcul",
+    "dailyBreakdown": "Dépenses par Jour",
+    "day": "{{day}}",
+    "close": "Fermer"
+  },
   "expensesByCategory": {
     "title": "Dépenses par Catégorie",
     "spent": "dépensé",

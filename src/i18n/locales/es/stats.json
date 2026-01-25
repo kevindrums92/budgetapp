@@ -33,6 +33,23 @@
     "allIncluded": "Todas las categorías incluidas",
     "close": "Cerrar"
   },
+  "dailyAverageBreakdownModal": {
+    "title": "Promedio de Gasto Diario",
+    "howCalculated": "Cómo se calcula",
+    "formula": "Total gastado ÷ Días transcurridos",
+    "totalSpent": "Total Gastado",
+    "daysInMonth": "Días del Mes",
+    "daysElapsed": "Días Transcurridos",
+    "average": "Promedio Diario",
+    "projection": "Proyección del Mes",
+    "projectionText": "Si continúas a este ritmo, gastarás aproximadamente",
+    "thisMonth": "este mes",
+    "categoriesExcluded": "{{count}} categoría excluida de este cálculo",
+    "categoriesExcluded_other": "{{count}} categorías excluidas de este cálculo",
+    "dailyBreakdown": "Gasto por Día",
+    "day": "{{day}}",
+    "close": "Cerrar"
+  },
   "expensesByCategory": {
     "title": "Gastos por Categoría",
     "spent": "gastado",

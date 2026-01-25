@@ -17,6 +17,12 @@ All notable changes to SmartSpend will be documented in this file.
   - Filter affects: Daily Average, Top Category, Top Day, Month Comparison
   - Full i18n support (es, en, fr, pt) for all new UI elements
   - Cloud sync persistence for excluded categories preferences
+- **Stats Daily Average Breakdown Modal**: New detailed modal when clicking Daily Average card
+  - Shows calculation breakdown: Total Spent ÷ Days Elapsed
+  - Displays month projection based on current spending rate
+  - Dynamic labels (Days Elapsed vs Days in Month) based on current/past month
+  - Full i18n support (es, en, fr, pt)
+- **Stats Quick View Label**: Added "Vista Rápida" label next to Personalizar button for better UX
 
 ### Changed
 - **Stats Page Month Comparison Logic**: Refactored to fair day-to-day comparison
@@ -37,6 +43,10 @@ All notable changes to SmartSpend will be documented in this file.
 - **Stats Timezone Bug**: Fixed day-of-week calculations failing due to timezone issues
   - Changed from `new Date(t.date)` to `new Date(t.date + "T12:00:00")`
   - Ensures consistent day-of-week detection across timezones
+- **Stats Daily Average Calculation**: Fixed incorrect daily average calculation
+  - Now divides by days elapsed instead of total days in month for current month
+  - Provides accurate spending rate and realistic month projection
+  - Past months still use full month days for historical accuracy
 
 ### Added
 - **Budget Module Complete Implementation**: Full budget tracking system with flexible periods and cloud sync

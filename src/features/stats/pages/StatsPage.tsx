@@ -79,6 +79,7 @@ export default function StatsPage() {
 
   const [showComparisonModal, setShowComparisonModal] = useState(false);
   const [showDailyAverageModal, setShowDailyAverageModal] = useState(false);
+  const [showDailyAverageBreakdownModal, setShowDailyAverageBreakdownModal] = useState(false);
   const [showTopDayModal, setShowTopDayModal] = useState(false);
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
@@ -86,7 +87,7 @@ export default function StatsPage() {
 
   // Lock body scroll when modals are open
   useEffect(() => {
-    if (showDailyAverageModal || showComparisonModal || showTopDayModal) {
+    if (showDailyAverageModal || showDailyAverageBreakdownModal || showComparisonModal || showTopDayModal) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -94,7 +95,7 @@ export default function StatsPage() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [showDailyAverageModal, showComparisonModal, showTopDayModal]);
+  }, [showDailyAverageModal, showDailyAverageBreakdownModal, showComparisonModal, showTopDayModal]);
 
   // Donut chart data (expenses by category for selected month)
   const categoryChartData = useMemo<CategoryChartItem[]>(() => {
@@ -196,19 +197,19 @@ export default function StatsPage() {
       (t) => !(excludedFromStats ?? []).includes(t.category)
     );
 
-    // Daily average
-    const expensesForAverage = expensesForStats;
-    const totalForAverage = expensesForAverage.reduce((sum, t) => sum + t.amount, 0);
-    const dailyAverage = totalForAverage / daysInMonth;
-
-    // Total monthly budget (will be calculated from budgets array in future)
-    const totalBudget = 0; // TODO: Calculate from budgets array when Budget feature is implemented
-
-    // Days remaining in month
+    // Determine current day and if this is the current month
     const today = new Date();
     const isCurrentMonth = selectedMonth === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
     const currentDay = isCurrentMonth ? today.getDate() : daysInMonth;
     const daysRemaining = daysInMonth - currentDay;
+
+    // Daily average (divide by days elapsed, not total days in month)
+    const expensesForAverage = expensesForStats;
+    const totalForAverage = expensesForAverage.reduce((sum, t) => sum + t.amount, 0);
+    const dailyAverage = totalForAverage / currentDay;
+
+    // Total monthly budget (will be calculated from budgets array in future)
+    const totalBudget = 0; // TODO: Calculate from budgets array when Budget feature is implemented
 
     // Budget remaining
     const budgetRemaining = totalBudget - totalExpensesCurrent;
@@ -321,16 +322,15 @@ export default function StatsPage() {
       prevMonthExpenses,
       prevMonth,
       categoriesWithExpenses,
+      totalForAverage,
+      daysInMonth,
+      currentDay,
     };
   }, [transactions, selectedMonth, categoryDefinitions, t, excludedFromStats]);
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen">
-      <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
-        {/* Header */}
-        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50">{t('title')}</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400">{monthLabel(selectedMonth, getLocale())}</p>
-
+      <main className="mx-auto max-w-xl px-4 pb-28">
       {/* Stats Filter Button */}
       {quickStats.hasData && (
         <div className="mt-4 flex items-center justify-between">
@@ -363,7 +363,7 @@ export default function StatsPage() {
           {/* Daily Average */}
           <button
             type="button"
-            onClick={() => setShowDailyAverageModal(true)}
+            onClick={() => setShowDailyAverageBreakdownModal(true)}
             className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors active:scale-[0.98] relative"
           >
             <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
@@ -658,7 +658,7 @@ export default function StatsPage() {
         )}
       </div>
 
-      {/* Daily Average Modal */}
+      {/* Filter Statistics Modal */}
       {showDailyAverageModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
@@ -677,19 +677,6 @@ export default function StatsPage() {
             <div className="mb-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3">
               <p className="text-xs text-blue-800 dark:text-blue-300">
                 {t('dailyAverageModal.infoBanner')}
-              </p>
-            </div>
-
-            {/* Current Average */}
-            <div className="mb-4 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-              <p className="text-xs text-gray-500 dark:text-gray-400">{t('dailyAverageModal.currentAverage')}</p>
-              <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-50">
-                {formatAmount(quickStats.dailyAverage)}
-              </p>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {(excludedFromStats ?? []).length > 0
-                  ? t('dailyAverageModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })
-                  : t('dailyAverageModal.allIncluded')}
               </p>
             </div>
 
@@ -930,6 +917,112 @@ export default function StatsPage() {
                 className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
               >
                 Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Daily Average Breakdown Modal */}
+      {showDailyAverageBreakdownModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowDailyAverageBreakdownModal(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
+            {/* Header */}
+            <div className="p-6 pb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {t('dailyAverageBreakdownModal.title')}
+              </h3>
+            </div>
+
+            {/* Content - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 space-y-4 min-h-0">
+              {/* How it's calculated */}
+              <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
+                <p className="text-xs font-medium text-blue-900 dark:text-blue-300 mb-2">
+                  {t('dailyAverageBreakdownModal.howCalculated')}
+                </p>
+                <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                  {t('dailyAverageBreakdownModal.formula')}
+                </p>
+              </div>
+
+              {/* Calculation breakdown */}
+              <div className="space-y-3">
+                {/* Total Spent */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {t('dailyAverageBreakdownModal.totalSpent')}
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+                    {formatAmount(quickStats.totalForAverage)}
+                  </span>
+                </div>
+
+                {/* Days in Month / Days Elapsed */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {quickStats.isCurrentMonth
+                      ? t('dailyAverageBreakdownModal.daysElapsed')
+                      : t('dailyAverageBreakdownModal.daysInMonth')
+                    }
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+                    {quickStats.currentDay}
+                  </span>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 dark:border-gray-700" />
+
+                {/* Daily Average */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                    {t('dailyAverageBreakdownModal.average')}
+                  </span>
+                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {formatAmount(quickStats.dailyAverage)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Projection */}
+              <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 p-4">
+                <p className="text-xs font-medium text-emerald-900 dark:text-emerald-300 mb-1">
+                  {t('dailyAverageBreakdownModal.projection')}
+                </p>
+                <p className="text-xs text-emerald-800 dark:text-emerald-400 mb-2">
+                  {t('dailyAverageBreakdownModal.projectionText')}
+                </p>
+                <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100">
+                  {formatAmount(quickStats.dailyAverage * quickStats.daysInMonth)} <span className="text-sm font-normal">{t('dailyAverageBreakdownModal.thisMonth')}</span>
+                </p>
+              </div>
+
+              {/* Categories excluded note */}
+              {(excludedFromStats ?? []).length > 0 && (
+                <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
+                  <p className="text-xs text-gray-700 dark:text-gray-300">
+                    {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Close Button */}
+            <div className="p-6 pt-4">
+              <button
+                type="button"
+                onClick={() => setShowDailyAverageBreakdownModal(false)}
+                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                {t('dailyAverageBreakdownModal.close')}
               </button>
             </div>
           </div>

@@ -33,6 +33,23 @@
     "allIncluded": "All categories included",
     "close": "Close"
   },
+  "dailyAverageBreakdownModal": {
+    "title": "Daily Spending Average",
+    "howCalculated": "How it's calculated",
+    "formula": "Total spent ÷ Days elapsed",
+    "totalSpent": "Total Spent",
+    "daysInMonth": "Days in Month",
+    "daysElapsed": "Days Elapsed",
+    "average": "Daily Average",
+    "projection": "Month Projection",
+    "projectionText": "If you continue at this rate, you'll spend approximately",
+    "thisMonth": "this month",
+    "categoriesExcluded": "{{count}} category excluded from this calculation",
+    "categoriesExcluded_other": "{{count}} categories excluded from this calculation",
+    "dailyBreakdown": "Spending by Day",
+    "day": "{{day}}",
+    "close": "Close"
+  },
   "expensesByCategory": {
     "title": "Expenses by Category",
     "spent": "spent",
