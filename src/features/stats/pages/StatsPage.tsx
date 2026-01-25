@@ -908,7 +908,7 @@ export default function StatsPage() {
                         {transaction.name}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(transaction.date + "T12:00:00").toLocaleDateString("es-CO", {
+                        {new Date(transaction.date + "T12:00:00").toLocaleDateString(getLocale(), {
                           day: "numeric",
                           month: "short",
                         })}
@@ -1113,7 +1113,7 @@ export default function StatsPage() {
                         {transaction.name}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(transaction.date + "T12:00:00").toLocaleDateString("es-CO", {
+                        {new Date(transaction.date + "T12:00:00").toLocaleDateString(getLocale(), {
                           day: "numeric",
                           month: "short",
                         })}
