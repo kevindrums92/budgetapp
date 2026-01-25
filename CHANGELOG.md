@@ -5,6 +5,9 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Stats Modals Layout**: Fixed Filter Statistics and Month Comparison modals being cut off on iPhone by restructuring modal padding with proper safe area spacing
+
 ## [0.11.0] - 2026-01-25
 
 ### Added

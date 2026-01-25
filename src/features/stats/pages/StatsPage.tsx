@@ -666,7 +666,7 @@ export default function StatsPage() {
 
       {/* Filter Statistics Modal */}
       {showDailyAverageModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50"
@@ -674,20 +674,23 @@ export default function StatsPage() {
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl max-h-[80vh] flex flex-col">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t('dailyAverageModal.title')}
-            </h3>
+          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
+            {/* Header */}
+            <div className="p-6 pb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {t('dailyAverageModal.title')}
+              </h3>
 
-            {/* Info Banner */}
-            <div className="mb-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3">
-              <p className="text-xs text-blue-800 dark:text-blue-300">
-                {t('dailyAverageModal.infoBanner')}
-              </p>
+              {/* Info Banner */}
+              <div className="mt-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3">
+                <p className="text-xs text-blue-800 dark:text-blue-300">
+                  {t('dailyAverageModal.infoBanner')}
+                </p>
+              </div>
             </div>
 
-            {/* Categories List */}
-            <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+            {/* Categories List - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 space-y-2 min-h-0 pb-4">
               {quickStats.categoriesWithExpenses.map((category) => {
                 const isIncluded = !(excludedFromStats ?? []).includes(category.id);
                 const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons];
@@ -740,20 +743,22 @@ export default function StatsPage() {
             </div>
 
             {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setShowDailyAverageModal(false)}
-              className="mt-4 w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-            >
-              {t('dailyAverageModal.close')}
-            </button>
+            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
+              <button
+                type="button"
+                onClick={() => setShowDailyAverageModal(false)}
+                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                {t('dailyAverageModal.close')}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Comparison Modal */}
       {showComparisonModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50"
@@ -761,91 +766,99 @@ export default function StatsPage() {
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t('comparisonModal.title')}
-            </h3>
+          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl">
+            {/* Header */}
+            <div className="p-6 pb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {t('comparisonModal.title')}
+              </h3>
 
-            {/* Info Banner */}
-            <div className="mb-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3">
-              <p className="text-xs text-blue-800 dark:text-blue-300">
-                {quickStats.isCurrentMonth
-                  ? t('comparisonModal.infoBannerCurrent', { days: quickStats.comparisonDay })
-                  : t('comparisonModal.infoBannerComplete')}
-              </p>
+              {/* Info Banner */}
+              <div className="mt-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3">
+                <p className="text-xs text-blue-800 dark:text-blue-300">
+                  {quickStats.isCurrentMonth
+                    ? t('comparisonModal.infoBannerCurrent', { days: quickStats.comparisonDay })
+                    : t('comparisonModal.infoBannerComplete')}
+                </p>
+              </div>
             </div>
 
-            {/* Previous Month */}
-            <div className="mb-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {monthLabel(quickStats.prevMonth, getLocale())}
-                {quickStats.isCurrentMonth && ` ${t('comparisonModal.dayRange', { day: quickStats.comparisonDay })}`}
-              </p>
-              <p className="mt-1 text-base font-semibold text-gray-900 dark:text-gray-50">
-                {formatAmount(quickStats.prevMonthExpenses)}
-              </p>
-            </div>
+            {/* Content */}
+            <div className="px-6 space-y-3">
+              {/* Previous Month */}
+              <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {monthLabel(quickStats.prevMonth, getLocale())}
+                  {quickStats.isCurrentMonth && ` ${t('comparisonModal.dayRange', { day: quickStats.comparisonDay })}`}
+                </p>
+                <p className="mt-1 text-base font-semibold text-gray-900 dark:text-gray-50">
+                  {formatAmount(quickStats.prevMonthExpenses)}
+                </p>
+              </div>
 
-            {/* Current Month */}
-            <div className="mb-4 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {monthLabel(selectedMonth, getLocale())}
-                {quickStats.isCurrentMonth && ` ${t('comparisonModal.dayRange', { day: quickStats.comparisonDay })}`}
-              </p>
-              <p className="mt-1 text-base font-semibold text-gray-900 dark:text-gray-50">
-                {formatAmount(quickStats.currentMonthExpensesFiltered)}
-              </p>
-            </div>
+              {/* Current Month */}
+              <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {monthLabel(selectedMonth, getLocale())}
+                  {quickStats.isCurrentMonth && ` ${t('comparisonModal.dayRange', { day: quickStats.comparisonDay })}`}
+                </p>
+                <p className="mt-1 text-base font-semibold text-gray-900 dark:text-gray-50">
+                  {formatAmount(quickStats.currentMonthExpensesFiltered)}
+                </p>
+              </div>
 
-            {/* Explanation */}
-            <div className="mb-4 flex items-start gap-2 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-              {quickStats.monthDiff > 0 ? (
-                <AlertCircle className="h-5 w-5 shrink-0 text-red-500 dark:text-red-400 mt-0.5" />
-              ) : quickStats.monthDiff < 0 ? (
-                <CheckCircle className="h-5 w-5 shrink-0 text-emerald-500 dark:text-emerald-400 mt-0.5" />
-              ) : (
-                <icons.Minus className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500 mt-0.5" />
-              )}
-              <div>
-                <p
-                  className={`text-sm font-medium mb-1 ${
-                    quickStats.monthDiff > 0
-                      ? "text-red-600 dark:text-red-400"
+              {/* Explanation */}
+              <div className="flex items-start gap-2 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
+                {quickStats.monthDiff > 0 ? (
+                  <AlertCircle className="h-5 w-5 shrink-0 text-red-500 dark:text-red-400 mt-0.5" />
+                ) : quickStats.monthDiff < 0 ? (
+                  <CheckCircle className="h-5 w-5 shrink-0 text-emerald-500 dark:text-emerald-400 mt-0.5" />
+                ) : (
+                  <icons.Minus className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500 mt-0.5" />
+                )}
+                <div>
+                  <p
+                    className={`text-sm font-medium mb-1 ${
+                      quickStats.monthDiff > 0
+                        ? "text-red-600 dark:text-red-400"
+                        : quickStats.monthDiff < 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-gray-600 dark:text-gray-400"
+                    }`}
+                  >
+                    {quickStats.monthDiff > 0 ? "+" : ""}
+                    {quickStats.monthDiffPercent.toFixed(0)}%
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {quickStats.monthDiff > 0
+                      ? t('comparisonModal.spentMore', { percent: Math.abs(quickStats.monthDiffPercent).toFixed(0) })
                       : quickStats.monthDiff < 0
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  {quickStats.monthDiff > 0 ? "+" : ""}
-                  {quickStats.monthDiffPercent.toFixed(0)}%
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {quickStats.monthDiff > 0
-                    ? t('comparisonModal.spentMore', { percent: Math.abs(quickStats.monthDiffPercent).toFixed(0) })
-                    : quickStats.monthDiff < 0
-                    ? t('comparisonModal.spentLess', { percent: Math.abs(quickStats.monthDiffPercent).toFixed(0) })
-                    : t('comparisonModal.spentSame')}
-                </p>
+                      ? t('comparisonModal.spentLess', { percent: Math.abs(quickStats.monthDiffPercent).toFixed(0) })
+                      : t('comparisonModal.spentSame')}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            {/* Categories excluded note */}
-            {(excludedFromStats ?? []).length > 0 && (
-              <div className="mb-4 rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
-                <p className="text-xs text-gray-700 dark:text-gray-300">
-                  {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
-                </p>
-              </div>
-            )}
+              {/* Categories excluded note */}
+              {(excludedFromStats ?? []).length > 0 && (
+                <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
+                  <p className="text-xs text-gray-700 dark:text-gray-300">
+                    {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Close Button */}
-            <button
-              type="button"
-              onClick={() => setShowComparisonModal(false)}
-              className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-            >
-              {t('comparisonModal.understood')}
-            </button>
+            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
+              <button
+                type="button"
+                onClick={() => setShowComparisonModal(false)}
+                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                {t('comparisonModal.understood')}
+              </button>
+            </div>
           </div>
         </div>
       )}
