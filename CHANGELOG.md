@@ -2,7 +2,10 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+
 ## [unreleased] - {relase date}
+
+## [0.11.0] - 2026-01-25
 
 ### Added
 - **Security Audit**: Comprehensive security analysis document (docs/SECURITY_AUDIT.md) covering RLS, localStorage security, E2E encryption roadmap, and industry standard comparison
