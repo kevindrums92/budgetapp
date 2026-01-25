@@ -81,13 +81,14 @@ export default function StatsPage() {
   const [showDailyAverageModal, setShowDailyAverageModal] = useState(false);
   const [showDailyAverageBreakdownModal, setShowDailyAverageBreakdownModal] = useState(false);
   const [showTopDayModal, setShowTopDayModal] = useState(false);
+  const [showTopCategoryModal, setShowTopCategoryModal] = useState(false);
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
   const toggleCategoryFromStats = useBudgetStore((s) => s.toggleCategoryFromStats);
 
   // Lock body scroll when modals are open
   useEffect(() => {
-    if (showDailyAverageModal || showDailyAverageBreakdownModal || showComparisonModal || showTopDayModal) {
+    if (showDailyAverageModal || showDailyAverageBreakdownModal || showComparisonModal || showTopDayModal || showTopCategoryModal) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -95,7 +96,7 @@ export default function StatsPage() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [showDailyAverageModal, showDailyAverageBreakdownModal, showComparisonModal, showTopDayModal]);
+  }, [showDailyAverageModal, showDailyAverageBreakdownModal, showComparisonModal, showTopDayModal, showTopCategoryModal]);
 
   // Donut chart data (expenses by category for selected month)
   const categoryChartData = useMemo<CategoryChartItem[]>(() => {
@@ -258,6 +259,14 @@ export default function StatsPage() {
         })
       : [];
 
+    // Get all transactions for the top category (using filtered stats)
+    const topCategoryTransactions = topCategoryId
+      ? expensesForStats.filter((t) => t.category === topCategoryId).sort((a, b) => {
+          // Sort by date descending (most recent first)
+          return b.date.localeCompare(a.date);
+        })
+      : [];
+
     // Previous month comparison (day-to-day for current month, full month for past months)
     const [yearNum, monthNum] = selectedMonth.split("-").map(Number);
     const prevDate = new Date(yearNum, monthNum - 2, 1);
@@ -307,6 +316,7 @@ export default function StatsPage() {
     return {
       dailyAverage,
       topCategory,
+      topCategoryTransactions,
       topDayName,
       topDayTransactions,
       monthDiff,
@@ -380,11 +390,7 @@ export default function StatsPage() {
           {quickStats.topCategory && (
             <button
               type="button"
-              onClick={() => {
-                if (quickStats.topCategory) {
-                  navigate(`/category/${quickStats.topCategory.id}/month/${selectedMonth}`);
-                }
-              }}
+              onClick={() => setShowTopCategoryModal(true)}
               className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors active:scale-[0.98] relative"
             >
               <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
@@ -823,6 +829,15 @@ export default function StatsPage() {
               </div>
             </div>
 
+            {/* Categories excluded note */}
+            {(excludedFromStats ?? []).length > 0 && (
+              <div className="mb-4 rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
+                <p className="text-xs text-gray-700 dark:text-gray-300">
+                  {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
+                </p>
+              </div>
+            )}
+
             {/* Close Button */}
             <button
               type="button"
@@ -845,7 +860,7 @@ export default function StatsPage() {
           />
 
           {/* Modal Card */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[70vh] flex flex-col">
+          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
             {/* Header */}
             <div className="p-6 pb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
@@ -857,7 +872,7 @@ export default function StatsPage() {
             </div>
 
             {/* Transactions List - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 space-y-2 min-h-0">
+            <div className="flex-1 overflow-y-auto px-6 space-y-2 min-h-0 pb-4">
               {quickStats.topDayTransactions.map((transaction) => {
                 const category = categoryDefinitions.find((c) => c.id === transaction.category);
                 const IconComponent = category
@@ -907,6 +922,17 @@ export default function StatsPage() {
                   </button>
                 );
               })}
+
+              {/* Categories excluded note (inside scrollable area) */}
+              {(excludedFromStats ?? []).length > 0 && (
+                <div className="pt-2">
+                  <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
+                    <p className="text-xs text-gray-700 dark:text-gray-300">
+                      {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Close Button */}
@@ -1023,6 +1049,105 @@ export default function StatsPage() {
                 className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
               >
                 {t('dailyAverageBreakdownModal.close')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Top Category Modal */}
+      {showTopCategoryModal && quickStats.topCategory && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowTopCategoryModal(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
+            {/* Header */}
+            <div className="p-6 pb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {quickStats.topCategory.name}
+              </h3>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                {t('topCategoryModal.transactions', { count: quickStats.topCategoryTransactions.length })} {monthLabel(selectedMonth, getLocale())}
+              </p>
+            </div>
+
+            {/* Transactions List - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 space-y-2 min-h-0 pb-4">
+              {quickStats.topCategoryTransactions.map((transaction) => {
+                const category = categoryDefinitions.find((c) => c.id === transaction.category);
+                const IconComponent = category
+                  ? icons[kebabToPascal(category.icon) as keyof typeof icons]
+                  : null;
+
+                return (
+                  <button
+                    key={transaction.id}
+                    type="button"
+                    onClick={() => {
+                      setShowTopCategoryModal(false);
+                      navigate(`/transaction/${transaction.id}`);
+                    }}
+                    className="w-full flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    {/* Category Icon */}
+                    <div
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                      style={{ backgroundColor: category ? category.color + "20" : "#E5E7EB" }}
+                    >
+                      {IconComponent && category && (
+                        <IconComponent
+                          className="h-5 w-5"
+                          style={{ color: category.color }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Transaction Info */}
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">
+                        {transaction.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {new Date(transaction.date + "T12:00:00").toLocaleDateString("es-CO", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Amount */}
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 whitespace-nowrap">
+                      {formatAmount(transaction.amount)}
+                    </p>
+                  </button>
+                );
+              })}
+
+              {/* Categories excluded note (inside scrollable area) */}
+              {(excludedFromStats ?? []).length > 0 && (
+                <div className="pt-2">
+                  <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
+                    <p className="text-xs text-gray-700 dark:text-gray-300">
+                      {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Close Button */}
+            <div className="p-6 pt-4">
+              <button
+                type="button"
+                onClick={() => setShowTopCategoryModal(false)}
+                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                {t('topCategoryModal.close')}
               </button>
             </div>
           </div>

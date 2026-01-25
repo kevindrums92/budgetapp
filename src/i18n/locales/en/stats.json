@@ -50,6 +50,11 @@
     "day": "{{day}}",
     "close": "Close"
   },
+  "topCategoryModal": {
+    "transactions": "{{count}} transaction in",
+    "transactions_other": "{{count}} transactions in",
+    "close": "Close"
+  },
   "expensesByCategory": {
     "title": "Expenses by Category",
     "spent": "spent",

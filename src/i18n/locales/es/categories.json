@@ -32,7 +32,9 @@
   "iconColorPicker": {
     "icon": "Icono",
     "color": "Color",
-    "apply": "Aplicar"
+    "apply": "Aplicar",
+    "searchPlaceholder": "Buscar ícono...",
+    "noResults": "No se encontraron íconos"
   },
   "groups": {
     "title": "Grupos de Categorías",

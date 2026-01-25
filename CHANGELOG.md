@@ -5,6 +5,28 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Enhanced Icon Picker with Search**: Major upgrade to category icon selection
+  - Expanded icon library from 87 to 140+ unique icons including pets section (dog, cat, paw-print, rabbit, fish, bird, etc.)
+  - Search functionality with bilingual keywords (Spanish/English) for quick icon discovery
+  - Real-time filtering with search input and clear button
+  - Empty state message when no icons match search query
+  - Full i18n support (es, en, fr, pt) for search placeholder and no results message
+
+### Changed
+- **Top Category Modal**: Refactored Top Category card to show transactions modal instead of navigating to category page
+  - Modal displays all transactions for the top category in selected month
+  - Scrollable transaction list with same UX as Top Day modal
+  - Clicking transactions navigates to transaction detail page
+  - Better UX consistency across all 4 Quick View cards
+- **Stats Modals UX Improvements**: Enhanced modal content visibility and scrollability
+  - Increased modal height from 70vh to 80vh for Top Day and Top Category modals
+  - Categories excluded disclaimer moved inside scrollable area for better visibility
+  - All 4 Quick View modals now include "X categories excluded" note when filters are active
+
+### Fixed
+- **Icon Picker Duplicates**: Removed duplicate icons from category icon list (scissors appeared twice)
+
+### Added
 - **Stats Page Interactive Cards with Modals**: All 4 summary cards now clickable with explanatory modals
   - Daily Average modal shows current average and full category checklist
   - Month Comparison modal explains day-to-day fair comparison with visual breakdown

@@ -50,6 +50,11 @@
     "day": "{{day}}",
     "close": "Cerrar"
   },
+  "topCategoryModal": {
+    "transactions": "{{count}} transacción en",
+    "transactions_other": "{{count}} transacciones en",
+    "close": "Cerrar"
+  },
   "expensesByCategory": {
     "title": "Gastos por Categoría",
     "spent": "gastado",
