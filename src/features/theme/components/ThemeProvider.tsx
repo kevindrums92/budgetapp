@@ -5,6 +5,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { ThemeContext, type Theme, type ResolvedTheme } from '../context/ThemeContext';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { isNative } from '@/shared/utils/platform';
 
 const STORAGE_KEY = 'app_theme';
 
@@ -74,13 +76,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Add the resolved theme class
     root.classList.add(resolvedTheme);
 
-    // Update meta theme-color for mobile browsers
+    // Update meta theme-color for mobile browsers (web PWA)
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
         resolvedTheme === 'dark' ? '#030712' : '#0d9488'
       );
+    }
+
+    // Update native status bar (iOS/Android)
+    if (isNative()) {
+      StatusBar.setStyle({
+        style: resolvedTheme === 'dark' ? Style.Dark : Style.Light
+      }).catch(() => {});
+
+      StatusBar.setBackgroundColor({
+        color: resolvedTheme === 'dark' ? '#030712' : '#0d9488'
+      }).catch(() => {});
     }
 
     console.log('[Theme] Applied theme:', resolvedTheme);

@@ -14,6 +14,7 @@ import BackupScheduler from "@/features/backup/components/BackupScheduler";
 import CloudBackupScheduler from "@/features/backup/components/CloudBackupScheduler";
 import { logger } from "@/shared/utils/logger";
 import { convertLegacyRecurringToSchedule } from "@/shared/services/scheduler.service";
+import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
@@ -82,7 +83,7 @@ export default function CloudSyncGate() {
   const debounceRef = useRef<number | null>(null);
 
   async function pushSnapshot(snapshot: ReturnType<typeof getSnapshot>) {
-    if (!navigator.onLine) {
+    if (!(await getNetworkStatus())) {
       setCloudStatus("offline");
       setPendingSnapshot(snapshot);
       return;
@@ -187,7 +188,7 @@ export default function CloudSyncGate() {
     setCloudMode("cloud");
 
     // Si inicia offline: marcamos offline y guardamos snapshot como pendiente
-    if (!navigator.onLine) {
+    if (!(await getNetworkStatus())) {
       setCloudStatus("offline");
       setPendingSnapshot(getSnapshot());
       initializedRef.current = true;
@@ -458,12 +459,16 @@ export default function CloudSyncGate() {
       setPendingSnapshot(getSnapshot());
     }
 
-    window.addEventListener("online", onOnline);
-    window.addEventListener("offline", onOffline);
+    const removeListener = addNetworkListener((isOnline) => {
+      if (isOnline) {
+        onOnline();
+      } else {
+        onOffline();
+      }
+    });
 
     return () => {
-      window.removeEventListener("online", onOnline);
-      window.removeEventListener("offline", onOffline);
+      removeListener();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -514,17 +519,21 @@ export default function CloudSyncGate() {
     if (mode !== "cloud" || !initializedRef.current) return;
 
     // si estás offline, solo marca pendiente y no intentes push
-    if (!navigator.onLine) {
-      setCloudStatus("offline");
-      setPendingSnapshot(getSnapshot());
-      return;
+    async function checkNetworkAndPush() {
+      if (!(await getNetworkStatus())) {
+        setCloudStatus("offline");
+        setPendingSnapshot(getSnapshot());
+        return;
+      }
+
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+
+      debounceRef.current = window.setTimeout(() => {
+        pushNow();
+      }, 1200);
     }
 
-    if (debounceRef.current) window.clearTimeout(debounceRef.current);
-
-    debounceRef.current = window.setTimeout(() => {
-      pushNow();
-    }, 1200);
+    checkNetworkAndPush();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats]);
