@@ -7,6 +7,31 @@
     "monthComparison": "vs Mês Anterior",
     "noExpenses": "Não há despesas este mês"
   },
+  "comparisonModal": {
+    "title": "Comparação com mês anterior",
+    "infoBannerCurrent": "Os primeiros {{days}} dias de ambos os meses são comparados para uma comparação justa.",
+    "infoBannerComplete": "Meses completos são comparados.",
+    "dayRange": "(dias 1-{{day}})",
+    "spentMore": "Você gastou {{percent}}% a mais neste período",
+    "spentLess": "Você gastou {{percent}}% a menos neste período",
+    "spentSame": "Você gastou o mesmo neste período",
+    "understood": "Entendido"
+  },
+  "statsFilter": {
+    "customize": "Personalizar",
+    "categoriesExcluded": "{{count}} categoria excluída das estatísticas · Configurar",
+    "categoriesExcluded_other": "{{count}} categorias excluídas das estatísticas · Configurar",
+    "allIncluded": "Todas as categorias incluídas · Configurar"
+  },
+  "dailyAverageModal": {
+    "title": "Filtrar Estatísticas",
+    "infoBanner": "Desmarque as categorias que não deseja incluir nas estatísticas (como contas ou despesas fixas). Isso afeta os 4 cartões de resumo.",
+    "currentAverage": "Média Atual",
+    "categoriesExcluded": "{{count}} categoria excluída",
+    "categoriesExcluded_other": "{{count}} categorias excluídas",
+    "allIncluded": "Todas as categorias incluídas",
+    "close": "Fechar"
+  },
   "expensesByCategory": {
     "title": "Despesas por Categoria",
     "spent": "gasto",

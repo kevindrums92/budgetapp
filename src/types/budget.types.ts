@@ -127,4 +127,6 @@ export type BudgetState = {
   // Scheduler
   lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull
+  // Stats preferences
+  excludedFromStats?: string[]; // Category IDs excluded from all stats calculations
 };

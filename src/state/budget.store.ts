@@ -154,6 +154,10 @@ type BudgetStore = BudgetState & {
   setLastSchedulerRun: (date: string) => void;
   setCloudSyncReady: () => void;
 
+  // Stats preferences
+  excludedFromStats: string[];
+  toggleCategoryFromStats: (categoryId: string) => void;
+
   // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
@@ -883,6 +887,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         welcomeSeen: s.welcomeSeen,
         budgetOnboardingSeen: s.budgetOnboardingSeen,
         lastSchedulerRun: s.lastSchedulerRun,
+        excludedFromStats: s.excludedFromStats,
       };
     },
 
@@ -895,6 +900,34 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     setCloudSyncReady: () => {
       set({ cloudSyncReady: true });
       // No need to saveState - this is a runtime flag only
+    },
+
+    // Stats preferences
+    excludedFromStats: hydrated.excludedFromStats ?? [],
+    toggleCategoryFromStats: (categoryId) => {
+      set((state) => {
+        const current = state.excludedFromStats ?? [];
+        const isExcluded = current.includes(categoryId);
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+          cloudSyncReady: state.cloudSyncReady,
+          excludedFromStats: isExcluded
+            ? current.filter((id) => id !== categoryId)
+            : [...current, categoryId],
+        };
+        saveState(next);
+        return next;
+      });
     },
 
     replaceAllData: (data) => {
@@ -929,6 +962,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         welcomeSeen: data.welcomeSeen ?? false,
         budgetOnboardingSeen: data.budgetOnboardingSeen ?? false,
         lastSchedulerRun: data.lastSchedulerRun,
+        excludedFromStats: data.excludedFromStats ?? [],
       });
     },
   };

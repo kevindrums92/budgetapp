@@ -7,6 +7,31 @@
     "monthComparison": "vs Mois Précédent",
     "noExpenses": "Aucune dépense ce mois-ci"
   },
+  "comparisonModal": {
+    "title": "Comparaison avec le mois précédent",
+    "infoBannerCurrent": "Les {{days}} premiers jours des deux mois sont comparés pour une comparaison juste.",
+    "infoBannerComplete": "Les mois complets sont comparés.",
+    "dayRange": "(jours 1-{{day}})",
+    "spentMore": "Vous avez dépensé {{percent}}% de plus pendant cette période",
+    "spentLess": "Vous avez dépensé {{percent}}% de moins pendant cette période",
+    "spentSame": "Vous avez dépensé le même montant pendant cette période",
+    "understood": "Compris"
+  },
+  "statsFilter": {
+    "customize": "Personnaliser",
+    "categoriesExcluded": "{{count}} catégorie exclue des statistiques · Configurer",
+    "categoriesExcluded_other": "{{count}} catégories exclues des statistiques · Configurer",
+    "allIncluded": "Toutes les catégories incluses · Configurer"
+  },
+  "dailyAverageModal": {
+    "title": "Filtrer les Statistiques",
+    "infoBanner": "Décochez les catégories que vous ne voulez pas inclure dans les statistiques (comme les factures ou les dépenses fixes). Cela affecte les 4 cartes de résumé.",
+    "currentAverage": "Moyenne Actuelle",
+    "categoriesExcluded": "{{count}} catégorie exclue",
+    "categoriesExcluded_other": "{{count}} catégories exclues",
+    "allIncluded": "Toutes les catégories incluses",
+    "close": "Fermer"
+  },
   "expensesByCategory": {
     "title": "Dépenses par Catégorie",
     "spent": "dépensé",

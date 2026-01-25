@@ -3,7 +3,7 @@
  * Servicio para exportar datos a CSV
  */
 
-import type { Transaction, CategoryDefinition, Budget } from '@/types/budget.types';
+import type { Transaction, Category, Budget } from '@/types/budget.types';
 
 /**
  * Convierte un array de objetos a formato CSV
@@ -49,14 +49,14 @@ function downloadCSV(content: string, filename: string): void {
  */
 export function exportTransactionsToCSV(
   transactions: Transaction[],
-  categories: CategoryDefinition[]
+  categories: Category[]
 ): void {
   const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
   const data = transactions.map(t => ({
     Fecha: t.date,
     Nombre: t.name,
-    Categoría: categoryMap.get(t.categoryId) || t.categoryId,
+    Categoría: categoryMap.get(t.category) || t.category,
     Tipo: t.type === 'expense' ? 'Gasto' : 'Ingreso',
     Monto: t.amount,
     Recurrente: t.isRecurring ? 'Sí' : 'No',
@@ -74,7 +74,7 @@ export function exportTransactionsToCSV(
 /**
  * Exporta categorías a CSV
  */
-export function exportCategoriesToCSV(categories: CategoryDefinition[]): void {
+export function exportCategoriesToCSV(categories: Category[]): void {
   const data = categories.map(c => ({
     Nombre: c.name,
     Tipo: c.type === 'expense' ? 'Gasto' : 'Ingreso',
@@ -96,7 +96,7 @@ export function exportCategoriesToCSV(categories: CategoryDefinition[]): void {
  */
 export function exportBudgetsToCSV(
   budgets: Budget[],
-  categories: CategoryDefinition[]
+  categories: Category[]
 ): void {
   const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
@@ -122,7 +122,7 @@ export function exportBudgetsToCSV(
  */
 export function exportAll(
   transactions: Transaction[],
-  categories: CategoryDefinition[],
+  categories: Category[],
   budgets: Budget[]
 ): void {
   exportTransactionsToCSV(transactions, categories);

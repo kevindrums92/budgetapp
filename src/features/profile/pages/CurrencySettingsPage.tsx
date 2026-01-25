@@ -4,7 +4,6 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Search, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,7 +16,6 @@ import {
 import PageHeader from '@/shared/components/layout/PageHeader';
 
 export default function CurrencySettingsPage() {
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation('profile');
   const { currency, setCurrency } = useCurrency();
   const [searchQuery, setSearchQuery] = useState('');

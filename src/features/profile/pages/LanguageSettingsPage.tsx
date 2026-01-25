@@ -3,14 +3,12 @@
  * Página completa para seleccionar idioma
  */
 
-import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTranslation } from 'react-i18next';
 import PageHeader from '@/shared/components/layout/PageHeader';
 
 export default function LanguageSettingsPage() {
-  const navigate = useNavigate();
   const { t } = useTranslation('profile');
   const { languages, currentLanguage, changeLanguage } = useLanguage();
 

@@ -5,6 +5,40 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Stats Page Interactive Cards with Modals**: All 4 summary cards now clickable with explanatory modals
+  - Daily Average modal shows current average and full category checklist
+  - Month Comparison modal explains day-to-day fair comparison with visual breakdown
+  - Top Category card navigates to category detail page
+  - Top Day modal displays all transactions from that day of week in current month (70vh scrollable)
+  - All modals include body scroll lock and proper timezone handling
+- **Stats Category Filtering System**: Unified filtering across all statistics
+  - New "Personalizar" button with teal design and badge showing excluded count
+  - Exclude categories (bills, fixed expenses) from ALL 4 summary cards
+  - Filter affects: Daily Average, Top Category, Top Day, Month Comparison
+  - Full i18n support (es, en, fr, pt) for all new UI elements
+  - Cloud sync persistence for excluded categories preferences
+
+### Changed
+- **Stats Page Month Comparison Logic**: Refactored to fair day-to-day comparison
+  - Now compares same number of days instead of full months
+  - Modal explains whether comparing partial months or full months
+  - Icons changed from trending arrows to CheckCircle/AlertCircle for clarity
+  - Red/green colors now semantic (green = spending less, red = spending more)
+- **Stats Card Visual Indicators**: Added chevrons and colorful icons to show cards are clickable
+  - Daily Average: DollarSign icon in teal circle
+  - Top Category: Category icon with color
+  - Top Day: Calendar icon in purple circle
+  - Month Comparison: CheckCircle/AlertCircle based on performance
+
+### Fixed
+- **Stats Cloud Sync**: Fixed excluded categories not persisting to cloud
+  - Added `excludedFromStats` to CloudSyncGate subscriptions and dependencies
+  - Updated `getSnapshot()` and `replaceAllData()` to include filter preferences
+- **Stats Timezone Bug**: Fixed day-of-week calculations failing due to timezone issues
+  - Changed from `new Date(t.date)` to `new Date(t.date + "T12:00:00")`
+  - Ensures consistent day-of-week detection across timezones
+
+### Added
 - **Budget Module Complete Implementation**: Full budget tracking system with flexible periods and cloud sync
   - Create budgets for any category with weekly, monthly, quarterly, yearly, or custom periods
   - Recurring budgets that auto-renew at the end of each period

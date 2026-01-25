@@ -4,7 +4,6 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FileDown, FileText, FolderOpen, Target, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useBudgetStore } from '@/state/budget.store';
@@ -26,7 +25,6 @@ type ExportOption = {
 };
 
 export default function ExportCSVPage() {
-  const navigate = useNavigate();
   const { t } = useTranslation('profile');
   const [exporting, setExporting] = useState(false);
 

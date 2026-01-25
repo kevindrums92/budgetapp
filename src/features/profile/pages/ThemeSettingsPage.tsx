@@ -3,7 +3,6 @@
  * Página completa para seleccionar tema
  */
 
-import { useNavigate } from 'react-router-dom';
 import { Sun, Moon, Smartphone, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme, type Theme } from '@/features/theme';
@@ -20,7 +19,6 @@ const THEME_OPTIONS: Array<{
 ];
 
 export default function ThemeSettingsPage() {
-  const navigate = useNavigate();
   const { t } = useTranslation('profile');
   const { theme, setTheme } = useTheme();
 
