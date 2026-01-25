@@ -3,7 +3,29 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.11.1] - 2026-01-25
+
+### Added
+- **Capacitor Integration**: Native mobile app compilation support via Capacitor
+  - Installed Capacitor core, CLI, and platform plugins (iOS, Android)
+  - Added native plugins: App lifecycle, Network status, Splash Screen, Status Bar, Apple Sign In
+  - Configured capacitor.config.ts with app metadata and bundled web directory
+  - Generated native app assets (icons, splash screens) for iOS/Android
+  - Added network service and platform detection utilities
+  - Updated manifest to fullscreen display mode for native apps
+  - Gitignored native platform folders (regenerated via `npx cap sync`)
+
+### Removed
+- **Playwright E2E Tests**: Removed Playwright testing framework and all E2E test files
+  - Deleted 6 E2E spec files (auth-state-consistency, core-functionality, list-filtering, release-features, scheduled-transactions, transaction-attributes)
+  - Removed Playwright dependencies from package.json
+  - Shifted testing strategy to focus on native app testing
+
+### Fixed
+- **Stats Modals Layout**: Fixed Filter Statistics and Month Comparison modals being cut off on iPhone by restructuring modal padding with proper safe area spacing
 
 ## [0.11.0] - 2026-01-25
 

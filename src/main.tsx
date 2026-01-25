@@ -5,10 +5,29 @@ import App from "./App";
 import "./index.css";
 
 import { registerSW } from "virtual:pwa-register";
+import { App as CapacitorApp } from '@capacitor/app';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { isNative } from '@/shared/utils/platform';
 
 registerSW({
   immediate: true,
 });
+
+// Initialize Capacitor plugins (native only)
+if (isNative()) {
+  // Set initial status bar style
+  StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+
+  // Handle Android back button
+  CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+    if (!canGoBack) {
+      CapacitorApp.exitApp();
+    } else {
+      window.history.back();
+    }
+  });
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -25,10 +44,16 @@ requestAnimationFrame(() => {
   const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
 
   setTimeout(() => {
-    const splash = document.getElementById('app-splash');
-    if (splash) {
-      splash.style.opacity = '0';
-      setTimeout(() => splash.remove(), 400);
+    if (isNative()) {
+      // Native: Hide Capacitor splash screen
+      SplashScreen.hide({ fadeOutDuration: 400 }).catch(() => {});
+    } else {
+      // Web: Hide HTML splash screen
+      const splash = document.getElementById('app-splash');
+      if (splash) {
+        splash.style.opacity = '0';
+        setTimeout(() => splash.remove(), 400);
+      }
     }
   }, remainingTime);
 });

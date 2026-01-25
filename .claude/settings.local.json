@@ -19,7 +19,10 @@
       "Bash(npm run lint:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: include scheduled transactions in recurring filter\n\nEl filtro de transacciones recurrentes ahora detecta correctamente las transacciones con schedule activo, además de las que tienen isRecurring o sourceTemplateId. Esto resuelve el bug donde transacciones programadas como \"Pensión Thomas\" no aparecían al filtrar por recurrentes.\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npx cap init:*)",
+      "Bash(npx cap:*)",
+      "Bash(npx capacitor-assets:*)"
     ]
   }
 }

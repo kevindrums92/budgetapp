@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.11.0",
+  "version": "0.11.1",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -9,6 +9,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:web": "tsc -b && vite build",
+    "build:ios": "npm run build:web && npx cap sync ios && npx cap open ios",
+    "build:android": "npm run build:web && npx cap sync android && npx cap open android",
+    "cap:sync": "npx cap sync",
+    "dev:ios": "npm run build:web && npx cap run ios",
+    "dev:android": "npm run build:web && npx cap run android",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server.js",
@@ -31,6 +37,14 @@
     "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run && npm run test:e2e"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.1",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/cli": "^8.0.1",
+    "@capacitor/core": "^8.0.1",
+    "@capacitor/ios": "^8.0.1",
+    "@capacitor/network": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@supabase/supabase-js": "^2.89.0",
     "embla-carousel": "^8.6.0",
@@ -46,6 +60,7 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
