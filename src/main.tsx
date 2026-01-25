@@ -7,6 +7,7 @@ import "./index.css";
 import { registerSW } from "virtual:pwa-register";
 import { App as CapacitorApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { isNative } from '@/shared/utils/platform';
 
 registerSW({
@@ -15,6 +16,11 @@ registerSW({
 
 // Initialize Capacitor plugins (native only)
 if (isNative()) {
+  // Hide native splash screen after 1.2s minimum
+  setTimeout(() => {
+    SplashScreen.hide({ fadeOutDuration: 400 }).catch(() => {});
+  }, 1200);
+
   // Set initial status bar style
   StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
 

@@ -7,6 +7,12 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Stats Bottom Sheets**: Refactored all 5 stats modals from centered dialogs to mobile-first bottom sheets
+  - Added drag-to-dismiss gesture (30% threshold) with smooth animations
+  - Created dedicated components: FilterStatisticsSheet, ComparisonSheet, TopDaySheet, DailyAverageBreakdownSheet, TopCategorySheet
+  - Drag handlers isolated to header only, scrollable content unaffected
+  - Category exclusion notices moved to sheet headers (always visible during scroll)
+  - Individual body scroll lock per sheet (removed global lock from StatsPage)
 - **iOS/Android Native Support**: Complete Capacitor migration for native mobile apps
   - OAuth deep linking with custom URL scheme (`smartspend://auth/callback`)
   - Native status bar sync with app theme (dark/light mode)
@@ -26,7 +32,7 @@ All notable changes to SmartSpend will be documented in this file.
 - **Logout Navigation**: Fixed logout leaving user on home screen instead of login by prioritizing logout flag over active session in navigation logic
 - **PageHeader Safe Area**: Added safe area inset padding for iOS to prevent back button being hidden behind notch
 - **Budget Onboarding Wizard Button Spacing**: Fixed bottom button being cut off on iPhone by changing from absolute to fixed positioning with proper safe area spacing (calc(env(safe-area-inset-bottom) + 24px))
-- **Native Splash Screen**: Configured Capacitor splash screen with manual control (launchAutoHide: false) to prevent stuck splash, hide via SplashScreen.hide() in app code
+- **Native Splash Screen**: Moved splash screen hide logic from Welcome component to main.tsx with 1.2s minimum display time for smoother app startup
 
 ## [0.11.1] - 2026-01-25
 

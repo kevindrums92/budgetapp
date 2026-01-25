@@ -4,11 +4,8 @@
  * Primera impresión - Logo, título y features principales
  */
 
-import { useEffect } from 'react';
 import { WifiOff, Shield, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { isNative } from '@/shared/utils/platform';
 import OnboardingLayout from '../../../components/OnboardingLayout';
 import FeatureCard from '../../../components/FeatureCard';
 import SlideAnimation, { StaggeredAnimation } from '../../../components/SlideAnimation';
@@ -17,17 +14,6 @@ import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 export default function Screen1_Welcome() {
   const { t } = useTranslation('onboarding');
   const { handleNext, handleSkip } = useOnboardingProgress();
-
-  // Hide native splash screen when component mounts
-  useEffect(() => {
-    if (isNative()) {
-      // Wait a bit for animations to start, then hide splash
-      const timer = setTimeout(() => {
-        SplashScreen.hide({ fadeOutDuration: 400 }).catch(() => {});
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   return (
     <OnboardingLayout
