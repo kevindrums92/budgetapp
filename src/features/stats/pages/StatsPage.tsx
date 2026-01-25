@@ -333,7 +333,10 @@ export default function StatsPage() {
 
       {/* Stats Filter Button */}
       {quickStats.hasData && (
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Insights Rápidos
+          </h3>
           <button
             type="button"
             onClick={() => setShowDailyAverageModal(true)}
