@@ -1,0 +1,113 @@
+{
+  "page": {
+    "title": "Budgets",
+    "activeBudgets": "Budgets actifs",
+    "remaining": "Il reste {{amount}} ({{percentage}}%)",
+    "exceeded": "Dépassé de {{amount}} ({{percentage}}%)",
+    "noActiveBudgets": "Aucun budget actif pour cette période"
+  },
+  "summary": {
+    "budgeted": "Budgété",
+    "spent": "Dépensé"
+  },
+  "emptyState": {
+    "title": "Créer ma première limite",
+    "description": "Définissez un montant maximum pour des dépenses comme les Restaurants ou les Transports.",
+    "cta": "Commencer maintenant"
+  },
+  "modal": {
+    "titleNew": "Nouveau Budget",
+    "titleEdit": "Modifier le Budget",
+    "category": "Catégorie",
+    "selectCategory": "Sélectionner une catégorie",
+    "amount": "Budget",
+    "period": "Période",
+    "selectPeriod": "Sélectionner une période",
+    "recurring": "Récurrent",
+    "recurringDescription": "Renouveler automatiquement à la fin",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "deleteConfirmTitle": "Supprimer le budget?",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce budget?",
+    "cancel": "Annuler"
+  },
+  "periodPicker": {
+    "title": "Sélectionner la Période",
+    "week": "Semaine",
+    "month": "Mois",
+    "quarter": "Trimestre",
+    "year": "Année",
+    "custom": "Personnalisé",
+    "select": "Sélectionner",
+    "startDate": "Date de début",
+    "endDate": "Date de fin",
+    "selectedPeriod": "Période sélectionnée"
+  },
+  "card": {
+    "budgetWeekly": "Budget hebdomadaire",
+    "budgetMonthly": "Budget mensuel",
+    "budgetQuarterly": "Budget trimestriel",
+    "budgetYearly": "Budget annuel",
+    "budgetCustom": "Budget personnalisé",
+    "remaining": "Il reste {{amount}}",
+    "exceeded": "Dépassé de {{amount}}",
+    "statusGood": "En bonne voie",
+    "statusWarning": "Près de la limite",
+    "statusExceeded": "Limite dépassée"
+  },
+  "onboarding": {
+    "screen1": {
+      "title": "Budgets Intelligents",
+      "subtitle": "Contrôlez vos dépenses avec des budgets flexibles et renouvelables automatiquement",
+      "feature1Title": "Périodes Flexibles",
+      "feature1Description": "Créez des budgets hebdomadaires, mensuels, trimestriels, annuels ou personnalisés",
+      "feature2Title": "Renouvellement Automatique",
+      "feature2Description": "Activez l'option récurrente et oubliez la création de budgets chaque mois",
+      "feature3Title": "Suivi Visuel",
+      "feature3Description": "Voyez votre progression en temps réel avec des barres colorées et des alertes intelligentes",
+      "continue": "Continuer"
+    },
+    "screen2": {
+      "title": "Choisissez Votre Période",
+      "subtitle": "Vous n'êtes pas limité aux budgets mensuels. Choisissez la période qui vous convient le mieux.",
+      "weekTitle": "Semaine",
+      "weekDescription": "Contrôle hebdomadaire des dépenses",
+      "monthTitle": "Mois",
+      "monthDescription": "La période la plus courante",
+      "quarterTitle": "Trimestre",
+      "quarterDescription": "Planifiez sur 3 mois",
+      "yearTitle": "Année / Personnalisé",
+      "yearDescription": "Ou définissez vos propres dates",
+      "example": "Créez un budget hebdomadaire de $ 100.000 pour les restaurants, ou un budget annuel de $ 5.000.000 pour les voyages.",
+      "continue": "Continuer"
+    },
+    "screen3": {
+      "title": "Configurez et Oubliez",
+      "subtitle": "Activez le renouvellement automatique et vos budgets se recréeront tout seuls à la fin de chaque période.",
+      "exampleCategory": "Courses",
+      "examplePeriod": "Budget mensuel",
+      "month1": "Janvier 2026",
+      "month1Amount": "$ 500.000 budgétés",
+      "month2": "Février 2026",
+      "month2Status": "✓ Renouvelé automatiquement",
+      "month3": "Mars 2026",
+      "month3Status": "✓ Renouvelé automatiquement",
+      "infoText": "Les budgets sont renouvelés automatiquement avec le même montant et la même période. Vous pouvez désactiver le renouvellement à tout moment.",
+      "continue": "Continuer"
+    },
+    "screen4": {
+      "title": "Suivi en Temps Réel",
+      "subtitle": "Visualisez votre progression avec des barres d'état, des couleurs intuitives et des alertes lorsque vous approchez de la limite.",
+      "exampleTransport": "Transport",
+      "exampleEntertainment": "Divertissement",
+      "exampleRestaurants": "Restaurants",
+      "statusGood": "✓ En bonne voie",
+      "statusWarning": "⚠ Près de la limite",
+      "statusExceeded": "⛔ Limite dépassée",
+      "colorsTitle": "Couleurs intuitives",
+      "colorsDescription": "Vert = bonne voie, Jaune = près de la limite, Rouge = dépassé. Vous saurez toujours l'état de votre budget d'un coup d'œil.",
+      "start": "Commencer!"
+    },
+    "skip": "Passer"
+  }
+}

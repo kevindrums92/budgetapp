@@ -1,0 +1,72 @@
+{
+  "title": "Categories",
+  "tabs": {
+    "expenses": "Expenses",
+    "income": "Income"
+  },
+  "emptyExpenses": "No expense categories",
+  "emptyIncome": "No income categories",
+  "createButton": "Create category",
+  "form": {
+    "editTitle": "Edit Category",
+    "newTitle": "New Category",
+    "name": "Name",
+    "namePlaceholder": "Category name",
+    "type": "Type",
+    "typeExpense": "Expense",
+    "typeIncome": "Income",
+    "icon": "Icon",
+    "selectIcon": "Select icon",
+    "color": "Color",
+    "group": "Group",
+    "selectGroup": "Select group",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "delete": {
+      "title": "Delete category",
+      "message": "Are you sure you want to delete this category? Existing transactions will keep the category name.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "iconColorPicker": {
+    "icon": "Icon",
+    "color": "Color",
+    "apply": "Apply",
+    "searchPlaceholder": "Search icon...",
+    "noResults": "No icons found"
+  },
+  "groups": {
+    "title": "Category Groups",
+    "emptyExpenses": "No expense groups",
+    "emptyIncome": "No income groups",
+    "createButton": "Create group",
+    "form": {
+      "editTitle": "Edit Group",
+      "newTitle": "New Group",
+      "name": "Group name",
+      "namePlaceholder": "E.g.: Housing",
+      "type": "Type",
+      "typeExpense": "Expense",
+      "typeIncome": "Income",
+      "typeWarning": "Type cannot be changed after creating the group",
+      "tapToChangeColor": "Tap to change color",
+      "selectColor": "Select color",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saveChanges": "Save changes",
+      "delete": {
+        "title": "Delete group",
+        "message": "Are you sure you want to delete this group? Categories will be reassigned to the \"Other\" group.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "monthDetail": {
+    "transaction": "transaction",
+    "transactions": "transactions",
+    "empty": "No transactions in this category this month",
+    "error": "Category not found"
+  }
+}

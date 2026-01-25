@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { CATEGORY_COLORS } from "@/constants/categories/category-colors";
@@ -9,13 +10,13 @@ import PageHeader from "@/shared/components/layout/PageHeader";
 const DEFAULT_GROUP_COLOR = "#6B7280"; // Gray
 
 export default function AddEditCategoryGroupPage() {
+  const { t } = useTranslation("categories");
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
 
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
-  const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const addCategoryGroup = useBudgetStore((s) => s.addCategoryGroup);
   const updateCategoryGroup = useBudgetStore((s) => s.updateCategoryGroup);
   const deleteCategoryGroup = useBudgetStore((s) => s.deleteCategoryGroup);
@@ -49,7 +50,6 @@ export default function AddEditCategoryGroupPage() {
   }, [isEditing, id, categoryGroups]);
 
   const currentGroup = categoryGroups.find((g) => g.id === id);
-  const categoriesInGroup = categoryDefinitions.filter((c) => c.groupId === id).length;
 
   function handleSave() {
     if (!name.trim()) return;
@@ -79,7 +79,7 @@ export default function AddEditCategoryGroupPage() {
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
       <PageHeader
-        title={isEditing ? "Editar Grupo" : "Nuevo Grupo"}
+        title={isEditing ? t("groups.form.editTitle") : t("groups.form.newTitle")}
         rightActions={
           isEditing && currentGroup && !currentGroup.isDefault ? (
             <button
@@ -107,7 +107,7 @@ export default function AddEditCategoryGroupPage() {
               style={{ backgroundColor: color }}
             />
             <div className="mt-2 text-xs text-gray-500">
-              Toca para cambiar color
+              {t("groups.form.tapToChangeColor")}
             </div>
           </button>
         </div>
@@ -117,13 +117,13 @@ export default function AddEditCategoryGroupPage() {
           {/* Name */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Nombre del grupo
+              {t("groups.form.name")}
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Alimentación, Entretenimiento"
+              placeholder={t("groups.form.namePlaceholder")}
               className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
@@ -131,7 +131,7 @@ export default function AddEditCategoryGroupPage() {
           {/* Type */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-2 block text-xs font-medium text-gray-500">
-              Tipo
+              {t("groups.form.type")}
             </label>
             <div className="flex gap-2">
               <button
@@ -144,7 +144,7 @@ export default function AddEditCategoryGroupPage() {
                     : "bg-gray-100 text-gray-600"
                 } ${isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                Gasto
+                {t("groups.form.typeExpense")}
               </button>
               <button
                 type="button"
@@ -156,12 +156,12 @@ export default function AddEditCategoryGroupPage() {
                     : "bg-gray-100 text-gray-600"
                 } ${isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                Ingreso
+                {t("groups.form.typeIncome")}
               </button>
             </div>
             {isEditing && (
               <p className="mt-2 text-xs text-gray-400">
-                El tipo no se puede cambiar después de crear el grupo
+                {t("groups.form.typeWarning")}
               </p>
             )}
           </div>
@@ -176,7 +176,7 @@ export default function AddEditCategoryGroupPage() {
           disabled={!name.trim()}
           className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300"
         >
-          Guardar
+          {t("groups.form.save")}
         </button>
       </div>
 
@@ -189,7 +189,7 @@ export default function AddEditCategoryGroupPage() {
           />
           <div className="relative w-full max-w-lg rounded-t-3xl bg-white px-6 py-8 shadow-xl">
             <h3 className="mb-4 text-lg font-semibold text-gray-900">
-              Seleccionar color
+              {t("groups.form.selectColor")}
             </h3>
             <div className="grid grid-cols-6 gap-3">
               {CATEGORY_COLORS.map((c) => (
@@ -212,7 +212,7 @@ export default function AddEditCategoryGroupPage() {
               onClick={() => setShowColorPicker(false)}
               className="mt-6 w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700"
             >
-              Cancelar
+              {t("groups.form.cancel")}
             </button>
           </div>
         </div>
@@ -227,21 +227,10 @@ export default function AddEditCategoryGroupPage() {
           />
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Eliminar grupo
+              {t("groups.form.delete.title")}
             </h3>
             <p className="text-gray-600 mb-4">
-              {categoriesInGroup > 0 ? (
-                <>
-                  Este grupo tiene{" "}
-                  <span className="font-medium">{categoriesInGroup}</span>{" "}
-                  categoría(s). Al eliminarlo, estas categorías se moverán automáticamente al grupo "Otros".
-                </>
-              ) : (
-                <>
-                  ¿Estás seguro de que deseas eliminar el grupo "{name}"?
-                  Esta acción no se puede deshacer.
-                </>
-              )}
+              {t("groups.form.delete.message")}
             </p>
             <div className="flex gap-3">
               <button
@@ -249,14 +238,14 @@ export default function AddEditCategoryGroupPage() {
                 onClick={() => setConfirmDelete(false)}
                 className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
               >
-                Cancelar
+                {t("groups.form.delete.cancel")}
               </button>
               <button
                 type="button"
                 onClick={confirmDeleteGroup}
                 className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
               >
-                Eliminar
+                {t("groups.form.delete.confirm")}
               </button>
             </div>
           </div>

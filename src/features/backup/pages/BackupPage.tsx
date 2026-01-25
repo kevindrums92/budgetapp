@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Download, RefreshCw, Cloud } from "lucide-react";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import BackupExportButton from "@/features/backup/components/BackupExportButton";
@@ -13,6 +14,7 @@ type BackupMethod = "manual" | "local" | "cloud";
 const BACKUP_METHOD_KEY = "budget.backupMethod";
 
 export default function BackupPage() {
+  const { t } = useTranslation("backup");
   const cloudMode = useBudgetStore((s) => s.cloudMode);
   const user = useBudgetStore((s) => s.user);
   const [selectedMethod, setSelectedMethod] = useState<BackupMethod | null>(null);
@@ -50,8 +52,8 @@ export default function BackupPage() {
   // Show introduction if no method selected
   if (!selectedMethod) {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50">
-        <PageHeader title="Backup & Restore" />
+      <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
+        <PageHeader title={t("title")} />
 
         <div className="flex-1 px-4 pt-6 pb-8">
           <BackupMethodSelector
@@ -67,11 +69,11 @@ export default function BackupPage() {
   const getMethodInfo = () => {
     switch (selectedMethod) {
       case "manual":
-        return { label: "Manual", icon: Download };
+        return { label: t("methods.manual"), icon: Download };
       case "local":
-        return { label: "Backups Automáticos Locales", icon: RefreshCw };
+        return { label: t("methods.local"), icon: RefreshCw };
       case "cloud":
-        return { label: "Backups en la Nube", icon: Cloud };
+        return { label: t("methods.cloud"), icon: Cloud };
       default:
         return { label: "", icon: Download };
     }
@@ -81,18 +83,18 @@ export default function BackupPage() {
 
   // Show selected method content
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <PageHeader title="Backup & Restore" />
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
+      <PageHeader title={t("title")} />
 
       {/* Active Method Indicator */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Método activo:
+          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+            {t("activeMethod")}
           </span>
-          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-1.5">
-            <MethodIcon size={14} className="text-emerald-600" />
-            <span className="text-sm font-medium text-emerald-700">
+          <div className="flex items-center gap-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 px-3 py-1.5">
+            <MethodIcon size={14} className="text-emerald-600 dark:text-emerald-400" />
+            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
               {methodLabel}
             </span>
           </div>
@@ -105,20 +107,20 @@ export default function BackupPage() {
         {selectedMethod === "manual" && (
           <div className="space-y-6">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                Backup Manual
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">
+                {t("manual.title")}
               </h2>
-              <p className="text-sm text-gray-600">
-                Exporta e importa tus datos en formato JSON
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {t("manual.description")}
               </p>
             </div>
 
             {/* Export */}
             <div className="space-y-2.5">
               <div>
-                <h3 className="text-sm font-medium text-gray-900">Exportar</h3>
-                <p className="text-xs text-gray-500 mt-1">
-                  Descarga tus datos en formato JSON
+                <h3 className="text-sm font-medium text-gray-900 dark:text-gray-50">{t("manual.export.title")}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {t("manual.export.description")}
                 </p>
               </div>
               <BackupExportButton />
@@ -127,27 +129,27 @@ export default function BackupPage() {
             {/* Restore */}
             <div className="space-y-2.5">
               <div>
-                <h3 className="text-sm font-medium text-gray-900">Restaurar</h3>
-                <p className="text-xs text-gray-500 mt-1">
-                  Esto reemplazará tus datos actuales
+                <h3 className="text-sm font-medium text-gray-900 dark:text-gray-50">{t("manual.restore.title")}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {t("manual.restore.warning")}
                 </p>
               </div>
               <BackupImportButton />
             </div>
 
             {/* Info */}
-            <div className="rounded-xl bg-blue-50 p-4">
-              <p className="text-sm text-blue-900 font-medium mb-2">
-                💡 ¿Qué incluye el backup?
+            <div className="rounded-xl bg-blue-50 dark:bg-blue-900/30 p-4">
+              <p className="text-sm text-blue-900 dark:text-blue-100 font-medium mb-2">
+                💡 {t("manual.includes.title")}
               </p>
-              <ul className="space-y-1 text-xs text-blue-700">
-                <li>• Todas tus transacciones</li>
-                <li>• Viajes y gastos de viaje</li>
-                <li>• Categorías personalizadas</li>
-                <li>• Verificación SHA-256</li>
+              <ul className="space-y-1 text-xs text-blue-700 dark:text-blue-300">
+                <li>• {t("manual.includes.transactions")}</li>
+                <li>• {t("manual.includes.trips")}</li>
+                <li>• {t("manual.includes.categories")}</li>
+                <li>• {t("manual.includes.checksum")}</li>
               </ul>
-              <p className="mt-3 text-xs text-blue-600">
-                💾 Guarda tus backups en un lugar seguro como Google Drive o Dropbox
+              <p className="mt-3 text-xs text-blue-600 dark:text-blue-400">
+                💾 {t("manual.advice")}
               </p>
             </div>
           </div>
@@ -157,37 +159,37 @@ export default function BackupPage() {
         {selectedMethod === "local" && (
           <div className="space-y-6">
             {cloudMode === "guest" ? (
-              <div className="rounded-xl bg-amber-50 p-6 text-center">
-                <p className="text-amber-900 font-medium mb-2">
-                  🔒 Requiere Autenticación
+              <div className="rounded-xl bg-amber-50 dark:bg-amber-900/30 p-6 text-center">
+                <p className="text-amber-900 dark:text-amber-100 font-medium mb-2">
+                  🔒 {t("local.authRequired")}
                 </p>
-                <p className="text-sm text-amber-700">
-                  Inicia sesión para usar backups automáticos locales
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  {t("local.authMessage")}
                 </p>
               </div>
             ) : (
               <>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                    Backups Automáticos Locales
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">
+                    {t("methods.local")}
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    Se crean automáticamente cada 24 horas
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t("local.description")}
                   </p>
                 </div>
 
                 <LocalBackupList userId={user.email || undefined} />
 
                 {/* Info */}
-                <div className="rounded-xl bg-purple-50 p-4">
-                  <p className="text-sm text-purple-900 font-medium mb-2">
-                    🔄 ¿Cómo funcionan?
+                <div className="rounded-xl bg-purple-50 dark:bg-purple-900/30 p-4">
+                  <p className="text-sm text-purple-900 dark:text-purple-100 font-medium mb-2">
+                    🔄 {t("local.howItWorks.title")}
                   </p>
-                  <ul className="space-y-1 text-xs text-purple-700">
-                    <li>• Se crean automáticamente cada 24 horas</li>
-                    <li>• Se mantienen los últimos 5 backups</li>
-                    <li>• Tamaño máximo total: 5MB</li>
-                    <li>• Se crean antes de operaciones críticas</li>
+                  <ul className="space-y-1 text-xs text-purple-700 dark:text-purple-300">
+                    <li>• {t("local.howItWorks.frequency")}</li>
+                    <li>• {t("local.howItWorks.retention")}</li>
+                    <li>• {t("local.howItWorks.sizeLimit")}</li>
+                    <li>• {t("local.howItWorks.timing")}</li>
                   </ul>
                 </div>
               </>
@@ -199,37 +201,37 @@ export default function BackupPage() {
         {selectedMethod === "cloud" && (
           <div className="space-y-6">
             {cloudMode === "guest" ? (
-              <div className="rounded-xl bg-amber-50 p-6 text-center">
-                <p className="text-amber-900 font-medium mb-2">
-                  🔒 Requiere Autenticación
+              <div className="rounded-xl bg-amber-50 dark:bg-amber-900/30 p-6 text-center">
+                <p className="text-amber-900 dark:text-amber-100 font-medium mb-2">
+                  🔒 {t("cloud.authRequired")}
                 </p>
-                <p className="text-sm text-amber-700">
-                  Inicia sesión para usar backups en la nube
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  {t("cloud.authMessage")}
                 </p>
               </div>
             ) : (
               <>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                    Backups en la Nube
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">
+                    {t("methods.cloud")}
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    Sincronizados automáticamente cada 7 días
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t("cloud.description")}
                   </p>
                 </div>
 
                 <CloudBackupList />
 
                 {/* Info */}
-                <div className="rounded-xl bg-sky-50 p-4">
-                  <p className="text-sm text-sky-900 font-medium mb-2">
-                    ☁️ ¿Cómo funcionan?
+                <div className="rounded-xl bg-sky-50 dark:bg-sky-900/30 p-4">
+                  <p className="text-sm text-sky-900 dark:text-sky-100 font-medium mb-2">
+                    ☁️ {t("cloud.howItWorks.title")}
                   </p>
-                  <ul className="space-y-1 text-xs text-sky-700">
-                    <li>• Se crean automáticamente cada 7 días</li>
-                    <li>• Se mantienen por 30 días</li>
-                    <li>• Almacenados en Supabase</li>
-                    <li>• Accesibles desde cualquier dispositivo</li>
+                  <ul className="space-y-1 text-xs text-sky-700 dark:text-sky-300">
+                    <li>• {t("cloud.howItWorks.frequency")}</li>
+                    <li>• {t("cloud.howItWorks.retention")}</li>
+                    <li>• {t("cloud.howItWorks.storage")}</li>
+                    <li>• {t("cloud.howItWorks.accessible")}</li>
                   </ul>
                 </div>
               </>
@@ -238,13 +240,13 @@ export default function BackupPage() {
         )}
 
         {/* Change Method Button */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             onClick={handleChangeMethod}
-            className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+            className="w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           >
-            ← Cambiar método de backup
+            ← {t("changeMethod")}
           </button>
         </div>
       </div>

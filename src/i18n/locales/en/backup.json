@@ -1,0 +1,82 @@
+{
+  "title": "Backup & Restore",
+  "activeMethod": "Active method:",
+  "methods": {
+    "manual": "Manual",
+    "local": "Local Auto Backups",
+    "cloud": "Cloud Backups"
+  },
+  "manual": {
+    "title": "Manual Backup",
+    "description": "Export and import your data in JSON format",
+    "export": {
+      "title": "Export",
+      "description": "Download your data in JSON format",
+      "button": "Export"
+    },
+    "restore": {
+      "title": "Restore",
+      "warning": "This will replace your current data",
+      "button": "Restore"
+    },
+    "includes": {
+      "title": "What's included in the backup?",
+      "transactions": "All your transactions",
+      "trips": "Trips and trip expenses",
+      "categories": "Custom categories",
+      "checksum": "SHA-256 verification"
+    },
+    "advice": "Save your backups in a safe place like Google Drive or Dropbox"
+  },
+  "local": {
+    "authRequired": "Authentication Required",
+    "authMessage": "Sign in to use local auto backups",
+    "description": "Created automatically every 24 hours",
+    "howItWorks": {
+      "title": "How does it work?",
+      "frequency": "Created automatically every 24 hours",
+      "retention": "Last 5 backups are kept",
+      "sizeLimit": "Maximum total size: 5MB",
+      "timing": "Created before critical operations"
+    },
+    "emptyState": "No local auto backups",
+    "backupItem": {
+      "restore": "Restore",
+      "delete": "Delete"
+    }
+  },
+  "cloud": {
+    "authRequired": "Authentication Required",
+    "authMessage": "Sign in to use cloud backups",
+    "description": "Created automatically every 7 days",
+    "howItWorks": {
+      "title": "How does it work?",
+      "frequency": "Created automatically every 7 days",
+      "retention": "Kept for 30 days",
+      "storage": "Stored in Supabase",
+      "accessible": "Accessible from any device"
+    },
+    "emptyState": "No cloud backups",
+    "backupItem": {
+      "restore": "Restore",
+      "delete": "Delete"
+    }
+  },
+  "changeMethod": "Change backup method",
+  "selectMethod": {
+    "title": "Select backup method",
+    "manual": {
+      "title": "Manual",
+      "description": "You decide when to backup"
+    },
+    "local": {
+      "title": "Local Auto",
+      "description": "Backups every 24h on this device"
+    },
+    "cloud": {
+      "title": "Cloud",
+      "description": "Backups every 7 days on Supabase"
+    },
+    "cancel": "Cancel"
+  }
+}

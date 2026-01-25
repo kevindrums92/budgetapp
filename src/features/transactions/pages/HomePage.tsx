@@ -1,23 +1,27 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Plus, X, Search, TrendingUp, TrendingDown, Clock, Download } from "lucide-react";
+import { Plus, X, Search, Calculator, SlidersHorizontal, Check } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
 import TransactionList from "@/features/transactions/components/TransactionList";
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";
 import ScheduledBanner from "@/features/transactions/components/ScheduledBanner";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { generateVirtualTransactions, generatePastDueTransactions, materializeTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 import { todayISO } from "@/services/dates.service";
 
 export default function HomePage() {
+  const { t } = useTranslation('home');
+  const { formatAmount } = useCurrency();
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "expense" | "income" | "pending">("all");
+  const [filterType, setFilterType] = useState<"all" | "expense" | "income" | "pending" | "recurring">("all");
   const [showExportModal, setShowExportModal] = useState(false);
   const [hideScheduledBannerSession, setHideScheduledBannerSession] = useState(false);
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -128,7 +132,7 @@ export default function HomePage() {
     const monthTransactions = transactions.filter((t) => t.date.slice(0, 7) === selectedMonth);
 
     if (monthTransactions.length === 0) {
-      alert("No hay transacciones para exportar en este mes");
+      alert(t('export.noTransactions'));
       return;
     }
 
@@ -138,7 +142,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
       <BalanceCard />
 
       {/* Daily Budget Banner */}
@@ -146,101 +150,161 @@ export default function HomePage() {
         dailyBudgetInfo.dailyBudget > 0 &&
         !isDailyBudgetPermanentlyHidden &&
         !hideDailyBudgetSession && (
-        <div className="mx-4 mb-3 mt-4">
-          <div className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 text-white shadow-lg">
-            <div className="pr-8">
-              <p className="text-xs font-medium uppercase tracking-wide mb-1 opacity-90">
-                Disponible Diario ({dailyBudgetInfo.daysRemaining} días restantes)
-              </p>
-              <p className="text-2xl font-bold tracking-tight">
-                {formatCOP(dailyBudgetInfo.dailyBudget)}
-                <span className="text-sm font-normal ml-1">/ día</span>
-              </p>
+        <div className="mx-auto max-w-xl px-4 mt-6">
+          <section className="bg-teal-50 dark:bg-teal-900/30 border border-teal-100/50 dark:border-teal-800/50 rounded-2xl p-4 flex items-center justify-between shadow-sm relative overflow-hidden transition-all duration-300">
+            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-teal-100/40 dark:from-teal-800/20 to-transparent" />
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-[#18B7B0] flex items-center justify-center shadow-sm border border-teal-50 dark:border-teal-800 shrink-0">
+                <Calculator size={20} strokeWidth={2} />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-[#18B7B0] mb-0.5">
+                  {t('dailyBudget.remaining', { count: dailyBudgetInfo.daysRemaining })}
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight">
+                  {t('dailyBudget.couldSpend', { amount: formatAmount(dailyBudgetInfo.dailyBudget) })}
+                </p>
+              </div>
             </div>
-
             {/* Close button */}
             <button
               type="button"
               onClick={() => setShowDailyBudgetConfirm(true)}
-              className="absolute top-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 active:scale-95 transition-all"
+              className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-teal-100/60 dark:hover:bg-teal-800/40 active:scale-95 transition-all z-10"
             >
-              <X className="h-4 w-4 text-white" />
+              <X className="h-4 w-4 text-teal-600 dark:text-teal-400" />
             </button>
-          </div>
+          </section>
         </div>
       )}
 
-      {/* Sticky Search Bar & Filter Pills */}
+      {/* Sticky Search Bar & Filter Dropdown */}
       {hasTransactions && (
-        <div className="sticky top-[83.7px] z-20 bg-gray-50 pb-3 pt-4">
+        <div
+          className="sticky top-[80px] z-20 bg-gray-50 dark:bg-gray-950 pb-3 pt-6"
+          onClick={() => showFilterMenu && setShowFilterMenu(false)}
+        >
           <div className="mx-auto max-w-xl px-4">
-            {/* Search Bar */}
-            <div className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 shadow-sm mb-3">
-              <Search size={20} className="shrink-0 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar por nombre, categoría..."
-                className="min-w-0 flex-1 border-0 bg-transparent text-base text-gray-900 outline-none placeholder:text-gray-400 focus:ring-0"
-              />
-              {searchQuery && (
+            <div className="flex gap-3 relative">
+              {/* Search Input */}
+              <div className="relative flex-1 group">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 group-focus-within:text-[#18B7B0] transition">
+                  <Search size={18} />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('search')}
+                  className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20 shadow-sm transition"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Button & Dropdown Menu */}
+              <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="shrink-0 rounded-full p-1 hover:bg-gray-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowFilterMenu(!showFilterMenu);
+                  }}
+                  className={`w-11 h-11 border rounded-xl flex items-center justify-center shadow-sm transition active:scale-95 ${
+                    filterType !== "all" || showFilterMenu
+                      ? "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700 text-[#18B7B0]"
+                      : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-teal-300 dark:hover:border-teal-600 hover:text-[#18B7B0]"
+                  }`}
                 >
-                  <X size={18} className="text-gray-400" />
+                  <SlidersHorizontal size={20} />
                 </button>
-              )}
-            </div>
 
-            {/* Filter Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto">
-              <button
-                type="button"
-                onClick={() => setFilterType(filterType === "expense" ? "all" : "expense")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all active:scale-95 ${
-                  filterType === "expense"
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "bg-white text-gray-700 shadow-sm"
-                }`}
-              >
-                <TrendingDown size={16} />
-                Gastos
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterType(filterType === "income" ? "all" : "income")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all active:scale-95 ${
-                  filterType === "income"
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "bg-white text-gray-700 shadow-sm"
-                }`}
-              >
-                <TrendingUp size={16} />
-                Ingresos
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterType(filterType === "pending" ? "all" : "pending")}
-                className={`flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap active:scale-95 ${
-                  filterType === "pending"
-                    ? "bg-gray-900 text-white shadow-sm"
-                    : "bg-white text-gray-700 shadow-sm"
-                }`}
-              >
-                <Clock size={16} />
-                Pendientes
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowExportModal(true)}
-                className="flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap active:scale-95 bg-white text-gray-700 shadow-sm"
-              >
-                <Download size={16} />
-                Exportar
-              </button>
+                {/* Dropdown Menu */}
+                {showFilterMenu && (
+                  <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
+                    <p className="px-3 py-2 text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">
+                      {t('filter')}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterType("all");
+                        setShowFilterMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
+                    >
+                      <span className={filterType === "all" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
+                        {t('filters.all')}
+                      </span>
+                      {filterType === "all" && <Check size={14} className="text-[#18B7B0]" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterType("expense");
+                        setShowFilterMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
+                    >
+                      <span className={filterType === "expense" ? "text-rose-600 dark:text-rose-400" : "text-gray-700 dark:text-gray-200"}>
+                        {t('filters.expenses')}
+                      </span>
+                      {filterType === "expense" && <Check size={14} className="text-rose-600 dark:text-rose-400" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterType("income");
+                        setShowFilterMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
+                    >
+                      <span className={filterType === "income" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
+                        {t('filters.income')}
+                      </span>
+                      {filterType === "income" && <Check size={14} className="text-[#18B7B0]" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterType("pending");
+                        setShowFilterMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
+                    >
+                      <span className={filterType === "pending" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
+                        {t('filters.pending')}
+                      </span>
+                      {filterType === "pending" && <Check size={14} className="text-[#18B7B0]" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFilterType("recurring");
+                        setShowFilterMenu(false);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
+                    >
+                      <span className={filterType === "recurring" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
+                        {t('filters.recurring')}
+                      </span>
+                      {filterType === "recurring" && <Check size={14} className="text-[#18B7B0]" />}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -271,9 +335,9 @@ export default function HomePage() {
         className={[
           "fixed right-4 z-40",
           "grid h-14 w-14 place-items-center rounded-full",
-          "bg-black text-white",
-          "shadow-[0_8px_24px_rgba(0,0,0,0.25)]",
-          "active:scale-95 transition-transform",
+          "bg-[#18B7B0] text-white",
+          "shadow-[0_8px_24px_rgba(24,183,176,0.4)]",
+          "active:scale-95 transition-transform hover:bg-[#159d97]",
         ].join(" ")}
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
         aria-label="Agregar movimiento"
@@ -291,17 +355,17 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 dark:bg-black/70"
             onClick={() => setShowDailyBudgetConfirm(false)}
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Ocultar presupuesto diario
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t('hideDailyBudget.title')}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
-              ¿Cómo quieres ocultar este banner?
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+              {t('hideDailyBudget.message')}
             </p>
 
             {/* Actions */}
@@ -314,9 +378,9 @@ export default function HomePage() {
                   // Force re-render by navigating to same page
                   window.location.reload();
                 }}
-                className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
-                No volver a mostrar
+                {t('hideDailyBudget.neverShow')}
               </button>
               <button
                 type="button"
@@ -324,16 +388,16 @@ export default function HomePage() {
                   setHideDailyBudgetSession(true);
                   setShowDailyBudgetConfirm(false);
                 }}
-                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+                className="w-full rounded-xl bg-emerald-500 dark:bg-emerald-600 py-3 text-sm font-medium text-white hover:bg-emerald-600 dark:hover:bg-emerald-500"
               >
-                Solo por esta vez
+                {t('hideDailyBudget.hideOnce')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowDailyBudgetConfirm(false)}
-                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               >
-                Cancelar
+                {t('hideDailyBudget.cancel')}
               </button>
             </div>
           </div>
@@ -345,24 +409,24 @@ export default function HomePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 dark:bg-black/70"
             onClick={() => setShowExportModal(false)}
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Exportar transacciones
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t('export.title')}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
-              Se exportarán todas las transacciones de {selectedMonth} a formato CSV.
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
+              {t('export.info')}
             </p>
 
             {/* Info */}
-            <div className="mb-6 rounded-xl bg-gray-50 p-4">
+            <div className="mb-6 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Total de transacciones:</span>
-                <span className="font-semibold text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">{t('export.total')}</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-50">
                   {transactions.filter((t) => t.date.slice(0, 7) === selectedMonth).length}
                 </span>
               </div>
@@ -373,16 +437,16 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => setShowExportModal(false)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
-                Cancelar
+                {t('hideDailyBudget.cancel')}
               </button>
               <button
                 type="button"
                 onClick={handleExport}
-                className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+                className="flex-1 rounded-xl bg-emerald-500 dark:bg-emerald-600 py-3 text-sm font-medium text-white hover:bg-emerald-600 dark:hover:bg-emerald-500"
               >
-                Exportar
+                {t('export.title')}
               </button>
             </div>
           </div>

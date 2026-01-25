@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test/test-utils';
 import DatePicker from './DatePicker';
 
 describe('DatePicker', () => {
@@ -81,17 +81,26 @@ describe('DatePicker', () => {
   });
 
   describe('Month Navigation', () => {
-    it('should navigate to previous month', () => {
+    it('should navigate to previous month', async () => {
       render(<DatePicker {...defaultProps} value="2024-03-15" />);
 
-      expect(screen.getByText(/Marzo 2024/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/marzo 2024/i)).toBeInTheDocument();
+      });
 
-      const prevButton = screen.getAllByRole('button').find(
-        btn => btn.querySelector('.lucide-chevron-left') && !btn.textContent?.includes('Marzo')
-      );
+      // Find prev month button - it's in a separate div after the month/year button
+      const allButtons = screen.getAllByRole('button');
+      const prevButton = allButtons.find(btn => {
+        const icon = btn.querySelector('.lucide-chevron-left');
+        // Make sure it's NOT the month/year toggle button (which contains text)
+        return icon && !btn.textContent?.match(/202\d/);
+      });
+
       if (prevButton) fireEvent.click(prevButton);
 
-      expect(screen.getByText(/Febrero 2024/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/febrero 2024/i)).toBeInTheDocument();
+      });
     });
 
     it('should navigate to next month', () => {
@@ -107,17 +116,25 @@ describe('DatePicker', () => {
       expect(screen.getByText(/Abril 2024/i)).toBeInTheDocument();
     });
 
-    it('should wrap year when navigating from January to December', () => {
+    it('should wrap year when navigating from January to December', async () => {
       render(<DatePicker {...defaultProps} value="2024-01-15" />);
 
-      expect(screen.getByText(/Enero 2024/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/enero 2024/i)).toBeInTheDocument();
+      });
 
-      const prevButton = screen.getAllByRole('button').find(
-        btn => btn.querySelector('.lucide-chevron-left') && !btn.textContent?.includes('Enero')
-      );
+      // Find prev month button
+      const allButtons = screen.getAllByRole('button');
+      const prevButton = allButtons.find(btn => {
+        const icon = btn.querySelector('.lucide-chevron-left');
+        return icon && !btn.textContent?.match(/202\d/);
+      });
+
       if (prevButton) fireEvent.click(prevButton);
 
-      expect(screen.getByText(/Diciembre 2023/i)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/diciembre 2023/i)).toBeInTheDocument();
+      });
     });
 
     it('should wrap year when navigating from December to January', () => {
@@ -133,19 +150,26 @@ describe('DatePicker', () => {
       expect(screen.getByText(/Enero 2025/i)).toBeInTheDocument();
     });
 
-    it('should hide month navigation buttons when year picker is open', () => {
+    it('should hide month navigation buttons when year picker is open', async () => {
       render(<DatePicker {...defaultProps} value="2024-03-15" />);
 
-      // Open year picker
-      const monthYearButton = screen.getByText(/Marzo 2024/i);
+      await waitFor(() => {
+        expect(screen.getByText(/marzo 2024/i)).toBeInTheDocument();
+      });
+
+      // Open year picker by clicking the month/year button
+      const monthYearButton = screen.getByText(/marzo 2024/i);
       fireEvent.click(monthYearButton);
 
-      // Navigation buttons should not be visible
-      const buttons = screen.getAllByRole('button');
-      const navButtons = buttons.filter(btn =>
-        btn.querySelector('.lucide-chevron-left') && !btn.textContent?.includes('Marzo')
-      );
-      expect(navButtons.length).toBe(0);
+      await waitFor(() => {
+        // When year picker is open, month navigation buttons should not be visible
+        const buttons = screen.getAllByRole('button');
+        const navButtons = buttons.filter(btn => {
+          const icon = btn.querySelector('.lucide-chevron-left, .lucide-chevron-right');
+          return icon && !btn.textContent?.match(/202\d/);
+        });
+        expect(navButtons.length).toBe(0);
+      });
     });
   });
 

@@ -2,7 +2,271 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+
 ## [unreleased] - {relase date}
+
+## [0.11.0] - 2026-01-25
+
+### Added
+- **Security Audit**: Comprehensive security analysis document (docs/SECURITY_AUDIT.md) covering RLS, localStorage security, E2E encryption roadmap, and industry standard comparison
+- **Pre-Launch Checklist**: Security checklist (docs/PRE_LAUNCH_CHECKLIST.md) with CRITICAL, RECOMMENDED, and OPTIONAL tasks before production deployment
+- **RLS Database Migrations**: Row Level Security migrations for user_state table (20260125_create_user_state_with_rls.sql and 20260125_fix_user_state_schema.sql) to prevent unauthorized data access
+- **Features Documentation**: Expanded docs/FEATURES.md from 120 to 600+ lines with complete feature list including i18n (4 languages), multi-currency (50+), themes, transactions, categories (140+ icons), budgets, stats, trips, auth, and backups
+
+### Removed
+- **Apple Sign In**: Removed Sign in with Apple OAuth integration (requires Apple Developer membership)
+
+### Fixed
+- **Stats Modals Safe Area**: Fixed Close button being cut off on iPhone with notch in Top Day, Top Category, and Daily Average Breakdown modals by adding safe area inset padding
+
+### Added
+- **Enhanced Icon Picker with Search**: Major upgrade to category icon selection
+  - Expanded icon library from 87 to 140+ unique icons including pets section (dog, cat, paw-print, rabbit, fish, bird, etc.)
+  - Search functionality with bilingual keywords (Spanish/English) for quick icon discovery
+  - Real-time filtering with search input and clear button
+  - Empty state message when no icons match search query
+  - Full i18n support (es, en, fr, pt) for search placeholder and no results message
+
+### Changed
+- **Top Category Modal**: Refactored Top Category card to show transactions modal instead of navigating to category page
+  - Modal displays all transactions for the top category in selected month
+  - Scrollable transaction list with same UX as Top Day modal
+  - Clicking transactions navigates to transaction detail page
+  - Better UX consistency across all 4 Quick View cards
+- **Stats Modals UX Improvements**: Enhanced modal content visibility and scrollability
+  - Increased modal height from 70vh to 80vh for Top Day and Top Category modals
+  - Categories excluded disclaimer moved inside scrollable area for better visibility
+  - All 4 Quick View modals now include "X categories excluded" note when filters are active
+
+### Fixed
+- **Icon Picker Duplicates**: Removed duplicate icons from category icon list (scissors appeared twice)
+
+### Added
+- **Stats Page Interactive Cards with Modals**: All 4 summary cards now clickable with explanatory modals
+  - Daily Average modal shows current average and full category checklist
+  - Month Comparison modal explains day-to-day fair comparison with visual breakdown
+  - Top Category card navigates to category detail page
+  - Top Day modal displays all transactions from that day of week in current month (70vh scrollable)
+  - All modals include body scroll lock and proper timezone handling
+- **Stats Category Filtering System**: Unified filtering across all statistics
+  - New "Personalizar" button with teal design and badge showing excluded count
+  - Exclude categories (bills, fixed expenses) from ALL 4 summary cards
+  - Filter affects: Daily Average, Top Category, Top Day, Month Comparison
+  - Full i18n support (es, en, fr, pt) for all new UI elements
+  - Cloud sync persistence for excluded categories preferences
+- **Stats Daily Average Breakdown Modal**: New detailed modal when clicking Daily Average card
+  - Shows calculation breakdown: Total Spent ÷ Days Elapsed
+  - Displays month projection based on current spending rate
+  - Dynamic labels (Days Elapsed vs Days in Month) based on current/past month
+  - Full i18n support (es, en, fr, pt)
+- **Stats Quick View Label**: Added "Vista Rápida" label next to Personalizar button for better UX
+
+### Changed
+- **Stats Page Month Comparison Logic**: Refactored to fair day-to-day comparison
+  - Now compares same number of days instead of full months
+  - Modal explains whether comparing partial months or full months
+  - Icons changed from trending arrows to CheckCircle/AlertCircle for clarity
+  - Red/green colors now semantic (green = spending less, red = spending more)
+- **Stats Card Visual Indicators**: Added chevrons and colorful icons to show cards are clickable
+  - Daily Average: DollarSign icon in teal circle
+  - Top Category: Category icon with color
+  - Top Day: Calendar icon in purple circle
+  - Month Comparison: CheckCircle/AlertCircle based on performance
+
+### Fixed
+- **Stats Cloud Sync**: Fixed excluded categories not persisting to cloud
+  - Added `excludedFromStats` to CloudSyncGate subscriptions and dependencies
+  - Updated `getSnapshot()` and `replaceAllData()` to include filter preferences
+- **Stats Timezone Bug**: Fixed day-of-week calculations failing due to timezone issues
+  - Changed from `new Date(t.date)` to `new Date(t.date + "T12:00:00")`
+  - Ensures consistent day-of-week detection across timezones
+- **Stats Daily Average Calculation**: Fixed incorrect daily average calculation
+  - Now divides by days elapsed instead of total days in month for current month
+  - Provides accurate spending rate and realistic month projection
+  - Past months still use full month days for historical accuracy
+
+### Added
+- **Budget Module Complete Implementation**: Full budget tracking system with flexible periods and cloud sync
+  - Create budgets for any category with weekly, monthly, quarterly, yearly, or custom periods
+  - Recurring budgets that auto-renew at the end of each period
+  - Real-time progress tracking with color-coded visual indicators (green/yellow/red)
+  - Budget cards show spent amount, remaining amount, and progress percentage
+  - Support for multiple budgets per category with different time periods
+  - Budget onboarding wizard with 4 animated screens explaining features
+  - Complete i18n support (es, en, pt, fr) for all budget components
+  - Dark mode support throughout entire budget module
+
+### Fixed
+- **Budget Cloud Sync**: Fixed budgets and onboarding flags not syncing to cloud
+  - Added `budgets`, `welcomeSeen`, and `budgetOnboardingSeen` to CloudSyncGate dependencies
+  - Updated BudgetState type to include onboarding flags in cloud-synced state
+  - Fixed Budget CRUD operations preserving all state fields (welcomeSeen, budgetOnboardingSeen, lastSchedulerRun)
+  - Budget data now syncs automatically after create/update/delete operations
+- **Budget Edit Modal**: Fixed edit mode not pre-loading existing budget data
+  - Modal now properly loads category, amount, period, and recurring settings when editing
+  - Separated data loading logic from animation effects for reliability
+
+### Changed
+- **Transaction Save Button**: Unified button style to emerald color for all transaction types (income/expense)
+- **CategoryMonthDetailPage Dark Mode & i18n**: Complete internationalization and dark mode support
+  - All UI elements now support dark theme (backgrounds, text, borders, active states)
+  - Date formatting respects user's language preference (es-CO or en-US)
+  - Transaction count uses proper pluralization ("1 transacción" vs "2 transacciones")
+  - All hardcoded Spanish text replaced with translation keys
+  - Added `monthDetail` namespace with transaction, error, and empty state translations
+
+### Added
+- **Password Reset Flow**: Complete password recovery with email OTP verification
+  - New ResetPasswordOTPPage for 6-digit OTP verification with paste support
+  - ForgotPasswordModal navigates to OTP verification instead of showing success state
+  - Users remain logged in after password reset (redirect to home instead of login)
+  - Integrated with Supabase Auth passwordless flow
+- **Guest User Login Access**: Guest users who completed onboarding can now access login screen
+  - ProfilePage banner "Conectar cuenta" now properly navigates to login
+  - OnboardingGate allows login/auth routes for users in 'app' state
+  - Enables seamless transition from guest mode to authenticated mode
+
+### Fixed
+- **First Config Categories on Skip**: Users who skip category selection now get all default categories created
+- **Cloud Sync for Categories**: Categories are now pushed to cloud immediately after First Config completion
+  - Prevents re-onboarding when user logs out/clears localStorage
+  - Ensures cloud data exists before user can logout
+- **Returning User Detection**: CloudSyncGate and onboarding.helpers now check cloud data to detect returning users
+  - Auto-marks onboarding as complete when cloud has data but localStorage was cleared
+  - Fixes bug where users were asked to complete First Config again after clearing localStorage
+- **OTP Paste Functionality**: Fixed paste not working in OTP input (only last digit was populating)
+  - Changed to functional setState pattern for rapid state updates
+
+### Changed
+- **ProfilePage Login Banner**: Redesigned login button as attractive card-style banner
+  - White/gray background with teal border matching preferences cards
+  - Cloud icon, title, subtitle, and call-to-action text
+  - Fully translated (es/en) with loginBanner keys
+
+### Added
+- **Multi-Currency Support**: Complete currency selection system with 50+ currencies
+  - CurrencyProvider context with useCurrency hook for currency management
+  - Auto-detection of user's currency based on timezone and locale
+  - CurrencySelector modal component for ProfilePage
+  - Dynamic amount formatting via `formatAmount()` replacing hardcoded `formatCOP()`
+  - Grouped currencies by region (America, Europe, Asia, Africa) with search
+  - Screen3_Currency in onboarding redesigned with recommended currency and search
+  - Currency preference persisted in localStorage (`app_currency`)
+  - Migrated 11 components from formatCOP to useCurrency hook
+- **Dark Mode for Onboarding**: All onboarding screens now respect system/user theme preference
+  - Updated OnboardingLayout, FeatureCard, ProgressDots components
+  - Updated all 6 WelcomeOnboarding screens (Screen1-Screen6)
+  - Updated all 5 FirstConfig screens (Language, Theme, Currency, Categories, Complete)
+  - Updated LoginScreen with proper dark mode classes
+
+- **Dark Mode Support**: Complete dark/light/system theme implementation
+  - Three theme modes: Light, Dark, and System (auto-detect from OS preference)
+  - ThemeProvider context with useTheme hook for theme management
+  - Anti-flicker script in index.html prevents flash of wrong theme on load
+  - ThemeSelector component in ProfilePage for easy theme switching
+  - All UI components updated with dark mode variants using Tailwind's `dark:` prefix
+  - Dark palette: `dark:bg-gray-950` backgrounds, `dark:bg-gray-900` cards, `dark:text-gray-50` text
+  - Splash screen adapts to dark mode (gray-950 background instead of teal)
+  - Theme preference persisted in localStorage (`app_theme`)
+
+### Added
+- **i18n: Internationalize chart month labels**: StatsPage charts now use user's locale for month abbreviations (Ago/Aug, Sept/Sep, etc.)
+- **i18n: Internationalize IconColorPicker modal**: Icon/color picker tabs and apply button now translated
+- **i18n: Internationalize category groups modals**: Category group creation/edit page now fully translated (color picker, type warning, buttons)
+- **i18n: Internationalize scheduled transactions page**: Complete internationalization including status badges, frequency text, next dates, deactivate modal
+- **Internacionalización (i18n)**: Sistema completo de traducción para soporte multiidioma en TODA la aplicación
+  - **Idiomas soportados**: Español (es) e Inglés (en)
+  - **react-i18next**: Integración con detección automática de idioma (localStorage → navigator.language → fallback español)
+  - **11 namespaces de traducción**: `common`, `onboarding`, `profile`, `home`, `budget`, `stats`, `trips`, `transactions`, `categories`, `backup`, `scheduled`
+  - **37 archivos modificados**: 18 páginas/componentes migrados + 16 archivos de traducción nuevos + 3 helpers/config
+  - **300+ strings traducidos**: Cada rincón de la app ahora soporta español e inglés
+  - **Cobertura completa por módulo**:
+    - **Onboarding (13 pantallas)**: Welcome flow, Login, First Config (idioma, tema, moneda, categorías)
+    - **Home**: Búsqueda, filtros, presupuesto diario, exportar, todos los labels
+    - **Budget**: Resumen mensual, límites, secciones de gastos/ingresos
+    - **Stats**: Estadísticas, gráficas (donut, barras, línea), días de la semana, métricas
+    - **Trips (4 páginas)**: Lista de viajes, detalle, crear/editar viaje, gastos de viaje
+    - **Transactions (5 archivos)**: Formulario de transacción, lista, programación, configuración de schedules, banner de programadas
+    - **Categories (4 páginas)**: Lista de categorías, grupos, formularios de crear/editar
+    - **Backup**: Métodos manual/local/nube, exportar/restaurar, descripciones
+    - **Scheduled**: Transacciones programadas activas/inactivas
+    - **Componentes**: ConfirmDialog, TransactionList, todos los modales
+  - **LanguageSelector**: Componente reutilizable para cambiar idioma con modal de confirmación en ProfilePage
+  - **useLanguage hook**: Hook personalizado para gestionar cambio de idioma con i18next
+  - **Traducción de categorías por defecto**: 21 categorías traducidas (13 gastos + 8 ingresos)
+    - Categorías se crean con nombre en el idioma seleccionado durante onboarding
+    - Helper `getCategoryDisplayName()` para mostrar categorías traducidas en selección
+    - `category-translation-keys.ts`: Mapeo de nombres españoles a claves de traducción
+    - Categorías personalizadas del usuario mantienen su nombre original (no se traducen)
+  - **Pluralización**: Soporte para formas singular/plural (ej: "1 día" vs "5 días")
+  - **Interpolación**: Variables dinámicas en traducciones (ej: "Gastado {{amount}}")
+  - **Fallback inteligente**: Si falta una traducción, usa español como respaldo
+- **Sistema de Onboarding Completo**: Nuevo flujo de bienvenida para usuarios nuevos
+  - **Welcome Flow (6 pantallas)**: Introducción visual a las features principales de SmartSpend
+  - **Login Screen**: Selección entre modo invitado (local-first) o sincronización con la nube
+  - **First Config Flow (5 pantallas)**: Configuración inicial de idioma, tema, moneda y categorías
+  - **Pantalla de categorías**: Selección de categorías por defecto agrupadas por tipo, con opción de deseleccionar las no deseadas
+  - **OnboardingContext**: Gestión centralizada del estado de onboarding con persistencia en localStorage
+  - **OnboardingGate**: Componente que determina automáticamente dónde debe comenzar el usuario (onboarding, login o app)
+  - Migración automática desde sistema de welcome legacy
+  - Progreso guardado: si el usuario cierra la app durante el onboarding, retoma donde dejó
+- **Splash Screen**: Nuevo splash screen con diseño del logo de la app (gráfico de barras + línea de tendencia)
+  - Tiempo mínimo de visualización: 1.2 segundos
+  - Animación de fade out suave (0.4s)
+  - Fondo teal (#0d9488) coherente con el brand
+  - Previene flash blanco durante la carga
+- **Nuevos iconos de la app**: Suite completa de iconos para PWA
+  - favicon.svg: Favicon SVG moderno (soporte nativo en navegadores)
+  - safari-pinned-tab.svg: Versión mono para Safari pinned tabs
+  - Iconos PNG en 15 tamaños (16px a 1024px)
+  - Iconos maskable para Android (192x192, 512x512) con safe zone del 40%
+  - Script de generación automática con Sharp (`scripts/generate-icons.js`)
+
+### Changed
+- **HomePage Redesign**: Refactor completo del diseño de la página principal
+  - **TopHeader**: Nuevo diseño con logo + nombre de app + selector de mes a la izquierda, avatar con indicador de sync a la derecha
+    - Logo teal (#18B7B0) con gráfico de barras y línea de tendencia
+    - Avatar sin funcionalidad de click (navegación solo vía BottomBar)
+    - Indicador de estado de sync (dot): verde (sincronizado), teal (sincronizando), gris (offline/guest)
+  - **BalanceCard**: Rediseño con gradiente teal
+    - Gradiente de fondo: from-[#18B7B0] to-teal-800
+    - Elementos decorativos con blur para profundidad visual
+    - Layout actualizado: Balance Disponible arriba, tarjetas de Ingresos/Gastos con íconos TrendingUp/TrendingDown
+    - Corrección de signos "$" duplicados (formatCOP ya incluye el símbolo)
+  - **Daily Budget Banner**: Rediseño con fondo teal-50
+    - Ícono Calculator en lugar de Lightbulb
+    - Texto actualizado: "Podrías gastar X / día"
+  - **Search & Filters**: Nueva interfaz de filtros
+    - Reemplazados pills por dropdown menu con SlidersHorizontal icon
+    - Opciones: Todos, Gastos, Ingresos, Pendientes, Recurrentes
+    - Checkmarks visuales para opción activa
+    - Click fuera del dropdown para cerrar
+  - **FAB Button**: Color cambiado de negro a teal (#18B7B0)
+- **BottomBar**: Tab "Trips" reemplazado por "Settings"
+  - Nueva navegación: Home, Budget, Stats, Settings
+  - Settings navega a ProfilePage
+  - Ícono Settings (engranaje) en lugar de Plane
+- **ProfilePage**: Rediseño completo de la página de configuración
+  - TopHeader especial con título "Configuración" y subtítulo "General y Cuenta"
+  - Card de cuenta del usuario con avatar, nombre, email y badge de sync
+  - Avatar con dot de estado verde (sincronizado)
+  - Badge dinámico: "CLOUD SYNC ACTIVO" (teal), "SINCRONIZANDO" (animado), "SIN CONEXIÓN" (gris), "MODO LOCAL" (gris)
+  - Elemento decorativo en la esquina superior derecha de la card
+  - Hover effects en la card del usuario
+  - Removida redundancia del avatar en TopHeader
+  - Accesible solo vía BottomBar → Settings
+- **Creación de categorías**: Las categorías por defecto ya no se crean automáticamente al inicializar el store
+  - Ahora se crean solo durante el onboarding según las selecciones del usuario
+  - Usuarios legacy (con datos existentes) mantienen sus categorías actuales sin cambios
+  - CloudSyncGate solo inyecta defaults para usuarios legacy con transacciones pero sin categorías
+- **Theme color**: Actualizado a #0d9488 (teal) para coherencia visual con el nuevo brand
+- **Icono de bienvenida**: Pantalla de bienvenida del onboarding ahora muestra el logo real de la app en lugar del icono genérico de billetera
+- **Splash screen legacy**: Eliminado el splash screen anterior del componente React
+
+### Fixed
+- **CategoryPickerDrawer**: El gesto de drag-to-close ya no interfiere con el scroll de la lista de categorías
+- **Espaciado en ConfigScreen**: Corregido el espaciado entre las tarjetas de features y el botón "Comenzar a usar SmartSpend"
+- **Duplicate Currency Symbols**: Removidos signos "$" duplicados en BalanceCard y HomePage (formatCOP ya incluye el símbolo)
 
 ## [0.10.0] - 2026-01-22
 

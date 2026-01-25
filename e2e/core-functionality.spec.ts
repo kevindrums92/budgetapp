@@ -1,17 +1,16 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingWithCategories } from './test-helpers';
 
 test.describe('Core Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the app
+    // First load: establish page context for localStorage
     await page.goto('/');
 
-    // Clear localStorage and set flags to skip onboarding screens
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
-    });
-    await page.reload();
+    // Set up test state with categories (includes clear)
+    await skipOnboardingWithCategories(page);
+
+    // Second load: now the store will initialize with our test data
+    await page.goto('/');
 
     // Wait for splash screen and onboarding to disappear
     await page.waitForTimeout(3000); // Extended wait for all animations

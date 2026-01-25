@@ -178,7 +178,7 @@ export default function CategoryPickerDrawer({
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-white shadow-2xl"
+        className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
         style={{
           height: SHEET_HEIGHT,
           transform: `translateY(${sheetTranslate}px)`,
@@ -186,27 +186,29 @@ export default function CategoryPickerDrawer({
             ? "none"
             : "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
-        {/* Header */}
-        <div className="flex-none">
+        {/* Header - drag enabled only here */}
+        <div
+          className="flex-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Drag handle */}
           <div
             className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
             onMouseDown={handleMouseDown}
           >
-            <div className="h-1 w-10 rounded-full bg-gray-300" />
+            <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
           </div>
 
           {/* Title and close */}
           <div className="flex items-center justify-between px-4 pb-2">
-            <h3 className="text-lg font-semibold text-gray-900">Categoría</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Categoría</h3>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-full p-1.5 text-gray-400 hover:bg-gray-100"
+              className="rounded-full p-1.5 text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               <X className="h-5 w-5" />
             </button>
@@ -220,9 +222,9 @@ export default function CategoryPickerDrawer({
                 placeholder="Buscar"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-4 pr-10 text-sm outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 py-2.5 pl-4 pr-10 text-sm text-gray-900 dark:text-gray-50 outline-none focus:border-emerald-300 dark:focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/30 placeholder:text-gray-400 dark:placeholder:text-gray-500"
               />
-              <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
             </div>
           </div>
         </div>
@@ -231,7 +233,7 @@ export default function CategoryPickerDrawer({
         <div className="flex-1 overflow-y-auto px-4">
           {groupedCategories.map(({ group, categories }) => (
             <div key={group.id} className="mb-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 {group.name}
               </p>
               <div className="space-y-1">
@@ -247,8 +249,8 @@ export default function CategoryPickerDrawer({
                       onClick={() => onSelect(cat.id)}
                       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
                         isSelected
-                          ? "bg-emerald-50"
-                          : "hover:bg-gray-50"
+                          ? "bg-emerald-50 dark:bg-emerald-900/30"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-800"
                       }`}
                     >
                       <div
@@ -265,8 +267,8 @@ export default function CategoryPickerDrawer({
                       <span
                         className={`text-sm ${
                           isSelected
-                            ? "font-medium text-emerald-700"
-                            : "text-gray-700"
+                            ? "font-medium text-emerald-700 dark:text-emerald-300"
+                            : "text-gray-700 dark:text-gray-300"
                         }`}
                       >
                         {cat.name}
@@ -279,18 +281,18 @@ export default function CategoryPickerDrawer({
           ))}
 
           {filteredCategories.length === 0 && searchQuery && (
-            <p className="py-8 text-center text-sm text-gray-500">
+            <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
               No se encontraron categorías
             </p>
           )}
         </div>
 
         {/* New Category button */}
-        <div className="flex-none border-t px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+        <div className="flex-none border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
           <button
             type="button"
             onClick={handleNewCategory}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-emerald-200 py-3 text-emerald-600 transition-colors hover:border-emerald-300 hover:bg-emerald-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-emerald-200 dark:border-emerald-700 py-3 text-emerald-600 dark:text-emerald-400 transition-colors hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30"
           >
             <Plus className="h-5 w-5" />
             <span className="font-medium">Nueva Categoría</span>

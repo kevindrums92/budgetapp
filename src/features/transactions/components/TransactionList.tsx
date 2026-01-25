@@ -1,9 +1,11 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatDateGroupHeader, todayISO } from "@/services/dates.service";
+import { formatDateGroupHeaderI18n, todayISO } from "@/services/dates.service";
+import { useLanguage } from "@/hooks/useLanguage";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { generateVirtualTransactions, isVirtualTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 
 // Extended transaction type that includes virtual transactions
@@ -20,10 +22,14 @@ interface GroupedTransactions {
 
 interface TransactionListProps {
   searchQuery?: string;
-  filterType?: "all" | "expense" | "income" | "pending";
+  filterType?: "all" | "expense" | "income" | "pending" | "recurring";
 }
 
 export default function TransactionList({ searchQuery = "", filterType = "all" }: TransactionListProps) {
+  const { t } = useTranslation("transactions");
+  const { t: tCommon } = useTranslation("common");
+  const { getLocale } = useLanguage();
+  const { formatAmount } = useCurrency();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -58,6 +64,17 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
         if (filterType === "expense" && t.type !== "expense") return false;
         if (filterType === "income" && t.type !== "income") return false;
         if (filterType === "pending" && t.status !== "pending" && t.status !== "planned") return false;
+        if (filterType === "recurring") {
+          // Una transacción es recurrente si:
+          // 1. Tiene schedule activo (es un template)
+          // 2. O tiene sourceTemplateId (es una instancia generada de un template)
+          // 3. O tiene isRecurring === true (legacy)
+          const hasSchedule = t.schedule?.enabled === true;
+          const isFromTemplate = !!t.sourceTemplateId;
+          const isMarkedRecurring = t.isRecurring === true;
+
+          if (!hasSchedule && !isFromTemplate && !isMarkedRecurring) return false;
+        }
         return true;
       })
       .filter((t) => {
@@ -101,7 +118,12 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
 
         return {
           date,
-          dateLabel: formatDateGroupHeader(date),
+          dateLabel: formatDateGroupHeaderI18n(
+            date,
+            tCommon('date.today'),
+            tCommon('date.yesterday'),
+            getLocale()
+          ),
           transactions: txs,
           totalExpenses,
           totalIncome,
@@ -109,21 +131,21 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
         };
       })
       .sort((a, b) => (a.date < b.date ? 1 : -1));
-  }, [allTransactions, selectedMonth, searchQuery, filterType, categoryDefinitions]);
+  }, [allTransactions, selectedMonth, searchQuery, filterType, categoryDefinitions, tCommon, getLocale]);
 
   return (
     <div className="mx-auto max-w-xl">
       {!isCurrent && (
-        <div className="mb-3 mx-4 border bg-white p-3 text-xs text-gray-600 rounded-lg">
-          Estás viendo un mes diferente al actual. Puedes agregar movimientos igual, pero revisa la fecha.
+        <div className="mb-3 mx-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 text-xs text-gray-600 dark:text-gray-400 rounded-lg">
+          {t("list.monthWarning")}
         </div>
       )}
 
       {groupedList.length === 0 ? (
-        <div className="mx-4 bg-white p-6 text-center text-sm text-gray-600 rounded-xl shadow-sm">
+        <div className="mx-4 bg-white dark:bg-gray-900 p-6 text-center text-sm text-gray-600 dark:text-gray-400 rounded-xl shadow-sm">
           {searchQuery
-            ? `No se encontraron resultados para "${searchQuery}"`
-            : "Aún no tienes movimientos este mes."}
+            ? t("list.searchEmpty", { query: searchQuery })
+            : t("list.noTransactions")}
         </div>
       ) : (
         <div className="space-y-3">
@@ -137,33 +159,33 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
               <div key={group.date}>
                 {/* Date Header - fondo gris con total */}
                 <div className="px-4 pb-1.5 flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-gray-600">
+                  <h3 className="text-xs font-semibold text-gray-600 dark:text-gray-400">
                     {group.dateLabel}
                   </h3>
                   {showBalance ? (
                     <span
                       className={`text-xs font-semibold ${
                         group.balance >= 0
-                          ? "text-emerald-600"
-                          : "text-gray-500"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-gray-500 dark:text-gray-400"
                       }`}
                     >
                       {group.balance >= 0 ? "+" : ""}
-                      {formatCOP(group.balance)}
+                      {formatAmount(group.balance)}
                     </span>
                   ) : hasExpenses ? (
-                    <span className="text-xs font-semibold text-gray-500">
-                      -{formatCOP(group.totalExpenses)}
+                    <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      -{formatAmount(group.totalExpenses)}
                     </span>
                   ) : (
-                    <span className="text-xs font-semibold text-emerald-600">
-                      +{formatCOP(group.totalIncome)}
+                    <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      +{formatAmount(group.totalIncome)}
                     </span>
                   )}
                 </div>
 
                 {/* Transactions - card blanco con bordes redondeados */}
-                <div className="mx-4 bg-white rounded-xl shadow-sm overflow-hidden">
+                <div className="mx-4 bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden">
                   {group.transactions.map((tx) => (
                     <TransactionItem
                       key={tx.id}

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingWithCategories } from './test-helpers';
 
 /**
  * E2E Test: Auth State Consistency
@@ -27,11 +28,8 @@ test.describe('Auth State Consistency', () => {
       sessionStorage.clear();
     });
 
-    // Skip onboarding wizard
-    await page.evaluate(() => {
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
-    });
+    // Skip onboarding and set up minimal state
+    await skipOnboardingWithCategories(page);
   });
 
   test('guest mode: avatar should NOT show, status should be "Local"', async ({ page }) => {

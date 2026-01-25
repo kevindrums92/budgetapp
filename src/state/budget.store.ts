@@ -11,11 +11,14 @@ import type {
   TripExpenseCategory,
   Category,
   CategoryGroup,
+  Budget,
+  BudgetPeriod,
+  BudgetStatus,
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
-import { currentMonthKey } from "@/services/dates.service";
-import { createDefaultCategories } from "@/constants/categories/default-categories";
+import { currentMonthKey, todayISO } from "@/services/dates.service";
 import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/category-groups/default-category-groups";
+import { getBudgetsToRenew, renewRecurringBudget, validateBudgetOverlap } from "@/features/budget/services/budget.service";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
 type CloudMode = "guest" | "cloud";
@@ -65,6 +68,14 @@ type AddCategoryGroupInput = {
   color: string;
 };
 
+type CreateBudgetInput = {
+  categoryId: string;
+  amount: number;
+  period: BudgetPeriod;
+  accountId?: string;
+  isRecurring: boolean;
+};
+
 type BudgetStore = BudgetState & {
   // UI
   selectedMonth: string; // YYYY-MM
@@ -107,7 +118,6 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteCategory: (id: string) => void;
   getCategoryById: (id: string) => Category | undefined;
-  setCategoryLimit: (id: string, limit: number | null) => void;
 
   // CRUD Category Groups
   addCategoryGroup: (input: AddCategoryGroupInput) => string; // Returns new group ID
@@ -117,6 +127,17 @@ type BudgetStore = BudgetState & {
   ) => void;
   deleteCategoryGroup: (id: string) => void;
   getCategoryGroupById: (id: string) => CategoryGroup | undefined;
+
+  // CRUD Budgets
+  createBudget: (input: CreateBudgetInput) => string | null; // Returns new budget ID or null if overlap
+  updateBudget: (
+    id: string,
+    patch: Partial<Omit<Budget, "id" | "createdAt">>
+  ) => void;
+  deleteBudget: (id: string) => void;
+  archiveBudget: (id: string) => void;
+  getBudgetById: (id: string) => Budget | undefined;
+  renewExpiredBudgets: () => void;
 
   // Landing
   welcomeSeen: boolean;
@@ -133,17 +154,22 @@ type BudgetStore = BudgetState & {
   setLastSchedulerRun: (date: string) => void;
   setCloudSyncReady: () => void;
 
+  // Stats preferences
+  excludedFromStats: string[];
+  toggleCategoryFromStats: (categoryId: string) => void;
+
   // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 5,
+  schemaVersion: 6,
   transactions: [],
   categories: [],
-  categoryDefinitions: createDefaultCategories(),
-  categoryGroups: createDefaultCategoryGroups(),
+  categoryDefinitions: [], // Las categorías se crean durante el onboarding
+  categoryGroups: createDefaultCategoryGroups(), // Los grupos sí se crean por defecto
+  budgets: [],
   trips: [],
   tripExpenses: [],
 };
@@ -177,6 +203,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         else localStorage.removeItem("budget.welcomeSeen.v1");
       } catch { }
       set({ welcomeSeen: v });
+      saveState(get());
     },
 
     budgetOnboardingSeen: (() => {
@@ -189,6 +216,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         else localStorage.removeItem("budget.budgetOnboardingSeen.v1");
       } catch { }
       set({ budgetOnboardingSeen: v });
+      saveState(get());
     },
 
     // UI month
@@ -229,11 +257,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -281,11 +310,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -298,11 +328,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -333,11 +364,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: [trip, ...state.trips],
           tripExpenses: state.tripExpenses,
         };
@@ -355,11 +387,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: nextTrips,
           tripExpenses: state.tripExpenses,
         };
@@ -372,11 +405,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips.filter((t) => t.id !== id),
           // También eliminar los gastos asociados al viaje
           tripExpenses: state.tripExpenses.filter((e) => e.tripId !== id),
@@ -407,11 +441,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: [expense, ...state.tripExpenses],
         };
@@ -429,11 +464,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: nextExpenses,
         };
@@ -446,11 +482,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses.filter((e) => e.id !== id),
         };
@@ -478,11 +515,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -502,11 +540,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -519,11 +558,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
           categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -535,28 +575,6 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     getCategoryById: (id) => {
       return get().categoryDefinitions.find((c) => c.id === id);
-    },
-
-    setCategoryLimit: (id, limit) => {
-      set((state) => {
-        const nextCategoryDefinitions = state.categoryDefinitions.map((c) => {
-          if (c.id !== id) return c;
-          return { ...c, monthlyLimit: limit ?? undefined };
-        });
-
-        const next: BudgetState = {
-          schemaVersion: 5,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: nextCategoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
-        saveState(next);
-        return next;
-      });
     },
 
     // ---------- CRUD CATEGORY GROUPS ----------
@@ -575,11 +593,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: [...state.categoryGroups, newGroup],
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -599,11 +618,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: nextCategoryGroups,
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -630,11 +650,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 5,
+          schemaVersion: 6,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
           categoryGroups: state.categoryGroups.filter((g) => g.id !== id),
+          budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
         };
@@ -648,18 +669,225 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       return get().categoryGroups.find((g) => g.id === id);
     },
 
+    // ---------- CRUD BUDGETS ----------
+    createBudget: (input) => {
+      // Validate amount
+      if (!Number.isFinite(input.amount) || input.amount <= 0) return null;
+
+      const state = get();
+
+      // Check for overlaps
+      const hasOverlap = validateBudgetOverlap(
+        {
+          categoryId: input.categoryId,
+          amount: Math.round(input.amount),
+          period: input.period,
+          accountId: input.accountId,
+          isRecurring: input.isRecurring,
+          status: "active",
+        },
+        state.budgets
+      );
+
+      if (hasOverlap) {
+        console.warn("[Budget Store] Cannot create budget: overlaps with existing budget");
+        return null;
+      }
+
+      const newBudget: Budget = {
+        id: crypto.randomUUID(),
+        categoryId: input.categoryId,
+        amount: Math.round(input.amount),
+        period: input.period,
+        accountId: input.accountId,
+        isRecurring: input.isRecurring,
+        status: "active",
+        createdAt: Date.now(),
+      };
+
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: [...state.budgets, newBudget],
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+
+      return newBudget.id;
+    },
+
+    updateBudget: (id, patch) => {
+      set((state) => {
+        const budgetToUpdate = state.budgets.find((b) => b.id === id);
+        if (!budgetToUpdate) return state;
+
+        // If updating period or categoryId, validate overlaps
+        if (patch.period || patch.categoryId) {
+          const updatedBudget = { ...budgetToUpdate, ...patch };
+          const hasOverlap = validateBudgetOverlap(
+            {
+              categoryId: updatedBudget.categoryId,
+              amount: updatedBudget.amount,
+              period: updatedBudget.period,
+              accountId: updatedBudget.accountId,
+              isRecurring: updatedBudget.isRecurring,
+              status: updatedBudget.status,
+            },
+            state.budgets,
+            id // Exclude current budget from overlap check
+          );
+
+          if (hasOverlap) {
+            console.warn("[Budget Store] Cannot update budget: would overlap with existing budget");
+            return state;
+          }
+        }
+
+        const nextBudgets = state.budgets.map((b) => {
+          if (b.id !== id) return b;
+          return { ...b, ...patch };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: nextBudgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    deleteBudget: (id) => {
+      set((state) => {
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: state.budgets.filter((b) => b.id !== id),
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    archiveBudget: (id) => {
+      set((state) => {
+        const nextBudgets = state.budgets.map((b) => {
+          if (b.id !== id) return b;
+          return { ...b, status: "archived" as BudgetStatus };
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: nextBudgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    getBudgetById: (id) => {
+      return get().budgets.find((b) => b.id === id);
+    },
+
+    renewExpiredBudgets: () => {
+      const state = get();
+      const today = todayISO();
+
+      const budgetsToRenew = getBudgetsToRenew(state.budgets, today);
+
+      if (budgetsToRenew.length === 0) return;
+
+      console.log(`[Budget Store] Renewing ${budgetsToRenew.length} expired budgets`);
+
+      set((state) => {
+        let nextBudgets = [...state.budgets];
+
+        budgetsToRenew.forEach((oldBudget) => {
+          // Mark old budget as completed
+          nextBudgets = nextBudgets.map((b) => {
+            if (b.id === oldBudget.id) {
+              return { ...b, status: "completed" as BudgetStatus };
+            }
+            return b;
+          });
+
+          // Create new budget for next period
+          const newBudget = renewRecurringBudget(oldBudget);
+          nextBudgets.push(newBudget);
+        });
+
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: nextBudgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
     // ---------- SYNC HELPERS ----------
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 5,
+        schemaVersion: 6,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
         categoryGroups: s.categoryGroups ?? [],
+        budgets: s.budgets ?? [],
         trips: s.trips ?? [],
         tripExpenses: s.tripExpenses ?? [],
+        welcomeSeen: s.welcomeSeen,
+        budgetOnboardingSeen: s.budgetOnboardingSeen,
         lastSchedulerRun: s.lastSchedulerRun,
+        excludedFromStats: s.excludedFromStats,
       };
     },
 
@@ -674,21 +902,67 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       // No need to saveState - this is a runtime flag only
     },
 
+    // Stats preferences
+    excludedFromStats: hydrated.excludedFromStats ?? [],
+    toggleCategoryFromStats: (categoryId) => {
+      set((state) => {
+        const current = state.excludedFromStats ?? [];
+        const isExcluded = current.includes(categoryId);
+        const next: BudgetState = {
+          schemaVersion: 6,
+          transactions: state.transactions,
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+          welcomeSeen: state.welcomeSeen,
+          budgetOnboardingSeen: state.budgetOnboardingSeen,
+          lastSchedulerRun: state.lastSchedulerRun,
+          cloudSyncReady: state.cloudSyncReady,
+          excludedFromStats: isExcluded
+            ? current.filter((id) => id !== categoryId)
+            : [...current, categoryId],
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
     replaceAllData: (data) => {
       // guarda como cache local (cloud cache)
-      const normalizedData = { ...data, schemaVersion: 5 as const };
+      const normalizedData = { ...data, schemaVersion: 6 as const };
       saveState(normalizedData);
+
+      // Sync onboarding flags to localStorage
+      if (data.welcomeSeen !== undefined) {
+        try {
+          if (data.welcomeSeen) localStorage.setItem("budget.welcomeSeen.v1", "1");
+          else localStorage.removeItem("budget.welcomeSeen.v1");
+        } catch { }
+      }
+      if (data.budgetOnboardingSeen !== undefined) {
+        try {
+          if (data.budgetOnboardingSeen) localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
+          else localStorage.removeItem("budget.budgetOnboardingSeen.v1");
+        } catch { }
+      }
 
       // set explícito (NO meter funciones del store dentro)
       set({
-        schemaVersion: 5,
+        schemaVersion: 6,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
         categoryGroups: data.categoryGroups ?? [],
+        budgets: data.budgets ?? [],
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
+        welcomeSeen: data.welcomeSeen ?? false,
+        budgetOnboardingSeen: data.budgetOnboardingSeen ?? false,
         lastSchedulerRun: data.lastSchedulerRun,
+        excludedFromStats: data.excludedFromStats ?? [],
       });
     },
   };

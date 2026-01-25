@@ -1,0 +1,80 @@
+{
+  "sections": {
+    "appearance": "Appearance",
+    "expenseManagement": "Expense Management",
+    "dataSecurity": "Data & Security"
+  },
+  "menu": {
+    "categories": "Categories",
+    "categoriesSubtitle": "Manage categories",
+    "scheduled": "Scheduled",
+    "scheduledSubtitle": "Automatic transactions",
+    "backup": "Backup & Restore",
+    "backupSubtitle": "Backup and restore data",
+    "exportCSV": "Export CSV",
+    "exportCSVSubtitle": "Download data in CSV format"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "language": {
+      "label": "Language",
+      "changed": "Language updated",
+      "cancel": "Cancel"
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "changed": "Theme updated"
+    },
+    "currency": {
+      "label": "Currency",
+      "changed": "Currency updated",
+      "search": "Search currency...",
+      "noResults": "No currencies found",
+      "recommended": "Recommended for you"
+    }
+  },
+  "account": {
+    "syncStatus": {
+      "local": "Local Mode",
+      "offline": "Offline",
+      "syncing": "Syncing",
+      "synced": "Cloud Sync Active"
+    }
+  },
+  "login": "Log In",
+  "logout": "Log Out",
+  "loggingOut": "Logging out...",
+  "loginWithGoogle": "Continue with Google",
+  "noConnection": "No connection",
+  "loginBanner": {
+    "title": "Protect your finances",
+    "subtitle": "Sign in to back up your expenses to the cloud.",
+    "action": "Connect account"
+  },
+  "export": {
+    "info": {
+      "title": "Export to CSV",
+      "description": "CSV files can be opened in Excel, Google Sheets and other spreadsheet applications."
+    },
+    "transactions": {
+      "title": "Transactions",
+      "description": "Export all movements"
+    },
+    "categories": {
+      "title": "Categories",
+      "description": "Export custom categories"
+    },
+    "budgets": {
+      "title": "Budgets",
+      "description": "Export spending limits"
+    },
+    "all": {
+      "title": "Everything",
+      "description": "Export transactions, categories and budgets"
+    },
+    "items": "items"
+  }
+}

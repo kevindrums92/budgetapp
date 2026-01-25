@@ -1,0 +1,88 @@
+{
+  "title": "Mis Viajes",
+  "subtitle": "Planifica y trackea tus gastos",
+  "sections": {
+    "current": "Viaje actual",
+    "upcoming": "Próximos viajes",
+    "other": "Otros viajes"
+  },
+  "labels": {
+    "spent": "Gastado",
+    "available": "Disponible",
+    "exceeded": "Excedido",
+    "from": "Desde {{date}}",
+    "planning": "Planificando",
+    "inProgress": "En curso",
+    "completed": "Completado"
+  },
+  "export": "Exportar Viajes a CSV",
+  "emptyState": {
+    "title": "No tienes viajes",
+    "message": "Crea tu primer viaje para empezar a trackear gastos",
+    "button": "Crear viaje"
+  },
+  "delete": {
+    "title": "Eliminar viaje",
+    "message": "¿Seguro que deseas eliminar este viaje? Se eliminarán también todos los gastos asociados.",
+    "confirm": "Eliminar",
+    "cancel": "Cancelar"
+  },
+  "form": {
+    "editTitle": "Editar Viaje",
+    "newTitle": "Nuevo Viaje",
+    "name": "Nombre del viaje",
+    "namePlaceholder": "Ej: Vacaciones en Cartagena",
+    "budget": "Presupuesto",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin (opcional)",
+    "destination": "Destino (opcional)",
+    "destinationPlaceholder": "Ej: Cartagena, Colombia",
+    "save": "Guardar",
+    "saveChanges": "Guardar cambios"
+  },
+  "detail": {
+    "expenses": "GASTOS ({{count}})",
+    "expenses_one": "GASTO ({{count}})",
+    "newExpense": "Nuevo Gasto",
+    "emptyExpenses": {
+      "title": "Sin gastos",
+      "message": "Agrega tu primer gasto de viaje"
+    }
+  },
+  "expense": {
+    "editTitle": "Editar Gasto",
+    "newTitle": "Nuevo Gasto",
+    "description": "Descripción",
+    "descriptionPlaceholder": "¿En qué gastaste?",
+    "amount": "Monto",
+    "date": "Fecha",
+    "category": "Categoría",
+    "categoryPlaceholder": "Seleccionar categoría",
+    "save": "Guardar",
+    "saveChanges": "Guardar cambios",
+    "delete": {
+      "title": "Eliminar gasto",
+      "message": "¿Seguro que deseas eliminar \"{{name}}\"?",
+      "confirm": "Eliminar",
+      "cancel": "Cancelar"
+    },
+    "categories": {
+      "transport": "Transporte",
+      "accommodation": "Alojamiento",
+      "food": "Comida",
+      "activities": "Actividades",
+      "shopping": "Compras",
+      "other": "Otros"
+    },
+    "notes": "Notas",
+    "notesPlaceholder": "Detalles adicionales...",
+    "optional": "(opcional)"
+  },
+  "detail": {
+    "byCategory": "Por categoría",
+    "emptyExpensesMessage": "Aún no hay gastos registrados en este viaje.",
+    "addExpenseButton": "Agregar gasto",
+    "addExpenseButtonAria": "Agregar gasto",
+    "ongoing": "(en curso)"
+  }
+}

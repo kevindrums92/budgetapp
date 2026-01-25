@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 type Props = {
@@ -11,6 +12,7 @@ const SHEET_HEIGHT = 220;
 const DRAG_THRESHOLD = 0.3;
 
 export default function AddActionSheet({ open, onClose }: Props) {
+  const { t } = useTranslation('home');
   const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -129,7 +131,7 @@ export default function AddActionSheet({ open, onClose }: Props) {
         type="button"
         className="absolute inset-0 bg-black"
         onClick={onClose}
-        aria-label="Cerrar"
+        aria-label={t('addActionSheet.close')}
         style={{
           opacity: backdropOpacity,
           transition: isDragging ? "none" : "opacity 300ms ease-out",
@@ -139,7 +141,7 @@ export default function AddActionSheet({ open, onClose }: Props) {
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white shadow-2xl"
+        className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
         style={{
           transform: `translateY(${sheetTranslate}px)`,
           transition: isDragging
@@ -155,13 +157,13 @@ export default function AddActionSheet({ open, onClose }: Props) {
           className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
           onMouseDown={handleMouseDown}
         >
-          <div className="h-1 w-10 rounded-full bg-gray-300" />
+          <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
         </div>
 
         {/* Content */}
         <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
-          <h3 className="mb-4 text-center text-lg font-semibold text-gray-900">
-            Nuevo registro
+          <h3 className="mb-4 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
+            {t('addActionSheet.title')}
           </h3>
 
           <div className="space-y-2">
@@ -169,14 +171,14 @@ export default function AddActionSheet({ open, onClose }: Props) {
             <button
               type="button"
               onClick={handleAddIncome}
-              className="flex w-full items-center gap-4 rounded-2xl bg-emerald-50 px-4 py-4 transition-all active:scale-[0.98]"
+              className="flex w-full items-center gap-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 px-4 py-4 transition-all active:scale-[0.98]"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-                <TrendingUp className="h-6 w-6 text-emerald-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+                <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-gray-900">Agregar Ingreso</p>
-                <p className="text-sm text-gray-500">Salario, ventas, etc.</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-50">{t('addActionSheet.addIncome')}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('addActionSheet.incomeHint')}</p>
               </div>
             </button>
 
@@ -184,14 +186,14 @@ export default function AddActionSheet({ open, onClose }: Props) {
             <button
               type="button"
               onClick={handleAddExpense}
-              className="flex w-full items-center gap-4 rounded-2xl bg-red-50 px-4 py-4 transition-all active:scale-[0.98]"
+              className="flex w-full items-center gap-4 rounded-2xl bg-red-50 dark:bg-red-900/30 px-4 py-4 transition-all active:scale-[0.98]"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <TrendingDown className="h-6 w-6 text-red-500" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+                <TrendingDown className="h-6 w-6 text-red-500 dark:text-red-400" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-gray-900">Agregar Gasto</p>
-                <p className="text-sm text-gray-500">Compras, servicios, etc.</p>
+                <p className="font-semibold text-gray-900 dark:text-gray-50">{t('addActionSheet.addExpense')}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{t('addActionSheet.expenseHint')}</p>
               </div>
             </button>
           </div>

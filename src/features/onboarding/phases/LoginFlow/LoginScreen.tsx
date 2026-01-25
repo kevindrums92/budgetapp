@@ -1,0 +1,277 @@
+/**
+ * LoginScreen
+ * Pantalla de autenticación - obligatoria (no skippeable)
+ * Contextos:
+ * 1. Primera vez: Welcome → Login → Config → App
+ * 2. Logout: Login → App (directo)
+ */
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Shield, User, Chrome, Apple, Mail, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
+import { useOnboarding } from '../../OnboardingContext';
+import { markOnboardingComplete } from '../../utils/onboarding.helpers';
+import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
+
+export default function LoginScreen() {
+  const { t } = useTranslation('onboarding');
+  const navigate = useNavigate();
+  const { state, setAuthMethod } = useOnboarding();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Listener para detectar cuando el usuario regresa del OAuth
+   * y la sesión se crea exitosamente
+   */
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        console.log('[LoginScreen] Session detected on mount, handling OAuth callback');
+        handleOAuthCallback();
+      }
+    };
+
+    // Check inicial al montar
+    checkSession();
+
+    // Listener para cambios de auth state
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('[LoginScreen] Auth event:', event);
+
+        if (event === 'SIGNED_IN' && session) {
+          handleOAuthCallback();
+        }
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Maneja el retorno exitoso de OAuth
+   */
+  const handleOAuthCallback = () => {
+    setAuthMethod('google');
+
+    // Limpiar flag de logout (el usuario se logueó de nuevo)
+    localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
+
+    if (state.isFirstTime) {
+      // Primera vez: ir a First Config
+      console.log('[LoginScreen] OAuth success → First Config');
+      navigate('/onboarding/config/1', { replace: true });
+    } else {
+      // Returning user: ir directo a app
+      console.log('[LoginScreen] OAuth success → App (returning user)');
+      markOnboardingComplete();
+      navigate('/', { replace: true });
+    }
+  };
+
+  /**
+   * Maneja la selección de modo invitado
+   */
+  const handleGuestMode = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Guardar método de autenticación
+      setAuthMethod('guest');
+
+      // Limpiar flag de logout (el usuario eligió continuar como invitado)
+      localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
+
+      // Determinar siguiente pantalla según contexto
+      if (state.isFirstTime) {
+        // Primera vez: ir a First Config
+        console.log('[LoginScreen] Guest mode selected → First Config');
+        navigate('/onboarding/config/1', { replace: true });
+      } else {
+        // Returning user (logout): ir directo a app
+        console.log('[LoginScreen] Guest mode selected → App (returning user)');
+        markOnboardingComplete();
+        navigate('/', { replace: true });
+      }
+    } catch (err) {
+      console.error('[LoginScreen] Error en guest mode:', err);
+      setError(t('login.errorGuest'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Maneja el login con Google OAuth
+   */
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // Redirigir al origin (sin path) para que funcione correctamente en localhost
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: 'select_account',
+          },
+        },
+      });
+
+      if (authError) throw authError;
+
+      // El OAuth redirige automáticamente
+      // La lógica de siguiente pantalla se maneja en el callback de auth (useEffect listener)
+      console.log('[LoginScreen] Google OAuth initiated');
+    } catch (err: any) {
+      console.error('[LoginScreen] Error en Google login:', err);
+      setError(err.message || t('login.errorGoogle'));
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Navegar a la página de autenticación con email/contraseña
+   */
+  const handleEmailAuth = () => {
+    navigate('/onboarding/auth');
+  };
+
+  /**
+   * Placeholder para Apple (próximamente)
+   */
+  const handleAppleComingSoon = () => {
+    setError(t('login.errorApple'));
+    setTimeout(() => setError(null), 3000);
+  };
+
+  return (
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+      {/* Header con icono de seguridad */}
+      <div className="flex flex-col items-center px-6 pt-12 pb-8">
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
+          <Shield size={40} className="text-white" strokeWidth={2.5} />
+        </div>
+
+        <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
+          {t('login.title')}
+        </h1>
+
+        <p className="max-w-md text-center text-base leading-relaxed text-gray-600 dark:text-gray-400">
+          {t('login.subtitle')}
+        </p>
+      </div>
+
+      {/* Features de privacidad - Texto informativo */}
+      <div className="mx-6 mb-8">
+        <div className="flex items-start gap-2">
+          <Shield className="h-4 w-4 shrink-0 text-emerald-600" />
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t('login.privacyNote')}
+          </p>
+        </div>
+      </div>
+
+      {/* Opciones de autenticación - ORDEN SOLICITADO */}
+      <div className="flex-1 px-6 pb-8">
+        <div className="space-y-3">
+          {/* 1. Botón GRANDE: Explorar como invitado */}
+          <button
+            type="button"
+            onClick={handleGuestMode}
+            disabled={loading}
+            className="flex w-full items-center gap-4 rounded-2xl bg-[#18B7B0] p-4 shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20">
+              <User className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-semibold text-white">{t('login.guestTitle')}</p>
+              <p className="mt-0.5 text-xs text-white/80">{t('login.guestDesc')}</p>
+            </div>
+            {loading && <Loader2 className="h-5 w-5 animate-spin text-white" />}
+          </button>
+
+          {/* 2. Separador */}
+          <div className="relative py-2">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200 dark:border-gray-700" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-gray-50 dark:bg-gray-950 px-2 text-gray-600 dark:text-gray-400">{t('login.divider')}</span>
+            </div>
+          </div>
+
+          {/* 3. Grid 2 columnas: Google y Apple */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Google OAuth */}
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-gray-900 shadow-sm">
+                <Chrome className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+              </div>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.google')}</span>
+              {loading && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+            </button>
+
+            {/* Apple Sign In - Coming Soon */}
+            <button
+              type="button"
+              onClick={handleAppleComingSoon}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm opacity-60 transition-all active:scale-[0.98]"
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black">
+                <Apple className="h-5 w-5 text-white" />
+              </div>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.apple')}</span>
+            </button>
+          </div>
+
+          {/* 4. Link simple: Email/Password */}
+          <button
+            type="button"
+            onClick={handleEmailAuth}
+            className="flex w-full items-center justify-center gap-2 py-3 text-sm font-medium text-[#18B7B0] transition-colors hover:text-[#13948e]"
+          >
+            <Mail className="h-4 w-4" />
+            <span>{t('login.emailLink')}</span>
+          </button>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 rounded-xl bg-red-50 dark:bg-red-900/20 p-3 text-center text-sm text-red-700 dark:text-red-300">
+            {error}
+          </div>
+        )}
+
+        {/* Privacy Notice */}
+        <p className="mt-6 text-center text-xs leading-relaxed text-gray-500 dark:text-gray-400">
+          {t('login.termsPrefix')}{' '}
+          <button type="button" className="font-medium text-[#18B7B0] underline">
+            {t('login.termsService')}
+          </button>{' '}
+          {t('login.termsAnd')}{' '}
+          <button type="button" className="font-medium text-[#18B7B0] underline">
+            {t('login.termsPrivacy')}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+}

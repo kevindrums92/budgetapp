@@ -1,0 +1,42 @@
+{
+  "search": "Buscar...",
+  "filter": "Filtrar por",
+  "balanceCard": {
+    "title": "Balance Disponible",
+    "income": "Ingresos",
+    "expenses": "Gastos"
+  },
+  "addActionSheet": {
+    "title": "Nuevo registro",
+    "close": "Cerrar",
+    "addIncome": "Agregar Ingreso",
+    "incomeHint": "Salario, ventas, etc.",
+    "addExpense": "Agregar Gasto",
+    "expenseHint": "Compras, servicios, etc."
+  },
+  "filters": {
+    "all": "Todos",
+    "expenses": "Gastos",
+    "income": "Ingresos",
+    "pending": "Pendientes",
+    "recurring": "Recurrentes"
+  },
+  "dailyBudget": {
+    "remaining": "Al mes le quedan {{count}} días",
+    "remaining_one": "Al mes le queda {{count}} día",
+    "couldSpend": "Podrías gastar {{amount}} / día"
+  },
+  "hideDailyBudget": {
+    "title": "Ocultar presupuesto diario",
+    "message": "¿Cómo quieres ocultar este banner?",
+    "neverShow": "No volver a mostrar",
+    "hideOnce": "Solo por esta vez",
+    "cancel": "Cancelar"
+  },
+  "export": {
+    "title": "Exportar transacciones",
+    "info": "Se exportarán todas las transacciones del mes actual en formato CSV",
+    "total": "Total de transacciones:",
+    "noTransactions": "No hay transacciones para exportar en este mes"
+  }
+}

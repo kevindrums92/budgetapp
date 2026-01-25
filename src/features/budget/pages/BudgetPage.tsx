@@ -1,41 +1,28 @@
 import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { icons, Plus, ChevronRight, Download } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Plus } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
-import SetLimitModal from "@/features/categories/components/SetLimitModal";
+import { useCurrency } from "@/features/currency";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
-import type { Category } from "@/types/budget.types";
-import { kebabToPascal } from "@/shared/utils/string.utils";
-import { exportBudgetToCSV } from "@/shared/services/export.service";
-
-function getProgressColor(spent: number, limit: number | undefined): string {
-  if (!limit) return "bg-gray-200";
-  const percent = (spent / limit) * 100;
-  if (percent >= 100) return "bg-red-500";
-  if (percent >= 75) return "bg-amber-500";
-  return "bg-emerald-500";
-}
-
-function getTextColor(spent: number, limit: number | undefined): string {
-  if (!limit) return "text-gray-500";
-  const percent = (spent / limit) * 100;
-  if (percent >= 100) return "text-red-600";
-  if (percent >= 75) return "text-amber-600";
-  return "text-emerald-600";
-}
+import BudgetCard from "@/features/budget/components/BudgetCard";
+import AddEditBudgetModal from "@/features/budget/components/AddEditBudgetModal";
+import { calculateAllBudgetsProgress } from "@/features/budget/services/budget.service";
 
 export default function BudgetPage() {
-  const navigate = useNavigate();
-  const transactions = useBudgetStore((s) => s.transactions);
-  const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
-  const selectedMonth = useBudgetStore((s) => s.selectedMonth);
-  const setCategoryLimit = useBudgetStore((s) => s.setCategoryLimit);
-  const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
-  const setBudgetOnboardingSeen = useBudgetStore((s) => s.setBudgetOnboardingSeen);
+  const { t } = useTranslation('budget');
+  const { formatAmount } = useCurrency();
+  const store = useBudgetStore();
+  const transactions = store.transactions;
+  const budgets = store.budgets;
+  const categoryDefinitions = store.categoryDefinitions;
+  const selectedMonth = store.selectedMonth;
+  const budgetOnboardingSeen = store.budgetOnboardingSeen;
+  const setBudgetOnboardingSeen = store.setBudgetOnboardingSeen;
 
-  const [modalCategory, setModalCategory] = useState<Category | null>(null);
+  // State
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showAddBudgetModal, setShowAddBudgetModal] = useState(false);
+  const [editingBudgetId, setEditingBudgetId] = useState<string | undefined>(undefined);
 
   // Check onboarding on mount
   useEffect(() => {
@@ -44,236 +31,224 @@ export default function BudgetPage() {
     }
   }, [budgetOnboardingSeen]);
 
+  // Renew expired budgets on mount
+  useEffect(() => {
+    store.renewExpiredBudgets();
+  }, []);
+
   const handleCloseOnboarding = () => {
     setBudgetOnboardingSeen(true);
     setShowOnboarding(false);
   };
 
-  // Calculate spent per category for current month
-  const spentByCategory = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const t of transactions) {
-      if (t.date.slice(0, 7) !== selectedMonth) continue;
-      map[t.category] = (map[t.category] ?? 0) + t.amount;
-    }
-    return map;
-  }, [transactions, selectedMonth]);
+  // Convert selectedMonth to period
+  const currentPeriod = useMemo(() => {
+    const [year, month] = selectedMonth.split("-").map(Number);
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0);
 
-  // Separate expense and income categories
-  const expenseCategories = useMemo(() => {
-    return categoryDefinitions
-      .filter((c) => c.type === "expense")
-      .sort((a, b) => a.name.localeCompare(b.name, "es"));
-  }, [categoryDefinitions]);
+    return {
+      type: "month" as const,
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
+    };
+  }, [selectedMonth]);
 
-  const incomeCategories = useMemo(() => {
-    return categoryDefinitions
-      .filter((c) => c.type === "income")
-      .sort((a, b) => a.name.localeCompare(b.name, "es"));
-  }, [categoryDefinitions]);
+  // Get budgets for current period
+  const activeBudgets = useMemo(() => {
+    return budgets.filter((b) => {
+      if (b.status !== "active") return false;
+
+      // Check if budget period overlaps with current period
+      const budgetStart = new Date(b.period.startDate);
+      const budgetEnd = new Date(b.period.endDate);
+      const periodStart = new Date(currentPeriod.startDate);
+      const periodEnd = new Date(currentPeriod.endDate);
+
+      return budgetStart <= periodEnd && budgetEnd >= periodStart;
+    });
+  }, [budgets, currentPeriod]);
+
+  // Calculate budget progress
+  const budgetProgress = useMemo(() => {
+    return calculateAllBudgetsProgress(
+      activeBudgets,
+      transactions,
+      currentPeriod.startDate,
+      currentPeriod.endDate
+    );
+  }, [activeBudgets, transactions, currentPeriod]);
 
   // Calculate totals
   const totals = useMemo(() => {
-    const totalBudgeted = expenseCategories
-      .filter((c) => c.monthlyLimit)
-      .reduce((sum, c) => sum + (c.monthlyLimit ?? 0), 0);
+    const totalBudgeted = budgetProgress.reduce((sum, bp) => sum + bp.budgeted, 0);
+    const totalSpent = budgetProgress.reduce((sum, bp) => sum + bp.spent, 0);
+    const remaining = totalBudgeted - totalSpent;
+    const percentage = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
 
-    const totalSpent = expenseCategories.reduce(
-      (sum, c) => sum + (spentByCategory[c.id] ?? 0),
-      0
-    );
+    return { totalBudgeted, totalSpent, remaining, percentage };
+  }, [budgetProgress]);
 
-    const totalIncome = incomeCategories.reduce(
-      (sum, c) => sum + (spentByCategory[c.id] ?? 0),
-      0
-    );
-
-    return { totalBudgeted, totalSpent, totalIncome };
-  }, [expenseCategories, incomeCategories, spentByCategory]);
-
-  const overallProgress =
-    totals.totalBudgeted > 0
-      ? Math.min((totals.totalSpent / totals.totalBudgeted) * 100, 100)
-      : 0;
-
-  const handleSaveLimit = (limit: number | null) => {
-    if (modalCategory) {
-      setCategoryLimit(modalCategory.id, limit);
-    }
+  const handleBudgetClick = (budgetId: string) => {
+    setEditingBudgetId(budgetId);
+    setShowAddBudgetModal(true);
   };
 
-  const handleExportBudget = () => {
-    // Create a map of spent per category
-    const spentMap = new Map<string, number>();
-    Object.entries(spentByCategory).forEach(([catId, amount]) => {
-      spentMap.set(catId, amount);
-    });
-
-    // Export budget
-    exportBudgetToCSV(
-      expenseCategories,
-      spentMap,
-      selectedMonth,
-      `presupuesto-${selectedMonth}`
-    );
-  };
-
-  const renderCategoryRow = (category: Category, showLimit: boolean = true) => {
-    const spent = spentByCategory[category.id] ?? 0;
-    const limit = category.monthlyLimit;
-    const progress = limit ? Math.min((spent / limit) * 100, 100) : 0;
-    const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons];
-
-    return (
-      <button
-        key={category.id}
-        type="button"
-        onClick={() => setModalCategory(category)}
-        className="flex w-full items-center gap-3 rounded-xl bg-white p-4 shadow-sm hover:bg-gray-50 transition-colors"
-      >
-        {/* Icon */}
-        <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-          style={{ backgroundColor: category.color + "20" }}
-        >
-          {IconComponent && (
-            <IconComponent className="h-5 w-5" style={{ color: category.color }} />
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-medium text-gray-900 truncate">{category.name}</span>
-            <span className={`text-sm font-medium ${getTextColor(spent, limit)}`}>
-              {formatCOP(spent)}
-              {showLimit && limit && (
-                <span className="text-gray-400">/{formatCOP(limit)}</span>
-              )}
-            </span>
-          </div>
-
-          {/* Progress Bar */}
-          {showLimit && (
-            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-300 ${getProgressColor(spent, limit)}`}
-                style={{ width: limit ? `${progress}%` : "0%" }}
-              />
-            </div>
-          )}
-
-          {/* No limit text */}
-          {showLimit && !limit && (
-            <p className="text-xs text-gray-400 mt-1">Toca para establecer límite</p>
-          )}
-        </div>
-
-        <ChevronRight className="h-5 w-5 text-gray-300 shrink-0" />
-      </button>
-    );
+  const handleCloseModal = () => {
+    setShowAddBudgetModal(false);
+    setEditingBudgetId(undefined);
   };
 
   return (
     <>
-      <div className="bg-gray-50 min-h-screen">
+      <div className="bg-gray-50 dark:bg-gray-950 min-h-screen">
         <main className="mx-auto max-w-xl px-4 pt-6 pb-28">
           {/* Summary Section */}
-          <h2 className="text-base font-semibold mb-3">Resumen del Mes</h2>
-          <div className="rounded-2xl bg-white p-5 shadow-sm mb-6">
-
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm mb-6">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <p className="text-xs text-gray-400">Presupuestado</p>
-                <p className="text-lg font-semibold text-gray-900">
-                  {formatCOP(totals.totalBudgeted)}
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  {t('summary.budgeted')}
+                </p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                  {formatAmount(totals.totalBudgeted)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-400">Gastado</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  {t('summary.spent')}
+                </p>
                 <p
                   className={`text-lg font-semibold ${
                     totals.totalSpent > totals.totalBudgeted && totals.totalBudgeted > 0
-                      ? "text-red-600"
-                      : "text-gray-900"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-gray-900 dark:text-gray-50"
                   }`}
                 >
-                  {formatCOP(totals.totalSpent)}
+                  {formatAmount(totals.totalSpent)}
                 </p>
               </div>
             </div>
 
-            {/* Overall Progress */}
+            {/* Progress Bar */}
             {totals.totalBudgeted > 0 && (
-              <div className="space-y-2">
-                <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div className="mb-3">
+                <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
                   <div
-                    className={`h-full transition-all duration-300 ${getProgressColor(
-                      totals.totalSpent,
-                      totals.totalBudgeted
-                    )}`}
-                    style={{ width: `${overallProgress}%` }}
+                    className={`h-full transition-all duration-300 ${
+                      totals.percentage > 100
+                        ? "bg-red-500"
+                        : totals.percentage >= 90
+                        ? "bg-yellow-500"
+                        : totals.percentage >= 75
+                        ? "bg-yellow-400"
+                        : "bg-emerald-500"
+                    }`}
+                    style={{ width: `${Math.min(totals.percentage, 100)}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 text-right">
-                  {Math.round((totals.totalSpent / totals.totalBudgeted) * 100)}% del presupuesto
-                </p>
               </div>
             )}
 
-            {totals.totalBudgeted === 0 && (
-              <p className="text-sm text-gray-400 text-center py-2">
-                Establece límites en tus categorías para ver tu progreso
+            {/* Remaining/Over */}
+            <div className="text-center">
+              {totals.totalBudgeted > 0 ? (
+                totals.remaining >= 0 ? (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {t('page.remaining', { amount: formatAmount(totals.remaining), percentage: Math.round(totals.percentage) })}
+                  </p>
+                ) : (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {t('page.exceeded', { amount: formatAmount(Math.abs(totals.remaining)), percentage: Math.round(totals.percentage) })}
+                  </p>
+                )
+              ) : (
+                <p className="text-sm text-gray-400 dark:text-gray-500">
+                  {t('page.noActiveBudgets')}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Budgets List */}
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-3">
+            {t('page.activeBudgets')}
+          </h3>
+
+          {activeBudgets.length === 0 ? (
+            <button
+              type="button"
+              onClick={() => setShowAddBudgetModal(true)}
+              className="w-full rounded-2xl bg-gray-900 dark:bg-gray-800 p-8 text-center transition-all hover:bg-gray-800 dark:hover:bg-gray-750 active:scale-[0.99]"
+            >
+              {/* Icon Circle with Plus */}
+              <div className="mb-6 flex justify-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#18B7B0]/30 bg-[#18B7B0]/10">
+                  <Plus size={32} className="text-[#18B7B0]" strokeWidth={2.5} />
+                </div>
+              </div>
+
+              {/* Title */}
+              <h3 className="mb-3 text-xl font-bold text-white">
+                {t('emptyState.title')}
+              </h3>
+
+              {/* Description */}
+              <p className="mb-6 text-sm leading-relaxed text-gray-400">
+                {t('emptyState.description')}
               </p>
-            )}
-          </div>
 
-          {/* Expense Categories */}
-          <h3 className="text-base font-semibold mb-3">Gastos</h3>
-          <div className="space-y-2 mb-8">
-            {expenseCategories.map((cat) => renderCategoryRow(cat, true))}
-          </div>
+              {/* CTA Text */}
+              <span className="text-sm font-bold uppercase tracking-wide text-[#18B7B0]">
+                {t('emptyState.cta')}
+              </span>
+            </button>
+          ) : (
+            <div className="space-y-3">
+              {activeBudgets.map((budget) => {
+                const category = categoryDefinitions.find((c) => c.id === budget.categoryId);
+                if (!category) return null;
 
-          {/* Income Categories */}
-          <h3 className="text-base font-semibold mb-3">Ingresos</h3>
-          <div className="space-y-2 mb-8">
-            {incomeCategories.map((cat) => renderCategoryRow(cat, false))}
-          </div>
-
-          {/* Export Budget Button */}
-          <button
-            type="button"
-            onClick={handleExportBudget}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors mb-3"
-          >
-            <Download className="h-5 w-5" />
-            Exportar Presupuesto a CSV
-          </button>
-
-          {/* Add Category Button */}
-          <button
-            type="button"
-            onClick={() => navigate("/category/new")}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-4 text-sm font-medium text-gray-500 hover:border-emerald-300 hover:text-emerald-600 transition-colors"
-          >
-            <Plus className="h-5 w-5" />
-            Nueva Categoría
-          </button>
-
-          {/* Set Limit Modal */}
-          <SetLimitModal
-            open={!!modalCategory}
-            onClose={() => setModalCategory(null)}
-            category={modalCategory}
-            onSave={handleSaveLimit}
-          />
+                return (
+                  <BudgetCard
+                    key={budget.id}
+                    budget={budget}
+                    categoryName={category.name}
+                    categoryIcon={category.icon}
+                    categoryColor={category.color}
+                    transactions={transactions}
+                    onClick={() => handleBudgetClick(budget.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
         </main>
+
+        {/* FAB - Add Budget */}
+        {activeBudgets.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowAddBudgetModal(true)}
+            className="fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-black dark:bg-emerald-500 text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] active:scale-95 transition-transform"
+            style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+          >
+            <Plus size={26} strokeWidth={2.2} />
+          </button>
+        )}
       </div>
 
       {/* Onboarding Wizard */}
       <BudgetOnboardingWizard
         open={showOnboarding}
         onClose={handleCloseOnboarding}
+      />
+
+      {/* Add/Edit Budget Modal */}
+      <AddEditBudgetModal
+        open={showAddBudgetModal}
+        onClose={handleCloseModal}
+        budgetId={editingBudgetId}
       />
     </>
   );

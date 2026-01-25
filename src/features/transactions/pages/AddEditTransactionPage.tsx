@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
 import ScheduleConfigDrawer from "@/features/transactions/components/ScheduleConfigDrawer";
@@ -23,6 +25,9 @@ function getDateBefore(dateStr: string): string {
 }
 
 export default function AddEditTransactionPage() {
+  const { t } = useTranslation("transactions");
+  const { getLocale } = useLanguage();
+  const { formatAmount, currencyInfo } = useCurrency();
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const [searchParams] = useSearchParams();
@@ -379,12 +384,10 @@ export default function AddEditTransactionPage() {
   }
 
   const title = isEdit
-    ? "Editar"
+    ? t("form.edit")
     : type === "income"
-    ? "Nuevo Ingreso"
-    : "Nuevo Gasto";
-
-  const accentColor = type === "income" ? "text-emerald-600" : "text-gray-900";
+    ? t("form.newIncome")
+    : t("form.newExpense");
 
   // Format amount with thousands separator for display
   const displayAmount = useMemo(() => {
@@ -402,7 +405,7 @@ export default function AddEditTransactionPage() {
   }, [displayAmount]);
 
   return (
-    <div className="min-h-dvh bg-white">
+    <div className="min-h-dvh bg-white dark:bg-gray-950">
       {/* Header */}
       <PageHeader
         title={title}
@@ -414,7 +417,7 @@ export default function AddEditTransactionPage() {
             <button
               type="button"
               onClick={handleAskDelete}
-              className="rounded-full p-2 hover:bg-red-50"
+              className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-900/30"
             >
               <Trash2 className="h-5 w-5 text-red-500" />
             </button>
@@ -425,9 +428,9 @@ export default function AddEditTransactionPage() {
       {/* Amount Input */}
       <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
         <div className="text-center">
-          <p className="mb-2 text-sm font-medium text-gray-500">Monto</p>
+          <p className="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">{t("form.amount")}</p>
           <div className="flex items-center justify-center px-4">
-            <span className={`${amountFontSize} font-semibold tracking-tight ${accentColor}`}>$</span>
+            <span className={`${amountFontSize} font-semibold tracking-tight ${type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"}`}>{currencyInfo.symbol}</span>
             <input
               type="text"
               inputMode="decimal"
@@ -438,7 +441,7 @@ export default function AddEditTransactionPage() {
                 setAmount(cleaned);
               }}
               placeholder="0"
-              className={`w-auto min-w-[60px] flex-1 border-0 bg-transparent p-0 text-center ${amountFontSize} font-semibold tracking-tight placeholder:text-gray-300 focus:outline-none focus:ring-0 ${accentColor}`}
+              className={`w-auto min-w-[60px] flex-1 border-0 bg-transparent p-0 text-center ${amountFontSize} font-semibold tracking-tight placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-0 ${type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"}`}
             />
           </div>
         </div>
@@ -446,23 +449,23 @@ export default function AddEditTransactionPage() {
 
       {/* Form Fields */}
       <div className="mx-auto max-w-xl px-4 pb-32">
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100 dark:divide-gray-800">
           {/* Description */}
           <div className="py-4">
             <div className="flex items-start gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <MessageSquare className="h-5 w-5 text-gray-500" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                <MessageSquare className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Descripción
+                <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {t("form.description")}
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={type === "income" ? "¿De dónde proviene?" : "¿En qué gastaste?"}
-                  className="w-full border-0 p-0 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
+                  placeholder={type === "income" ? t("form.placeholderIncome") : t("form.placeholderExpense")}
+                  className="w-full border-0 p-0 bg-transparent text-base text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
@@ -471,19 +474,19 @@ export default function AddEditTransactionPage() {
           {/* Date */}
           <div className="py-4">
             <div className="flex items-start gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <Calendar className="h-5 w-5 text-gray-500" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                <Calendar className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Fecha
+                <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {t("form.date")}
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(true)}
-                  className="w-full text-left text-base text-gray-900"
+                  className="w-full text-left text-base text-gray-900 dark:text-gray-50"
                 >
-                  {new Date(date + "T12:00:00").toLocaleDateString("es-CO", {
+                  {new Date(date + "T12:00:00").toLocaleDateString(getLocale(), {
                     weekday: "short",
                     day: "numeric",
                     month: "short",
@@ -502,8 +505,9 @@ export default function AddEditTransactionPage() {
                 style={{
                   backgroundColor: selectedCategory
                     ? selectedCategory.color + "20"
-                    : "#f3f4f6",
+                    : undefined,
                 }}
+                {...(!selectedCategory && { className: "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800" })}
               >
                 {selectedCategory ? (
                   (() => {
@@ -515,24 +519,24 @@ export default function AddEditTransactionPage() {
                         style={{ color: selectedCategory.color }}
                       />
                     ) : (
-                      <Tag className="h-5 w-5 text-gray-500" />
+                      <Tag className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                     );
                   })()
                 ) : (
-                  <Tag className="h-5 w-5 text-gray-500" />
+                  <Tag className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                 )}
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Categoría
+                <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {t("form.category")}
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowCategoryDrawer(true)}
-                  className="w-full text-left text-base text-gray-900"
+                  className="w-full text-left text-base text-gray-900 dark:text-gray-50"
                 >
                   {selectedCategory?.name || (
-                    <span className="text-gray-400">Seleccionar categoría</span>
+                    <span className="text-gray-400 dark:text-gray-500">{t("form.categoryPlaceholder")}</span>
                   )}
                 </button>
               </div>
@@ -542,19 +546,19 @@ export default function AddEditTransactionPage() {
           {/* Notes */}
           <div className="py-4">
             <div className="flex items-start gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <FileText className="h-5 w-5 text-gray-500" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                <FileText className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               </div>
               <div className="flex-1">
-                <label className="mb-1 block text-xs font-medium text-gray-500">
-                  Notas
+                <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {t("form.notes")}
                 </label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Agregar notas... (opcional)"
-                  className="w-full border-0 p-0 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0"
+                  placeholder={t("form.notesPlaceholder")}
+                  className="w-full border-0 p-0 bg-transparent text-base text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
@@ -563,12 +567,12 @@ export default function AddEditTransactionPage() {
           {/* Status Selector */}
           <div className="py-4">
             <div className="flex items-start gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                <CheckCircle className="h-5 w-5 text-gray-500" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                <CheckCircle className="h-5 w-5 text-gray-500 dark:text-gray-400" />
               </div>
               <div className="flex-1">
-                <label className="mb-2 block text-xs font-medium text-gray-500">
-                  Estado
+                <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
+                  {t("form.status")}
                 </label>
                 <div className="flex gap-2">
                   <button
@@ -577,10 +581,10 @@ export default function AddEditTransactionPage() {
                     className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
                       status === "paid"
                         ? "bg-emerald-500 text-white"
-                        : "bg-gray-100 text-gray-600"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                     }`}
                   >
-                    Pagado
+                    {t("form.statusPaid")}
                   </button>
                   <button
                     type="button"
@@ -588,10 +592,10 @@ export default function AddEditTransactionPage() {
                     className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
                       status === "pending"
                         ? "bg-amber-500 text-white"
-                        : "bg-gray-100 text-gray-600"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                     }`}
                   >
-                    Pendiente
+                    {t("form.statusPending")}
                   </button>
                   <button
                     type="button"
@@ -599,10 +603,10 @@ export default function AddEditTransactionPage() {
                     className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
                       status === "planned"
                         ? "bg-blue-500 text-white"
-                        : "bg-gray-100 text-gray-600"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                     }`}
                   >
-                    Planeado
+                    {t("form.statusPlanned")}
                   </button>
                 </div>
               </div>
@@ -614,15 +618,15 @@ export default function AddEditTransactionPage() {
             {wasDeactivated ? (
               /* Deactivated schedule - show disabled state */
               <div className="flex w-full items-center gap-4 rounded-lg -mx-2 px-2 py-1 opacity-50">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                  <Repeat className="h-5 w-5 text-gray-400" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                  <Repeat className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="text-sm font-medium text-gray-500">
-                    Programación inactiva
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    {t("form.schedule.inactive")}
                   </p>
-                  <p className="mt-0.5 text-xs text-gray-400">
-                    Esta programación fue desactivada
+                  <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+                    {t("form.schedule.inactiveMessage")}
                   </p>
                 </div>
               </div>
@@ -631,28 +635,29 @@ export default function AddEditTransactionPage() {
               <button
                 type="button"
                 onClick={() => setShowScheduleDrawer(true)}
-                className="flex w-full items-center gap-4 active:bg-gray-50 rounded-lg -mx-2 px-2 py-1"
+                className="flex w-full items-center gap-4 active:bg-gray-50 dark:active:bg-gray-800 rounded-lg -mx-2 px-2 py-1"
               >
                 <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                  schedule?.enabled ? "bg-emerald-100" : "bg-gray-100"
+                  schedule?.enabled ? "bg-emerald-100 dark:bg-emerald-900/40" : "bg-gray-100 dark:bg-gray-800"
                 }`}>
-                  <Repeat className={`h-5 w-5 ${schedule?.enabled ? "text-emerald-600" : "text-gray-500"}`} />
+                  <Repeat className={`h-5 w-5 ${schedule?.enabled ? "text-emerald-600 dark:text-emerald-400" : "text-gray-500 dark:text-gray-400"}`} />
                 </div>
                 <div className="flex-1 text-left">
-                  <p className={`text-sm font-medium ${schedule?.enabled ? "text-gray-900" : "text-gray-700"}`}>
-                    {schedule?.enabled ? "Programado automáticamente" : "Programar automáticamente"}
+                  <p className={`text-sm font-medium ${schedule?.enabled ? "text-gray-900 dark:text-gray-50" : "text-gray-700 dark:text-gray-300"}`}>
+                    {schedule?.enabled ? t("form.schedule.enabled") : t("form.schedule.title")}
                   </p>
-                  <p className="mt-0.5 text-xs text-gray-500">
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                     {schedule?.enabled
-                      ? `Cada ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
-                          schedule.frequency === "daily" ? "día" :
-                          schedule.frequency === "weekly" ? "semana" :
-                          schedule.frequency === "monthly" ? "mes" : "año"
-                        }${schedule.interval > 1 && schedule.frequency !== "daily" ? "s" : ""}`
-                      : "Toca para configurar"}
+                      ? `${t("scheduleConfig.interval.label")} ${schedule.interval > 1 ? `${schedule.interval} ` : ""}${
+                          schedule.frequency === "daily" ? t(`scheduleConfig.interval.${schedule.interval === 1 ? "day" : "days"}`) :
+                          schedule.frequency === "weekly" ? t(`scheduleConfig.interval.${schedule.interval === 1 ? "week" : "weeks"}`) :
+                          schedule.frequency === "monthly" ? t(`scheduleConfig.interval.${schedule.interval === 1 ? "month" : "months"}`) :
+                          t(`scheduleConfig.interval.${schedule.interval === 1 ? "year" : "years"}`)
+                        }`
+                      : t("form.schedule.tapToConfig")}
                   </p>
                 </div>
-                <ChevronRight className="h-5 w-5 text-gray-300" />
+                <ChevronRight className="h-5 w-5 text-gray-300 dark:text-gray-600" />
               </button>
             )}
           </div>
@@ -660,19 +665,15 @@ export default function AddEditTransactionPage() {
       </div>
 
       {/* Save Button */}
-      <div className="fixed inset-x-0 bottom-0 z-30 bg-white">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-950">
         <div className="mx-auto max-w-xl px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
           <button
             type="button"
             onClick={handleSave}
             disabled={!canSave}
-            className={`w-full rounded-2xl py-4 text-base font-semibold text-white transition-all active:scale-[0.98] disabled:opacity-40 ${
-              type === "income"
-                ? "bg-emerald-500 hover:bg-emerald-600"
-                : "bg-gray-900 hover:bg-gray-800"
-            }`}
+            className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-all hover:bg-emerald-600 active:scale-[0.98] disabled:opacity-40"
           >
-            {isEdit ? "Guardar cambios" : "Guardar"}
+            {isEdit ? t("form.saveChanges") : t("form.save")}
           </button>
         </div>
       </div>
@@ -713,10 +714,10 @@ export default function AddEditTransactionPage() {
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
         open={confirmDelete}
-        title="Eliminar movimiento"
-        message={`¿Seguro que deseas eliminar "${tx?.name}" por ${tx ? formatCOP(tx.amount) : ""}?`}
-        confirmText="Eliminar"
-        cancelText="Cancelar"
+        title={t("form.delete.title")}
+        message={t("form.delete.message", { name: tx?.name || "", amount: tx ? formatAmount(tx.amount) : "" })}
+        confirmText={t("form.delete.confirm")}
+        cancelText={t("form.delete.cancel")}
         destructive
         onConfirm={handleConfirmDelete}
         onClose={() => setConfirmDelete(false)}
@@ -732,12 +733,12 @@ export default function AddEditTransactionPage() {
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Guardar cambios
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t("form.saveModal.title")}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
-              Este es un registro programado. ¿Cómo deseas guardar los cambios?
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {t("form.saveModal.message")}
             </p>
 
             {/* Actions */}
@@ -747,29 +748,29 @@ export default function AddEditTransactionPage() {
                 onClick={handleSaveOnlyThisOne}
                 className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
               >
-                Solo este registro
+                {t("form.saveModal.onlyThis")}
               </button>
-              <p className="px-2 text-xs text-gray-500">
-                Crea una transacción individual con estos valores. La plantilla original no cambia.
+              <p className="px-2 text-xs text-gray-500 dark:text-gray-400">
+                {t("form.saveModal.onlyThisDesc")}
               </p>
 
               <button
                 type="button"
                 onClick={handleSaveThisAndFuture}
-                className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white hover:bg-gray-800"
+                className="w-full rounded-xl bg-gray-900 dark:bg-gray-50 py-3 text-sm font-medium text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200"
               >
-                Este y los siguientes
+                {t("form.saveModal.thisAndFollowing")}
               </button>
-              <p className="px-2 text-xs text-gray-500">
-                Finaliza la plantilla actual y crea una nueva con los valores editados.
+              <p className="px-2 text-xs text-gray-500 dark:text-gray-400">
+                {t("form.saveModal.thisAndFollowingDesc")}
               </p>
 
               <button
                 type="button"
                 onClick={() => setShowTemplateEditModal(false)}
-                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 hover:text-gray-700"
+                className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               >
-                Cancelar
+                {t("form.saveModal.cancel")}
               </button>
             </div>
           </div>
@@ -786,12 +787,12 @@ export default function AddEditTransactionPage() {
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Sin cambios
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t("form.noChanges.title")}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
-              No has realizado ningún cambio. Modifica el monto, descripción, categoría u otra información para registrar esta transacción.
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {t("form.noChanges.message")}
             </p>
 
             <button
@@ -799,7 +800,7 @@ export default function AddEditTransactionPage() {
               onClick={() => setShowNoChangesAlert(false)}
               className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
             >
-              Entendido
+              {t("form.noChanges.ok")}
             </button>
           </div>
         </div>

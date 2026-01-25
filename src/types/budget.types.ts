@@ -49,7 +49,29 @@ export type Category = {
   groupId: string;        // Reference to CategoryGroup.id
   isDefault: boolean;
   createdAt: number;
-  monthlyLimit?: number;  // Monthly budget limit (undefined = no limit)
+};
+
+// ==================== BUDGETS ====================
+
+export type BudgetPeriodType = "week" | "month" | "quarter" | "year" | "custom";
+
+export type BudgetPeriod = {
+  type: BudgetPeriodType;
+  startDate: string;      // YYYY-MM-DD
+  endDate: string;        // YYYY-MM-DD
+};
+
+export type BudgetStatus = "active" | "completed" | "archived";
+
+export type Budget = {
+  id: string;
+  categoryId: string;     // Reference to Category.id
+  amount: number;         // Presupuesto asignado
+  period: BudgetPeriod;   // Período del presupuesto
+  accountId?: string;     // Optional: Para futura feature de cuentas
+  isRecurring: boolean;   // Si se renueva automáticamente
+  status: BudgetStatus;   // Estado del presupuesto
+  createdAt: number;      // epoch ms
 };
 
 // ==================== TRIPS ====================
@@ -89,15 +111,22 @@ export type Trip = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
   categoryGroups: CategoryGroup[];   // Dynamic category groups
+  // Budgets
+  budgets: Budget[];                 // Budget tracking per category/period
   // Trips
   trips: Trip[];
   tripExpenses: TripExpense[];
+  // Onboarding flags
+  welcomeSeen?: boolean;             // First-time welcome onboarding completed
+  budgetOnboardingSeen?: boolean;    // Budget module onboarding completed
   // Scheduler
   lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull
+  // Stats preferences
+  excludedFromStats?: string[]; // Category IDs excluded from all stats calculations
 };

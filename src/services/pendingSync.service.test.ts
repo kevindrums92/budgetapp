@@ -28,6 +28,7 @@ describe('pendingSync.service', () => {
     categories: ['food'],
     categoryDefinitions: [],
     categoryGroups: [],
+    budgets: [],
     trips: [],
     tripExpenses: [],
   };

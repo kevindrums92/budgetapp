@@ -77,12 +77,12 @@ export default function LocalBackupList({ userId }: Props) {
 
   if (backups.length === 0) {
     return (
-      <div className="rounded-xl bg-gray-50 p-4 text-center">
-        <HardDrive className="mx-auto h-8 w-8 text-gray-400" />
-        <p className="mt-2 text-sm text-gray-500">
+      <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-4 text-center">
+        <HardDrive className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-500" />
+        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           No hay backups automáticos locales
         </p>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
           Se crean automáticamente cada 7 días
         </p>
       </div>
@@ -92,31 +92,31 @@ export default function LocalBackupList({ userId }: Props) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
           Backups Automáticos Locales
         </h3>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-gray-500 dark:text-gray-400">
           {backups.length}/{5} backups
         </span>
       </div>
 
-      <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+      <div className="divide-y divide-gray-100 dark:divide-gray-700 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
         {backups.map((entry) => (
           <div
             key={entry.key}
             className="flex items-center gap-3 px-3 py-3"
           >
             {/* Icon */}
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100">
-              <Clock className="h-4 w-4 text-blue-600" />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+              <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
                 {formatDate(entry.backup.meta.createdAt)}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {entry.backup.stats.totalTransactions} transacciones,{" "}
                 {entry.backup.stats.totalTrips} viajes
                 {" · "}
@@ -138,16 +138,16 @@ export default function LocalBackupList({ userId }: Props) {
                 type="button"
                 onClick={() => handleDeleteClick(entry)}
                 disabled={isRestoring}
-                className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 active:bg-gray-200 disabled:opacity-50"
+                className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700 disabled:opacity-50"
               >
-                <Trash2 className="h-4 w-4 text-gray-500" />
+                <Trash2 className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-500 dark:text-gray-400">
         💡 Los backups se crean automáticamente cada 24 horas y antes de operaciones críticas.
         Se mantienen los últimos 5 backups (máx. 5MB).
       </p>
@@ -159,25 +159,25 @@ export default function LocalBackupList({ userId }: Props) {
             className="absolute inset-0 bg-black/50"
             onClick={() => setConfirmRestore(null)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               ¿Restaurar backup?
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               Esto reemplazará tus datos actuales con el backup del{" "}
               <span className="font-medium">
                 {formatDate(confirmRestore.backup.meta.createdAt)}
               </span>
               .
             </p>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
               Se creará un backup de seguridad automáticamente antes de restaurar.
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setConfirmRestore(null)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Cancelar
               </button>
@@ -200,11 +200,11 @@ export default function LocalBackupList({ userId }: Props) {
             className="absolute inset-0 bg-black/50"
             onClick={() => setConfirmDelete(null)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               ¿Eliminar backup?
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               ¿Estás seguro de que deseas eliminar el backup del{" "}
               <span className="font-medium">
                 {formatDate(confirmDelete.backup.meta.createdAt)}
@@ -215,7 +215,7 @@ export default function LocalBackupList({ userId }: Props) {
               <button
                 type="button"
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Cancelar
               </button>
@@ -238,11 +238,11 @@ export default function LocalBackupList({ userId }: Props) {
             className="absolute inset-0 bg-black/50"
             onClick={() => setSuccessMessage(null)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {successMessage.includes("exitosamente") ? "✅ Éxito" : "❌ Error"}
             </h3>
-            <p className="mb-4 text-sm text-gray-600">
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
               {successMessage}
             </p>
             <button

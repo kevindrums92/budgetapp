@@ -320,17 +320,18 @@ describe('CategoryPickerDrawer', () => {
   });
 
   describe('Drag to Dismiss', () => {
-    it('should close when dragged down beyond threshold', async () => {
+    it('should close when dragged down beyond threshold on header', async () => {
       const onClose = vi.fn();
       const { container } = render(<CategoryPickerDrawer {...defaultProps} onClose={onClose} />, { wrapper: Wrapper });
 
-      const sheet = container.querySelector('.rounded-t-3xl');
-      expect(sheet).toBeInTheDocument();
+      // Drag events are only on the header (flex-none), not the entire sheet
+      const dragHandle = container.querySelector('.cursor-grab');
+      expect(dragHandle).toBeInTheDocument();
 
-      // Simulate touch drag
-      fireEvent.touchStart(sheet!, { touches: [{ clientY: 100 }] });
-      fireEvent.touchMove(sheet!, { touches: [{ clientY: 400 }] }); // Drag 300px down
-      fireEvent.touchEnd(sheet!);
+      // Simulate touch drag on header area
+      fireEvent.touchStart(dragHandle!, { touches: [{ clientY: 100 }] });
+      fireEvent.touchMove(dragHandle!, { touches: [{ clientY: 400 }] }); // Drag 300px down
+      fireEvent.touchEnd(dragHandle!);
 
       await waitFor(() => {
         expect(onClose).toHaveBeenCalled();
@@ -341,12 +342,12 @@ describe('CategoryPickerDrawer', () => {
       const onClose = vi.fn();
       const { container } = render(<CategoryPickerDrawer {...defaultProps} onClose={onClose} />, { wrapper: Wrapper });
 
-      const sheet = container.querySelector('.rounded-t-3xl');
+      const dragHandle = container.querySelector('.cursor-grab');
 
-      // Simulate small drag
-      fireEvent.touchStart(sheet!, { touches: [{ clientY: 100 }] });
-      fireEvent.touchMove(sheet!, { touches: [{ clientY: 150 }] }); // Drag 50px down
-      fireEvent.touchEnd(sheet!);
+      // Simulate small drag on header
+      fireEvent.touchStart(dragHandle!, { touches: [{ clientY: 100 }] });
+      fireEvent.touchMove(dragHandle!, { touches: [{ clientY: 150 }] }); // Drag 50px down
+      fireEvent.touchEnd(dragHandle!);
 
       expect(onClose).not.toHaveBeenCalled();
     });

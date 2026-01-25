@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import {
   Plus,
   MapPin,
@@ -18,18 +19,20 @@ import PageHeader from "@/shared/components/layout/PageHeader";
 
 const CATEGORY_CONFIG: Record<
   TripExpenseCategory,
-  { label: string; icon: typeof Plane; color: string }
+  { icon: typeof Plane; color: string }
 > = {
-  transport: { label: "Transporte", icon: Plane, color: "bg-blue-100 text-blue-600" },
-  accommodation: { label: "Alojamiento", icon: Hotel, color: "bg-purple-100 text-purple-600" },
-  food: { label: "Comida", icon: Utensils, color: "bg-orange-100 text-orange-600" },
-  activities: { label: "Actividades", icon: Ticket, color: "bg-pink-100 text-pink-600" },
-  shopping: { label: "Compras", icon: ShoppingBag, color: "bg-emerald-100 text-emerald-600" },
-  other: { label: "Otros", icon: HelpCircle, color: "bg-gray-100 text-gray-600" },
+  transport: { icon: Plane, color: "bg-blue-100 text-blue-600" },
+  accommodation: { icon: Hotel, color: "bg-purple-100 text-purple-600" },
+  food: { icon: Utensils, color: "bg-orange-100 text-orange-600" },
+  activities: { icon: Ticket, color: "bg-pink-100 text-pink-600" },
+  shopping: { icon: ShoppingBag, color: "bg-emerald-100 text-emerald-600" },
+  other: { icon: HelpCircle, color: "bg-gray-100 text-gray-600" },
 };
 
 export default function TripDetailPage() {
+  const { t } = useTranslation('trips');
   const navigate = useNavigate();
+  const { formatAmount } = useCurrency();
   const params = useParams<{ id: string }>();
 
   const trips = useBudgetStore((s) => s.trips);
@@ -102,9 +105,9 @@ export default function TripDetailPage() {
           {/* Progress */}
           <div className="mb-3">
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-600">Gastado</span>
+              <span className="text-gray-600">{t('labels.spent')}</span>
               <span className={isOverBudget ? "text-red-600 font-medium" : "text-gray-900"}>
-                {formatCOP(totalSpent)} / {formatCOP(trip.budget)}
+                {formatAmount(totalSpent)} / {formatAmount(trip.budget)}
               </span>
             </div>
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -124,10 +127,10 @@ export default function TripDetailPage() {
                 isOverBudget ? "text-red-600" : "text-emerald-600"
               }`}
             >
-              {isOverBudget ? "-" : ""}{formatCOP(Math.abs(remaining))}
+              {isOverBudget ? "-" : ""}{formatAmount(Math.abs(remaining))}
             </p>
             <p className="text-xs text-gray-500">
-              {isOverBudget ? "excedido" : "disponible"}
+              {isOverBudget ? t('labels.exceeded') : t('labels.available')}
             </p>
           </div>
 
@@ -136,7 +139,7 @@ export default function TripDetailPage() {
             <Calendar size={12} />
             <span>
               {formatDate(trip.startDate)}
-              {trip.endDate ? ` - ${formatDate(trip.endDate)}` : " (en curso)"}
+              {trip.endDate ? ` - ${formatDate(trip.endDate)}` : ` ${t('detail.ongoing')}`}
             </span>
           </div>
         </div>
@@ -145,7 +148,7 @@ export default function TripDetailPage() {
         {Object.keys(spentByCategory).length > 0 && (
           <div className="mb-6">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-              Por categoría
+              {t('detail.byCategory')}
             </p>
             <div className="flex flex-wrap gap-2">
               {(Object.entries(spentByCategory) as [TripExpenseCategory, number][]).map(
@@ -160,7 +163,7 @@ export default function TripDetailPage() {
                       <div className={`rounded-full p-1 ${config.color}`}>
                         <Icon size={10} />
                       </div>
-                      <span className="text-xs text-gray-700">{formatCOP(amount)}</span>
+                      <span className="text-xs text-gray-700">{formatAmount(amount)}</span>
                     </div>
                   );
                 }
@@ -173,21 +176,21 @@ export default function TripDetailPage() {
         <div>
           {expenses.length > 0 && (
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-3">
-              Gastos ({expenses.length})
+              {t('detail.expenses', { count: expenses.length })}
             </p>
           )}
 
           {expenses.length === 0 ? (
             <div className="rounded-xl bg-white p-6 text-center shadow-sm">
               <p className="text-sm text-gray-500">
-                Aún no hay gastos registrados en este viaje.
+                {t('detail.emptyExpensesMessage')}
               </p>
               <button
                 type="button"
                 onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
                 className="mt-3 rounded-full bg-black px-4 py-2 text-sm font-medium text-white active:scale-[0.98] transition-transform"
               >
-                Agregar gasto
+                {t('detail.addExpenseButton')}
               </button>
             </div>
           ) : (
@@ -209,13 +212,13 @@ export default function TripDetailPage() {
                       <div className="min-w-0">
                         <p className="truncate font-medium text-gray-900">{e.name}</p>
                         <p className="text-xs text-gray-500">
-                          {config.label} • {formatDate(e.date)}
+                          {t(`expense.categories.${e.category}`)} • {formatDate(e.date)}
                         </p>
                       </div>
                     </div>
 
                     <span className="whitespace-nowrap font-semibold text-gray-900">
-                      {formatCOP(e.amount)}
+                      {formatAmount(e.amount)}
                     </span>
                   </button>
                 );
@@ -232,7 +235,7 @@ export default function TripDetailPage() {
           onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
           className="fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-black text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] active:scale-95 transition-transform"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
-          aria-label="Agregar gasto"
+          aria-label={t('detail.addExpenseButtonAria')}
         >
           <Plus size={26} strokeWidth={2.2} />
         </button>

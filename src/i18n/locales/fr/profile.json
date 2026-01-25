@@ -1,0 +1,80 @@
+{
+  "sections": {
+    "appearance": "Apparence",
+    "expenseManagement": "Gestion des Dépenses",
+    "dataSecurity": "Données et Sécurité"
+  },
+  "menu": {
+    "categories": "Catégories",
+    "categoriesSubtitle": "Gérer les catégories",
+    "scheduled": "Programmées",
+    "scheduledSubtitle": "Transactions automatiques",
+    "backup": "Sauvegarde & Restauration",
+    "backupSubtitle": "Sauvegarder et restaurer les données",
+    "exportCSV": "Exporter CSV",
+    "exportCSVSubtitle": "Télécharger les données au format CSV"
+  },
+  "preferences": {
+    "title": "Préférences",
+    "language": {
+      "label": "Langue",
+      "changed": "Langue mise à jour",
+      "cancel": "Annuler"
+    },
+    "theme": {
+      "label": "Thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Automatique",
+      "changed": "Thème mis à jour"
+    },
+    "currency": {
+      "label": "Devise",
+      "changed": "Devise mise à jour",
+      "search": "Rechercher une devise...",
+      "noResults": "Aucune devise trouvée",
+      "recommended": "Recommandée pour vous"
+    }
+  },
+  "account": {
+    "syncStatus": {
+      "local": "Mode Local",
+      "offline": "Hors Ligne",
+      "syncing": "Synchronisation",
+      "synced": "Synchronisation Cloud Active"
+    }
+  },
+  "login": "Se connecter",
+  "logout": "Se déconnecter",
+  "loggingOut": "Déconnexion...",
+  "loginWithGoogle": "Continuer avec Google",
+  "noConnection": "Pas de connexion",
+  "loginBanner": {
+    "title": "Protégez vos finances",
+    "subtitle": "Connectez-vous pour sauvegarder vos dépenses dans le cloud.",
+    "action": "Connecter le compte"
+  },
+  "export": {
+    "info": {
+      "title": "Exporter en CSV",
+      "description": "Les fichiers CSV peuvent être ouverts dans Excel, Google Sheets et d'autres applications de feuilles de calcul."
+    },
+    "transactions": {
+      "title": "Transactions",
+      "description": "Exporter tous les mouvements"
+    },
+    "categories": {
+      "title": "Catégories",
+      "description": "Exporter les catégories personnalisées"
+    },
+    "budgets": {
+      "title": "Budgets",
+      "description": "Exporter les limites de dépenses"
+    },
+    "all": {
+      "title": "Tout",
+      "description": "Exporter transactions, catégories et budgets"
+    },
+    "items": "éléments"
+  }
+}

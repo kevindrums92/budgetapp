@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { skipOnboardingWithCategories } from './test-helpers';
 
 /**
  * E2E Tests for Transaction Attributes and States
@@ -12,11 +13,8 @@ import { test, expect } from "@playwright/test";
 test.describe("Transaction Attributes - Complete Form", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem("budget.welcomeSeen.v1", "1");
-      localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator("text=Balance")).toBeVisible({ timeout: 10000 });
@@ -170,11 +168,8 @@ test.describe("Transaction Attributes - Complete Form", () => {
 test.describe("Transaction Status - Paid, Pending, Planned", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem("budget.welcomeSeen.v1", "1");
-      localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator("text=Balance")).toBeVisible({ timeout: 10000 });
@@ -347,11 +342,8 @@ test.describe("Transaction Status - Paid, Pending, Planned", () => {
 test.describe("Transaction Income Type", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem("budget.welcomeSeen.v1", "1");
-      localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator("text=Balance")).toBeVisible({ timeout: 10000 });

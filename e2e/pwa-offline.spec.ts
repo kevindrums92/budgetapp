@@ -1,13 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { skipOnboardingWithCategories } from './test-helpers';
 
 test.describe('PWA Offline Support', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator('text=Balance')).toBeVisible({ timeout: 10000 });
@@ -77,8 +75,8 @@ test.describe('PWA Offline Support', () => {
 
     // Re-set onboarding flags before reload
     await page.evaluate(() => {
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
+      localStorage.setItem('budget.onboarding.completed.v2', 'true');
+      localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
     });
 
     await page.reload();
@@ -135,8 +133,8 @@ test.describe('PWA Offline Support', () => {
 
     // Re-set onboarding flags before reload to prevent WelcomeGate
     await page.evaluate(() => {
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
+      localStorage.setItem('budget.onboarding.completed.v2', 'true');
+      localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
     });
 
     // Reload page
@@ -206,8 +204,8 @@ test.describe('PWA Offline Support', () => {
 
     // Re-set onboarding flags before reload
     await page.evaluate(() => {
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
+      localStorage.setItem('budget.onboarding.completed.v2', 'true');
+      localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
     });
 
     await page.reload();
@@ -254,8 +252,8 @@ test.describe('PWA Offline Support', () => {
 
     // Re-set onboarding flags before reload
     await page.evaluate(() => {
-      localStorage.setItem('budget.welcomeSeen.v1', '1');
-      localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
+      localStorage.setItem('budget.onboarding.completed.v2', 'true');
+      localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
     });
 
     // Reload page

@@ -1,0 +1,113 @@
+{
+  "page": {
+    "title": "Budgets",
+    "activeBudgets": "Active budgets",
+    "remaining": "{{amount}} remaining ({{percentage}}%)",
+    "exceeded": "Exceeded by {{amount}} ({{percentage}}%)",
+    "noActiveBudgets": "No active budgets this period"
+  },
+  "summary": {
+    "budgeted": "Budgeted",
+    "spent": "Spent"
+  },
+  "emptyState": {
+    "title": "Create my first limit",
+    "description": "Define a maximum amount for expenses like Restaurants or Transportation.",
+    "cta": "Start now"
+  },
+  "modal": {
+    "titleNew": "New Budget",
+    "titleEdit": "Edit Budget",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "amount": "Budget",
+    "period": "Period",
+    "selectPeriod": "Select period",
+    "recurring": "Recurring",
+    "recurringDescription": "Renew automatically when finished",
+    "save": "Save",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete budget?",
+    "deleteConfirmMessage": "Are you sure you want to delete this budget?",
+    "cancel": "Cancel"
+  },
+  "periodPicker": {
+    "title": "Select Period",
+    "week": "Week",
+    "month": "Month",
+    "quarter": "Quarter",
+    "year": "Year",
+    "custom": "Custom",
+    "select": "Select",
+    "startDate": "Start date",
+    "endDate": "End date",
+    "selectedPeriod": "Selected period"
+  },
+  "card": {
+    "budgetWeekly": "Weekly budget",
+    "budgetMonthly": "Monthly budget",
+    "budgetQuarterly": "Quarterly budget",
+    "budgetYearly": "Yearly budget",
+    "budgetCustom": "Custom budget",
+    "remaining": "{{amount}} remaining",
+    "exceeded": "Exceeded by {{amount}}",
+    "statusGood": "In good shape",
+    "statusWarning": "Near limit",
+    "statusExceeded": "Limit exceeded"
+  },
+  "onboarding": {
+    "screen1": {
+      "title": "Smart Budgets",
+      "subtitle": "Control your spending with flexible, automatically renewable budgets",
+      "feature1Title": "Flexible Periods",
+      "feature1Description": "Create weekly, monthly, quarterly, yearly or custom budgets",
+      "feature2Title": "Automatic Renewal",
+      "feature2Description": "Enable recurring option and forget about creating budgets every month",
+      "feature3Title": "Visual Tracking",
+      "feature3Description": "See your progress in real-time with color bars and smart alerts",
+      "continue": "Continue"
+    },
+    "screen2": {
+      "title": "Choose Your Period",
+      "subtitle": "You're not limited to monthly budgets. Choose the period that best suits you.",
+      "weekTitle": "Week",
+      "weekDescription": "Weekly expense control",
+      "monthTitle": "Month",
+      "monthDescription": "The most common period",
+      "quarterTitle": "Quarter",
+      "quarterDescription": "Plan for 3 months",
+      "yearTitle": "Year / Custom",
+      "yearDescription": "Or define your own dates",
+      "example": "Create a weekly budget of $ 100,000 for restaurants, or a yearly one of $ 5,000,000 for travel.",
+      "continue": "Continue"
+    },
+    "screen3": {
+      "title": "Set and Forget",
+      "subtitle": "Enable automatic renewal and your budgets will recreate themselves when each period ends.",
+      "exampleCategory": "Groceries",
+      "examplePeriod": "Monthly budget",
+      "month1": "January 2026",
+      "month1Amount": "$ 500,000 budgeted",
+      "month2": "February 2026",
+      "month2Status": "✓ Automatically renewed",
+      "month3": "March 2026",
+      "month3Status": "✓ Automatically renewed",
+      "infoText": "Budgets are automatically renewed with the same amount and period. You can disable renewal anytime.",
+      "continue": "Continue"
+    },
+    "screen4": {
+      "title": "Real-Time Tracking",
+      "subtitle": "Visualize your progress with status bars, intuitive colors and alerts when you approach the limit.",
+      "exampleTransport": "Transportation",
+      "exampleEntertainment": "Entertainment",
+      "exampleRestaurants": "Restaurants",
+      "statusGood": "✓ In good shape",
+      "statusWarning": "⚠ Near limit",
+      "statusExceeded": "⛔ Limit exceeded",
+      "colorsTitle": "Intuitive colors",
+      "colorsDescription": "Green = good shape, Yellow = near limit, Red = exceeded. You'll always know your budget status at a glance.",
+      "start": "Let's start!"
+    },
+    "skip": "Skip"
+  }
+}

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Plus, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/shared/components/layout/PageHeader";
@@ -7,6 +8,7 @@ import PageHeader from "@/shared/components/layout/PageHeader";
 type Tab = "expense" | "income";
 
 export default function CategoryGroupsPage() {
+  const { t } = useTranslation("categories");
   const navigate = useNavigate();
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -32,7 +34,7 @@ export default function CategoryGroupsPage() {
     <div className="flex min-h-screen flex-col bg-gray-50">
       {/* Header */}
       <PageHeader
-        title="Grupos de Categorías"
+        title={t("groups.title")}
         rightActions={
           <button
             type="button"
@@ -55,7 +57,7 @@ export default function CategoryGroupsPage() {
               : "bg-gray-100 text-gray-600"
           }`}
         >
-          Gastos
+          {t("tabs.expenses")}
         </button>
         <button
           type="button"
@@ -66,7 +68,7 @@ export default function CategoryGroupsPage() {
               : "bg-gray-100 text-gray-600"
           }`}
         >
-          Ingresos
+          {t("tabs.income")}
         </button>
       </div>
 
@@ -101,13 +103,13 @@ export default function CategoryGroupsPage() {
 
           {filteredGroups.length === 0 && (
             <div className="py-12 text-center">
-              <p className="text-gray-500">No hay grupos de {activeTab === "expense" ? "gastos" : "ingresos"}</p>
+              <p className="text-gray-500">{activeTab === "expense" ? t("groups.emptyExpenses") : t("groups.emptyIncome")}</p>
               <button
                 type="button"
                 onClick={() => navigate(`/category-group/new?type=${activeTab}`)}
                 className="mt-4 text-emerald-600 font-medium"
               >
-                Crear grupo
+                {t("groups.createButton")}
               </button>
             </div>
           )}

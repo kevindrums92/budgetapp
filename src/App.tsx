@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useMemo } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -7,6 +7,8 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { ThemeProvider } from "@/features/theme";
+import { CurrencyProvider } from "@/features/currency";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 
@@ -34,17 +36,23 @@ const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/C
 // Lazy load scheduled transactions page
 const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
 
+// Lazy load settings pages
+const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));
+const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSettingsPage"));
+const CurrencySettingsPage = lazy(() => import("@/features/profile/pages/CurrencySettingsPage"));
+const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"));
+
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
-import WelcomeGate from "@/shared/components/providers/WelcomeGate";
-import SplashScreen from "@/shared/components/ui/SplashScreen";
+import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
+import OnboardingGate from "@/features/onboarding/OnboardingGate";
 
 // Loading fallback component
 function PageLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
       <div className="flex flex-col items-center gap-3">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-emerald-500" />
-        <p className="text-sm text-gray-500">Cargando...</p>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-emerald-500 dark:border-gray-700 dark:border-t-emerald-400" />
+        <p className="text-sm text-gray-500 dark:text-gray-400">Cargando...</p>
       </div>
     </div>
   );
@@ -53,31 +61,16 @@ function PageLoader() {
 function AppFrame() {
   const location = useLocation();
 
-  // Splash: visible solo al inicio
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    const t = window.setTimeout(() => setShowSplash(false), 900);
-    return () => window.clearTimeout(t);
-  }, []);
-
   const isFormRoute =
     location.pathname === "/add" ||
-    location.pathname === "/profile" ||
     location.pathname === "/backup" ||
     location.pathname === "/scheduled" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
-    location.pathname.startsWith("/categories");
-
-  const title = useMemo(() => {
-    if (location.pathname === "/") return "Home";
-    if (location.pathname === "/budget") return "Budget";
-    if (location.pathname === "/stats") return "Stats";
-    if (location.pathname === "/trips") return "Trips";
-    return "Home";
-  }, [location.pathname]);
+    location.pathname.startsWith("/categories") ||
+    location.pathname.startsWith("/settings/") ||
+    location.pathname.startsWith("/onboarding");
 
   const showMonthSelector = useMemo(() => {
     return location.pathname === "/" ||
@@ -85,17 +78,20 @@ function AppFrame() {
            location.pathname === "/stats";
   }, [location.pathname]);
 
+  const isProfilePage = location.pathname === "/profile";
+
   return (
     <>
-      {/* Splash overlay (fade out por CSS/transition) */}
-      <SplashScreen visible={showSplash} />
-
       {/* App */}
-      <div className={`min-h-dvh bg-white ${showSplash ? "pointer-events-none" : ""}`}>
-        {!isFormRoute && <TopHeader title={title} showMonthSelector={showMonthSelector} />}
+      <div className="min-h-dvh bg-white dark:bg-gray-950">
+        {!isFormRoute && <TopHeader showMonthSelector={showMonthSelector} isProfilePage={isProfilePage} />}
 
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            {/* Onboarding routes */}
+            <Route path="/onboarding/*" element={<OnboardingFlow />} />
+
+            {/* Main app routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/budget" element={<BudgetPage />} />
             <Route path="/stats" element={<StatsPage />} />
@@ -128,6 +124,11 @@ function AppFrame() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/backup" element={<BackupPage />} />
 
+            <Route path="/settings/language" element={<LanguageSettingsPage />} />
+            <Route path="/settings/theme" element={<ThemeSettingsPage />} />
+            <Route path="/settings/currency" element={<CurrencySettingsPage />} />
+            <Route path="/settings/export-csv" element={<ExportCSVPage />} />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
@@ -140,10 +141,14 @@ function AppFrame() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <CloudSyncGate />
-      <AppFrame />
-      <WelcomeGate />
-    </BrowserRouter>
+    <ThemeProvider>
+      <CurrencyProvider>
+        <BrowserRouter>
+          <CloudSyncGate />
+          <OnboardingGate />
+          <AppFrame />
+        </BrowserRouter>
+      </CurrencyProvider>
+    </ThemeProvider>
   );
 }

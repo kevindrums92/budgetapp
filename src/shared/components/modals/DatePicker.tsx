@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type Props = {
   open: boolean;
@@ -8,13 +10,9 @@ type Props = {
   onChange: (date: string) => void;
 };
 
-const DAYS = ["D", "L", "M", "M", "J", "V", "S"];
-const MONTHS = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-];
-
 export default function DatePicker({ open, onClose, value, onChange }: Props) {
+  const { t } = useTranslation('common');
+  const { getLocale } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -105,13 +103,40 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
     setShowYearPicker(false);
   };
 
+  // Generate locale-aware day abbreviations (first letter of each day)
+  const DAYS = useMemo(() => {
+    const locale = getLocale();
+    const days: string[] = [];
+
+    // Start from Sunday (day 0)
+    for (let i = 0; i < 7; i++) {
+      const day = new Date(2023, 11, 31 + i); // Dec 31, 2023 is Sunday
+      const dayName = new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(day);
+      days.push(dayName.charAt(0).toUpperCase());
+    }
+    return days;
+  }, [getLocale]);
+
+  // Generate locale-aware month names
+  const MONTHS = useMemo(() => {
+    const locale = getLocale();
+    const months: string[] = [];
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(2024, i, 1);
+      const monthName = new Intl.DateTimeFormat(locale, { month: 'long' }).format(date);
+      months.push(monthName);
+    }
+    return months;
+  }, [getLocale]);
+
   const formatSelectedDate = useCallback(() => {
-    const days = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-    const dayName = days[selectedDate.getDay()];
-    const monthName = MONTHS[selectedDate.getMonth()].slice(0, 3);
-    const dayNum = selectedDate.getDate();
-    return `${dayName}, ${monthName} ${dayNum}`;
-  }, [selectedDate]);
+    const locale = getLocale();
+    return new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    }).format(selectedDate);
+  }, [selectedDate, getLocale]);
 
   if (!isVisible) return null;
 
@@ -134,7 +159,7 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
         type="button"
         className="absolute inset-0 bg-black"
         onClick={onClose}
-        aria-label="Cerrar"
+        aria-label={t('datePicker.close')}
         style={{
           opacity: isAnimating ? 0.5 : 0,
           transition: "opacity 300ms ease-out",
@@ -143,7 +168,7 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
 
       {/* Modal */}
       <div
-        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-3xl bg-white shadow-2xl"
+        className="relative mx-4 w-full max-w-sm overflow-hidden rounded-3xl bg-white dark:bg-gray-900 shadow-2xl"
         style={{
           transform: isAnimating ? "scale(1)" : "scale(0.95)",
           opacity: isAnimating ? 1 : 0,
@@ -151,9 +176,9 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
         }}
       >
         {/* Header */}
-        <div className="bg-white px-6 pt-5 pb-4">
-          <p className="text-sm font-medium text-gray-500">Seleccionar fecha</p>
-          <h2 className="mt-1 text-3xl font-semibold text-gray-900">
+        <div className="bg-white dark:bg-gray-900 px-6 pt-5 pb-4">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('datePicker.selectDate')}</p>
+          <h2 className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-50">
             {formatSelectedDate()}
           </h2>
         </div>
@@ -165,7 +190,7 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
             <button
               type="button"
               onClick={() => setShowYearPicker(!showYearPicker)}
-              className="flex items-center gap-1 text-sm font-medium text-gray-700"
+              className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-200"
             >
               {MONTHS[viewMonth]} {viewYear}
               <ChevronLeft className={`h-4 w-4 transition-transform ${showYearPicker ? "rotate-90" : "-rotate-90"}`} />
@@ -175,16 +200,16 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
                 <button
                   type="button"
                   onClick={handlePrevMonth}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                 >
-                  <ChevronLeft className="h-5 w-5 text-gray-600" />
+                  <ChevronLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 </button>
                 <button
                   type="button"
                   onClick={handleNextMonth}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
                 >
-                  <ChevronRight className="h-5 w-5 text-gray-600" />
+                  <ChevronRight className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                 </button>
               </div>
             )}
@@ -205,7 +230,7 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
                       className={`py-3 rounded-full text-sm font-medium transition-colors ${
                         isSelected
                           ? "bg-emerald-500 text-white"
-                          : "text-gray-900 hover:bg-gray-100"
+                          : "text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
                       {year}
@@ -221,7 +246,7 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
                 {DAYS.map((day, i) => (
                   <div
                     key={i}
-                    className="flex h-10 items-center justify-center text-sm font-medium text-gray-500"
+                    className="flex h-10 items-center justify-center text-sm font-medium text-gray-500 dark:text-gray-400"
                   >
                     {day}
                   </div>
@@ -254,8 +279,8 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
                         isSelected
                           ? "bg-emerald-500 text-white"
                           : isToday
-                          ? "text-emerald-500 font-semibold"
-                          : "text-gray-900 hover:bg-gray-100"
+                          ? "text-emerald-500 dark:text-emerald-400 font-semibold"
+                          : "text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                     >
                       {day}
@@ -272,16 +297,16 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-semibold text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-semibold text-emerald-500 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
           >
-            Cancelar
+            {t('buttons.cancel')}
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className="px-4 py-2 text-sm font-semibold text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-semibold text-emerald-500 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors"
           >
-            OK
+            {t('buttons.ok')}
           </button>
         </div>
       </div>

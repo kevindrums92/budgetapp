@@ -1,0 +1,113 @@
+{
+  "page": {
+    "title": "Presupuestos",
+    "activeBudgets": "Presupuestos activos",
+    "remaining": "Quedan {{amount}} ({{percentage}}%)",
+    "exceeded": "Excedido por {{amount}} ({{percentage}}%)",
+    "noActiveBudgets": "Sin presupuestos activos este período"
+  },
+  "summary": {
+    "budgeted": "Presupuestado",
+    "spent": "Gastado"
+  },
+  "emptyState": {
+    "title": "Crear mi primer límite",
+    "description": "Define un monto máximo para gastos como Restaurantes o Transporte.",
+    "cta": "Comenzar ahora"
+  },
+  "modal": {
+    "titleNew": "Nuevo Presupuesto",
+    "titleEdit": "Editar Presupuesto",
+    "category": "Categoría",
+    "selectCategory": "Seleccionar categoría",
+    "amount": "Presupuesto",
+    "period": "Período",
+    "selectPeriod": "Seleccionar período",
+    "recurring": "Recurrente",
+    "recurringDescription": "Renovar automáticamente al finalizar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "deleteConfirmTitle": "¿Eliminar presupuesto?",
+    "deleteConfirmMessage": "¿Seguro que deseas eliminar este presupuesto?",
+    "cancel": "Cancelar"
+  },
+  "periodPicker": {
+    "title": "Seleccionar Período",
+    "week": "Semana",
+    "month": "Mes",
+    "quarter": "Trimestre",
+    "year": "Año",
+    "custom": "Personalizado",
+    "select": "Seleccionar",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin",
+    "selectedPeriod": "Período seleccionado"
+  },
+  "card": {
+    "budgetWeekly": "Presupuesto semanal",
+    "budgetMonthly": "Presupuesto mensual",
+    "budgetQuarterly": "Presupuesto trimestral",
+    "budgetYearly": "Presupuesto anual",
+    "budgetCustom": "Presupuesto personalizado",
+    "remaining": "Quedan {{amount}}",
+    "exceeded": "Excedido por {{amount}}",
+    "statusGood": "En buen estado",
+    "statusWarning": "Cerca del límite",
+    "statusExceeded": "Límite excedido"
+  },
+  "onboarding": {
+    "screen1": {
+      "title": "Presupuestos Inteligentes",
+      "subtitle": "Controla tus gastos con presupuestos flexibles y renovables automáticamente",
+      "feature1Title": "Períodos Flexibles",
+      "feature1Description": "Crea presupuestos semanales, mensuales, trimestrales, anuales o personalizados",
+      "feature2Title": "Renovación Automática",
+      "feature2Description": "Activa la opción recurrente y olvídate de crear presupuestos cada mes",
+      "feature3Title": "Seguimiento Visual",
+      "feature3Description": "Ve tu progreso en tiempo real con barras de colores y alertas inteligentes",
+      "continue": "Continuar"
+    },
+    "screen2": {
+      "title": "Elige Tu Período",
+      "subtitle": "No estás limitado a presupuestos mensuales. Elige el período que mejor se adapte a ti.",
+      "weekTitle": "Semana",
+      "weekDescription": "Control semanal de gastos",
+      "monthTitle": "Mes",
+      "monthDescription": "El período más común",
+      "quarterTitle": "Trimestre",
+      "quarterDescription": "Planifica a 3 meses",
+      "yearTitle": "Año / Personalizado",
+      "yearDescription": "O define tus propias fechas",
+      "example": "Crea un presupuesto semanal de $ 100.000 para restaurantes, o uno anual de $ 5.000.000 para viajes.",
+      "continue": "Continuar"
+    },
+    "screen3": {
+      "title": "Configura y Olvídate",
+      "subtitle": "Activa la renovación automática y tus presupuestos se recrearán solos al finalizar cada período.",
+      "exampleCategory": "Mercado",
+      "examplePeriod": "Presupuesto mensual",
+      "month1": "Enero 2026",
+      "month1Amount": "$ 500.000 presupuestados",
+      "month2": "Febrero 2026",
+      "month2Status": "✓ Renovado automáticamente",
+      "month3": "Marzo 2026",
+      "month3Status": "✓ Renovado automáticamente",
+      "infoText": "Los presupuestos se renuevan automáticamente con el mismo monto y período. Puedes desactivar la renovación en cualquier momento.",
+      "continue": "Continuar"
+    },
+    "screen4": {
+      "title": "Seguimiento en Tiempo Real",
+      "subtitle": "Visualiza tu progreso con barras de estado, colores intuitivos y alertas cuando te acercas al límite.",
+      "exampleTransport": "Transporte",
+      "exampleEntertainment": "Entretenimiento",
+      "exampleRestaurants": "Restaurantes",
+      "statusGood": "✓ En buen estado",
+      "statusWarning": "⚠ Cerca del límite",
+      "statusExceeded": "⛔ Límite excedido",
+      "colorsTitle": "Colores intuitivos",
+      "colorsDescription": "Verde = buen estado, Amarillo = cerca del límite, Rojo = excedido. Siempre sabrás cómo va tu presupuesto de un vistazo.",
+      "start": "¡Comenzar!"
+    },
+    "skip": "Saltar"
+  }
+}

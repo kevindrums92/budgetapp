@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { todayISO } from "@/services/dates.service";
 import type { TripExpenseCategory } from "@/types/budget.types";
@@ -17,20 +18,17 @@ import PageHeader from "@/shared/components/layout/PageHeader";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
 
-const CATEGORY_OPTIONS: {
-  value: TripExpenseCategory;
-  label: string;
-  icon: typeof Plane;
-}[] = [
-  { value: "transport", label: "Transporte", icon: Plane },
-  { value: "accommodation", label: "Alojamiento", icon: Hotel },
-  { value: "food", label: "Comida", icon: Utensils },
-  { value: "activities", label: "Actividades", icon: Ticket },
-  { value: "shopping", label: "Compras", icon: ShoppingBag },
-  { value: "other", label: "Otros", icon: HelpCircle },
+const getCategoryOptions = (t: (key: string) => string) => [
+  { value: "transport" as const, label: t("trips:expense.categories.transport"), icon: Plane },
+  { value: "accommodation" as const, label: t("trips:expense.categories.accommodation"), icon: Hotel },
+  { value: "food" as const, label: t("trips:expense.categories.food"), icon: Utensils },
+  { value: "activities" as const, label: t("trips:expense.categories.activities"), icon: Ticket },
+  { value: "shopping" as const, label: t("trips:expense.categories.shopping"), icon: ShoppingBag },
+  { value: "other" as const, label: t("trips:expense.categories.other"), icon: HelpCircle },
 ];
 
 export default function AddEditTripExpensePage() {
+  const { t } = useTranslation("trips");
   const navigate = useNavigate();
   const params = useParams<{ id: string; expenseId?: string }>();
   const tripId = params.id!;
@@ -148,13 +146,15 @@ export default function AddEditTripExpensePage() {
 
   if (!trip) return null;
 
+  const categoryOptions = getCategoryOptions(t);
+
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
       <PageHeader
         title={
           <div className="flex flex-col -mt-1">
             <span className="font-semibold text-gray-900">
-              {expense ? "Editar gasto" : "Nuevo gasto"}
+              {expense ? t("expense.editTitle") : t("expense.newTitle")}
             </span>
             <span className="text-[11px] text-gray-500 truncate max-w-[200px]">
               {trip.name}
@@ -180,10 +180,10 @@ export default function AddEditTripExpensePage() {
           {/* Categoría */}
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-500">
-              Categoría
+              {t("expense.category")}
             </label>
             <div className="grid grid-cols-3 gap-2">
-              {CATEGORY_OPTIONS.map((opt) => {
+              {categoryOptions.map((opt) => {
                 const Icon = opt.icon;
                 const isSelected = category === opt.value;
                 return (
@@ -208,12 +208,12 @@ export default function AddEditTripExpensePage() {
           {/* Nombre */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Descripción
+              {t("expense.description")}
             </label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Almuerzo en la playa, Taxi al aeropuerto..."
+              placeholder={t("expense.descriptionPlaceholder")}
               className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
           </div>
@@ -222,7 +222,7 @@ export default function AddEditTripExpensePage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-2xl bg-white p-4 shadow-sm">
               <label className="mb-1 block text-xs font-medium text-gray-500">
-                Valor
+                {t("expense.amount")}
               </label>
               <input
                 value={amount}
@@ -239,7 +239,7 @@ export default function AddEditTripExpensePage() {
               className="rounded-2xl bg-white p-4 shadow-sm text-left"
             >
               <label className="mb-1 block text-xs font-medium text-gray-500">
-                Fecha
+                {t("expense.date")}
               </label>
               <div className="flex items-center gap-2">
                 <Calendar size={18} className="text-gray-400" />
@@ -253,12 +253,12 @@ export default function AddEditTripExpensePage() {
           {/* Notas */}
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             <label className="mb-1 block text-xs font-medium text-gray-500">
-              Notas <span className="font-normal text-gray-400">(opcional)</span>
+              {t("expense.notes")} <span className="font-normal text-gray-400">{t("expense.optional")}</span>
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Detalles adicionales..."
+              placeholder={t("expense.notesPlaceholder")}
               rows={2}
               className="w-full resize-none text-base text-gray-900 outline-none placeholder:text-gray-400"
             />
@@ -275,7 +275,7 @@ export default function AddEditTripExpensePage() {
             disabled={!canSave}
             className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300"
           >
-            {expense ? "Guardar cambios" : "Agregar gasto"}
+            {expense ? t("expense.saveChanges") : t("expense.save")}
           </button>
         </div>
       </div>
@@ -291,14 +291,14 @@ export default function AddEditTripExpensePage() {
       {/* Confirm delete dialog */}
       <ConfirmDialog
         open={confirmDelete}
-        title="Eliminar gasto"
+        title={t("expense.delete.title")}
         message={
           expense
-            ? `¿Seguro que deseas eliminar "${expense.name}"?`
-            : "¿Seguro que deseas eliminar este gasto?"
+            ? t("expense.delete.message", { name: expense.name })
+            : t("expense.delete.message", { name: "" })
         }
-        confirmText="Eliminar"
-        cancelText="Cancelar"
+        confirmText={t("expense.delete.confirm")}
+        cancelText={t("expense.delete.cancel")}
         destructive
         onConfirm={handleConfirmDelete}
         onClose={() => setConfirmDelete(false)}

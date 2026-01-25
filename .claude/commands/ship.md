@@ -65,8 +65,7 @@ Cambios: !`git diff --name-only`
 2) Lista staged:
    - !`git diff --staged --name-only`
 
-3) Si ves algo sensible, quítalo del stage:
-   - !`git restore --staged FILENAME`
+3) Verifica que no haya archivos sensibles en el stage (si los hay, usa `git restore --staged <filename>` manualmente)
 
 ---
 

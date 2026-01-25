@@ -52,7 +52,26 @@ function migrateTransactionCategories(
 export function loadState(): BudgetState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
+    if (!raw) {
+      // Check if onboarding was completed (e.g., in e2e tests)
+      // If so, initialize with default categories
+      const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
+      if (onboardingCompleted) {
+        const initialState: BudgetState = {
+          schemaVersion: 6,
+          transactions: [],
+          categories: [],
+          categoryDefinitions: createDefaultCategories(),
+          categoryGroups: createDefaultCategoryGroups(),
+          budgets: [],
+          trips: [],
+          tripExpenses: [],
+        };
+        saveState(initialState);
+        return initialState;
+      }
+      return null;
+    }
 
     const parsed = JSON.parse(raw);
 
@@ -167,6 +186,25 @@ export function loadState(): BudgetState | null {
       console.log(`[Storage] Migrated v4→v5: ${templatesMap.size} schedule templates, linked transactions to their source`);
     }
 
+    // Migrate v5 to v6: Add budgets array and remove monthlyLimit from categories
+    if (parsed.schemaVersion === 5) {
+      // Add budgets array (empty initially - nadie usa la feature)
+      parsed.budgets = [];
+
+      // Remove monthlyLimit from all categories
+      if (Array.isArray(parsed.categoryDefinitions)) {
+        parsed.categoryDefinitions = parsed.categoryDefinitions.map((cat: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { monthlyLimit, ...rest } = cat;
+          return rest;
+        });
+      }
+
+      parsed.schemaVersion = 6;
+      needsSave = true;
+      console.log('[Storage] Migrated v5→v6: Added budgets array, removed monthlyLimit from categories');
+    }
+
     // Always repair: Ensure all transactions have sourceTemplateId if they match a template
     // This fixes transactions that were confirmed before sourceTemplateId was added
     if (parsed.schemaVersion >= 5) {
@@ -204,6 +242,7 @@ export function loadState(): BudgetState | null {
 
     // Ensure all arrays exist
     if (!Array.isArray(parsed.categories)) parsed.categories = [];
+    if (!Array.isArray(parsed.budgets)) parsed.budgets = [];
     if (!Array.isArray(parsed.trips)) parsed.trips = [];
     if (!Array.isArray(parsed.tripExpenses)) parsed.tripExpenses = [];
 
@@ -213,28 +252,46 @@ export function loadState(): BudgetState | null {
       needsSave = true;
     }
 
-    // Ensure categoryDefinitions has default categories
+    // Migrate old string categories to categoryDefinitions (only for legacy users)
     if (!Array.isArray(parsed.categoryDefinitions) || parsed.categoryDefinitions.length === 0) {
-      // No categories at all - create defaults plus any custom from old categories array
-      const defaults = createDefaultCategories();
-      const defaultNamesLower = new Set(defaults.map((c) => c.name.toLowerCase()));
+      // Check if there are old string categories to migrate
+      const hasLegacyCategories = Array.isArray(parsed.categories) && parsed.categories.length > 0;
 
-      // Convert any old string categories to Category objects
-      const customFromOld: Category[] = (parsed.categories || [])
-        .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
-        .map((name: string) => ({
-          id: crypto.randomUUID(),
-          name: name.trim(),
-          icon: DEFAULT_CATEGORY_ICON,
-          color: DEFAULT_CATEGORY_COLOR,
-          type: "expense" as const,
-          groupId: "miscellaneous",
-          isDefault: false,
-          createdAt: Date.now(),
-        }));
+      // Check if onboarding was completed (includes e2e test scenarios)
+      const onboardingCompleted = typeof window !== 'undefined' &&
+        localStorage.getItem('budget.onboarding.completed.v2') === 'true';
 
-      parsed.categoryDefinitions = [...defaults, ...customFromOld];
-      needsSave = true;
+      if (hasLegacyCategories || onboardingCompleted) {
+        // Legacy user OR completed onboarding - inject defaults
+        const defaults = createDefaultCategories();
+
+        if (hasLegacyCategories) {
+          // Also migrate custom categories from old format
+          const defaultNamesLower = new Set(defaults.map((c) => c.name.toLowerCase()));
+          const customFromOld: Category[] = (parsed.categories || [])
+            .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
+            .map((name: string) => ({
+              id: crypto.randomUUID(),
+              name: name.trim(),
+              icon: DEFAULT_CATEGORY_ICON,
+              color: DEFAULT_CATEGORY_COLOR,
+              type: "expense" as const,
+              groupId: "miscellaneous",
+              isDefault: false,
+              createdAt: Date.now(),
+            }));
+
+          parsed.categoryDefinitions = [...defaults, ...customFromOld];
+        } else {
+          // Just inject defaults (e2e tests or edge cases)
+          parsed.categoryDefinitions = defaults;
+        }
+
+        needsSave = true;
+      } else {
+        // New user still in onboarding - categories will be created during onboarding
+        parsed.categoryDefinitions = [];
+      }
     }
 
     const result = parsed as BudgetState;

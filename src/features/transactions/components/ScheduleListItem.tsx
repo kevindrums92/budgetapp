@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/hooks/useLanguage";
 import { icons, Power } from "lucide-react";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import { formatScheduleFrequency, formatNextDate } from "@/shared/utils/schedule.utils";
 import { calculateNextDate } from "@/shared/services/scheduler.service";
@@ -20,6 +22,9 @@ export default function ScheduleListItem({
   isEnded = false,
   onInactivate,
 }: ScheduleListItemProps) {
+  const { t } = useTranslation("scheduled");
+  const { getLocale } = useLanguage();
+  const { formatAmount } = useCurrency();
   const [showConfirm, setShowConfirm] = useState(false);
 
   const IconComponent = category
@@ -39,7 +44,7 @@ export default function ScheduleListItem({
 
   return (
     <>
-      <div className="rounded-2xl bg-white p-4 shadow-sm">
+      <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
         {/* Header: Icon + Name + Badge */}
         <div className="flex items-start gap-3">
           {/* Category Icon */}
@@ -55,28 +60,28 @@ export default function ScheduleListItem({
                 style={{ color: category?.color }}
               />
             ) : (
-              <div className="h-5 w-5 rounded-full bg-gray-300" />
+              <div className="h-5 w-5 rounded-full bg-gray-300 dark:bg-gray-600" />
             )}
           </div>
 
           {/* Info */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <p className="truncate font-semibold text-gray-900">
+              <p className="truncate font-semibold text-gray-900 dark:text-gray-50">
                 {transaction.name}
               </p>
               {/* Status Badge */}
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
                   isEnded
-                    ? "bg-gray-100 text-gray-500"
-                    : "bg-emerald-50 text-emerald-700"
+                    ? "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
+                    : "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
                 }`}
               >
-                {isEnded ? "Inactiva" : "Activa"}
+                {isEnded ? t("status.inactive") : t("status.active")}
               </span>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {category?.name || transaction.category}
             </p>
           </div>
@@ -87,24 +92,24 @@ export default function ScheduleListItem({
           {/* Amount */}
           <p
             className={`font-semibold ${
-              transaction.type === "income" ? "text-emerald-600" : "text-gray-900"
+              transaction.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"
             }`}
           >
             {transaction.type === "income" ? "+" : "-"}
-            {formatCOP(transaction.amount)}
+            {formatAmount(transaction.amount)}
           </p>
 
           {/* Frequency */}
           {transaction.schedule && (
-            <p className="text-sm text-gray-500">
-              {formatScheduleFrequency(transaction.schedule)}
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {formatScheduleFrequency(transaction.schedule, t)}
             </p>
           )}
 
           {/* Next date (only for active) */}
           {nextDate && !isEnded && (
-            <p className="text-sm text-gray-500">
-              Próxima: {formatNextDate(nextDate)}
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {t("item.nextDate", { date: formatNextDate(nextDate, t, getLocale()) })}
             </p>
           )}
         </div>
@@ -115,10 +120,10 @@ export default function ScheduleListItem({
             <button
               type="button"
               onClick={() => setShowConfirm(true)}
-              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-orange-50 py-2.5 text-sm font-medium text-orange-600 hover:bg-orange-100 transition-colors"
+              className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-orange-50 dark:bg-orange-900/30 py-2.5 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors"
             >
               <Power className="h-4 w-4" />
-              Desactivar
+              {t("item.deactivate")}
             </button>
           </div>
         )}
@@ -134,21 +139,20 @@ export default function ScheduleListItem({
           />
 
           {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Desactivar programación
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t("deactivate.title")}
             </h3>
-            <p className="mb-3 text-sm text-gray-600">
-              Esto desactivará la programación de "{transaction.name}".
-              No se generarán más transacciones automáticamente.
+            <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+              {t("deactivate.message", { name: transaction.name })}
             </p>
-            <div className="mb-4 rounded-lg bg-orange-50 p-3">
-              <p className="text-xs font-medium text-orange-700">
-                Esta acción es irreversible. Si deseas activarla de nuevo, deberás crear una nueva programación.
+            <div className="mb-4 rounded-lg bg-orange-50 dark:bg-orange-900/30 p-3">
+              <p className="text-xs font-medium text-orange-700 dark:text-orange-300">
+                {t("deactivate.warning")}
               </p>
             </div>
-            <p className="mb-4 text-xs text-gray-500">
-              Las transacciones ya registradas no se verán afectadas.
+            <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+              {t("deactivate.note")}
             </p>
 
             {/* Actions */}
@@ -156,16 +160,16 @@ export default function ScheduleListItem({
               <button
                 type="button"
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
-                Cancelar
+                {t("deactivate.cancel")}
               </button>
               <button
                 type="button"
                 onClick={handleInactivateConfirm}
                 className="flex-1 rounded-xl bg-orange-500 py-3 text-sm font-medium text-white hover:bg-orange-600"
               >
-                Desactivar
+                {t("deactivate.confirm")}
               </button>
             </div>
           </div>

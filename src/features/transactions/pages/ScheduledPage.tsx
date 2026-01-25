@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Calendar } from "lucide-react";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ScheduleListItem from "../components/ScheduleListItem";
@@ -8,6 +9,7 @@ import type { Transaction } from "@/types/budget.types";
 type TabType = "active" | "inactive";
 
 export default function ScheduledPage() {
+  const { t } = useTranslation("scheduled");
   const transactions = useBudgetStore((s) => s.transactions);
   const getCategoryById = useBudgetStore((s) => s.getCategoryById);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
@@ -53,49 +55,49 @@ export default function ScheduledPage() {
   const isEmpty = currentList.length === 0;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <PageHeader title="Programadas" />
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
+      <PageHeader title={t("title")} />
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-white px-4 pt-3 pb-4">
+      <div className="flex gap-2 bg-white dark:bg-gray-900 px-4 pt-3 pb-4">
         <button
           type="button"
           onClick={() => setActiveTab("active")}
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === "active"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
           }`}
         >
-          Activas ({active.length})
+          {t("tabs.active", { count: active.length })}
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("inactive")}
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === "inactive"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900"
+              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
           }`}
         >
-          Inactivas ({inactive.length})
+          {t("tabs.inactive", { count: inactive.length })}
         </button>
       </div>
 
       <div className="flex-1 px-4 pt-4 pb-8">
         {/* Empty State */}
         {isEmpty && (
-          <div className="rounded-xl bg-white p-6 text-center shadow-sm">
-            <Calendar className="mx-auto h-10 w-10 text-gray-300" />
-            <p className="mt-3 text-sm font-medium text-gray-600">
+          <div className="rounded-xl bg-white dark:bg-gray-900 p-6 text-center shadow-sm">
+            <Calendar className="mx-auto h-10 w-10 text-gray-300 dark:text-gray-600" />
+            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">
               {activeTab === "active"
-                ? "No tienes programaciones activas"
-                : "No tienes programaciones inactivas"}
+                ? t("emptyActive.title")
+                : t("emptyInactive.title")}
             </p>
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
               {activeTab === "active"
-                ? "Activa la programación al crear una transacción"
-                : "Las programaciones desactivadas aparecerán aquí"}
+                ? t("emptyActive.message")
+                : t("emptyInactive.message")}
             </p>
           </div>
         )}

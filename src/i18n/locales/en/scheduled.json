@@ -1,0 +1,59 @@
+{
+  "title": "Scheduled",
+  "tabs": {
+    "active": "Active ({{count}})",
+    "active_zero": "Active (0)",
+    "inactive": "Inactive ({{count}})",
+    "inactive_zero": "Inactive (0)"
+  },
+  "emptyActive": {
+    "title": "No active schedules",
+    "message": "Enable scheduling when creating a transaction"
+  },
+  "emptyInactive": {
+    "title": "No inactive schedules",
+    "message": "Deactivated schedules will appear here"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "item": {
+    "deactivate": "Deactivate",
+    "nextDate": "Next: {{date}}"
+  },
+  "frequency": {
+    "daily": "Daily",
+    "dailyInterval": "Every {{count}} days",
+    "weekly": "Weekly",
+    "weeklyInterval": "Every {{count}} weeks",
+    "weeklyOn": "Weekly on {{day}}s",
+    "weeklyIntervalOn": "Every {{count}} weeks on {{day}}s",
+    "monthly": "Monthly on day {{day}}",
+    "monthlyInterval": "Every {{count}} months on day {{day}}",
+    "yearly": "Yearly",
+    "yearlyInterval": "Every {{count}} years",
+    "scheduled": "Scheduled"
+  },
+  "daysOfWeek": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+  },
+  "dateFormat": {
+    "today": "Today",
+    "tomorrow": "Tomorrow"
+  },
+  "deactivate": {
+    "title": "Deactivate schedule",
+    "message": "This will deactivate the schedule for \"{{name}}\". No more transactions will be generated automatically.",
+    "warning": "This action is irreversible. If you want to activate it again, you will need to create a new schedule.",
+    "note": "Already recorded transactions will not be affected.",
+    "confirm": "Deactivate",
+    "cancel": "Cancel"
+  }
+}

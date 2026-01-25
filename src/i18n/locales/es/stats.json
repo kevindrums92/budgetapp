@@ -1,0 +1,91 @@
+{
+  "title": "Estadísticas",
+  "quickInsights": "Vista Rápida",
+  "quickStats": {
+    "dailyAverage": "Promedio de Gasto Diario",
+    "topCategory": "Categoría Top",
+    "topDay": "Día que más gastas",
+    "monthComparison": "vs Mes Anterior",
+    "noExpenses": "No hay gastos este mes"
+  },
+  "comparisonModal": {
+    "title": "Comparación con mes anterior",
+    "infoBannerCurrent": "Se comparan los primeros {{days}} días de ambos meses para una comparación justa.",
+    "infoBannerComplete": "Se comparan los meses completos.",
+    "dayRange": "(días 1-{{day}})",
+    "spentMore": "Gastaste {{percent}}% más en este período",
+    "spentLess": "Gastaste {{percent}}% menos en este período",
+    "spentSame": "Gastaste lo mismo en este período",
+    "understood": "Entendido"
+  },
+  "statsFilter": {
+    "customize": "Personalizar",
+    "categoriesExcluded": "{{count}} categoría excluida de estadísticas · Configurar",
+    "categoriesExcluded_other": "{{count}} categorías excluidas de estadísticas · Configurar",
+    "allIncluded": "Todas las categorías incluidas · Configurar"
+  },
+  "dailyAverageModal": {
+    "title": "Filtrar Estadísticas",
+    "infoBanner": "Desmarca las categorías que no quieras incluir en las estadísticas (como facturas o gastos fijos). Esto afecta las 4 tarjetas de resumen.",
+    "currentAverage": "Promedio Actual",
+    "categoriesExcluded": "{{count}} categoría excluida",
+    "categoriesExcluded_other": "{{count}} categorías excluidas",
+    "allIncluded": "Todas las categorías incluidas",
+    "close": "Cerrar"
+  },
+  "dailyAverageBreakdownModal": {
+    "title": "Promedio de Gasto Diario",
+    "howCalculated": "Cómo se calcula",
+    "formula": "Total gastado ÷ Días transcurridos",
+    "totalSpent": "Total Gastado",
+    "daysInMonth": "Días del Mes",
+    "daysElapsed": "Días Transcurridos",
+    "average": "Promedio Diario",
+    "projection": "Proyección del Mes",
+    "projectionText": "Si continúas a este ritmo, gastarás aproximadamente",
+    "thisMonth": "este mes",
+    "categoriesExcluded": "{{count}} categoría excluida de este cálculo",
+    "categoriesExcluded_other": "{{count}} categorías excluidas de este cálculo",
+    "dailyBreakdown": "Gasto por Día",
+    "day": "{{day}}",
+    "close": "Cerrar"
+  },
+  "topCategoryModal": {
+    "transactions": "{{count}} transacción en",
+    "transactions_other": "{{count}} transacciones en",
+    "close": "Cerrar"
+  },
+  "expensesByCategory": {
+    "title": "Gastos por Categoría",
+    "spent": "gastado",
+    "noData": "No hay gastos este mes"
+  },
+  "incomeVsExpenses": {
+    "title": "Ingresos vs Gastos",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "noData": "No hay datos en los últimos 6 meses"
+  },
+  "expenseTrend": {
+    "title": "Tendencia de Gastos",
+    "noData": "No hay datos de gastos"
+  },
+  "days": {
+    "sunday": "Domingo",
+    "monday": "Lunes",
+    "tuesday": "Martes",
+    "wednesday": "Miércoles",
+    "thursday": "Jueves",
+    "friday": "Viernes",
+    "saturday": "Sábado"
+  },
+  "daysShort": {
+    "sun": "Dom",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mié",
+    "thu": "Jue",
+    "fri": "Vie",
+    "sat": "Sáb"
+  }
+}

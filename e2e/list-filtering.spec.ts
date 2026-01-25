@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { skipOnboardingWithCategories } from './test-helpers';
 
 /**
  * E2E Tests for Transaction List, Search, and Filters
@@ -13,11 +14,8 @@ import { test, expect } from "@playwright/test";
 test.describe("Transaction List - Day Grouping", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem("budget.welcomeSeen.v1", "1");
-      localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator("text=Balance")).toBeVisible({ timeout: 10000 });
@@ -103,11 +101,8 @@ test.describe("Transaction List - Day Grouping", () => {
 test.describe("Transaction List - Search", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem("budget.welcomeSeen.v1", "1");
-      localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator("text=Balance")).toBeVisible({ timeout: 10000 });
@@ -203,11 +198,8 @@ test.describe("Transaction List - Search", () => {
 test.describe("Transaction List - Type Filters", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem("budget.welcomeSeen.v1", "1");
-      localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator("text=Balance")).toBeVisible({ timeout: 10000 });
@@ -352,11 +344,8 @@ test.describe("Transaction List - Type Filters", () => {
 test.describe("Transaction List - Monthly Navigation", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.evaluate(() => {
-      localStorage.clear();
-      localStorage.setItem("budget.welcomeSeen.v1", "1");
-      localStorage.setItem("budget.budgetOnboardingSeen.v1", "1");
-    });
+    await page.evaluate(() => localStorage.clear());
+    await skipOnboardingWithCategories(page);
     await page.reload();
     await page.waitForTimeout(3000);
     await expect(page.locator("text=Balance")).toBeVisible({ timeout: 10000 });

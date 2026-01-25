@@ -71,8 +71,12 @@ export default function CloudSyncGate() {
   const categories = useBudgetStore((s) => s.categories);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
+  const budgets = useBudgetStore((s) => s.budgets);
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
+  const welcomeSeen = useBudgetStore((s) => s.welcomeSeen);
+  const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
+  const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
 
   const initializedRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
@@ -144,7 +148,8 @@ export default function CloudSyncGate() {
       // Regla tuya: deslogueado => no queda data local
       clearPendingSnapshot();
       clearState();
-      replaceAllData({ schemaVersion: 3, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), categoryGroups: createDefaultCategoryGroups(), trips: [], tripExpenses: [] });
+      // Categories will be created during onboarding
+      replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
 
       // Reset welcome para que vuelva a salir en guest
       try {
@@ -225,11 +230,34 @@ export default function CloudSyncGate() {
 
         let needsPush = false;
 
-        // Check if cloud data has empty categoryDefinitions - inject defaults
+        // ✅ IMPORTANT: If cloud has data (categories or transactions), mark onboarding as complete
+        // This handles the case where localStorage was cleared but cloud has user's data
+        const hasCloudData = (cloud.categoryDefinitions && cloud.categoryDefinitions.length > 0) ||
+                             (cloud.transactions && cloud.transactions.length > 0) ||
+                             (cloud.trips && cloud.trips.length > 0);
+
+        const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
+
+        if (hasCloudData && !onboardingCompleted) {
+          logger.info("CloudSync", "Cloud has data but localStorage was cleared, marking onboarding as complete");
+          localStorage.setItem('budget.onboarding.completed.v2', 'true');
+          localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
+        }
+
+        // Check if cloud data has empty categoryDefinitions
+        // Only inject defaults for legacy users who completed onboarding but have no categories
+        // New users will create categories during onboarding
         if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
-          logger.info("CloudSync", "Cloud missing categoryDefinitions, injecting defaults");
-          cloud.categoryDefinitions = createDefaultCategories();
-          needsPush = true;
+          if (hasCloudData && cloud.transactions && cloud.transactions.length > 0) {
+            // Legacy user with transactions but no categories - inject defaults
+            logger.info("CloudSync", "Cloud missing categoryDefinitions for legacy user, injecting defaults");
+            cloud.categoryDefinitions = createDefaultCategories();
+            needsPush = true;
+          } else {
+            // New user or user in onboarding - leave empty
+            logger.info("CloudSync", "Cloud missing categoryDefinitions, leaving empty for onboarding");
+            cloud.categoryDefinitions = [];
+          }
         }
 
         // Check if cloud data has empty categoryGroups - inject defaults (migration to v3)
@@ -448,7 +476,8 @@ export default function CloudSyncGate() {
       if (event === "SIGNED_OUT") {
         clearPendingSnapshot();
         clearState();
-        replaceAllData({ schemaVersion: 3, transactions: [], categories: [], categoryDefinitions: createDefaultCategories(), categoryGroups: createDefaultCategoryGroups(), trips: [], tripExpenses: [] });
+        // Leave categories empty - user will recover them when logging back in
+        replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
 
         // Reset welcome
         try {
@@ -498,7 +527,7 @@ export default function CloudSyncGate() {
     }, 1200);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, categoryGroups, trips, tripExpenses]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats]);
 
   const mode = useBudgetStore.getState().cloudMode;
 

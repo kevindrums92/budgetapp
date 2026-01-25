@@ -1,0 +1,117 @@
+{
+  "form": {
+    "edit": "Edit",
+    "newIncome": "New Income",
+    "newExpense": "New Expense",
+    "amount": "Amount",
+    "description": "Description",
+    "placeholderIncome": "Where does it come from?",
+    "placeholderExpense": "What did you spend on?",
+    "date": "Date",
+    "category": "Category",
+    "categoryPlaceholder": "Select category",
+    "notes": "Notes",
+    "notesPlaceholder": "Add notes... (optional)",
+    "status": "Status",
+    "statusPaid": "Paid",
+    "statusPending": "Pending",
+    "statusPlanned": "Planned",
+    "schedule": {
+      "title": "Schedule automatically",
+      "enabled": "Automatically scheduled",
+      "tapToConfig": "Tap to configure",
+      "inactive": "Schedule inactive",
+      "inactiveMessage": "This schedule was deactivated"
+    },
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "delete": {
+      "title": "Delete transaction",
+      "message": "Are you sure you want to delete \"{{name}}\" for {{amount}}?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "saveModal": {
+      "title": "Save changes",
+      "message": "This is a scheduled record. How do you want to save the changes?",
+      "onlyThis": "Only this record",
+      "onlyThisDesc": "Creates an individual transaction with these values. The schedule continues with the original values.",
+      "thisAndFollowing": "This and following",
+      "thisAndFollowingDesc": "Ends the current template and creates a new one with these changes. Past transactions are not modified.",
+      "cancel": "Cancel"
+    },
+    "noChanges": {
+      "title": "No changes",
+      "message": "You haven't made any changes to this record.",
+      "ok": "Got it"
+    }
+  },
+  "list": {
+    "monthWarning": "You're viewing a different month. You can still add transactions, but check the date.",
+    "searchEmpty": "No results found for \"{{query}}\"",
+    "noTransactions": "You don't have any transactions this month yet."
+  },
+  "scheduleConfig": {
+    "title": "Configure schedule",
+    "frequency": {
+      "label": "Frequency",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "interval": {
+      "label": "Every",
+      "day": "day",
+      "days": "days",
+      "week": "week",
+      "weeks": "weeks",
+      "month": "month",
+      "months": "months",
+      "year": "year",
+      "years": "years"
+    },
+    "dayOfWeek": {
+      "label": "Day of week",
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "dayOfMonth": {
+      "label": "Day of month",
+      "suffix": "of the month",
+      "validation": "If the month has fewer days, the last day of the month will be used"
+    },
+    "endDate": {
+      "label": "End date",
+      "placeholder": "Select date"
+    },
+    "info": "This transaction will be generated automatically every {{interval}} {{unit}}{{endDate}}",
+    "infoUntil": " until {{date}}",
+    "delete": "Delete schedule",
+    "save": "Save"
+  },
+  "scheduledBanner": {
+    "singular": "Scheduled transaction",
+    "plural": "Scheduled transactions",
+    "review": "Review",
+    "hideModal": {
+      "title": "Hide scheduled transactions",
+      "message": "How do you want to hide this banner?",
+      "neverShowMonth": "Don't show again this month",
+      "hideOnce": "Just this once",
+      "cancel": "Cancel"
+    },
+    "confirmModal": {
+      "title": "Record transactions",
+      "message": "{{count}} scheduled transactions will be recorded.",
+      "message_one": "{{count}} scheduled transaction will be recorded.",
+      "confirm": "Record all",
+      "cancel": "Cancel"
+    }
+  }
+}
