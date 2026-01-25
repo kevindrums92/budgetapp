@@ -1,5 +1,6 @@
 {
   "title": "Statistics",
+  "quickInsights": "Quick Insights",
   "quickStats": {
     "dailyAverage": "Daily Spending Average",
     "topCategory": "Top Category",

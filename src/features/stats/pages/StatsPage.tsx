@@ -335,7 +335,7 @@ export default function StatsPage() {
       {quickStats.hasData && (
         <div className="mt-4 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Insights Rápidos
+            {t('quickInsights')}
           </h3>
           <button
             type="button"
