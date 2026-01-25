@@ -127,6 +127,28 @@ export default function CloudSyncGate() {
     const session = data.session;
     console.log("[CloudSyncGate] Session:", session ? `User ${session.user.id}` : "null");
 
+    // ⚠️ CRITICAL SECURITY: Check if session is pending OTP verification
+    // If user closed app without verifying OTP, sign them out
+    if (session) {
+      const pendingOtp = localStorage.getItem('auth.pendingOtpVerification');
+      if (pendingOtp) {
+        const timestamp = parseInt(pendingOtp, 10);
+        const elapsed = Date.now() - timestamp;
+        // If pending OTP is older than 10 minutes, it's definitely abandoned
+        if (elapsed > 10 * 60 * 1000) {
+          console.warn("[CloudSyncGate] ⚠️ SECURITY: Found abandoned session pending OTP (>10min) - signing out");
+          localStorage.removeItem('auth.pendingOtpVerification');
+          await supabase.auth.signOut();
+          // Refresh to restart the flow
+          window.location.reload();
+          return;
+        } else {
+          // Recent pending OTP, user might still be in the flow
+          console.log("[CloudSyncGate] Session pending OTP verification (recent), allowing continuation");
+        }
+      }
+    }
+
     if (!session) {
       // HMR Protection: If we're in development and already have cloud data,
       // don't clear it - the session might just be loading slowly during HMR

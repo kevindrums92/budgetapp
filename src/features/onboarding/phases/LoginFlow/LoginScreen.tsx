@@ -73,7 +73,7 @@ export default function LoginScreen() {
   /**
    * Maneja el retorno exitoso de OAuth
    */
-  const handleOAuthCallback = () => {
+  const handleOAuthCallback = async () => {
     setAuthMethod('google');
 
     // Limpiar flag de logout (el usuario se logueó de nuevo)
@@ -82,15 +82,42 @@ export default function LoginScreen() {
     // Verificar directamente en localStorage (más confiable que el estado del contexto)
     const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
 
-    if (!onboardingCompleted) {
-      // Primera vez: ir a First Config
-      console.log('[LoginScreen] OAuth success → First Config (onboarding not completed)');
-      navigate('/onboarding/config/1', { replace: true });
-    } else {
+    if (onboardingCompleted) {
       // Returning user: ir directo a app
       console.log('[LoginScreen] OAuth success → App (returning user, onboarding completed)');
       navigate('/', { replace: true });
+      return;
     }
+
+    // ✅ CRITICAL: Check cloud data to detect returning users who cleared localStorage
+    // If user has cloud data, skip FirstConfig and go directly to app
+    try {
+      console.log('[LoginScreen] Checking cloud data for returning user detection...');
+      const { getCloudState } = await import('@/services/cloudState.service');
+      const cloudData = await getCloudState();
+
+      if (cloudData) {
+        const hasCloudData = (cloudData.categoryDefinitions && cloudData.categoryDefinitions.length > 0) ||
+                             (cloudData.transactions && cloudData.transactions.length > 0) ||
+                             (cloudData.trips && cloudData.trips.length > 0);
+
+        if (hasCloudData) {
+          console.log('[LoginScreen] OAuth success → App (cloud has data, returning user)');
+          // Mark onboarding as complete to avoid checking again
+          localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+          localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+          navigate('/', { replace: true });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('[LoginScreen] Error checking cloud data:', err);
+      // Continue with normal flow if cloud check fails
+    }
+
+    // Nueva cuenta: ir a First Config
+    console.log('[LoginScreen] OAuth success → First Config (new user, no cloud data)');
+    navigate('/onboarding/config/1', { replace: true });
   };
 
   /**
@@ -111,7 +138,7 @@ export default function LoginScreen() {
       const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
 
       if (!onboardingCompleted) {
-        // Primera vez: ir a First Config
+        // Primera vez: ir a First Config (guest mode, no cloud data to check)
         console.log('[LoginScreen] Guest mode selected → First Config');
         navigate('/onboarding/config/1', { replace: true });
       } else {

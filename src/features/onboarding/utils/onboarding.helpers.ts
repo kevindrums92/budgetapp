@@ -21,7 +21,20 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
 
   // 3. Check si hay sesión activa
   const { data } = await supabase.auth.getSession();
-  const hasActiveSession = !!data.session;
+  let hasActiveSession = !!data.session;
+
+  // ⚠️ CRITICAL SECURITY: Check if session is pending OTP verification
+  // If session exists but OTP was never verified, invalidate it
+  if (hasActiveSession) {
+    const pendingOtp = localStorage.getItem('auth.pendingOtpVerification');
+    if (pendingOtp) {
+      // If pending OTP exists (regardless of age), this session is invalid
+      console.warn('[determineStartScreen] ⚠️ SECURITY: Session pending OTP verification detected - invalidating session');
+      localStorage.removeItem('auth.pendingOtpVerification');
+      await supabase.auth.signOut();
+      hasActiveSession = false;
+    }
+  }
 
   // 4. Check si el usuario hizo logout explícito
   const hasLoggedOut = localStorage.getItem(ONBOARDING_KEYS.LOGOUT) === 'true';

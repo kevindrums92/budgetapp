@@ -6,6 +6,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **2FA OTP System**: Implemented mandatory OTP verification for untrusted devices on login with automatic email/SMS delivery via `send2FAOTP()`
+- **OTP Back Button**: Added flat-style "Volver" button on OTP verification screen to allow users to cancel and return to login
+
+### Fixed
+- **Session Security**: Fixed critical vulnerability where users could bypass OTP verification by closing the app, now enforced via multi-layer `auth.pendingOtpVerification` flag with cleanup on unmount, app restart, and CloudSyncGate initialization
+- **Trusted Device Login Loop**: Fixed infinite redirect to login after successful authentication on trusted devices by clearing logout flag immediately after password verification
+- **OTP Purpose Handling**: Fixed OTP verification to correctly distinguish between 'signup' (new users) and '2fa' (returning users on untrusted devices) using purpose parameter
+
 ### Fixed
 - **iOS Safe Area Insets**: Fixed all onboarding and auth screens to respect Dynamic Island/notch safe area on iOS by adding `env(safe-area-inset-top)` padding
 - **Onboarding Navigation Loop**: Fixed infinite redirect loop between onboarding steps by preventing OnboardingGate from competing with flow components when user is already inside onboarding paths
