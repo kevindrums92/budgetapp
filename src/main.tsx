@@ -7,7 +7,6 @@ import "./index.css";
 import { registerSW } from "virtual:pwa-register";
 import { App as CapacitorApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { SplashScreen } from '@capacitor/splash-screen';
 import { isNative } from '@/shared/utils/platform';
 
 registerSW({
@@ -16,11 +15,6 @@ registerSW({
 
 // Initialize Capacitor plugins (native only)
 if (isNative()) {
-  // Hide native splash screen after 1.2s minimum
-  setTimeout(() => {
-    SplashScreen.hide({ fadeOutDuration: 400 }).catch(() => {});
-  }, 1200);
-
   // Set initial status bar style
   StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
 
@@ -93,18 +87,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 
 // Remove HTML splash screen after app renders
-const startTime = Date.now();
-const MIN_SPLASH_TIME = isNative() ? 0 : 1200; // Native: immediate, Web: min 1.2s
-
 requestAnimationFrame(() => {
-  const elapsed = Date.now() - startTime;
-  const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
-
   setTimeout(() => {
     const splash = document.getElementById('app-splash');
     if (splash) {
       splash.style.opacity = '0';
       setTimeout(() => splash.remove(), 400);
     }
-  }, remainingTime);
+  }, 800);
 });

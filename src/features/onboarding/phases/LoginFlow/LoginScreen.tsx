@@ -18,9 +18,17 @@ import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
 export default function LoginScreen() {
   const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
-  const { setAuthMethod } = useOnboarding();
+  const { state, updatePhase, setAuthMethod } = useOnboarding();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Sync context with URL when component mounts
+  useEffect(() => {
+    if (state.phase !== 'login') {
+      console.log('[LoginScreen] Syncing context phase to login');
+      updatePhase('login');
+    }
+  }, [state.phase, updatePhase]);
 
   /**
    * Listener para detectar cuando el usuario regresa del OAuth
@@ -127,8 +135,11 @@ export default function LoginScreen() {
     setError(null);
 
     try {
-      // Native apps need custom URL scheme for OAuth redirect
+      // Native apps use custom URL scheme for OAuth deep linking
+      // The scheme 'smartspend://' is configured in ios/App/App/Info.plist
       const redirectTo = isNative() ? 'smartspend://auth/callback' : window.location.origin;
+
+      console.log('[LoginScreen] OAuth redirect URL:', redirectTo);
 
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -168,9 +179,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Header con icono de seguridad */}
-      <div className="flex flex-col items-center px-6 pt-12 pb-8">
+      <div className="flex flex-col items-center px-6 pt-8 pb-8">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
           <Shield size={40} className="text-white" strokeWidth={2.5} />
         </div>

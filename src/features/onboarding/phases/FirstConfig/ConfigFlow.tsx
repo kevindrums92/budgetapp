@@ -27,7 +27,8 @@ export default function ConfigFlow() {
     return <Navigate to="/onboarding/config/1" replace />;
   }
 
-  const ScreenComponent = SCREENS[stepNumber - 1];
-
-  return <ScreenComponent />;
+  // Render only the current screen
+  // Navigation and state updates are handled by useOnboardingProgress in individual screens
+  const CurrentScreen = SCREENS[stepNumber - 1];
+  return <CurrentScreen />;
 }

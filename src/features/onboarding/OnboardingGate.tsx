@@ -6,7 +6,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { determineStartScreen, migrateFromLegacyWelcome } from './utils/onboarding.helpers';
+import { determineStartScreen, migrateFromLegacyWelcome, getSavedProgress } from './utils/onboarding.helpers';
 
 export default function OnboardingGate() {
   const navigate = useNavigate();
@@ -41,13 +41,27 @@ export default function OnboardingGate() {
       else if (startScreen === 'continue') {
         console.log('[OnboardingGate] Continuing from saved progress');
 
-        // Si el usuario está fuera del onboarding (ej: OAuth callback a '/'),
-        // redirigir a First Config para usuarios nuevos
+        // ONLY redirect if user is OUTSIDE onboarding
+        // If already inside onboarding, let WelcomeOnboardingFlow/ConfigFlow handle it
         if (!location.pathname.startsWith('/onboarding')) {
-          console.log('[OnboardingGate] New authenticated user, redirecting to First Config');
-          navigate('/onboarding/config/1', { replace: true });
+          const savedProgress = getSavedProgress();
+
+          if (savedProgress && savedProgress.phase && savedProgress.step) {
+            // Build the expected path from saved progress
+            const savedPath = savedProgress.phase === 'login'
+              ? '/onboarding/login'
+              : `/onboarding/${savedProgress.phase}/${savedProgress.step}`;
+
+            console.log('[OnboardingGate] Not in onboarding, redirecting to saved progress:', savedPath);
+            navigate(savedPath, { replace: true });
+          } else {
+            // Fallback: si no hay progreso válido y está fuera de onboarding, ir a config/1
+            console.log('[OnboardingGate] No valid progress, redirecting to First Config');
+            navigate('/onboarding/config/1', { replace: true });
+          }
+        } else {
+          console.log('[OnboardingGate] Already in onboarding, letting Flow components handle navigation');
         }
-        // Sino, dejar que el usuario continúe donde estaba
       }
       // CASO 3: Debe ir a login directo (returning user)
       else if (startScreen === 'login') {

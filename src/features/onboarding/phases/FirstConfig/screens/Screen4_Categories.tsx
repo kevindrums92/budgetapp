@@ -112,9 +112,12 @@ export default function Screen4_Categories() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Progress */}
-      <div className="flex gap-1.5 px-6 pt-4">
+      <div className="flex gap-1.5 px-6 pt-3">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
@@ -232,7 +235,7 @@ export default function Screen4_Categories() {
       </div>
 
       {/* Actions */}
-      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-900 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="absolute inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-900 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button
           type="button"
           onClick={handleContinue}

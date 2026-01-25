@@ -61,9 +61,12 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Header with back button */}
-      <div className="flex items-center px-4 pt-4">
+      <div className="flex items-center px-4 pt-3">
         <button
           type="button"
           onClick={handleBack}

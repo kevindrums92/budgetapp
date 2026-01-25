@@ -9,13 +9,6 @@ const config: CapacitorConfig = {
     iosScheme: 'https',
   },
   plugins: {
-    SplashScreen: {
-      launchShowDuration: 0,
-      launchAutoHide: false,
-      backgroundColor: '#0d9488',
-      androidScaleType: 'CENTER_CROP',
-      showSpinner: false,
-    },
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#0d9488',

@@ -98,14 +98,17 @@ export default function ResetPasswordOTPPage() {
   if (!email) return null;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Progress bar */}
       <div className="h-1 w-full bg-gray-200 dark:bg-gray-800">
         <div className="h-full w-1/3 bg-[#18B7B0] transition-all duration-300" />
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col items-center px-6 pt-12">
+      <div className="flex flex-1 flex-col items-center px-6 pt-12 pb-32">
         {/* Icon */}
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#18B7B0]/10">
           <KeyRound className="h-10 w-10 text-[#18B7B0]" />
@@ -142,7 +145,7 @@ export default function ResetPasswordOTPPage() {
         )}
 
         {/* Resend link */}
-        <div className="mb-8 text-center">
+        <div className="text-center">
           {resendCooldown > 0 ? (
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {t('auth.verify.resendIn', { seconds: resendCooldown })}
@@ -160,7 +163,7 @@ export default function ResetPasswordOTPPage() {
       </div>
 
       {/* Verify button */}
-      <div className="px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-950 px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button
           type="button"
           onClick={() => handleVerify()}

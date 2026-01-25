@@ -6,6 +6,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **iOS Safe Area Insets**: Fixed all onboarding and auth screens to respect Dynamic Island/notch safe area on iOS by adding `env(safe-area-inset-top)` padding
+- **Onboarding Navigation Loop**: Fixed infinite redirect loop between onboarding steps by preventing OnboardingGate from competing with flow components when user is already inside onboarding paths
+- **iOS Input Zoom**: Fixed unwanted zoom when focusing search input on iOS by changing font size from 14px to 16px and adding `maximum-scale=1.0` to viewport
+- **OTP Screen Layout**: Fixed verify button not being visible on auth OTP screens by changing to fixed bottom positioning with proper safe area spacing
+
+### Changed
+- **Splash Screen**: Removed Capacitor SplashScreen plugin in favor of simpler HTML-based splash screen with 800ms display time
+- **Screen Orientation**: Locked app to portrait-only mode on all platforms (iOS, Android, PWA) via manifest and native configs
+
 ### Added
 - **Stats Bottom Sheets**: Refactored all 5 stats modals from centered dialogs to mobile-first bottom sheets
   - Added drag-to-dismiss gesture (30% threshold) with smooth animations

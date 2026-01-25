@@ -93,9 +93,12 @@ export default function Screen4_Complete() {
   const selectedCategoriesCount = state.selections.selectedCategories?.length || DEFAULT_CATEGORIES.length;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Progress - All complete */}
-      <div className="flex gap-1.5 px-6 pt-4">
+      <div className="flex gap-1.5 px-6 pt-3">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
