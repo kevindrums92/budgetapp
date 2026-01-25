@@ -28,6 +28,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:headed": "playwright test --headed",
+    "test:e2e:critical": "playwright test e2e/01-onboarding-flow e2e/02-transaction-management e2e/06-cloud-sync",
     "test:e2e:report": "playwright show-report",
     "release": "bash scripts/release.sh",
     "dev:sync": "git pull origin develop",

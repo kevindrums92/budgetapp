@@ -11,14 +11,14 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Shield, User, Chrome, Apple, Mail, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import { isNative } from '@/shared/utils/platform';
 import { useOnboarding } from '../../OnboardingContext';
-import { markOnboardingComplete } from '../../utils/onboarding.helpers';
 import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
 
 export default function LoginScreen() {
   const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
-  const { state, setAuthMethod } = useOnboarding();
+  const { setAuthMethod } = useOnboarding();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +28,13 @@ export default function LoginScreen() {
    */
   useEffect(() => {
     const checkSession = async () => {
+      // Si hay flag de logout, ignorar sesión existente (puede estar cerrándose)
+      // El usuario llegó aquí porque hizo logout, no por OAuth callback
+      if (localStorage.getItem(ONBOARDING_KEYS.LOGOUT) === 'true') {
+        console.log('[LoginScreen] Logout flag detected, ignoring existing session');
+        return;
+      }
+
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         console.log('[LoginScreen] Session detected on mount, handling OAuth callback');
@@ -64,14 +71,16 @@ export default function LoginScreen() {
     // Limpiar flag de logout (el usuario se logueó de nuevo)
     localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
 
-    if (state.isFirstTime) {
+    // Verificar directamente en localStorage (más confiable que el estado del contexto)
+    const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
+
+    if (!onboardingCompleted) {
       // Primera vez: ir a First Config
-      console.log('[LoginScreen] OAuth success → First Config');
+      console.log('[LoginScreen] OAuth success → First Config (onboarding not completed)');
       navigate('/onboarding/config/1', { replace: true });
     } else {
       // Returning user: ir directo a app
-      console.log('[LoginScreen] OAuth success → App (returning user)');
-      markOnboardingComplete();
+      console.log('[LoginScreen] OAuth success → App (returning user, onboarding completed)');
       navigate('/', { replace: true });
     }
   };
@@ -90,15 +99,16 @@ export default function LoginScreen() {
       // Limpiar flag de logout (el usuario eligió continuar como invitado)
       localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
 
-      // Determinar siguiente pantalla según contexto
-      if (state.isFirstTime) {
+      // Verificar directamente en localStorage (más confiable que el estado del contexto)
+      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
+
+      if (!onboardingCompleted) {
         // Primera vez: ir a First Config
         console.log('[LoginScreen] Guest mode selected → First Config');
         navigate('/onboarding/config/1', { replace: true });
       } else {
         // Returning user (logout): ir directo a app
         console.log('[LoginScreen] Guest mode selected → App (returning user)');
-        markOnboardingComplete();
         navigate('/', { replace: true });
       }
     } catch (err) {
@@ -117,11 +127,13 @@ export default function LoginScreen() {
     setError(null);
 
     try {
+      // Native apps need custom URL scheme for OAuth redirect
+      const redirectTo = isNative() ? 'smartspend://auth/callback' : window.location.origin;
+
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // Redirigir al origin (sin path) para que funcione correctamente en localhost
-          redirectTo: window.location.origin,
+          redirectTo,
           queryParams: {
             prompt: 'select_account',
           },

@@ -22,7 +22,8 @@
       "Bash(git push:*)",
       "Bash(npx cap init:*)",
       "Bash(npx cap:*)",
-      "Bash(npx capacitor-assets:*)"
+      "Bash(npx capacitor-assets:*)",
+      "Bash(npm run test:e2e:critical:*)"
     ]
   }
 }

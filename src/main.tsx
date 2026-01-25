@@ -26,6 +26,58 @@ if (isNative()) {
       window.history.back();
     }
   });
+
+  // Handle OAuth deep link callback (smartspend://auth/callback?...)
+  CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
+    console.log('[DeepLink] Received URL:', url);
+
+    // Check if this is an OAuth callback
+    if (url.includes('auth/callback') || url.includes('code=') || url.includes('access_token')) {
+      try {
+        // Use existing supabase client to avoid multiple instances warning
+        const { supabase } = await import('@/lib/supabaseClient');
+
+        // Parse URL parameters
+        const urlObj = new URL(url);
+        const code = urlObj.searchParams.get('code');
+        const hashParams = new URLSearchParams(url.split('#')[1] || '');
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+
+        if (code) {
+          // PKCE flow: exchange code for session
+          console.log('[DeepLink] Exchanging code for session...');
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+          if (error) {
+            console.error('[DeepLink] Error exchanging code:', error);
+          } else {
+            console.log('[DeepLink] Session established successfully');
+            // Don't redirect here - LoginScreen's auth listener will handle navigation
+            // This prevents double navigation and allows proper data sync
+          }
+        } else if (accessToken && refreshToken) {
+          // Implicit flow: set session directly
+          console.log('[DeepLink] Setting session from tokens...');
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (error) {
+            console.error('[DeepLink] Error setting session:', error);
+          } else {
+            console.log('[DeepLink] Session set successfully');
+            // Don't redirect here - LoginScreen's auth listener will handle navigation
+          }
+        } else {
+          console.warn('[DeepLink] No code or tokens found in URL');
+        }
+      } catch (err) {
+        console.error('[DeepLink] Error processing OAuth callback:', err);
+      }
+    }
+  });
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -34,21 +86,19 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   </React.StrictMode>
 );
 
-// Remove splash screen after app renders (web only - native auto-hides)
-if (!isNative()) {
-  const startTime = Date.now();
-  const MIN_SPLASH_TIME = 1200; // Minimum 1.2 seconds
+// Remove HTML splash screen after app renders
+const startTime = Date.now();
+const MIN_SPLASH_TIME = isNative() ? 0 : 1200; // Native: immediate, Web: min 1.2s
 
-  requestAnimationFrame(() => {
-    const elapsed = Date.now() - startTime;
-    const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
+requestAnimationFrame(() => {
+  const elapsed = Date.now() - startTime;
+  const remainingTime = Math.max(0, MIN_SPLASH_TIME - elapsed);
 
-    setTimeout(() => {
-      const splash = document.getElementById('app-splash');
-      if (splash) {
-        splash.style.opacity = '0';
-        setTimeout(() => splash.remove(), 400);
-      }
-    }, remainingTime);
-  });
-}
+  setTimeout(() => {
+    const splash = document.getElementById('app-splash');
+    if (splash) {
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 400);
+    }
+  }, remainingTime);
+});

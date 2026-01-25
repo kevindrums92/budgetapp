@@ -6,9 +6,27 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **iOS/Android Native Support**: Complete Capacitor migration for native mobile apps
+  - OAuth deep linking with custom URL scheme (`smartspend://auth/callback`)
+  - Native status bar sync with app theme (dark/light mode)
+  - Safe area insets for iOS notch/Dynamic Island on headers
+  - Unified network service (Capacitor Network plugin for native, navigator.onLine for web)
+  - Platform detection utilities (isNative, isIOS, isAndroid, isWeb)
+  - Native splash screen control via @capacitor/splash-screen
+  - Android hardware back button handling
+- **E2E Test Suite**: Added 10 comprehensive Playwright test files covering critical user flows
+  - Onboarding flow, transaction management, scheduled transactions
+  - Category management, budget tracking, cloud sync
+  - Trip expenses, settings/preferences, search/filtering
+  - Navigation and integration tests
+
 ### Fixed
+- **OAuth Login Flow**: Fixed returning users being redirected to onboarding config instead of home after login by checking localStorage directly instead of context state
+- **Logout Navigation**: Fixed logout leaving user on home screen instead of login by prioritizing logout flag over active session in navigation logic
+- **PageHeader Safe Area**: Added safe area inset padding for iOS to prevent back button being hidden behind notch
 - **Budget Onboarding Wizard Button Spacing**: Fixed bottom button being cut off on iPhone by changing from absolute to fixed positioning with proper safe area spacing (calc(env(safe-area-inset-bottom) + 24px))
-- **Native Splash Screen**: Configured Capacitor splash screen to auto-hide after 2 seconds with 400ms fade-out animation, removed manual hide logic for native platform
+- **Native Splash Screen**: Configured Capacitor splash screen with manual control (launchAutoHide: false) to prevent stuck splash, hide via SplashScreen.hide() in app code
 
 ## [0.11.1] - 2026-01-25
 

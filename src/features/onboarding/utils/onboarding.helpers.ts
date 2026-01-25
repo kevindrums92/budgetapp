@@ -36,6 +36,13 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
     logoutKey: localStorage.getItem(ONBOARDING_KEYS.LOGOUT),
   });
 
+  // CASO 0: Logout explícito → LOGIN (verificar ANTES de sesión activa)
+  // El signOut() de Supabase es async, la sesión puede seguir "activa" brevemente
+  if (hasLoggedOut && onboardingEverCompleted) {
+    console.log('[determineStartScreen] → LOGIN (logout explícito, prioridad sobre sesión)');
+    return 'login';
+  }
+
   // CASO 1: Usuario con sesión activa → Verificar si completó onboarding
   if (hasActiveSession) {
     // Limpiar flag de logout ya que ahora está logueado
@@ -77,14 +84,7 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
     return 'continue';
   }
 
-  // CASO 2: Logout explícito → LOGIN
-  // Usuario que ya completó onboarding y cerró sesión
-  if (onboardingEverCompleted && hasLoggedOut) {
-    console.log('[determineStartScreen] → LOGIN (logout explícito)');
-    return 'login';
-  }
-
-  // CASO 3: Onboarding ya completado (guest mode) → APP
+  // CASO 2: Onboarding ya completado (guest mode) → APP
   // Si el onboarding ya se completó alguna vez, dejar usar la app
   // (funciona en guest mode si no hay sesión ni logout)
   if (onboardingEverCompleted) {

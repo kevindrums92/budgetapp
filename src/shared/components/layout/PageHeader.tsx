@@ -19,11 +19,15 @@ export default function PageHeader({ title, onBack, rightActions }: Props) {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between bg-white dark:bg-gray-900 px-4 py-4 shadow-sm dark:shadow-black/30">
+    <header
+      className="sticky top-0 z-10 flex items-center justify-between bg-white dark:bg-gray-900 px-4 pb-4 shadow-sm dark:shadow-black/30"
+      style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
+    >
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={handleBack}
-          className="text-gray-900 dark:text-gray-50"
+          className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-gray-900 dark:text-gray-50 active:bg-gray-100 dark:active:bg-gray-800 transition-colors"
           aria-label="Volver"
         >
           <ChevronLeft size={24} />

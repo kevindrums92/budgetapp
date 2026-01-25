@@ -122,8 +122,10 @@ export default function CloudSyncGate() {
   }
 
   async function initForSession() {
+    console.log("[CloudSyncGate] initForSession() called");
     const { data } = await supabase.auth.getSession();
     const session = data.session;
+    console.log("[CloudSyncGate] Session:", session ? `User ${session.user.id}` : "null");
 
     if (!session) {
       // HMR Protection: If we're in development and already have cloud data,
@@ -384,6 +386,10 @@ export default function CloudSyncGate() {
           }
         }
 
+        console.log("[CloudSyncGate] Applying cloud data to local state:", {
+          transactions: cloud.transactions.length,
+          categories: cloud.categoryDefinitions.length,
+        });
         replaceAllData(cloud);
 
         // Push the fixed data back to cloud if we added defaults
@@ -504,6 +510,7 @@ export default function CloudSyncGate() {
       }
 
       if (event === "SIGNED_IN") {
+        console.log("[CloudSyncGate] SIGNED_IN event received, re-initializing...");
         initializedRef.current = false;
         initForSession();
       }
