@@ -5,6 +5,12 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Apple Sign In**: Added Sign in with Apple OAuth provider to AuthPage alongside Google OAuth
+
+### Fixed
+- **Stats Modals Safe Area**: Fixed Close button being cut off on iPhone with notch in Top Day, Top Category, and Daily Average Breakdown modals by adding safe area inset padding
+
+### Added
 - **Enhanced Icon Picker with Search**: Major upgrade to category icon selection
   - Expanded icon library from 87 to 140+ unique icons including pets section (dog, cat, paw-print, rabbit, fish, bird, etc.)
   - Search functionality with bilingual keywords (Spanish/English) for quick icon discovery

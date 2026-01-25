@@ -936,7 +936,7 @@ export default function StatsPage() {
             </div>
 
             {/* Close Button */}
-            <div className="p-6 pt-4">
+            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
               <button
                 type="button"
                 onClick={() => setShowTopDayModal(false)}
@@ -1042,7 +1042,7 @@ export default function StatsPage() {
             </div>
 
             {/* Close Button */}
-            <div className="p-6 pt-4">
+            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
               <button
                 type="button"
                 onClick={() => setShowDailyAverageBreakdownModal(false)}
@@ -1141,7 +1141,7 @@ export default function StatsPage() {
             </div>
 
             {/* Close Button */}
-            <div className="p-6 pt-4">
+            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
               <button
                 type="button"
                 onClick={() => setShowTopCategoryModal(false)}
