@@ -6,6 +6,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Budget Onboarding Button Visibility on iOS**: Fixed CTA button not visible on budget onboarding screens (4 screens) on iOS devices by changing from fixed to absolute positioning and adjusting safe area spacing to match WelcomeOnboarding pattern
+
+### Changed
+- **Default Categories Icons**: Updated default category icons for better clarity (Arriendo: home→house, Otros Gastos: help-circle→package, Otros Ingresos: more-horizontal→coins)
+
 ### Added
 - **History Page**: Added dedicated history page with advanced filters (date range presets, multi-select categories, type, status, amount range), search bar, CSV export, and localStorage filter persistence
 

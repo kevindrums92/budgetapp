@@ -7,7 +7,7 @@ const DEFAULT_EXPENSE_CATEGORIES: DefaultCategoryDef[] = [
   { name: "Mercado", icon: "shopping-basket", color: "#10B981", type: "expense", groupId: "food_drink", isDefault: true },
 
   // Home & Utilities
-  { name: "Arriendo", icon: "home", color: "#8B5CF6", type: "expense", groupId: "home_utilities", isDefault: true },
+  { name: "Arriendo", icon: "house", color: "#8B5CF6", type: "expense", groupId: "home_utilities", isDefault: true },
 
   // Lifestyle
   { name: "Ropa", icon: "shirt", color: "#F43F5E", type: "expense", groupId: "lifestyle", isDefault: true },
@@ -18,7 +18,7 @@ const DEFAULT_EXPENSE_CATEGORIES: DefaultCategoryDef[] = [
   { name: "Transporte", icon: "car", color: "#0EA5E9", type: "expense", groupId: "transport", isDefault: true },
 
   // Miscellaneous
-  { name: "Otros Gastos", icon: "help-circle", color: "#6B7280", type: "expense", groupId: "miscellaneous", isDefault: true },
+  { name: "Otros Gastos", icon: "package", color: "#6B7280", type: "expense", groupId: "miscellaneous", isDefault: true },
 ];
 
 const DEFAULT_INCOME_CATEGORIES: DefaultCategoryDef[] = [
@@ -26,7 +26,7 @@ const DEFAULT_INCOME_CATEGORIES: DefaultCategoryDef[] = [
   { name: "Salario", icon: "briefcase", color: "#10B981", type: "income", groupId: "primary_income", isDefault: true },
 
   // Other Income
-  { name: "Otros Ingresos", icon: "more-horizontal", color: "#6B7280", type: "income", groupId: "other_income", isDefault: true },
+  { name: "Otros Ingresos", icon: "coins", color: "#6B7280", type: "income", groupId: "other_income", isDefault: true },
 ];
 
 export const DEFAULT_CATEGORIES: DefaultCategoryDef[] = [

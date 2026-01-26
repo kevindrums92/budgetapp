@@ -35,7 +35,6 @@ export default function Screen1_Welcome({
       className="relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
       style={{
         paddingTop: 'max(env(safe-area-inset-top), 16px)',
-        paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
       }}
     >
       {/* Header */}
@@ -69,7 +68,7 @@ export default function Screen1_Welcome({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 pt-4 pb-40">
+      <main className="flex-1 overflow-y-auto px-6 pt-4 pb-8">
         <div className="mb-8">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
@@ -132,9 +131,9 @@ export default function Screen1_Welcome({
 
       {/* CTA Button - Fixed Bottom */}
       <div
-        className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
+        className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
         style={{
-          paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)',
+          paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
         }}
       >
         <button
