@@ -6,6 +6,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Onboarding Fixed Buttons**: Fixed "Continuar" and "Comenzar" buttons not staying fixed at bottom during scroll by changing from absolute to fixed positioning with proper safe area insets
+- **iOS Search Bar Positioning**: Fixed sticky search bar overlapping TopHeader on iOS by calculating dynamic top position based on safe area insets instead of hardcoded 80px
+- **Onboarding Scroll Padding**: Fixed content getting cut off under fixed buttons by increasing bottom padding from pb-32 to pb-40 (categories screen) and pb-48 (complete screen)
+
+### Changed
+- **Default Categories**: Reduced default categories from 21 to 9 essentials (7 expenses: Mercado, Arriendo, Ropa, Entretenimiento, Salud, Transporte, Otros Gastos; 2 income: Salario, Otros Ingresos) for simpler onboarding
+- **Z-Index Hierarchy**: Increased TopHeader z-index from z-20 to z-30 to ensure it stays above sticky search bar (z-20)
+
 ### Added
 - **2FA OTP System**: Implemented mandatory OTP verification for untrusted devices on login with automatic email/SMS delivery via `send2FAOTP()`
 - **OTP Back Button**: Added flat-style "Volver" button on OTP verification screen to allow users to cancel and return to login

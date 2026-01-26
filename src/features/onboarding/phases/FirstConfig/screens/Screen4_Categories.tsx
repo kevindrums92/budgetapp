@@ -167,8 +167,8 @@ export default function Screen4_Categories() {
       </div>
 
       {/* Categories list */}
-      <div className="flex-1 overflow-y-auto px-6 pb-32">
-        <div className="space-y-4 pb-4">
+      <div className="flex-1 overflow-y-auto px-6 pb-40">
+        <div className="space-y-4">
           {categoriesByGroup.map(({ group, categories }) => (
             <div key={group.id}>
               {/* Group header */}
@@ -227,7 +227,7 @@ export default function Screen4_Categories() {
         </div>
 
         {/* Disclaimer */}
-        <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4 mb-4">
+        <div className="mt-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4">
           <p className="text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
             {t('categories.note')}
           </p>
@@ -235,7 +235,7 @@ export default function Screen4_Categories() {
       </div>
 
       {/* Actions */}
-      <div className="absolute inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-900 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-900 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button
           type="button"
           onClick={handleContinue}

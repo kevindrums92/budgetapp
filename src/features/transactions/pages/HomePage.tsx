@@ -181,7 +181,8 @@ export default function HomePage() {
       {/* Sticky Search Bar & Filter Dropdown */}
       {hasTransactions && (
         <div
-          className="sticky top-[80px] z-20 bg-gray-50 dark:bg-gray-950 pb-3 pt-6"
+          className="sticky z-20 bg-gray-50 dark:bg-gray-950 pb-3 pt-6"
+          style={{ top: 'max(calc(env(safe-area-inset-top) + 56px), 80px)' }}
           onClick={() => showFilterMenu && setShowFilterMenu(false)}
         >
           <div className="mx-auto max-w-xl px-4">
