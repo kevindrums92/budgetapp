@@ -95,7 +95,7 @@ export default function VirtualTransactionModal({
             Programada
           </span>
           <h3 className="mt-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-            {transaction.name}
+            {transaction.name.trim() || categoryName || "Sin descripción"}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">{categoryName}</p>
         </div>

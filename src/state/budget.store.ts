@@ -233,12 +233,19 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     // ---------- CRUD ----------
     addTransaction: (input) => {
-      const name = input.name.trim();
+      const nameInput = input.name.trim();
       const categoryRaw = input.category.trim();
       const category = categoryRaw.length ? categoryRaw : "Sin categoría";
 
-      if (!name) return;
       if (!Number.isFinite(input.amount) || input.amount <= 0) return;
+
+      // If name is empty, use category name as fallback
+      let name = nameInput;
+      if (!name) {
+        // Find category definition to get translated name
+        const categoryDef = get().categoryDefinitions.find(c => c.id === category);
+        name = categoryDef?.name || category;
+      }
 
       const tx: Transaction = {
         id: crypto.randomUUID(),

@@ -626,7 +626,7 @@ export default function HistoryPage() {
                   <div className="min-w-0 flex-1 text-left">
                     <div className="flex items-center gap-2">
                       <p className="truncate font-semibold text-gray-900 dark:text-gray-50 text-sm">
-                        {transaction.name}
+                        {transaction.name.trim() || category?.name || "Sin categoría"}
                       </p>
                       {/* Status Badges */}
                       {transaction.status === "pending" && (

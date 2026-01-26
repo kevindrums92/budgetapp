@@ -7,11 +7,13 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **Transactions Without Description Not Saving**: Fixed critical bug where transactions without description appeared to save (no error, navigated back) but were silently rejected by the store. Store's `addTransaction` was validating that `name` must not be empty. Now uses category name as fallback when description is empty, ensuring transactions are always saved.
 - **CRITICAL: Guest Mode Data Loss on App Restart**: Fixed guest users losing all categories and transactions when closing and reopening the app. CloudSyncGate was incorrectly clearing localStorage on every startup when no Supabase session was detected, not distinguishing between guest mode (no session by design) and actual logout. Now only clears data when user was previously in cloud mode and logged out.
 - **Budget Onboarding Button Visibility on iOS**: Fixed CTA button not visible on budget onboarding screens (4 screens) on iOS devices by changing from fixed to absolute positioning and adjusting safe area spacing to match WelcomeOnboarding pattern
 - **History List Date Layout**: Fixed transaction date being compressed when category names are long by displaying date on separate line below category instead of inline with bullet separator
 
 ### Changed
+- **Transaction Description Now Optional**: Changed transaction description field from required to optional based on user feedback. Only 3 fields are now required: amount, category, and date. When no description is provided, the category name is automatically used as the transaction name. Updated 7 display components (TransactionItem, HistoryPage, VirtualTransactionModal, ScheduleListItem, TopCategorySheet, TopDaySheet, CategoryMonthDetailPage) to show category name as fallback.
 - **CLAUDE.md Git Workflow Rules**: Added critical rule requiring explicit user authorization before any git commit or push operations (except when using /ship command or explicitly requested)
 - **Default Categories Icons**: Updated default category icons for better clarity (Arriendo: home→house, Otros Gastos: help-circle→package, Otros Ingresos: more-horizontal→coins)
 

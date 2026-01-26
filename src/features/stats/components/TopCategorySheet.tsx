@@ -234,7 +234,7 @@ export default function TopCategorySheet({
                 {/* Transaction Info */}
                 <div className="flex-1 min-w-0 text-left">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">
-                    {transaction.name}
+                    {transaction.name.trim() || category?.name || "Sin descripción"}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(transaction.date + "T12:00:00").toLocaleDateString(getLocale(), {
