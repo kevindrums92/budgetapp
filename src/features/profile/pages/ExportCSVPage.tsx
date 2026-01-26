@@ -21,7 +21,7 @@ type ExportOption = {
   titleKey: string;
   descriptionKey: string;
   color: string;
-  action: () => void;
+  action: () => Promise<void>;
 };
 
 export default function ExportCSVPage() {
@@ -32,10 +32,10 @@ export default function ExportCSVPage() {
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const budgets = useBudgetStore((s) => s.budgets);
 
-  const handleExport = async (exportFn: () => void) => {
+  const handleExport = async (exportFn: () => Promise<void>) => {
     setExporting(true);
     try {
-      exportFn();
+      await exportFn();
       // Pequeño delay para feedback visual
       await new Promise(resolve => setTimeout(resolve, 500));
     } catch (error) {

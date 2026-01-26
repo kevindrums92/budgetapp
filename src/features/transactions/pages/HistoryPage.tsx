@@ -206,14 +206,19 @@ export default function HistoryPage() {
     previousMonth,
   ]);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (filteredTransactions.length === 0) {
       alert(t("export.noTransactions", { ns: "home" }));
       return;
     }
 
-    const filename = `historial-${dateRangePreset}-${new Date().toISOString().slice(0, 10)}`;
-    exportTransactionsToCSV(filteredTransactions, categoryDefinitions, filename);
+    try {
+      const filename = `historial-${dateRangePreset}-${new Date().toISOString().slice(0, 10)}`;
+      await exportTransactionsToCSV(filteredTransactions, categoryDefinitions, filename);
+    } catch (error) {
+      console.error('[HistoryPage] Export failed:', error);
+      alert('Error al exportar el archivo. Por favor, inténtalo de nuevo.');
+    }
   };
 
   const handleApplyCustomDates = () => {

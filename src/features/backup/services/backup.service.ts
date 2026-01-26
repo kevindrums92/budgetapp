@@ -1,6 +1,7 @@
 import type { BudgetState } from "@/types/budget.types";
 import type { BackupFile, BackupMeta, BackupStats, LocalBackupEntry } from "@/features/backup/types/backup.types";
 import { logger } from "@/shared/utils/logger";
+import { downloadJSON } from "@/shared/utils/download.utils";
 
 const APP_VERSION = __APP_VERSION__;
 const BACKUP_VERSION = "1.0";
@@ -102,21 +103,11 @@ export function restoreBackup(
 }
 
 /**
- * Trigger browser download of backup file
+ * Trigger download of backup file (works on web and mobile)
  */
-export function downloadBackup(backup: BackupFile): void {
-  const json = JSON.stringify(backup, null, 2);
-  const blob = new Blob([json], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const filename = generateBackupFilename(backup.meta.createdAt);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-
-  // Cleanup
-  URL.revokeObjectURL(url);
+export async function downloadBackup(backup: BackupFile): Promise<void> {
+  const filenameWithoutExt = generateBackupFilename(backup.meta.createdAt).replace('.json', '');
+  await downloadJSON(backup, filenameWithoutExt);
 }
 
 // ==================== LOCAL AUTO-BACKUP ====================

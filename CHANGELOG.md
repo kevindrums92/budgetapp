@@ -7,6 +7,7 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **iOS/Android File Exports**: Fixed backup JSON and CSV exports failing on mobile devices by replacing blob URLs (which don't work on iOS) with Capacitor Filesystem + Share API for native file saving/sharing
 - **Transactions Without Description Not Saving**: Fixed critical bug where transactions without description appeared to save (no error, navigated back) but were silently rejected by the store. Store's `addTransaction` was validating that `name` must not be empty. Now uses category name as fallback when description is empty, ensuring transactions are always saved.
 - **CRITICAL: Guest Mode Data Loss on App Restart**: Fixed guest users losing all categories and transactions when closing and reopening the app. CloudSyncGate was incorrectly clearing localStorage on every startup when no Supabase session was detected, not distinguishing between guest mode (no session by design) and actual logout. Now only clears data when user was previously in cloud mode and logged out.
 - **Budget Onboarding Button Visibility on iOS**: Fixed CTA button not visible on budget onboarding screens (4 screens) on iOS devices by changing from fixed to absolute positioning and adjusting safe area spacing to match WelcomeOnboarding pattern

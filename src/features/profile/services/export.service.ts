@@ -4,6 +4,7 @@
  */
 
 import type { Transaction, Category, Budget } from '@/types/budget.types';
+import { downloadCSV as downloadCSVFile } from '@/shared/utils/download.utils';
 
 /**
  * Convierte un array de objetos a formato CSV
@@ -26,31 +27,21 @@ function arrayToCSV(data: Record<string, any>[], headers: string[]): string {
 }
 
 /**
- * Descarga un string como archivo CSV
+ * Descarga un string como archivo CSV (ahora usa el utility multiplataforma)
  */
-function downloadCSV(content: string, filename: string): void {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  link.style.visibility = 'hidden';
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
+async function downloadCSV(content: string, filename: string): Promise<void> {
+  // Remove .csv extension if present (utility will add it)
+  const filenameWithoutExt = filename.endsWith('.csv') ? filename.slice(0, -4) : filename;
+  await downloadCSVFile(content, filenameWithoutExt);
 }
 
 /**
  * Exporta transacciones a CSV
  */
-export function exportTransactionsToCSV(
+export async function exportTransactionsToCSV(
   transactions: Transaction[],
   categories: Category[]
-): void {
+): Promise<void> {
   const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
   const data = transactions.map(t => ({
@@ -68,13 +59,13 @@ export function exportTransactionsToCSV(
   const csv = arrayToCSV(data, headers);
 
   const today = new Date().toISOString().split('T')[0];
-  downloadCSV(csv, `transacciones_${today}.csv`);
+  await downloadCSV(csv, `transacciones_${today}.csv`);
 }
 
 /**
  * Exporta categorías a CSV
  */
-export function exportCategoriesToCSV(categories: Category[]): void {
+export async function exportCategoriesToCSV(categories: Category[]): Promise<void> {
   const data = categories.map(c => ({
     Nombre: c.name,
     Tipo: c.type === 'expense' ? 'Gasto' : 'Ingreso',
@@ -88,16 +79,16 @@ export function exportCategoriesToCSV(categories: Category[]): void {
   const csv = arrayToCSV(data, headers);
 
   const today = new Date().toISOString().split('T')[0];
-  downloadCSV(csv, `categorias_${today}.csv`);
+  await downloadCSV(csv, `categorias_${today}.csv`);
 }
 
 /**
  * Exporta presupuestos a CSV
  */
-export function exportBudgetsToCSV(
+export async function exportBudgetsToCSV(
   budgets: Budget[],
   categories: Category[]
-): void {
+): Promise<void> {
   const categoryMap = new Map(categories.map(c => [c.id, c.name]));
 
   const data = budgets.map(b => ({
@@ -114,20 +105,23 @@ export function exportBudgetsToCSV(
   const csv = arrayToCSV(data, headers);
 
   const today = new Date().toISOString().split('T')[0];
-  downloadCSV(csv, `presupuestos_${today}.csv`);
+  await downloadCSV(csv, `presupuestos_${today}.csv`);
 }
 
 /**
  * Exporta todo (transacciones + categorías + presupuestos) en archivos separados
  */
-export function exportAll(
+export async function exportAll(
   transactions: Transaction[],
   categories: Category[],
   budgets: Budget[]
-): void {
-  exportTransactionsToCSV(transactions, categories);
+): Promise<void> {
+  await exportTransactionsToCSV(transactions, categories);
 
   // Pequeño delay para que no se descarguen todos al mismo tiempo
-  setTimeout(() => exportCategoriesToCSV(categories), 300);
-  setTimeout(() => exportBudgetsToCSV(budgets, categories), 600);
+  await new Promise(resolve => setTimeout(resolve, 300));
+  await exportCategoriesToCSV(categories);
+
+  await new Promise(resolve => setTimeout(resolve, 300));
+  await exportBudgetsToCSV(budgets, categories);
 }
