@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## ⚠️ CRITICAL RULES
+
+### Git Workflow
+**NEVER commit or push without explicit user authorization.**
+
+- **ALWAYS ask before running `git commit`**
+- **ALWAYS ask before running `git push`**
+- **NEVER batch commit + push in a single command** unless explicitly instructed by the user
+- After making code changes, STOP and ask the user:
+  - "Should I commit these changes?"
+  - Show a summary of what changed
+  - Wait for explicit approval before proceeding
+- Exception: Only skip asking if the user explicitly runs a command like `/ship` or says "commit and push this"
+
+This ensures the user maintains full control over their git history and can review changes before they're committed.
+
 ## Build & Development Commands
 
 ```bash

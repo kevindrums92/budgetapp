@@ -640,12 +640,11 @@ export default function HistoryPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
+                    <div className="mt-0.5">
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {category ? category.name : "Sin categoría"}
                       </p>
-                      <span className="text-gray-300 dark:text-gray-700">•</span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         {new Date(transaction.date + "T12:00:00").toLocaleDateString("es-CO", {
                           day: "numeric",
                           month: "short",
