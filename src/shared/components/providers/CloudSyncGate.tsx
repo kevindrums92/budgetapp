@@ -169,18 +169,33 @@ export default function CloudSyncGate() {
         return;
       }
 
-      logger.info("CloudSync", "No session found, switching to guest mode");
-      // Regla tuya: deslogueado => no queda data local
-      clearPendingSnapshot();
-      clearState();
-      // Categories will be created during onboarding
-      replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
+      logger.info("CloudSync", "No session found, checking if guest mode or logout");
 
-      // Reset welcome para que vuelva a salir en guest
-      try {
-        localStorage.removeItem(SEEN_KEY);
-      } catch {}
-      setWelcomeSeen(false);
+      // ✅ CRITICAL FIX: Only clear state if user was previously in cloud mode and logged out
+      // If user is in guest mode (never logged in), preserve their local data
+      const wasInCloudMode = currentMode === "cloud";
+      const hasLocalData = useBudgetStore.getState().categoryDefinitions.length > 0 ||
+                           useBudgetStore.getState().transactions.length > 0;
+
+      if (wasInCloudMode) {
+        // User was logged in and now logged out → clear everything
+        logger.info("CloudSync", "User logged out from cloud mode, clearing local data");
+        clearPendingSnapshot();
+        clearState();
+        replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
+
+        // Reset welcome para que vuelva a salir en guest
+        try {
+          localStorage.removeItem(SEEN_KEY);
+        } catch {}
+        setWelcomeSeen(false);
+      } else if (!hasLocalData) {
+        // No session, no local data → user hasn't completed onboarding yet
+        logger.info("CloudSync", "No session, no local data - user hasn't completed onboarding");
+      } else {
+        // No session but has local data → guest mode user returning to app
+        logger.info("CloudSync", "No session but has local data - guest mode user, preserving data");
+      }
 
       // ✅ Clear user state atomically
       setUser({
