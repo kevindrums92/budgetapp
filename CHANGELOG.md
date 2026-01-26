@@ -7,6 +7,7 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **CRITICAL: Guest Mode Data Loss on App Restart**: Fixed guest users losing all categories and transactions when closing and reopening the app. CloudSyncGate was incorrectly clearing localStorage on every startup when no Supabase session was detected, not distinguishing between guest mode (no session by design) and actual logout. Now only clears data when user was previously in cloud mode and logged out.
 - **Budget Onboarding Button Visibility on iOS**: Fixed CTA button not visible on budget onboarding screens (4 screens) on iOS devices by changing from fixed to absolute positioning and adjusting safe area spacing to match WelcomeOnboarding pattern
 
 ### Changed
