@@ -1,4 +1,5 @@
 {
+  "viewAllTransactions": "Ver todas las transacciones",
   "search": "Buscar...",
   "filter": "Filtrar por",
   "balanceCard": {
@@ -16,6 +17,7 @@
   },
   "filters": {
     "all": "Todos",
+    "allTypes": "Todos",
     "expenses": "Gastos",
     "income": "Ingresos",
     "pending": "Pendientes",

@@ -16,6 +16,7 @@ import TopHeader from "@/shared/components/layout/TopHeader";
 import HomePage from "@/features/transactions/pages/HomePage";
 import BudgetPage from "@/features/budget/pages/BudgetPage";
 import AddEditTransactionPage from "@/features/transactions/pages/AddEditTransactionPage";
+import HistoryPage from "@/features/transactions/pages/HistoryPage";
 
 // Lazy load heavy pages (Recharts, complex features)
 const StatsPage = lazy(() => import("@/features/stats/pages/StatsPage"));
@@ -65,6 +66,7 @@ function AppFrame() {
     location.pathname === "/add" ||
     location.pathname === "/backup" ||
     location.pathname === "/scheduled" ||
+    location.pathname === "/history" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
@@ -111,6 +113,7 @@ function AppFrame() {
             <Route path="/add" element={<AddEditTransactionPage />} />
             <Route path="/edit/:id" element={<AddEditTransactionPage />} />
             <Route path="/scheduled" element={<ScheduledPage />} />
+            <Route path="/history" element={<HistoryPage />} />
 
             <Route path="/category/new" element={<AddEditCategoryPage />} />
             <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />

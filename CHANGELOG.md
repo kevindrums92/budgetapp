@@ -6,6 +6,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **History Page**: Added dedicated history page with advanced filters (date range presets, multi-select categories, type, status, amount range), search bar, CSV export, and localStorage filter persistence
+
+### Changed
+- **HomePage Filters**: Moved search bar and filters from HomePage to dedicated History page, replaced with flat "Ver historial completo" button for cleaner home view
+
 ### Fixed
 - **Onboarding Fixed Buttons**: Fixed "Continuar" and "Comenzar" buttons not staying fixed at bottom during scroll by changing from absolute to fixed positioning with proper safe area insets
 - **iOS Search Bar Positioning**: Fixed sticky search bar overlapping TopHeader on iOS by calculating dynamic top position based on safe area insets instead of hardcoded 80px

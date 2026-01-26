@@ -13,6 +13,7 @@ import esTransactions from './locales/es/transactions.json';
 import esCategories from './locales/es/categories.json';
 import esBackup from './locales/es/backup.json';
 import esScheduled from './locales/es/scheduled.json';
+import esHistory from './locales/es/history.json';
 
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
@@ -25,6 +26,7 @@ import enTransactions from './locales/en/transactions.json';
 import enCategories from './locales/en/categories.json';
 import enBackup from './locales/en/backup.json';
 import enScheduled from './locales/en/scheduled.json';
+import enHistory from './locales/en/history.json';
 
 import ptCommon from './locales/pt/common.json';
 import ptOnboarding from './locales/pt/onboarding.json';
@@ -37,6 +39,7 @@ import ptTransactions from './locales/pt/transactions.json';
 import ptCategories from './locales/pt/categories.json';
 import ptBackup from './locales/pt/backup.json';
 import ptScheduled from './locales/pt/scheduled.json';
+import ptHistory from './locales/pt/history.json';
 
 import frCommon from './locales/fr/common.json';
 import frOnboarding from './locales/fr/onboarding.json';
@@ -49,6 +52,7 @@ import frTransactions from './locales/fr/transactions.json';
 import frCategories from './locales/fr/categories.json';
 import frBackup from './locales/fr/backup.json';
 import frScheduled from './locales/fr/scheduled.json';
+import frHistory from './locales/fr/history.json';
 
 const resources = {
   es: {
@@ -63,6 +67,7 @@ const resources = {
     categories: esCategories,
     backup: esBackup,
     scheduled: esScheduled,
+    history: esHistory,
   },
   en: {
     common: enCommon,
@@ -76,6 +81,7 @@ const resources = {
     categories: enCategories,
     backup: enBackup,
     scheduled: enScheduled,
+    history: enHistory,
   },
   pt: {
     common: ptCommon,
@@ -89,6 +95,7 @@ const resources = {
     categories: ptCategories,
     backup: ptBackup,
     scheduled: ptScheduled,
+    history: ptHistory,
   },
   fr: {
     common: frCommon,
@@ -102,6 +109,7 @@ const resources = {
     categories: frCategories,
     backup: frBackup,
     scheduled: frScheduled,
+    history: frHistory,
   },
 };
 
@@ -140,7 +148,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled'],
+    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history'],
     interpolation: {
       escapeValue: false, // React already escapes
     },
