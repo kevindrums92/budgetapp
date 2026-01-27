@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Mail, Loader2 } from 'lucide-react';
+import { useKeyboardDismiss } from '@/hooks/useKeyboardDismiss';
 import { sendPasswordResetEmail } from '../services/auth.service';
 import { validateEmail } from '../services/validation.service';
 
@@ -21,6 +22,9 @@ export default function ForgotPasswordModal({ open, onClose }: ForgotPasswordMod
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   if (!open) return null;
 

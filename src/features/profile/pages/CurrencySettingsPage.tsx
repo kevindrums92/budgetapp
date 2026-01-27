@@ -13,12 +13,16 @@ import {
   type CurrencyInfo,
   type CurrencyRegion,
 } from '@/features/currency';
+import { useKeyboardDismiss } from '@/hooks/useKeyboardDismiss';
 import PageHeader from '@/shared/components/layout/PageHeader';
 
 export default function CurrencySettingsPage() {
   const { t, i18n } = useTranslation('profile');
   const { currency, setCurrency } = useCurrency();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const isSpanish = i18n.language?.startsWith('es');
 

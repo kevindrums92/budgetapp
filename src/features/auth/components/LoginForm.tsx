@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mail, Phone, Lock, Loader2 } from 'lucide-react';
 import { useAuthForm } from '../hooks/useAuthForm';
+import { useKeyboardDismiss } from '@/hooks/useKeyboardDismiss';
 import PasswordInput from './PasswordInput';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
@@ -24,6 +25,9 @@ export default function LoginForm({
   const { t } = useTranslation('onboarding');
   const form = useAuthForm({ mode: 'login' });
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

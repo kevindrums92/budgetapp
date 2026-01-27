@@ -5,6 +5,7 @@ import { searchIcons } from "@/constants/categories/category-icons-with-keywords
 import { CATEGORY_COLORS } from "@/constants/categories/category-colors";
 import { Check, Search, X } from "lucide-react";
 import { kebabToPascal } from "@/shared/utils/string.utils";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 
 type Props = {
   open: boolean;
@@ -28,6 +29,9 @@ export default function IconColorPicker({
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeTab, setActiveTab] = useState<"icon" | "color">("icon");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   useEffect(() => {
     if (open) {

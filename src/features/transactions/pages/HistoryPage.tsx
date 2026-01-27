@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/shared/components/modals/DatePicker";
@@ -36,6 +37,9 @@ export default function HistoryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { formatAmount } = useCurrency();
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);

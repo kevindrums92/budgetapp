@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { X, DollarSign, Calendar, Repeat, ChevronRight } from "lucide-react";
+import { X, DollarSign, Calendar, Repeat, ChevronRight, Trash2 } from "lucide-react";
 import type { BudgetPeriod } from "@/types/budget.types";
 import { useBudgetStore } from "@/state/budget.store";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import PeriodPickerModal from "./PeriodPickerModal";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
 import { getCurrentMonth } from "../utils/period.utils";
@@ -24,6 +25,9 @@ export default function AddEditBudgetModal({
   const existingBudget = budgetId ? store.getBudgetById(budgetId) : null;
   const isEdit = !!existingBudget;
 
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
+
   // Form state
   const [categoryId, setCategoryId] = useState("");
   const [amount, setAmount] = useState("");
@@ -35,6 +39,7 @@ export default function AddEditBudgetModal({
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Load budget data when opening in edit mode
   useEffect(() => {
@@ -144,6 +149,13 @@ export default function AddEditBudgetModal({
 
       onClose();
     }
+  };
+
+  const handleDelete = () => {
+    if (!existingBudget) return;
+    store.deleteBudget(existingBudget.id);
+    setShowDeleteConfirm(false);
+    onClose();
   };
 
   return (
@@ -291,25 +303,73 @@ export default function AddEditBudgetModal({
           </div>
 
           {/* Actions */}
-          <div className="flex gap-3 border-t border-gray-200 dark:border-gray-800 px-6 py-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            >
-              {t("modal.cancel")}
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!canSave}
-              className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {t("modal.save")}
-            </button>
+          <div className="border-t border-gray-200 dark:border-gray-800 px-6 py-4">
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                {t("modal.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={!canSave}
+                className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {t("modal.save")}
+              </button>
+            </div>
+
+            {/* Delete Button (only in edit mode) */}
+            {isEdit && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full mt-3 py-2 flex items-center justify-center gap-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+              >
+                <Trash2 size={16} />
+                {t("modal.delete")}
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t("modal.deleteConfirmTitle")}
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {t("modal.deleteConfirmMessage")}
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                {t("modal.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600 transition-colors"
+              >
+                {t("modal.delete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Category Picker */}
       <CategoryPickerDrawer

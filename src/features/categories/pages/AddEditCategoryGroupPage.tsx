@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { CATEGORY_COLORS } from "@/constants/categories/category-colors";
 import type { TransactionType } from "@/types/budget.types";
 import PageHeader from "@/shared/components/layout/PageHeader";
@@ -15,6 +16,9 @@ export default function AddEditCategoryGroupPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
   const addCategoryGroup = useBudgetStore((s) => s.addCategoryGroup);

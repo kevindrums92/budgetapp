@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -33,6 +34,9 @@ export default function AddEditTransactionPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const isEdit = Boolean(params.id);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);

@@ -20,8 +20,7 @@ import { useBudgetStore } from '@/state/budget.store';
 import { checkBiometricAvailability, authenticateWithBiometrics } from '../services/biometric.service';
 import { Fingerprint } from 'lucide-react';
 
-//const BIOMETRIC_TIMEOUT = 5 * 60 * 1000; // 5 minutes
-const BIOMETRIC_TIMEOUT = 10 * 1000; // 10 seconds for testing (change to 5 * 60 * 1000 for production)
+const BIOMETRIC_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
 export default function BiometricGate() {
   const { t } = useTranslation('profile');

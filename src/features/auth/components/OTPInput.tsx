@@ -4,6 +4,7 @@
  */
 
 import { useRef, useEffect, useCallback } from 'react';
+import { useKeyboardDismiss } from '@/hooks/useKeyboardDismiss';
 
 interface OTPInputProps {
   digits: string[];
@@ -23,6 +24,9 @@ export default function OTPInput({
   autoFocus = true,
 }: OTPInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   // Auto-focus first input on mount
   useEffect(() => {

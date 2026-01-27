@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ChevronDown, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/categories/category-icons";
 import { DEFAULT_CATEGORY_COLOR } from "@/constants/categories/category-colors";
 import type { TransactionType } from "@/types/budget.types";
@@ -17,6 +18,9 @@ export default function AddEditCategoryPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);

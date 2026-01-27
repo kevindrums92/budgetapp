@@ -556,6 +556,41 @@ function formatDate(dateStr: string) {
 - Automatic animation on open/close
 - Z-index: `z-[80]` (higher than modals)
 
+**Keyboard Dismiss Hook (ALWAYS use for pages with inputs)**:
+
+CRITICAL: ALWAYS use the `useKeyboardDismiss` hook in any page or component that contains text inputs, textareas, or search fields. This provides a native mobile app experience by automatically closing the keyboard when the user scrolls or touches outside the input.
+
+**Pattern**:
+```tsx
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
+
+export default function MyPage() {
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
+
+  return (
+    <div>
+      <input type="text" />
+      {/* ... more inputs ... */}
+    </div>
+  );
+}
+```
+
+**When to use**:
+- ✅ Pages with form inputs (AddEditTransactionPage, AddEditCategoryPage, etc.)
+- ✅ Pages with search fields (HistoryPage, CurrencySettingsPage, etc.)
+- ✅ Modals/drawers with inputs (AddEditBudgetModal, CategoryPickerDrawer, etc.)
+- ✅ Authentication forms (LoginForm, RegisterForm, etc.)
+
+**How it works**:
+- Closes keyboard when user scrolls (after 500ms of focusing)
+- Closes keyboard when user touches outside the active input
+- Does NOT close when switching between inputs
+- Does NOT interfere with auto-scroll when focusing inputs
+
+**Hook location**: `src/hooks/useKeyboardDismiss.ts`
+
 #### Cards & Containers
 
 **Page Background**: `bg-gray-50` (NEVER use `bg-white` for pages)

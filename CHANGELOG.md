@@ -6,7 +6,17 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Automatic Keyboard Dismiss**: Keyboard now closes automatically when scrolling or touching outside input fields
+  - New `useKeyboardDismiss` hook applied to all pages and modals with text inputs
+  - Provides native mobile app UX: dismiss on scroll (500ms delay after focus) or touch outside
+  - Preserves input focus when switching between fields without closing keyboard
+  - Applied to 14 components: transaction forms, auth forms, search fields, modals, and settings pages
+  - Full documentation added to CLAUDE.md for future implementations
+- **Budget Management**: Added delete button to budget edit modal for easier budget removal
+
 ### Fixed
+- **Biometric Auth**: Restored biometric authentication timeout from 10s (testing) to 5 minutes (production)
 - Fix failing storage service tests expecting outdated schemaVersion 6 (updated to expect v7 after biometric security migration)
 - Fix localStorage mock isolation in test setup to prevent QuotaExceededError by creating fresh instance per test
 
