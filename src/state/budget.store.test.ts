@@ -165,21 +165,6 @@ describe('budget.store', () => {
         expect(transactions[0].amount).toBe(25001);
       });
 
-      it('should not add transaction with empty name', () => {
-        const store = useBudgetStore.getState();
-
-        store.addTransaction({
-          type: 'expense',
-          name: '   ',
-          category: 'Test',
-          amount: 25000,
-          date: '2026-01-15',
-        });
-
-        const transactions = useBudgetStore.getState().transactions;
-        expect(transactions).toHaveLength(0);
-      });
-
       it('should not add transaction with invalid amount', () => {
         const store = useBudgetStore.getState();
 

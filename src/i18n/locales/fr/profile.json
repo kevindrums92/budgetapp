@@ -2,7 +2,8 @@
   "sections": {
     "appearance": "Apparence",
     "expenseManagement": "Gestion des Dépenses",
-    "dataSecurity": "Données et Sécurité"
+    "dataSecurity": "Données et Sécurité",
+    "legal": "Légal"
   },
   "menu": {
     "categories": "Catégories",
@@ -76,5 +77,14 @@
       "description": "Exporter transactions, catégories et budgets"
     },
     "items": "éléments"
+  },
+  "legal": {
+    "lastUpdated": "Dernière mise à jour",
+    "terms": {
+      "title": "Conditions d'utilisation"
+    },
+    "privacy": {
+      "title": "Politique de confidentialité"
+    }
   }
 }

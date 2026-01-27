@@ -1,0 +1,89 @@
+{
+  "lastUpdated": "Last updated",
+  "terms": {
+    "title": "Terms of Service",
+    "introduction": {
+      "title": "Introduction",
+      "content": "Welcome to SmartSpend. By using our application, you accept these terms of service. SmartSpend is a personal finance management application designed to help you track your expenses, income, and budgets."
+    },
+    "service": {
+      "title": "Service Description",
+      "content": "SmartSpend offers:"
+    },
+    "accounts": {
+      "title": "User Accounts",
+      "content": "You can use SmartSpend in two modes:"
+    },
+    "ownership": {
+      "title": "Data Ownership",
+      "content": "All your financial data belongs to you. SmartSpend does not share, sell, or use your data for advertising. You can export or delete your data at any time from the app settings."
+    },
+    "use": {
+      "title": "Acceptable Use",
+      "content": "By using SmartSpend, you agree to:"
+    },
+    "limitations": {
+      "title": "Limitation of Liability",
+      "content": "SmartSpend is provided \"as is\" without warranties of any kind. We are not responsible for financial losses, damages, or inaccuracies in the data. It is your responsibility to verify the accuracy of your financial records and perform regular backups of your data."
+    },
+    "availability": {
+      "title": "Service Availability",
+      "content": "We make our best effort to keep SmartSpend available, but we do not guarantee 100% uptime. We may suspend or discontinue the service at any time with prior notice."
+    },
+    "changes": {
+      "title": "Changes to Terms",
+      "content": "We reserve the right to modify these terms at any time. Changes will be posted on this page with an update date. Your continued use of SmartSpend after changes constitutes your acceptance of the new terms."
+    },
+    "contact": {
+      "title": "Contact",
+      "content": "If you have questions about these terms, you can contact us at:"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "introduction": {
+      "title": "Introduction",
+      "content": "At SmartSpend, we respect your privacy and are committed to protecting your personal data. This policy explains how we collect, use, and protect your information."
+    },
+    "collection": {
+      "title": "Information We Collect",
+      "intro": "Depending on the mode you use, we collect:"
+    },
+    "usage": {
+      "title": "How We Use Your Information",
+      "intro": "We use your information exclusively to:"
+    },
+    "storage": {
+      "title": "Storage and Security",
+      "content": "Your data is protected through:"
+    },
+    "thirdParty": {
+      "title": "Third-Party Services",
+      "intro": "SmartSpend uses the following services:"
+    },
+    "retention": {
+      "title": "Data Retention",
+      "content": "We retain your data while you maintain an active account or as necessary to provide you services. You can delete your account and all your data at any time from the app settings. Guest mode data only exists on your device and is deleted when you clear browser data."
+    },
+    "rights": {
+      "title": "Your Rights",
+      "intro": "You have the right to:"
+    },
+    "cookies": {
+      "title": "Cookies and Local Storage",
+      "content": "SmartSpend uses browser localStorage to store your preferences (language, theme, currency) and financial data (in guest mode). We do not use advertising tracking cookies. Authentication sessions are managed through secure Supabase tokens."
+    },
+    "children": {
+      "title": "Children's Privacy",
+      "content": "SmartSpend is not directed at children under 13 years old. We do not intentionally collect information from children. If you discover that a minor has provided personal data, contact us to delete it."
+    },
+    "changes": {
+      "title": "Changes to This Policy",
+      "content": "We may update this privacy policy periodically. We will notify you of significant changes through a notice in the app. The \"last updated\" date at the top of this page indicates when it was last modified."
+    },
+    "contact": {
+      "title": "Contact",
+      "content": "If you have questions about this privacy policy or wish to exercise your rights, contact us:"
+    }
+  }
+}

@@ -316,11 +316,19 @@ export default function LoginScreen() {
         {/* Privacy Notice */}
         <p className="mt-6 text-center text-xs leading-relaxed text-gray-500 dark:text-gray-400">
           {t('login.termsPrefix')}{' '}
-          <button type="button" className="font-medium text-[#18B7B0] underline">
+          <button
+            type="button"
+            onClick={() => navigate('/legal/terms')}
+            className="font-medium text-[#18B7B0] underline"
+          >
             {t('login.termsService')}
           </button>{' '}
           {t('login.termsAnd')}{' '}
-          <button type="button" className="font-medium text-[#18B7B0] underline">
+          <button
+            type="button"
+            onClick={() => navigate('/legal/privacy')}
+            className="font-medium text-[#18B7B0] underline"
+          >
             {t('login.termsPrivacy')}
           </button>
         </p>

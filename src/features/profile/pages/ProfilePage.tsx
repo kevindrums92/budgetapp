@@ -6,7 +6,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
-import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder } from "lucide-react";
+import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock } from "lucide-react";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -253,6 +253,25 @@ export default function ProfilePage() {
               label={t('menu.exportCSV')}
               sublabel={t('menu.exportCSVSubtitle')}
               onClick={() => navigate('/settings/export-csv')}
+            />
+          </div>
+        </div>
+
+        {/* Legal Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">
+            {t('sections.legal', 'Legal')}
+          </h3>
+          <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+            <MenuItem
+              icon={<ScrollText size={20} />}
+              label={t('legal.terms.title', 'Términos de Servicio')}
+              onClick={() => navigate('/legal/terms')}
+            />
+            <MenuItem
+              icon={<Lock size={20} />}
+              label={t('legal.privacy.title', 'Política de Privacidad')}
+              onClick={() => navigate('/legal/privacy')}
             />
           </div>
         </div>

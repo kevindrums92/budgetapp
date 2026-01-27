@@ -8,6 +8,18 @@ All notable changes to SmartSpend will be documented in this file.
 
 ### Added
 - **iOS App Icon**: Added 1024x1024 app icon to iOS native project for proper home screen and App Store display
+- **Legal Pages**: Added Terms of Service and Privacy Policy pages required for App Store submission
+  - New pages: `/legal/terms` and `/legal/privacy`
+  - Accessible from ProfilePage in new "Legal" section
+  - Accessible from LoginScreen footer with clickable links
+  - Full i18n support (es, en, fr, pt) via dedicated "legal" namespace
+  - Complete translations for all sections in 4 languages
+  - Mobile-first design with dark mode support
+  - Auto-scroll to top on page load
+  - Content covers: data collection, security (RLS, Supabase), user rights, third-party services, GDPR compliance
+
+### Changed
+- **Tests**: Removed obsolete test that validated transaction description as required field (now optional with category fallback)
 
 ### Fixed
 - **iOS/Android File Exports**: Fixed backup JSON and CSV exports failing on mobile devices by replacing blob URLs (which don't work on iOS) with Capacitor Filesystem + Share API for native file saving/sharing

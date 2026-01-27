@@ -43,6 +43,10 @@ const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSetti
 const CurrencySettingsPage = lazy(() => import("@/features/profile/pages/CurrencySettingsPage"));
 const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"));
 
+// Lazy load legal pages
+const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfServicePage"));
+const PrivacyPolicyPage = lazy(() => import("@/features/profile/pages/PrivacyPolicyPage"));
+
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
@@ -72,6 +76,7 @@ function AppFrame() {
     location.pathname.startsWith("/category") ||
     location.pathname.startsWith("/categories") ||
     location.pathname.startsWith("/settings/") ||
+    location.pathname.startsWith("/legal/") ||
     location.pathname.startsWith("/onboarding");
 
   const showMonthSelector = useMemo(() => {
@@ -131,6 +136,9 @@ function AppFrame() {
             <Route path="/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export-csv" element={<ExportCSVPage />} />
+
+            <Route path="/legal/terms" element={<TermsOfServicePage />} />
+            <Route path="/legal/privacy" element={<PrivacyPolicyPage />} />
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
