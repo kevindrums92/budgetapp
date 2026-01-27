@@ -19,6 +19,19 @@ export const ENV = {
   },
 };
 
+/**
+ * Get OAuth redirect URL for deep linking
+ *
+ * Returns the correct URL scheme based on environment:
+ * - DEV: smartspend-dev://auth/callback
+ * - PROD: smartspend://auth/callback
+ *
+ * This ensures OAuth callbacks open the correct app instance.
+ */
+export function getOAuthRedirectUrl(): string {
+  return ENV.isDev ? 'smartspend-dev://auth/callback' : 'smartspend://auth/callback';
+}
+
 // Log environment on startup (development only)
 if (ENV.isDev) {
   console.log(
@@ -26,4 +39,5 @@ if (ENV.isDev) {
     'background: #0d9488; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;'
   );
   console.log(`📡 Supabase: ${ENV.supabase.url}`);
+  console.log(`🔗 OAuth redirect: ${getOAuthRedirectUrl()}`);
 }

@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Shield, User, Chrome, Apple, Mail, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { isNative } from '@/shared/utils/platform';
+import { getOAuthRedirectUrl } from '@/config/env';
 import { useOnboarding } from '../../OnboardingContext';
 import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
 
@@ -163,8 +164,8 @@ export default function LoginScreen() {
 
     try {
       // Native apps use custom URL scheme for OAuth deep linking
-      // The scheme 'smartspend://' is configured in ios/App/App/Info.plist
-      const redirectTo = isNative() ? 'smartspend://auth/callback' : window.location.origin;
+      // The scheme changes per environment (smartspend:// vs smartspend-dev://)
+      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
 
       console.log('[LoginScreen] OAuth redirect URL:', redirectTo);
 

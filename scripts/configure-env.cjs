@@ -6,11 +6,12 @@
  * This script modifies:
  * - Bundle ID (com.jhotech.smartspend vs com.jhotech.smartspend.dev)
  * - Display Name (SmartSpend vs SmartSpend Dev)
+ * - URL Scheme (smartspend vs smartspend-dev) for OAuth deep linking
  * - Xcode project settings
  *
  * Usage:
- *   node scripts/configure-env.js development
- *   node scripts/configure-env.js production
+ *   node scripts/configure-env.cjs development
+ *   node scripts/configure-env.cjs production
  */
 
 const fs = require('fs');
@@ -23,12 +24,14 @@ const configs = {
   development: {
     appId: 'com.jhotech.smartspend.dev',
     appName: 'SmartSpend Dev',
-    displayName: 'SmartSpend Dev'
+    displayName: 'SmartSpend Dev',
+    urlScheme: 'smartspend-dev'
   },
   production: {
     appId: 'com.jhotech.smartspend',
     appName: 'SmartSpend',
-    displayName: 'SmartSpend'
+    displayName: 'SmartSpend',
+    urlScheme: 'smartspend'
   }
 };
 
@@ -77,10 +80,17 @@ if (fs.existsSync(plistPath)) {
     `$1${config.appId}$2`
   );
 
+  // Update CFBundleURLSchemes (critical for OAuth deep linking)
+  plist = plist.replace(
+    /(<key>CFBundleURLSchemes<\/key>\s*<array>\s*<string>).*?(<\/string>)/,
+    `$1${config.urlScheme}$2`
+  );
+
   fs.writeFileSync(plistPath, plist);
   console.log(`✅ Updated Info.plist`);
   console.log(`   - CFBundleDisplayName: ${config.displayName}`);
   console.log(`   - CFBundleURLName: ${config.appId}`);
+  console.log(`   - CFBundleURLSchemes: ${config.urlScheme}`);
 }
 
 // 3. Update Xcode project.pbxproj
@@ -101,4 +111,5 @@ if (fs.existsSync(pbxprojPath)) {
 
 console.log(`\n✨ Configuration complete for ${env.toUpperCase()}\n`);
 console.log(`📱 App will be installed as: "${config.displayName}"`);
-console.log(`🆔 Bundle ID: ${config.appId}\n`);
+console.log(`🆔 Bundle ID: ${config.appId}`);
+console.log(`🔗 URL Scheme: ${config.urlScheme}://\n`);

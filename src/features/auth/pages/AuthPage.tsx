@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Shield, ChevronLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { isNative } from '@/shared/utils/platform';
+import { getOAuthRedirectUrl } from '@/config/env';
 
 import AuthTabs from '../components/AuthTabs';
 import LoginForm from '../components/LoginForm';
@@ -33,7 +34,7 @@ export default function AuthPage() {
     setGoogleLoading(true);
     try {
       // Native apps need custom URL scheme for OAuth redirect
-      const redirectTo = isNative() ? 'smartspend://auth/callback' : window.location.origin;
+      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

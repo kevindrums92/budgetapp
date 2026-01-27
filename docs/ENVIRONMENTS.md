@@ -8,6 +8,7 @@ SmartSpend tiene configurados 2 ambientes separados con proyectos de Supabase in
 - **Proyecto Supabase:** `qvzxdwilplizcgybqqsx`
 - **Bundle ID:** `com.jhotech.smartspend.dev`
 - **Display Name:** `SmartSpend Dev`
+- **URL Scheme:** `smartspend-dev://`
 - **Uso:** Desarrollo local, pruebas, features experimentales
 - **Archivo:** `.env.development`
 
@@ -15,10 +16,15 @@ SmartSpend tiene configurados 2 ambientes separados con proyectos de Supabase in
 - **Proyecto Supabase:** `plvuebqjwjcheyxprlmg`
 - **Bundle ID:** `com.jhotech.smartspend`
 - **Display Name:** `SmartSpend`
+- **URL Scheme:** `smartspend://`
 - **Uso:** Builds para TestFlight y App Store
 - **Archivo:** `.env.production`
 
-**✨ Beneficio:** Puedes tener ambas apps instaladas simultáneamente en tu dispositivo sin conflictos. "SmartSpend Dev" para desarrollo y "SmartSpend" desde TestFlight.
+**✨ Beneficios:**
+- Puedes tener ambas apps instaladas simultáneamente sin conflictos
+- URL schemes separados evitan que OAuth redirija a la app incorrecta
+- Bundle IDs diferentes permiten builds independientes
+- Datos completamente aislados entre DEV y PROD
 
 ---
 
@@ -176,3 +182,9 @@ Los archivos nativos (`capacitor.config.ts`, `Info.plist`, `project.pbxproj`) ca
 - Detén el servidor
 - Ejecuta el comando correcto (`ios:dev` o `ios:prod`)
 - Los cambios en `.env` requieren rebuild completo
+
+### "OAuth me abre la app incorrecta"
+- Verifica que ejecutaste el comando correcto antes del build
+- DEV debe usar `smartspend-dev://` y PROD debe usar `smartspend://`
+- Ejecuta `npm run configure:prod` antes de builds de TestFlight
+- Si instalaste ambas apps, iOS abrirá la que corresponda al URL scheme del OAuth callback
