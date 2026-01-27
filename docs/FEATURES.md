@@ -292,6 +292,22 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 - Usuarios permanecen logueados después de reset
 - Navegación a home en lugar de login
 
+### Biometric Authentication
+- **Face ID / Touch ID / Fingerprint** para usuarios autenticados
+- **Plugin**: `@capgo/capacitor-native-biometric` (v8.3.2) compatible con Capacitor 8
+- **Toggle de configuración** en ProfilePage (Datos y Seguridad)
+- **Prompt nativo del OS** (no modal custom) con fallback automático a código del dispositivo
+- **Lock screen overlay**: Bloquea la app si el usuario cancela la autenticación
+- **Triggers de autenticación**:
+  - Cold start (al abrir la app)
+  - App resume después de 5 minutos de inactividad
+- **Solo usuarios logueados** en plataformas nativas (iOS/Android)
+- **Schema migration v6→v7**: Campo `security` en BudgetState
+- **Cloud sync**: Configuración se sincroniza entre dispositivos
+- **i18n completo**: Traducido a español, inglés, francés y portugués
+- **iOS Face ID usage description** configurado en Info.plist
+- **Timestamp tracking**: Previene autenticación redundante al habilitar
+
 ### Onboarding System
 - **Welcome Flow**: 6 pantallas de introducción visual
 - **LoginScreen**: Selección entre modo invitado o cloud sync
@@ -494,7 +510,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ### Storage Service
 - **localStorage** como storage principal
-- **Schema versioning**: v1 → v6 con migrations automáticas
+- **Schema versioning**: v1 → v7 con migrations automáticas
 - **Data integrity**: Validación y deduplicación
 - **Error handling**: Quota exceeded, corrupted state
 - **Migration paths**:
@@ -503,6 +519,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
   - v3→v4: isRecurring field
   - v4→v5: Scheduled transactions (sourceTemplateId)
   - v5→v6: Budget system
+  - v6→v7: Biometric security settings
 
 ### Cloud State Service
 - **Supabase integration** para cloud sync

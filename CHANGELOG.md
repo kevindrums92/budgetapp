@@ -10,8 +10,11 @@ All notable changes to SmartSpend will be documented in this file.
 - **Biometric Authentication System**: Complete Face ID/Touch ID/Fingerprint support for authenticated users on native platforms
   - Integrated `@capgo/capacitor-native-biometric` plugin (v8.3.2) with Capacitor 8 compatibility
   - Toggle in ProfilePage (Data & Security section) to enable/disable biometric authentication
-  - BiometricGate component prompts for authentication on cold start and app resume after 5 minutes inactive
-  - BiometricPrompt modal UI with fade/scale animations and "Use Password" fallback
+  - BiometricGate component triggers native OS prompt on cold start and app resume (5 minute timeout)
+  - Uses native system UI for authentication (no custom modal) with automatic fallback to device passcode when biometrics fail
+  - Lock screen overlay prevents access if user cancels authentication - must authenticate successfully to unlock
+  - Fixed double authentication prompt when enabling biometric - ProfilePage now updates lastAuthTimestamp after successful enable to prevent BiometricGate from prompting again immediately
+  - Fixed biometric prompt appearing immediately after fresh login - CloudSyncGate now updates lastAuthTimestamp when user authenticates to prevent unnecessary Face ID prompt
   - Schema migration v6→v7 adding `security` field to BudgetState for biometric preferences
   - Cloud sync integration for biometric settings across devices
   - Full i18n support (es, en, fr, pt) for biometric UI

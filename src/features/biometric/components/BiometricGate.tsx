@@ -1,27 +1,33 @@
 /**
  * BiometricGate Component
  *
- * Lifecycle coordinator for biometric authentication.
- * Determines WHEN to show BiometricPrompt based on:
+ * Lifecycle coordinator for native biometric authentication.
+ * Triggers OS-native biometric prompt (Face ID/Touch ID/Fingerprint) based on:
  * - Cold start (app launch)
  * - App resume after 5 minutes inactive
  * - User authentication status
  * - Biometric enabled in settings
+ *
+ * Renders lock screen overlay when authentication is required.
+ * Only unlocks when biometric authentication succeeds.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { App as CapacitorApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
+import { useTranslation } from 'react-i18next';
 import { useBudgetStore } from '@/state/budget.store';
-import BiometricPrompt from './BiometricPrompt';
-import { checkBiometricAvailability } from '../services/biometric.service';
+import { checkBiometricAvailability, authenticateWithBiometrics } from '../services/biometric.service';
+import { Fingerprint } from 'lucide-react';
 
-const BIOMETRIC_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+//const BIOMETRIC_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const BIOMETRIC_TIMEOUT = 10 * 1000; // 10 seconds for testing (change to 5 * 60 * 1000 for production)
 
 export default function BiometricGate() {
-  const [showPrompt, setShowPrompt] = useState(false);
-  const [biometryType, setBiometryType] = useState<string>('faceId');
+  const { t } = useTranslation('profile');
   const lastAuthRef = useRef<number>(Date.now());
+  const isAuthenticatingRef = useRef<boolean>(false);
+  const [isLocked, setIsLocked] = useState(false);
 
   // Get user and security state
   const user = useBudgetStore((s) => s.user);
@@ -31,24 +37,30 @@ export default function BiometricGate() {
   const isLoggedIn = Boolean(user.email);
   const biometricEnabled = security?.biometricEnabled ?? false;
 
-  // Check if biometric prompt should be shown
-  const shouldShowPrompt = async (): Promise<boolean> => {
+  // Trigger native biometric authentication directly
+  const triggerBiometricAuth = async (): Promise<void> => {
+    // Prevent multiple simultaneous authentications
+    if (isAuthenticatingRef.current) {
+      console.log('[BiometricGate] Already authenticating, skipping');
+      return;
+    }
+
     // Only on native platforms
     if (!Capacitor.isNativePlatform()) {
       console.log('[BiometricGate] Not native platform, skipping');
-      return false;
+      return;
     }
 
     // Only for authenticated users
     if (!isLoggedIn) {
       console.log('[BiometricGate] User not logged in, skipping');
-      return false;
+      return;
     }
 
     // Only if biometric is enabled in settings
     if (!biometricEnabled) {
       console.log('[BiometricGate] Biometric not enabled, skipping');
-      return false;
+      return;
     }
 
     // Check if enough time has passed since last auth
@@ -58,7 +70,7 @@ export default function BiometricGate() {
 
     if (timeSinceLastAuth < BIOMETRIC_TIMEOUT) {
       console.log('[BiometricGate] Last auth was recent, skipping');
-      return false;
+      return;
     }
 
     // Check if biometric is available
@@ -68,19 +80,39 @@ export default function BiometricGate() {
 
       if (!availability.isAvailable) {
         console.log('[BiometricGate] Biometric not available, skipping');
-        return false;
+        return;
       }
 
-      setBiometryType(availability.biometryType);
-      console.log('[BiometricGate] Showing biometric prompt, type:', availability.biometryType);
-      return true;
+      console.log('[BiometricGate] Triggering native biometric prompt, type:', availability.biometryType);
+
+      // Show lock screen before authentication
+      setIsLocked(true);
+
+      // Set authenticating flag
+      isAuthenticatingRef.current = true;
+
+      // Call native biometric authentication directly
+      const result = await authenticateWithBiometrics(t('biometricLock.unlockReason'));
+
+      if (result.success) {
+        console.log('[BiometricGate] Authentication successful');
+        updateLastAuthTimestamp();
+        lastAuthRef.current = Date.now();
+        // Unlock the app
+        setIsLocked(false);
+      } else {
+        console.log('[BiometricGate] Authentication failed:', result.errorCode);
+        // Keep lock screen visible - user must retry or authenticate successfully
+      }
     } catch (error) {
-      console.error('[BiometricGate] Error checking availability:', error);
-      return false;
+      console.error('[BiometricGate] Error during authentication:', error);
+      // Keep lock screen visible on error
+    } finally {
+      isAuthenticatingRef.current = false;
     }
   };
 
-  // Cold start: Check on mount
+  // Cold start: Check on mount and trigger native auth
   useEffect(() => {
     let isMounted = true;
 
@@ -90,10 +122,8 @@ export default function BiometricGate() {
 
       if (!isMounted) return;
 
-      const should = await shouldShowPrompt();
-      if (isMounted && should) {
-        setShowPrompt(true);
-      }
+      // Trigger native biometric authentication directly
+      await triggerBiometricAuth();
     };
 
     checkOnMount();
@@ -102,9 +132,9 @@ export default function BiometricGate() {
       isMounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount
+  }, [isLoggedIn, biometricEnabled]); // Re-run when auth state changes
 
-  // App resume: Check when app comes to foreground
+  // App resume: Check when app comes to foreground and trigger native auth
   useEffect(() => {
     let isMounted = true;
 
@@ -126,11 +156,8 @@ export default function BiometricGate() {
         // Update last check time
         lastAuthRef.current = now;
 
-        // Check if we should show prompt
-        const should = await shouldShowPrompt();
-        if (should) {
-          setShowPrompt(true);
-        }
+        // Trigger native biometric authentication directly
+        await triggerBiometricAuth();
       }
     });
 
@@ -141,25 +168,39 @@ export default function BiometricGate() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn, biometricEnabled]); // Re-subscribe when auth state changes
 
-  const handleSuccess = () => {
-    console.log('[BiometricGate] Authentication successful');
-    updateLastAuthTimestamp();
-    lastAuthRef.current = Date.now();
-    setShowPrompt(false);
-  };
-
-  const handleSkip = () => {
-    console.log('[BiometricGate] User skipped biometric auth');
-    // Don't update lastAuthTimestamp - will prompt again next time
-    setShowPrompt(false);
-  };
+  // Render lock screen when authentication is required
+  if (!isLocked) {
+    return null;
+  }
 
   return (
-    <BiometricPrompt
-      open={showPrompt}
-      onSuccess={handleSuccess}
-      onSkip={handleSkip}
-      biometryType={biometryType}
-    />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950">
+      {/* Lock screen content */}
+      <div className="flex flex-col items-center px-6">
+        {/* Lock icon */}
+        <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-[#18B7B0]/10">
+          <Fingerprint className="h-12 w-12 text-[#18B7B0]" />
+        </div>
+
+        {/* Title */}
+        <h1 className="mb-2 text-center text-2xl font-bold text-white">
+          {t('biometricLock.title')}
+        </h1>
+
+        {/* Subtitle */}
+        <p className="mb-8 text-center text-sm text-gray-400">
+          {t('biometricLock.subtitle')}
+        </p>
+
+        {/* Retry button */}
+        <button
+          type="button"
+          onClick={triggerBiometricAuth}
+          className="rounded-2xl bg-[#18B7B0] px-8 py-4 text-base font-semibold text-white transition-all hover:bg-[#16a59f] active:scale-[0.98]"
+        >
+          {t('biometricLock.unlockButton')}
+        </button>
+      </div>
+    </div>
   );
 }

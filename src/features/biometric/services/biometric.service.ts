@@ -112,6 +112,7 @@ export async function authenticateWithBiometrics(
       description: reason || 'Usa Face ID o Touch ID para continuar',
       negativeButtonText: 'Cancelar',
       maxAttempts: 3,
+      useFallback: true, // Enable passcode fallback when biometrics fail
     });
 
     // If we reach here, authentication was successful

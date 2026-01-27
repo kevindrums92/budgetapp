@@ -18,6 +18,13 @@
     "exportCSV": "Exportar CSV",
     "exportCSVSubtitle": "Baixar dados em formato CSV"
   },
+  "biometricLock": {
+    "unlockReason": "Desbloquear SmartSpend",
+    "enableReason": "Ativar autenticação biométrica",
+    "title": "SmartSpend está bloqueado",
+    "subtitle": "Use Face ID ou seu código para desbloquear",
+    "unlockButton": "Desbloquear"
+  },
   "preferences": {
     "title": "Preferências",
     "language": {

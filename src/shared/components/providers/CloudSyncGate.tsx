@@ -65,6 +65,7 @@ export default function CloudSyncGate() {
   const setCloudMode = useBudgetStore((s) => s.setCloudMode);
   const setCloudStatus = useBudgetStore((s) => s.setCloudStatus);
   const setUser = useBudgetStore((s) => s.setUser);
+  const updateLastAuthTimestamp = useBudgetStore((s) => s.updateLastAuthTimestamp);
 
   const setWelcomeSeen = useBudgetStore((s) => s.setWelcomeSeen);
 
@@ -430,6 +431,9 @@ export default function CloudSyncGate() {
         });
         replaceAllData(cloud);
 
+        // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
+        updateLastAuthTimestamp();
+
         // Push the fixed data back to cloud if we added defaults
         if (needsPush) {
           logger.info("CloudSync", "Pushing migrated data back to cloud");
@@ -450,6 +454,9 @@ export default function CloudSyncGate() {
             categoryDefinitions: localSnapshot.categoryDefinitions.length,
           });
           await upsertCloudState(localSnapshot);
+
+          // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
+          updateLastAuthTimestamp();
         } else {
           // WARNING: Local is empty, do NOT overwrite cloud
           // This could be a SIGNED_OUT->SIGNED_IN race condition

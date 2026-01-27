@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const cloudStatus = useBudgetStore((s) => s.cloudStatus);
   const security = useBudgetStore((s) => s.security);
   const toggleBiometricAuth = useBudgetStore((s) => s.toggleBiometricAuth);
+  const updateLastAuthTimestamp = useBudgetStore((s) => s.updateLastAuthTimestamp);
 
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -92,11 +93,12 @@ export default function ProfilePage() {
       console.log('[ProfilePage] Biometry type:', displayName);
 
       // Request biometric authentication
-      const authResult = await authenticateWithBiometrics('Habilitar autenticación biométrica');
+      const authResult = await authenticateWithBiometrics(t('biometricLock.enableReason'));
 
       if (authResult.success) {
         console.log('[ProfilePage] Biometric authentication successful, enabling');
         toggleBiometricAuth();
+        updateLastAuthTimestamp(); // Mark that user just authenticated to prevent BiometricGate from prompting again
       } else {
         console.log('[ProfilePage] Biometric authentication failed:', authResult.error);
         if (authResult.errorCode === 'NOT_AVAILABLE') {
