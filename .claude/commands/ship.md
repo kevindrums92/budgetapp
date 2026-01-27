@@ -24,6 +24,7 @@ Cambios: !`git diff --name-only`
 - **NUNCA** modificar el campo `version` en package.json
 - **SIEMPRE** agregar entradas bajo `## [unreleased] - {release date}` (mantener ese heading exacto, incluyendo el typo "relase")
 - **NUNCA** crear nuevas secciones con números de versión (ej: `## [0.8.0]` está prohibido)
+- **NUNCA** commitear cambios de Bundle ID dev: Si los únicos cambios en `capacitor.config.ts`, `ios/App/App.xcodeproj/project.pbxproj` o `ios/App/App/Info.plist` son Bundle ID dev (`com.jhotech.smartspend.dev`), URL scheme dev (`smartspend-dev://`) o app name dev (`SmartSpend Dev`), excluirlos del commit usando `git restore --staged <file>`
 - Si no hay cambios (`git status` vacío), detente y dilo.
 - El commit debe incluir: (a) el cambio real y (b) `CHANGELOG.md`.
 - Antes de commitear: mostrar `git diff --staged`.
@@ -62,10 +63,19 @@ Cambios: !`git diff --name-only`
 1) Stagea TODO excepto secretos:
    - !`git add -A`
 
-2) Lista staged:
+2) Detecta y excluye cambios de Bundle ID dev:
+   - Verifica si hay cambios staged en `capacitor.config.ts`, `ios/App/App.xcodeproj/project.pbxproj` o `ios/App/App/Info.plist`
+   - Si los únicos cambios en esos archivos son:
+     - Bundle ID: `com.jhotech.smartspend` → `com.jhotech.smartspend.dev`
+     - App Name: `SmartSpend` → `SmartSpend Dev`
+     - URL Scheme: `smartspend://` → `smartspend-dev://`
+   - Entonces ejecuta: `git restore --staged capacitor.config.ts ios/App/App.xcodeproj/project.pbxproj ios/App/App/Info.plist`
+   - Si hay OTROS cambios además del Bundle ID, mantenlos staged
+
+3) Lista staged:
    - !`git diff --staged --name-only`
 
-3) Verifica que no haya archivos sensibles en el stage (si los hay, usa `git restore --staged <filename>` manualmente)
+4) Verifica que no haya archivos sensibles en el stage (si los hay, usa `git restore --staged <filename>` manualmente)
 
 ---
 
