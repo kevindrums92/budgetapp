@@ -7,6 +7,18 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Biometric Authentication System**: Complete Face ID/Touch ID/Fingerprint support for authenticated users on native platforms
+  - Integrated `@capgo/capacitor-native-biometric` plugin (v8.3.2) with Capacitor 8 compatibility
+  - Toggle in ProfilePage (Data & Security section) to enable/disable biometric authentication
+  - BiometricGate component prompts for authentication on cold start and app resume after 5 minutes inactive
+  - BiometricPrompt modal UI with fade/scale animations and "Use Password" fallback
+  - Schema migration v6→v7 adding `security` field to BudgetState for biometric preferences
+  - Cloud sync integration for biometric settings across devices
+  - Full i18n support (es, en, fr, pt) for biometric UI
+  - iOS Face ID usage description added to Info.plist
+  - Only available for logged-in users on native platforms (iOS/Android)
+
+### Added
 - **iOS App Icon**: Added 1024x1024 app icon to iOS native project for proper home screen and App Store display
 - **Legal Pages**: Added Terms of Service and Privacy Policy pages required for App Store submission
   - New pages: `/legal/terms` and `/legal/privacy`

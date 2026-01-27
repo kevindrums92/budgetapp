@@ -14,6 +14,7 @@ import type {
   Budget,
   BudgetPeriod,
   BudgetStatus,
+  SecuritySettings,
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey, todayISO } from "@/services/dates.service";
@@ -158,13 +159,18 @@ type BudgetStore = BudgetState & {
   excludedFromStats: string[];
   toggleCategoryFromStats: (categoryId: string) => void;
 
+  // Security
+  toggleBiometricAuth: () => void;
+  updateLastAuthTimestamp: () => void;
+  getBiometricSettings: () => SecuritySettings;
+
   // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 6,
+  schemaVersion: 7,
   transactions: [],
   categories: [],
   categoryDefinitions: [], // Las categorías se crean durante el onboarding
@@ -172,6 +178,7 @@ const defaultState: BudgetState = {
   budgets: [],
   trips: [],
   tripExpenses: [],
+  security: { biometricEnabled: false },
 };
 
 function uniqSorted(arr: string[]) {
@@ -264,7 +271,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
@@ -317,7 +324,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
@@ -335,7 +342,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -371,7 +378,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -394,7 +401,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -412,7 +419,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -448,7 +455,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -471,7 +478,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -489,7 +496,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -522,7 +529,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
@@ -547,7 +554,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -565,7 +572,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
@@ -600,7 +607,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -625,7 +632,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -657,7 +664,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -714,7 +721,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -767,7 +774,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -788,7 +795,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteBudget: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -811,7 +818,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -861,7 +868,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -883,7 +890,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 6,
+        schemaVersion: 7,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
@@ -895,6 +902,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         budgetOnboardingSeen: s.budgetOnboardingSeen,
         lastSchedulerRun: s.lastSchedulerRun,
         excludedFromStats: s.excludedFromStats,
+        security: s.security,
       };
     },
 
@@ -916,7 +924,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         const current = state.excludedFromStats ?? [];
         const isExcluded = current.includes(categoryId);
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -931,15 +939,52 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           excludedFromStats: isExcluded
             ? current.filter((id) => id !== categoryId)
             : [...current, categoryId],
+          security: state.security,
         };
         saveState(next);
         return next;
       });
     },
 
+    // Security
+    toggleBiometricAuth: () => {
+      set((state) => {
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 7,
+          security: {
+            biometricEnabled: !(state.security?.biometricEnabled ?? false),
+            lastAuthTimestamp: state.security?.lastAuthTimestamp,
+          },
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    updateLastAuthTimestamp: () => {
+      set((state) => {
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 7,
+          security: {
+            biometricEnabled: state.security?.biometricEnabled ?? false,
+            lastAuthTimestamp: Date.now(),
+          },
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    getBiometricSettings: () => {
+      const state = get();
+      return state.security ?? { biometricEnabled: false };
+    },
+
     replaceAllData: (data) => {
       // guarda como cache local (cloud cache)
-      const normalizedData = { ...data, schemaVersion: 6 as const };
+      const normalizedData = { ...data, schemaVersion: 7 as const };
       saveState(normalizedData);
 
       // Sync onboarding flags to localStorage
@@ -958,7 +1003,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       // set explícito (NO meter funciones del store dentro)
       set({
-        schemaVersion: 6,
+        schemaVersion: 7,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
@@ -970,6 +1015,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         budgetOnboardingSeen: data.budgetOnboardingSeen ?? false,
         lastSchedulerRun: data.lastSchedulerRun,
         excludedFromStats: data.excludedFromStats ?? [],
+        security: data.security ?? { biometricEnabled: false },
       });
     },
   };

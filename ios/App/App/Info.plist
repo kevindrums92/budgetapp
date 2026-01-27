@@ -58,5 +58,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>SmartSpend necesita acceso a Face ID para desbloquear la app de forma segura.</string>
 </dict>
 </plist>

@@ -58,7 +58,7 @@ export function loadState(): BudgetState | null {
       const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
       if (onboardingCompleted) {
         const initialState: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: [],
           categories: [],
           categoryDefinitions: createDefaultCategories(),
@@ -203,6 +203,17 @@ export function loadState(): BudgetState | null {
       parsed.schemaVersion = 6;
       needsSave = true;
       console.log('[Storage] Migrated v5→v6: Added budgets array, removed monthlyLimit from categories');
+    }
+
+    // Migrate v6 to v7: Add security settings
+    if (parsed.schemaVersion === 6) {
+      parsed.security = {
+        biometricEnabled: false,
+        lastAuthTimestamp: undefined,
+      };
+      parsed.schemaVersion = 7;
+      needsSave = true;
+      console.log('[Storage] Migrated v6→v7: Added security settings for biometric authentication');
     }
 
     // Always repair: Ensure all transactions have sourceTemplateId if they match a template

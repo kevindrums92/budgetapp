@@ -12,6 +12,9 @@
     "scheduledSubtitle": "Automatic transactions",
     "backup": "Backup & Restore",
     "backupSubtitle": "Backup and restore data",
+    "biometric": "Biometric Authentication",
+    "biometricEnabled": "Enabled ({{type}})",
+    "biometricDisabled": "Disabled",
     "exportCSV": "Export CSV",
     "exportCSVSubtitle": "Download data in CSV format"
   },

@@ -43,7 +43,14 @@
       "Bash(__NEW_LINE_d33752c03147f455__ mv 6.PNG 07-scheduled-transactions.PNG)",
       "Bash(__NEW_LINE_d33752c03147f455__ mv 4.PNG 08-stats-modal.PNG)",
       "Bash(__NEW_LINE_d33752c03147f455__ mv 9.PNG 09-theme-selector.PNG)",
-      "Bash(__NEW_LINE_d33752c03147f455__ ls -lh)"
+      "Bash(__NEW_LINE_d33752c03147f455__ ls -lh)",
+      "Bash(chmod:*)",
+      "Bash(node scripts/configure-env.js:*)",
+      "Bash(node scripts/configure-env.cjs:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:capgo.app)",
+      "WebFetch(domain:capawesome.io)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }

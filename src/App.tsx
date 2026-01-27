@@ -50,6 +50,7 @@ const PrivacyPolicyPage = lazy(() => import("@/features/profile/pages/PrivacyPol
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
+import BiometricGate from "@/features/biometric/components/BiometricGate";
 import EnvBadge from "./components/EnvBadge";
 
 // Loading fallback component
@@ -159,6 +160,7 @@ export default function App() {
         <BrowserRouter>
           <CloudSyncGate />
           <OnboardingGate />
+          <BiometricGate />
           <AppFrame />
         </BrowserRouter>
       </CurrencyProvider>

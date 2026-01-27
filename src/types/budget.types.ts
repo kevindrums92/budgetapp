@@ -108,10 +108,17 @@ export type Trip = {
   createdAt: number;         // epoch ms
 };
 
+// ==================== SECURITY ====================
+
+export type SecuritySettings = {
+  biometricEnabled: boolean;
+  lastAuthTimestamp?: number;
+};
+
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
@@ -129,4 +136,6 @@ export type BudgetState = {
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull
   // Stats preferences
   excludedFromStats?: string[]; // Category IDs excluded from all stats calculations
+  // Security
+  security?: SecuritySettings;       // Biometric authentication settings
 };
