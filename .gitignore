@@ -38,7 +38,3 @@ dist-ssr
 test_output.txt
 
 /docs/roadmap/references/*
-
-# Capacitor native platforms (regenerated via `npx cap sync`)
-/ios
-/android
