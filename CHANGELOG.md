@@ -6,6 +6,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- Fix failing storage service tests expecting outdated schemaVersion 6 (updated to expect v7 after biometric security migration)
+- Fix localStorage mock isolation in test setup to prevent QuotaExceededError by creating fresh instance per test
+
 ### Added
 - **Biometric Authentication System**: Complete Face ID/Touch ID/Fingerprint support for authenticated users on native platforms
   - Integrated `@capgo/capacitor-native-biometric` plugin (v8.3.2) with Capacitor 8 compatibility
