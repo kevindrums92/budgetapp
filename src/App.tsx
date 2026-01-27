@@ -50,6 +50,7 @@ const PrivacyPolicyPage = lazy(() => import("@/features/profile/pages/PrivacyPol
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
+import EnvBadge from "./components/EnvBadge";
 
 // Loading fallback component
 function PageLoader() {
@@ -89,6 +90,7 @@ function AppFrame() {
 
   return (
     <>
+      <EnvBadge /> {/* Solo visible en DEV */}
       {/* App */}
       <div className="min-h-dvh bg-white dark:bg-gray-950">
         {!isFormRoute && <TopHeader showMonthSelector={showMonthSelector} isProfilePage={isProfilePage} />}
