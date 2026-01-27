@@ -17,8 +17,15 @@ All notable changes to SmartSpend will be documented in this file.
   - Mobile-first design with dark mode support
   - Auto-scroll to top on page load
   - Content covers: data collection, security (RLS, Supabase), user rights, third-party services, GDPR compliance
+- **App Store Screenshots**: Added 9 optimized screenshots (1284×2778px) for TestFlight/App Store submission
+  - Screenshots cover: home balance, budgets, statistics, history/filters, add transaction, categories, scheduled transactions, stats modals, theme selector
+  - Documentation in `docs/app-store/screenshots/README.md` with order recommendations and descriptions
 
 ### Changed
+- **iOS Bundle ID**: Updated from `com.smartspend.app` to `com.jhotech.smartspend` for App Store submission
+  - Updated Capacitor config, Xcode project settings, and Info.plist
+  - Updated CFBundleURLName for OAuth deep linking
+  - Version bumped to 0.11.1 (MARKETING_VERSION)
 - **Tests**: Removed obsolete test that validated transaction description as required field (now optional with category fallback)
 
 ### Fixed

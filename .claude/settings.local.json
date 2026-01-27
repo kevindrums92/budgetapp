@@ -27,7 +27,23 @@
       "Bash(find:*)",
       "Bash(qlmanage -t -s 2732 -o . splash-dark.svg:*)",
       "Bash(npm uninstall:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(for f in *.PNG)",
+      "Bash(do echo \"=== $f ===\")",
+      "Bash(sips:*)",
+      "Bash(done)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 1.PNG 01-home-balance-transactions.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 2.PNG 02-budgets-progress.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 3.PNG 03-stats-chart.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 5.PNG 04-history-filters.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 8.PNG 05-add-transaction.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 7.PNG 06-categories.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 6.PNG 07-scheduled-transactions.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 4.PNG 08-stats-modal.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ mv 9.PNG 09-theme-selector.PNG)",
+      "Bash(__NEW_LINE_d33752c03147f455__ ls -lh)"
     ]
   }
 }
