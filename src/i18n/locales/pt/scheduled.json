@@ -85,5 +85,10 @@
     "note": "As transações já registradas não serão afetadas.",
     "confirm": "Desativar",
     "cancel": "Cancelar"
+  },
+  "upcomingModal": {
+    "title": "Movimentos de amanhã",
+    "andMore": "e mais {{count}}...",
+    "dismiss": "Entendido"
   }
 }

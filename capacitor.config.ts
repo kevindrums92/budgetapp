@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.jhotech.smartspend',
-  appName: 'SmartSpend',
+  appId: 'com.jhotech.smartspend.dev',
+  appName: 'SmartSpend Dev',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
@@ -12,6 +12,12 @@ const config: CapacitorConfig = {
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#0d9488',
+    },
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
+    FirebaseMessaging: {
+      presentationOptions: ['badge', 'sound', 'alert'],
     },
   },
 };

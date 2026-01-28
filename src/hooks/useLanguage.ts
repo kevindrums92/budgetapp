@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
+import { updateTokenLanguage } from '@/services/pushNotification.service';
 
 export interface Language {
   code: string;
@@ -54,6 +55,8 @@ export function useLanguage() {
       try {
         await i18n.changeLanguage(langCode);
         localStorage.setItem('app_language', langCode);
+        // Sync language to push_tokens so Edge Functions can localize notifications
+        updateTokenLanguage(langCode).catch(() => {});
         console.log('[i18n] Language changed to:', langCode);
       } catch (error) {
         console.error('[i18n] Error changing language:', error);

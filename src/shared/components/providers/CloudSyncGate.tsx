@@ -15,6 +15,11 @@ import CloudBackupScheduler from "@/features/backup/components/CloudBackupSchedu
 import { logger } from "@/shared/utils/logger";
 import { convertLegacyRecurringToSchedule } from "@/shared/services/scheduler.service";
 import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
+import {
+  initializePushNotifications,
+  deactivateToken,
+  cleanup as cleanupPushNotifications,
+} from "@/services/pushNotification.service";
 
 const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
@@ -475,6 +480,11 @@ export default function CloudSyncGate() {
       // Mark CloudSync as ready so SchedulerJob can run
       useBudgetStore.getState().setCloudSyncReady();
       logger.info("CloudSync", "CloudSync initialization complete, scheduler can now run");
+
+      // Initialize push notifications for authenticated users
+      initializePushNotifications().then((enabled) => {
+        logger.info("CloudSync", `Push notifications initialized: ${enabled ? "enabled" : "not enabled"}`);
+      });
     } catch (err) {
       logger.error("CloudSync", "Init failed:", err);
       setCloudStatus(isNetworkError(err) ? "offline" : "error");
@@ -533,6 +543,10 @@ export default function CloudSyncGate() {
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT") {
+        // Deactivate push notification token before clearing data
+        deactivateToken();
+        cleanupPushNotifications();
+
         clearPendingSnapshot();
         clearState();
         // Leave categories empty - user will recover them when logging back in

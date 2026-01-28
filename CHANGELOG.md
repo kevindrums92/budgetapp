@@ -7,6 +7,19 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Push Notifications**: Complete FCM-based notification system with Firebase Cloud Messaging
+  - Three notification types: daily reminder (if no transactions today), upcoming transactions (1 day before), daily summary (if activity today)
+  - Multilingual support (es, en, pt, fr) with localized notification texts based on user language preference
+  - User preferences with configurable times for daily reminder/summary, quiet hours mode, and per-notification-type toggles
+  - Edge Functions on Supabase with cron jobs (every minute for reminders/summaries, daily for upcoming transactions)
+  - Upcoming transactions modal showing tomorrow's scheduled/pending transactions on notification tap
+  - iOS integration with Firebase SDK 12.8.0, push entitlements, and GoogleService-Info.plist
+  - Dark mode support for notification settings page with iOS safe areas
+  - SQL migrations for push_tokens and notification_history tables with RLS policies
+  - UTC timezone conversion for user-configured notification times
+  - Comprehensive documentation in docs/push-notifications/ (SETUP_GUIDE.md, PUSH_NOTIFICATIONS_PLAN.md)
+
 ### Fixed
 - **Stats Page**: Charts now sync with selected month instead of showing fixed time ranges
   - Income vs Expenses chart displays last 6 months ending at selected month

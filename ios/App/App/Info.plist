@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>SmartSpend</string>
+	<string>SmartSpend Dev</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,10 +24,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.jhotech.smartspend</string>
+			<string>com.jhotech.smartspend.dev</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>smartspend</string>
+				<string>smartspend-dev</string>
 			</array>
 		</dict>
 	</array>
@@ -60,5 +60,11 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>SmartSpend necesita acceso a Face ID para desbloquear la app de forma segura.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 </dict>
 </plist>

@@ -6,7 +6,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
-import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint } from "lucide-react";
+import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
 import { authenticateWithBiometrics, checkBiometricAvailability, getBiometryDisplayName } from "@/features/biometric/services/biometric.service";
 
@@ -326,6 +326,14 @@ export default function ProfilePage() {
               sublabel={t('menu.exportCSVSubtitle')}
               onClick={() => navigate('/settings/export-csv')}
             />
+            {Capacitor.isNativePlatform() && (
+              <MenuItem
+                icon={<Bell size={20} />}
+                label={t('menu.notifications', 'Notificaciones')}
+                sublabel={t('menu.notificationsSubtitle', 'Recordatorios y alertas')}
+                onClick={() => navigate('/settings/notifications')}
+              />
+            )}
           </div>
         </div>
 

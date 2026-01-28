@@ -85,5 +85,10 @@
     "note": "Already recorded transactions will not be affected.",
     "confirm": "Deactivate",
     "cancel": "Cancel"
+  },
+  "upcomingModal": {
+    "title": "Tomorrow's transactions",
+    "andMore": "and {{count}} more...",
+    "dismiss": "Got it"
   }
 }
