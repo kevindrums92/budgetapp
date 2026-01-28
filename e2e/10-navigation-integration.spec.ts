@@ -97,8 +97,8 @@ test.describe('Navigation & Integration', () => {
     await page.waitForLoadState('networkidle');
 
     // Bottom bar should be hidden or not visible
-    const bottomBar = page.locator('[class*="fixed inset-x-0 -bottom-1"]');
-    const isVisible = await bottomBar.isVisible({ timeout: 2000 }).catch(() => false);
+    // const bottomBar = page.locator('[class*="fixed inset-x-0 -bottom-1"]');
+    // const isVisible = await bottomBar.isVisible({ timeout: 2000 }).catch(() => false);
 
     // Form pages may or may not show bottom bar
     expect(true).toBe(true);
@@ -351,7 +351,7 @@ test.describe('Navigation & Integration', () => {
 
     if (await homeTab.isVisible({ timeout: 3000 }).catch(() => false)) {
       // Check if has active styling (text color #18B7B0)
-      const hasActiveColor = await homeTab.locator('[class*="text-[#18B7B0]"]').isVisible().catch(() => false);
+      // const hasActiveColor = await homeTab.locator('[class*="text-[#18B7B0]"]').isVisible().catch(() => false);
 
       // Active state may be styled differently
       expect(true).toBe(true);

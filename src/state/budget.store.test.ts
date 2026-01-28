@@ -1376,7 +1376,7 @@ describe('budget.store', () => {
 
         const snapshot = store.getSnapshot();
 
-        expect(snapshot.schemaVersion).toBe(6);
+        expect(snapshot.schemaVersion).toBe(7);
         expect(snapshot.transactions).toHaveLength(1);
         expect(snapshot.transactions[0].name).toBe('Test');
         expect(snapshot.categories).toBeDefined();
@@ -1458,10 +1458,10 @@ describe('budget.store', () => {
 
         store.replaceAllData(newData);
 
-        // replaceAllData normalizes to v6 before saving
+        // replaceAllData normalizes to v7 before saving
         expect(storageService.saveState).toHaveBeenCalledWith({
           ...newData,
-          schemaVersion: 6,
+          schemaVersion: 7,
         });
       });
     });

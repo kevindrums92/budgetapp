@@ -24,8 +24,8 @@ test.describe('Settings & Preferences', () => {
     await expect(page).toHaveURL('/profile');
 
     // Should show profile/settings options
-    const profileContent = page.locator('text=Perfil, text=Configuración, text=Ajustes').first();
-    const hasProfileContent = await profileContent.isVisible({ timeout: 5000 }).catch(() => false);
+    // const profileContent = page.locator('text=Perfil, text=Configuración, text=Ajustes').first();
+    // const hasProfileContent = await profileContent.isVisible({ timeout: 5000 }).catch(() => false);
 
     // Page should load successfully
     expect(page.url()).toContain('/profile');
@@ -112,12 +112,12 @@ test.describe('Settings & Preferences', () => {
         await page.waitForTimeout(500);
 
         // Verify theme changed (check html class or localStorage)
-        const isDarkMode = await page.evaluate(() => {
-          return (
-            document.documentElement.classList.contains('dark') ||
-            localStorage.getItem('app_theme') === 'dark'
-          );
-        });
+        // const isDarkMode = await page.evaluate(() => {
+        //   return (
+        //     document.documentElement.classList.contains('dark') ||
+        //     localStorage.getItem('app_theme') === 'dark'
+        //   );
+        // });
 
         // If theme switching is implemented, should be dark
         // expect(isDarkMode).toBe(true);
@@ -126,12 +126,12 @@ test.describe('Settings & Preferences', () => {
         await page.reload();
         await page.waitForLoadState('networkidle');
 
-        const isDarkModeAfterReload = await page.evaluate(() => {
-          return (
-            document.documentElement.classList.contains('dark') ||
-            localStorage.getItem('app_theme') === 'dark'
-          );
-        });
+        // const isDarkModeAfterReload = await page.evaluate(() => {
+        //   return (
+        //     document.documentElement.classList.contains('dark') ||
+        //     localStorage.getItem('app_theme') === 'dark'
+        //   );
+        // });
 
         // Theme should persist
         // expect(isDarkModeAfterReload).toBe(true);
@@ -189,11 +189,11 @@ test.describe('Settings & Preferences', () => {
     expect(page.url()).toContain('/backup');
 
     // Should show backup-related content
-    const hasBackupContent = await page
-      .locator('text=Backup, text=Respaldo, text=Copia')
-      .first()
-      .isVisible({ timeout: 5000 })
-      .catch(() => false);
+    // const hasBackupContent = await page
+    //   .locator('text=Backup, text=Respaldo, text=Copia')
+    //   .first()
+    //   .isVisible({ timeout: 5000 })
+    //   .catch(() => false);
 
     // Page should load successfully even if empty
     expect(true).toBe(true);
@@ -204,11 +204,11 @@ test.describe('Settings & Preferences', () => {
     await page.waitForLoadState('networkidle');
 
     // Look for sign in / account options
-    const authOptions = page.locator(
-      'button:has-text("Iniciar sesión"), button:has-text("Crear cuenta"), text=Cuenta'
-    );
+    // const authOptions = page.locator(
+    //   'button:has-text("Iniciar sesión"), button:has-text("Crear cuenta"), text=Cuenta'
+    // );
 
-    const hasAuthOptions = await authOptions.first().isVisible({ timeout: 5000 }).catch(() => false);
+    // const hasAuthOptions = await authOptions.first().isVisible({ timeout: 5000 }).catch(() => false);
 
     // Should have some auth-related options
     // In guest mode, should show sign in/create account
@@ -255,9 +255,9 @@ test.describe('Settings & Preferences', () => {
     await page.waitForLoadState('networkidle');
 
     // Look for version info (common in profile pages)
-    const versionInfo = page.locator('text=/v\\d+\\.\\d+\\.\\d+/, text=Versión');
+    // const versionInfo = page.locator('text=/v\\d+\\.\\d+\\.\\d+/, text=Versión');
 
-    const hasVersionInfo = await versionInfo.first().isVisible({ timeout: 5000 }).catch(() => false);
+    // const hasVersionInfo = await versionInfo.first().isVisible({ timeout: 5000 }).catch(() => false);
 
     // Version info may or may not be displayed
     expect(true).toBe(true);

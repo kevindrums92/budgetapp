@@ -55,7 +55,7 @@ function downloadTextFileWeb(
 async function downloadTextFileNative(
   content: string,
   filename: string,
-  _mimeType: string
+  _mimeType: string // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<void> {
   try {
     // Write file to cache directory (temporary storage)

@@ -52,7 +52,7 @@ test.describe('Scheduled Transactions', () => {
     await expect(page.locator('text=Netflix mensual')).toBeVisible();
 
     // Check if there's a recurring indicator (Repeat icon)
-    const hasRecurringIcon = await page.locator('svg[class*="lucide-repeat"]').count();
+    // const hasRecurringIcon = await page.locator('svg[class*="lucide-repeat"]').count();
     // If scheduling is implemented, should have icon
     // expect(hasRecurringIcon).toBeGreaterThan(0);
   });
@@ -155,10 +155,10 @@ test.describe('Scheduled Transactions', () => {
     await page.waitForURL('/');
 
     // Check transaction list for any recurring indicators
-    const transactionItem = page.locator('text=Recurring expense').locator('..');
+    // const transactionItem = page.locator('text=Recurring expense').locator('..');
 
     // Look for Repeat icon or recurring badge
-    const hasRepeatIcon = await transactionItem.locator('svg[class*="lucide-repeat"]').count();
+    // const hasRepeatIcon = await transactionItem.locator('svg[class*="lucide-repeat"]').count();
 
     // Should have recurring indicator if feature is implemented
     // For now, just verify transaction exists

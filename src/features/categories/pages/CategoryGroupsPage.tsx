@@ -31,7 +31,7 @@ export default function CategoryGroupsPage() {
   }, [categoryGroups, categoryDefinitions]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header */}
       <PageHeader
         title={t("groups.title")}
@@ -39,22 +39,22 @@ export default function CategoryGroupsPage() {
           <button
             type="button"
             onClick={() => navigate(`/category-group/new?type=${activeTab}`)}
-            className="rounded-full p-2 hover:bg-gray-100"
+            className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
           >
-            <Plus className="h-5 w-5 text-gray-700" />
+            <Plus className="h-5 w-5 text-gray-700 dark:text-gray-50" />
           </button>
         }
       />
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-white px-4 pt-3 pb-4">
+      <div className="flex gap-2 bg-white dark:bg-gray-900 px-4 pt-3 pb-4">
         <button
           type="button"
           onClick={() => setActiveTab("expense")}
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === "expense"
-              ? "bg-gray-900 text-white"
-              : "bg-gray-100 text-gray-600"
+              ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
+              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
           }`}
         >
           {t("tabs.expenses")}
@@ -65,7 +65,7 @@ export default function CategoryGroupsPage() {
           className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
             activeTab === "income"
               ? "bg-emerald-500 text-white"
-              : "bg-gray-100 text-gray-600"
+              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
           }`}
         >
           {t("tabs.income")}
@@ -80,7 +80,7 @@ export default function CategoryGroupsPage() {
               key={group.id}
               type="button"
               onClick={() => navigate(`/category-group/${group.id}/edit`)}
-              className="flex w-full items-center gap-3 rounded-xl bg-white p-4 shadow-sm hover:bg-gray-50 transition-colors"
+              className="flex w-full items-center gap-3 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
               {/* Color indicator */}
               <div
@@ -90,24 +90,24 @@ export default function CategoryGroupsPage() {
 
               {/* Content */}
               <div className="flex-1 text-left">
-                <span className="font-medium text-gray-900">{group.name}</span>
-                <p className="text-xs text-gray-500">
+                <span className="font-medium text-gray-900 dark:text-gray-50">{group.name}</span>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {categoriesInGroup[group.id] || 0} categorías
                 </p>
               </div>
 
               {/* Chevron */}
-              <ChevronRight className="h-5 w-5 text-gray-300" />
+              <ChevronRight className="h-5 w-5 text-gray-300 dark:text-gray-600" />
             </button>
           ))}
 
           {filteredGroups.length === 0 && (
             <div className="py-12 text-center">
-              <p className="text-gray-500">{activeTab === "expense" ? t("groups.emptyExpenses") : t("groups.emptyIncome")}</p>
+              <p className="text-gray-500 dark:text-gray-400">{activeTab === "expense" ? t("groups.emptyExpenses") : t("groups.emptyIncome")}</p>
               <button
                 type="button"
                 onClick={() => navigate(`/category-group/new?type=${activeTab}`)}
-                className="mt-4 text-emerald-600 font-medium"
+                className="mt-4 text-emerald-600 dark:text-emerald-400 font-medium"
               >
                 {t("groups.createButton")}
               </button>

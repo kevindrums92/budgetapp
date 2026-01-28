@@ -23,9 +23,9 @@ test.describe('Search & Filtering', () => {
     await page.waitForLoadState('networkidle');
 
     // Look for search input
-    const searchInput = page.locator('input[placeholder*="Buscar"], input[type="search"]');
+    // const searchInput = page.locator('input[placeholder*="Buscar"], input[type="search"]');
 
-    const hasSearch = await searchInput.isVisible({ timeout: 5000 }).catch(() => false);
+    // const hasSearch = await searchInput.isVisible({ timeout: 5000 }).catch(() => false);
 
     // Search may be implemented differently or not yet
     // Just verify page loads
@@ -180,9 +180,9 @@ test.describe('Search & Filtering', () => {
       await page.waitForTimeout(500);
 
       // Should show empty state
-      const emptyState = page.locator('text=No se encontraron, text=Sin resultados, text=No results').first();
+      // const emptyState = page.locator('text=No se encontraron, text=Sin resultados, text=No results').first();
 
-      const hasEmptyState = await emptyState.isVisible({ timeout: 3000 }).catch(() => false);
+      // const hasEmptyState = await emptyState.isVisible({ timeout: 3000 }).catch(() => false);
 
       // May or may not show explicit empty state
       expect(true).toBe(true);
@@ -231,7 +231,7 @@ test.describe('Search & Filtering', () => {
       await page.waitForLoadState('networkidle');
 
       // Check if search persisted (may or may not depending on implementation)
-      const newValue = await searchInput.inputValue().catch(() => '');
+      // const newValue = await searchInput.inputValue().catch(() => '');
 
       // Search may or may not persist
       expect(true).toBe(true);

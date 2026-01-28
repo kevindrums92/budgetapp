@@ -6,10 +6,8 @@
 import { test, expect } from '@playwright/test';
 import {
   skipOnboardingWithCategories,
-  createTransaction,
   getCurrentBalance,
   getTransactionsCount,
-  clearStorage,
 } from './test-helpers';
 
 test.describe('Transaction Management', () => {

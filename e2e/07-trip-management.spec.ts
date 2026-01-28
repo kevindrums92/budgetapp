@@ -29,9 +29,9 @@ test.describe('Trip Management', () => {
     await page.waitForLoadState('networkidle');
 
     // Look for empty state message
-    const emptyState = page.locator('text=No hay viajes, text=Crea tu primer, text=No trips').first();
+    // const emptyState = page.locator('text=No hay viajes, text=Crea tu primer, text=No trips').first();
 
-    const hasEmptyState = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
+    // const hasEmptyState = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
 
     // Page should load successfully
     expect(true).toBe(true);
@@ -127,9 +127,9 @@ test.describe('Trip Management', () => {
     await page.waitForLoadState('networkidle');
 
     // Look for status badges
-    const statusBadges = page.locator('text=Planning, text=Active, text=Completed, text=Planeado, text=Activo');
+    // const statusBadges = page.locator('text=Planning, text=Active, text=Completed, text=Planeado, text=Activo');
 
-    const hasStatus = await statusBadges.first().isVisible({ timeout: 3000 }).catch(() => false);
+    // const hasStatus = await statusBadges.first().isVisible({ timeout: 3000 }).catch(() => false);
 
     // Status may or may not be visible depending on trips
     expect(true).toBe(true);

@@ -42,17 +42,6 @@ export function useOTPVerification(): UseOTPVerificationReturn {
 
   const cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Start cooldown timer on mount (user just received OTP)
-  useEffect(() => {
-    startCooldown();
-
-    return () => {
-      if (cooldownTimerRef.current) {
-        clearInterval(cooldownTimerRef.current);
-      }
-    };
-  }, []);
-
   // Start cooldown timer
   const startCooldown = useCallback(() => {
     setResendCooldown(RESEND_COOLDOWN);
@@ -72,6 +61,18 @@ export function useOTPVerification(): UseOTPVerificationReturn {
         return prev - 1;
       });
     }, 1000);
+  }, []);
+
+  // Start cooldown timer on mount (user just received OTP)
+  useEffect(() => {
+    startCooldown();
+
+    return () => {
+      if (cooldownTimerRef.current) {
+        clearInterval(cooldownTimerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Set a single digit

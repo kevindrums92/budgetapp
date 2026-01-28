@@ -7,7 +7,6 @@ import { test, expect } from '@playwright/test';
 import {
   skipOnboardingWithCategories,
   clearStorage,
-  waitForCloudSync,
   goOffline,
   goOnline,
 } from './test-helpers';

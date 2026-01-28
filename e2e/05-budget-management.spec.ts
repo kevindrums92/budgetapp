@@ -181,9 +181,9 @@ test.describe('Budget Management', () => {
     }
 
     // Look for empty state or create budget prompt
-    const emptyState = page.locator('text=presupuesto, text=budget, text=crea').first();
+    // const emptyState = page.locator('text=presupuesto, text=budget, text=crea').first();
 
-    const hasContent = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
+    // const hasContent = await emptyState.isVisible({ timeout: 5000 }).catch(() => false);
 
     // Page should show some content
     expect(true).toBe(true);
@@ -254,9 +254,9 @@ test.describe('Budget Management', () => {
     }
 
     // Look for period indicators
-    const periodText = page.locator('text=Mensual, text=Semanal, text=Monthly, text=Weekly').first();
+    // const periodText = page.locator('text=Mensual, text=Semanal, text=Monthly, text=Weekly').first();
 
-    const hasPeriod = await periodText.isVisible({ timeout: 3000 }).catch(() => false);
+    // const hasPeriod = await periodText.isVisible({ timeout: 3000 }).catch(() => false);
 
     // Period text may or may not be visible depending on budgets
     expect(true).toBe(true);

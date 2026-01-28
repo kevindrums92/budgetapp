@@ -7,6 +7,12 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Dark Mode - Category Groups**: Complete dark mode support for category groups CRUD pages
+  - CategoryGroupsPage: dark variants for tabs, cards, empty states, and all interactive elements
+  - AddEditCategoryGroupPage: dark mode for form inputs, color picker modal, delete confirmation modal, and buttons
+  - Fixed expense tab contrast in dark mode (now uses light background when active)
+  - Fixed input transparency to inherit card background color
+  - Disabled button state properly styled for dark mode
 - **Automatic Keyboard Dismiss**: Keyboard now closes automatically when scrolling or touching outside input fields
   - New `useKeyboardDismiss` hook applied to all pages and modals with text inputs
   - Provides native mobile app UX: dismiss on scroll (500ms delay after focus) or touch outside
@@ -16,6 +22,10 @@ All notable changes to SmartSpend will be documented in this file.
 - **Budget Management**: Added delete button to budget edit modal for easier budget removal
 
 ### Fixed
+- **ESLint**: Removed 22 unused imports and variables across e2e test files and source code
+- **Tests**: Updated budget store tests to expect schemaVersion 7 (was expecting outdated v6)
+- **React Hooks**: Fixed useEffect dependency warnings in useOTPVerification and BudgetPage
+- **TypeScript**: Fixed "variable used before declaration" error in useOTPVerification hook
 - **Biometric Auth**: Restored biometric authentication timeout from 10s (testing) to 5 minutes (production)
 - Fix failing storage service tests expecting outdated schemaVersion 6 (updated to expect v7 after biometric security migration)
 - Fix localStorage mock isolation in test setup to prevent QuotaExceededError by creating fresh instance per test

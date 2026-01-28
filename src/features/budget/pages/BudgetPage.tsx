@@ -33,7 +33,7 @@ export default function BudgetPage() {
 
   // Renew expired budgets on mount
   useEffect(() => {
-    store.renewExpiredBudgets();
+    useBudgetStore.getState().renewExpiredBudgets();
   }, []);
 
   const handleCloseOnboarding = () => {

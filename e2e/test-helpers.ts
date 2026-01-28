@@ -3,7 +3,7 @@
  * Shared utilities for Playwright tests
  */
 
-import { Page, expect } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 /**
  * Skip onboarding and set up minimal budget state for testing
