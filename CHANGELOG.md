@@ -7,6 +7,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Push Notifications**: Fix Edge Functions to dynamically use Firebase project ID from Service Account instead of hardcoded dev project
+  - Updated send-daily-reminder, send-daily-summary, and send-upcoming-transactions to read PROJECT_ID from SERVICE_ACCOUNT environment variable
+  - Allows same Edge Function code to work with any Firebase project (dev/prod) just by changing the Service Account secret
+  - Fixes 401 SENDER_ID_MISMATCH errors when switching between Firebase projects
+
 ### Added
 - **Push Notifications**: Complete FCM-based notification system with Firebase Cloud Messaging
   - Three notification types: daily reminder (if no transactions today), upcoming transactions (1 day before), daily summary (if activity today)

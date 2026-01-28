@@ -6,10 +6,14 @@ Esta guia documenta todos los pasos necesarios para configurar Push Notification
 
 ### Firebase
 1. Crear proyecto en [Firebase Console](https://console.firebase.google.com/)
-2. Ir a **Project Settings → Service Accounts**
-3. Click **"Generate new private key"**
-4. Guardar el JSON (contiene `client_email`, `private_key`, etc.)
-5. Anotar el **Project ID** (ej: `smartspend-app-14ec4`)
+2. **CRÍTICO**: Habilitar Firebase Cloud Messaging API
+   - Opción A: Desde Firebase Console → Project Settings → Cloud Messaging → "Manage API in Google Cloud Console" → ENABLE
+   - Opción B: Ir directamente a [Google Cloud Console](https://console.cloud.google.com/apis/library/fcm.googleapis.com) → Seleccionar proyecto → ENABLE
+   - **Sin este paso, obtendrás error 401 UNAUTHENTICATED al enviar notificaciones**
+3. Ir a **Project Settings → Service Accounts**
+4. Click **"Generate new private key"**
+5. Guardar el JSON (contiene `client_email`, `private_key`, etc.)
+6. Anotar el **Project ID** (ej: `smartspend-app-14ec4`)
 
 ### iOS (Capacitor)
 - Configurar Firebase en Xcode via SPM
