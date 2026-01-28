@@ -4,7 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.12.0] - 2026-01-27
 
 ### Added
 - **OAuth Error Handling**: Add retry modal when Google login fails instead of infinite loading
