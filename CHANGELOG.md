@@ -7,6 +7,21 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **Budget System Refactor (Plan)**: Complete redesign of budget system with two types of plans
+  - **Spending Limits**: Set maximum spending caps for categories (groceries, restaurants, entertainment)
+  - **Savings Goals**: Set savings targets for categories (investments, emergency fund, projects)
+  - **Active/Completed Tabs**: Filter plans by status with health check banners showing exceeded limits and goals progress
+  - **Completion Summaries**: Detailed results when plans end (limit respected/exceeded, goal achieved/not achieved with amounts)
+  - **Smart Metrics**: Daily suggestions, days remaining, average daily spending/saving calculations
+  - **Auto-Renewal**: Expired budgets automatically renew on app load (triggered in CloudSyncGate)
+  - **Read-Only State**: Completed budgets cannot be edited, only viewed or deleted with special confirmation
+  - **Redesigned Onboarding**: 4-screen wizard explaining plan types, tabs system, history analysis, and smart alerts
+  - **Budget Detail Page**: New dedicated page per budget with contextual metrics, activity list, and status-based UI
+  - Renamed routes: `/budget` → `/plan`, `/budget/:id` → `/plan/:id`
+  - Full i18n translations (es, en, fr, pt) for all new features and onboarding content
+  - Comprehensive FEATURES.md documentation update with complete system architecture
+
+### Added
 - **Dark Mode - Category Groups**: Complete dark mode support for category groups CRUD pages
   - CategoryGroupsPage: dark variants for tabs, cards, empty states, and all interactive elements
   - AddEditCategoryGroupPage: dark mode for form inputs, color picker modal, delete confirmation modal, and buttons

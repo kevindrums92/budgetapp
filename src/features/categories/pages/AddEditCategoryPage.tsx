@@ -89,8 +89,8 @@ export default function AddEditCategoryPage() {
       navigate(-1);
     } else {
       const newId = addCategory({ name: name.trim(), icon, color, type, groupId });
-      // If coming from transaction form or onboarding, store new category and go back
-      if ((returnTo === "transaction" || returnTo === "onboarding") && newId) {
+      // If coming from any form that needs the new category, store it in session storage
+      if (returnTo && newId) {
         // Store newCategoryId in session storage for the form to pick up
         sessionStorage.setItem("newCategoryId", newId);
       }

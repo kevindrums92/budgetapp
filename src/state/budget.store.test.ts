@@ -1590,6 +1590,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1615,6 +1616,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: -100,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1634,6 +1636,7 @@ describe('budget.store', () => {
           const firstBudgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1648,6 +1651,7 @@ describe('budget.store', () => {
           const secondBudgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 300000,
+            type: 'limit',
             period: {
               type: 'custom',
               startDate: '2026-01-15',
@@ -1666,6 +1670,7 @@ describe('budget.store', () => {
           const budget1 = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1677,6 +1682,7 @@ describe('budget.store', () => {
           const budget2 = store.createBudget({
             categoryId: 'cat-restaurant',
             amount: 300000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1698,6 +1704,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1723,6 +1730,7 @@ describe('budget.store', () => {
           store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1734,6 +1742,7 @@ describe('budget.store', () => {
           const budget2 = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-02-01',
@@ -1765,6 +1774,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1788,6 +1798,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1810,6 +1821,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1845,6 +1857,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1887,6 +1900,7 @@ describe('budget.store', () => {
           store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1915,6 +1929,7 @@ describe('budget.store', () => {
           store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',

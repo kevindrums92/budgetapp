@@ -102,6 +102,7 @@ export function renewRecurringBudget(budget: Budget): Budget {
     id: nanoid(),
     categoryId: budget.categoryId,
     amount: budget.amount,
+    type: budget.type,
     period: nextPeriod,
     accountId: budget.accountId,
     isRecurring: budget.isRecurring,

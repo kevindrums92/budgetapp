@@ -50,7 +50,7 @@ export default function PeriodPickerModal({
     }
   }, [open]);
 
-  // Lock body scroll
+  // Lock body scroll - ensure it stays locked even after DatePicker closes
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -61,6 +61,17 @@ export default function PeriodPickerModal({
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  // Re-lock body scroll when DatePickers close
+  useEffect(() => {
+    if (open && !showStartDatePicker && !showEndDatePicker) {
+      // Small delay to ensure DatePicker cleanup has run
+      const timer = setTimeout(() => {
+        document.body.style.overflow = "hidden";
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [open, showStartDatePicker, showEndDatePicker]);
 
   if (!open) return null;
 
@@ -137,18 +148,19 @@ export default function PeriodPickerModal({
   };
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 ${
-        isVisible ? "opacity-100" : "opacity-0"
-      }`}
-      onClick={onClose}
-    >
+    <>
       <div
-        className={`relative mx-4 w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl transform transition-all duration-200 ${
-          isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 ${
+          isVisible ? "opacity-100" : "opacity-0"
         }`}
-        onClick={(e) => e.stopPropagation()}
+        onClick={onClose}
       >
+        <div
+          className={`relative mx-4 w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl transform transition-all duration-200 ${
+            isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
@@ -242,20 +254,31 @@ export default function PeriodPickerModal({
           </button>
         </div>
       </div>
+      </div>
 
-      {/* DatePicker modals */}
-      <DatePicker
-        open={showStartDatePicker}
-        onClose={() => setShowStartDatePicker(false)}
-        value={customStartDate}
-        onChange={setCustomStartDate}
-      />
-      <DatePicker
-        open={showEndDatePicker}
-        onClose={() => setShowEndDatePicker(false)}
-        value={customEndDate}
-        onChange={setCustomEndDate}
-      />
-    </div>
+      {/* DatePicker modals - Rendered outside backdrop to prevent event propagation */}
+      {showStartDatePicker && (
+        <DatePicker
+          open={showStartDatePicker}
+          onClose={() => setShowStartDatePicker(false)}
+          value={customStartDate}
+          onChange={(date) => {
+            setCustomStartDate(date);
+            setShowStartDatePicker(false);
+          }}
+        />
+      )}
+      {showEndDatePicker && (
+        <DatePicker
+          open={showEndDatePicker}
+          onClose={() => setShowEndDatePicker(false)}
+          value={customEndDate}
+          onChange={(date) => {
+            setCustomEndDate(date);
+            setShowEndDatePicker(false);
+          }}
+        />
+      )}
+    </>
   );
 }

@@ -3,10 +3,9 @@
  * Pantalla 1: Bienvenida al módulo de presupuestos
  */
 
-import { Target, ChevronLeft } from 'lucide-react';
+import { Target, ChevronLeft, DollarSign, TrendingDown, TrendingUp } from 'lucide-react';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
-import { useTranslation } from 'react-i18next';
 
 type Props = {
   onNext: () => void;
@@ -28,8 +27,6 @@ export default function Screen1_Welcome({
   currentStep,
   totalSteps,
 }: Props) {
-  const { t } = useTranslation('budget');
-
   return (
     <div
       className="relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
@@ -60,7 +57,7 @@ export default function Screen1_Welcome({
             onClick={onSkip}
             className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
           >
-            {t('onboarding.skip')}
+            Omitir
           </button>
         ) : (
           <div className="h-10 w-10" />
@@ -72,13 +69,13 @@ export default function Screen1_Welcome({
         <div className="mb-8">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-              {t('onboarding.screen1.title')}
+              Organiza tu dinero con Planes
             </h1>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={50}>
             <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-              {t('onboarding.screen1.subtitle')}
+              Crea límites de gasto y metas de ahorro para controlar tus finanzas de forma inteligente.
             </p>
           </SlideAnimation>
         </div>
@@ -86,8 +83,8 @@ export default function Screen1_Welcome({
         {/* Hero Icon */}
         <SlideAnimation direction="up" delay={100}>
           <div className="mb-8 flex justify-center">
-            <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-emerald-100 dark:bg-emerald-900/30">
-              <Target size={64} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+            <div className="flex h-32 w-32 items-center justify-center rounded-3xl bg-[#18B7B0]/10">
+              <Target size={64} className="text-[#18B7B0]" strokeWidth={2} />
             </div>
           </div>
         </SlideAnimation>
@@ -96,33 +93,54 @@ export default function Screen1_Welcome({
         <div className="space-y-4">
           <SlideAnimation direction="up" delay={150}>
             <div className="rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
-              <h3 className="mb-2 font-bold text-gray-900 dark:text-gray-50">
-                {t('onboarding.screen1.feature1Title')}
-              </h3>
-              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('onboarding.screen1.feature1Description')}
+              <div className="flex items-start gap-3 mb-2">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/30">
+                  <TrendingDown size={18} className="text-red-600 dark:text-red-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-50">
+                    Límites de Gasto
+                  </h3>
+                </div>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 pl-12">
+                Define un tope de gasto para categorías específicas y mantén tus gastos bajo control.
               </p>
             </div>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={200}>
             <div className="rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
-              <h3 className="mb-2 font-bold text-gray-900 dark:text-gray-50">
-                {t('onboarding.screen1.feature2Title')}
-              </h3>
-              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('onboarding.screen1.feature2Description')}
+              <div className="flex items-start gap-3 mb-2">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-900/30">
+                  <TrendingUp size={18} className="text-teal-600 dark:text-teal-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-50">
+                    Metas de Ahorro
+                  </h3>
+                </div>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 pl-12">
+                Establece objetivos de ahorro y visualiza tu progreso en tiempo real.
               </p>
             </div>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={250}>
             <div className="rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
-              <h3 className="mb-2 font-bold text-gray-900 dark:text-gray-50">
-                {t('onboarding.screen1.feature3Title')}
-              </h3>
-              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('onboarding.screen1.feature3Description')}
+              <div className="flex items-start gap-3 mb-2">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30">
+                  <DollarSign size={18} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-900 dark:text-gray-50">
+                    Seguimiento Inteligente
+                  </h3>
+                </div>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 pl-12">
+                Alertas automáticas, sugerencias diarias y análisis de resultados completados.
               </p>
             </div>
           </SlideAnimation>
@@ -141,7 +159,7 @@ export default function Screen1_Welcome({
           onClick={onNext}
           className="w-full rounded-2xl bg-gray-900 dark:bg-emerald-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          {t('onboarding.screen1.continue')}
+          Continuar
         </button>
       </div>
     </div>

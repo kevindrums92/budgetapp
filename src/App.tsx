@@ -12,11 +12,14 @@ import { CurrencyProvider } from "@/features/currency";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 
-// Eager load core pages (HomePage, BudgetPage)
+// Eager load core pages (HomePage, PlanPage)
 import HomePage from "@/features/transactions/pages/HomePage";
-import BudgetPage from "@/features/budget/pages/BudgetPage";
+import PlanPage from "@/features/budget/pages/PlanPage";
 import AddEditTransactionPage from "@/features/transactions/pages/AddEditTransactionPage";
 import HistoryPage from "@/features/transactions/pages/HistoryPage";
+
+// Lazy load budget detail page
+const PlanDetailPage = lazy(() => import("@/features/budget/pages/PlanDetailPage"));
 
 // Lazy load heavy pages (Recharts, complex features)
 const StatsPage = lazy(() => import("@/features/stats/pages/StatsPage"));
@@ -51,7 +54,6 @@ import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
 import BiometricGate from "@/features/biometric/components/BiometricGate";
-import EnvBadge from "./components/EnvBadge";
 
 // Loading fallback component
 function PageLoader() {
@@ -74,6 +76,7 @@ function AppFrame() {
     location.pathname === "/scheduled" ||
     location.pathname === "/history" ||
     location.pathname.startsWith("/edit/") ||
+    location.pathname.startsWith("/plan/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
     location.pathname.startsWith("/categories") ||
@@ -83,7 +86,7 @@ function AppFrame() {
 
   const showMonthSelector = useMemo(() => {
     return location.pathname === "/" ||
-           location.pathname === "/budget" ||
+           location.pathname === "/plan" ||
            location.pathname === "/stats";
   }, [location.pathname]);
 
@@ -91,7 +94,6 @@ function AppFrame() {
 
   return (
     <>
-      <EnvBadge /> {/* Solo visible en DEV */}
       {/* App */}
       <div className="min-h-dvh bg-white dark:bg-gray-950">
         {!isFormRoute && <TopHeader showMonthSelector={showMonthSelector} isProfilePage={isProfilePage} />}
@@ -103,7 +105,8 @@ function AppFrame() {
 
             {/* Main app routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/budget" element={<BudgetPage />} />
+            <Route path="/plan" element={<PlanPage />} />
+            <Route path="/plan/:id" element={<PlanDetailPage />} />
             <Route path="/stats" element={<StatsPage />} />
             <Route path="/trips" element={<TripsPage />} />
             <Route path="/trips/new" element={<AddEditTripPage />} />

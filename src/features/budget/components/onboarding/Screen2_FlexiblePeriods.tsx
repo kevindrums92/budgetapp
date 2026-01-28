@@ -1,12 +1,11 @@
 /**
- * Screen2_FlexiblePeriods
- * Pantalla 2: Períodos flexibles
+ * Screen2_LimitsAndGoals
+ * Pantalla 2: Límites de Gasto y Metas de Ahorro
  */
 
-import { Calendar, ChevronLeft } from 'lucide-react';
+import { ChevronLeft, TrendingDown, TrendingUp } from 'lucide-react';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
-import { useTranslation } from 'react-i18next';
 
 type Props = {
   onNext: () => void;
@@ -19,7 +18,7 @@ type Props = {
   totalSteps: number;
 };
 
-export default function Screen2_FlexiblePeriods({
+export default function Screen2_LimitsAndGoals({
   onNext,
   onBack,
   onSkip,
@@ -28,8 +27,6 @@ export default function Screen2_FlexiblePeriods({
   currentStep,
   totalSteps,
 }: Props) {
-  const { t } = useTranslation('budget');
-
   return (
     <div
       className="relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
@@ -60,7 +57,7 @@ export default function Screen2_FlexiblePeriods({
             onClick={onSkip}
             className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
           >
-            {t('onboarding.skip')}
+            Omitir
           </button>
         ) : (
           <div className="h-10 w-10" />
@@ -72,82 +69,121 @@ export default function Screen2_FlexiblePeriods({
         <div className="mb-6">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-              {t('onboarding.screen2.title')}
+              Dos Tipos de Planes
             </h1>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={50}>
             <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-              {t('onboarding.screen2.subtitle')}
+              Elige entre controlar tus gastos o ahorrar para tus objetivos.
             </p>
           </SlideAnimation>
         </div>
 
-        {/* Period Options */}
-        <div className="space-y-3 mb-6">
-          <SlideAnimation direction="up" delay={100}>
-            <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm border-2 border-emerald-500">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <Calendar size={20} className="text-emerald-600 dark:text-emerald-400" strokeWidth={2.5} />
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-gray-900 dark:text-gray-50">{t('onboarding.screen2.weekTitle')}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('onboarding.screen2.weekDescription')}</p>
-                </div>
+        {/* Spending Limit Example */}
+        <SlideAnimation direction="up" delay={100}>
+          <div className="mb-4 rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm border-2 border-red-500/30">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/30">
+                <TrendingDown size={20} className="text-red-600 dark:text-red-400" strokeWidth={2.5} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 dark:text-gray-50">
+                  Límite de Gasto
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Mercado · Enero 2026
+                </p>
               </div>
             </div>
-          </SlideAnimation>
 
-          <SlideAnimation direction="up" delay={150}>
-            <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
-                  <Calendar size={20} className="text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-gray-900 dark:text-gray-50">{t('onboarding.screen2.monthTitle')}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('onboarding.screen2.monthDescription')}</p>
-                </div>
+            {/* Progress bar */}
+            <div className="mb-3">
+              <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                <div className="h-full bg-yellow-500 transition-all duration-300" style={{ width: '90%' }} />
               </div>
             </div>
-          </SlideAnimation>
 
-          <SlideAnimation direction="up" delay={200}>
-            <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/30">
-                  <Calendar size={20} className="text-purple-600 dark:text-purple-400" strokeWidth={2.5} />
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-gray-900 dark:text-gray-50">{t('onboarding.screen2.quarterTitle')}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('onboarding.screen2.quarterDescription')}</p>
-                </div>
+            {/* Amounts */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                  $ 90.000
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  / $ 100.000
+                </span>
               </div>
+              <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                90%
+              </span>
             </div>
-          </SlideAnimation>
 
-          <SlideAnimation direction="up" delay={250}>
-            <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
-                  <Calendar size={20} className="text-amber-600 dark:text-amber-400" strokeWidth={2.5} />
-                </div>
-                <div className="flex-1">
-                  <p className="font-bold text-gray-900 dark:text-gray-50">{t('onboarding.screen2.yearTitle')}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('onboarding.screen2.yearDescription')}</p>
-                </div>
-              </div>
-            </div>
-          </SlideAnimation>
-        </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Te quedan $ 10.000
+            </p>
+          </div>
+        </SlideAnimation>
 
-        {/* Info card */}
-        <SlideAnimation direction="up" delay={300}>
-          <div className="flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
-            <Calendar size={20} className="mt-0.5 shrink-0 text-[#18B7B0]" strokeWidth={2.5} />
+        <SlideAnimation direction="up" delay={150}>
+          <div className="mb-6 flex gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 p-4">
+            <TrendingDown size={20} className="mt-0.5 shrink-0 text-red-600 dark:text-red-400" strokeWidth={2.5} />
             <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-              {t('onboarding.screen2.example')}
+              Define un <strong>tope máximo</strong> de gasto para una categoría. Perfecto para controlar gastos variables como mercado, restaurantes o entretenimiento.
+            </p>
+          </div>
+        </SlideAnimation>
+
+        {/* Savings Goal Example */}
+        <SlideAnimation direction="up" delay={200}>
+          <div className="mb-4 rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm border-2 border-teal-500/30">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-900/30">
+                <TrendingUp size={20} className="text-teal-600 dark:text-teal-400" strokeWidth={2.5} />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900 dark:text-gray-50">
+                  Meta de Ahorro
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Vacaciones · Enero 2026
+                </p>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mb-3">
+              <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                <div className="h-full bg-teal-500 transition-all duration-300" style={{ width: '67%' }} />
+              </div>
+            </div>
+
+            {/* Amounts */}
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-semibold text-teal-700 dark:text-teal-400">
+                  $ 670.000
+                </span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  / $ 1.000.000
+                </span>
+              </div>
+              <span className="text-sm font-medium text-teal-600 dark:text-teal-400">
+                67%
+              </span>
+            </div>
+
+            <p className="text-xs text-teal-600 dark:text-teal-400">
+              ¡Faltan $ 330.000!
+            </p>
+          </div>
+        </SlideAnimation>
+
+        <SlideAnimation direction="up" delay={250}>
+          <div className="flex gap-3 rounded-xl bg-teal-50 dark:bg-teal-900/20 p-4">
+            <TrendingUp size={20} className="mt-0.5 shrink-0 text-teal-600 dark:text-teal-400" strokeWidth={2.5} />
+            <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+              Establece un <strong>objetivo de ahorro</strong> para categorías como inversiones, fondo de emergencia o un proyecto especial.
             </p>
           </div>
         </SlideAnimation>
@@ -165,7 +201,7 @@ export default function Screen2_FlexiblePeriods({
           onClick={onNext}
           className="w-full rounded-2xl bg-gray-900 dark:bg-emerald-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          {t('onboarding.screen2.continue')}
+          Continuar
         </button>
       </div>
     </div>

@@ -434,6 +434,9 @@ export default function CloudSyncGate() {
         // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
         updateLastAuthTimestamp();
 
+        // ✅ Renew expired budgets after loading cloud data
+        useBudgetStore.getState().renewExpiredBudgets();
+
         // Push the fixed data back to cloud if we added defaults
         if (needsPush) {
           logger.info("CloudSync", "Pushing migrated data back to cloud");

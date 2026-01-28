@@ -48,7 +48,7 @@ export default function BottomBar() {
       >
         <div className="grid grid-cols-4">
           <Tab to="/" label={t("navigation.home")} icon={Home} />
-          <Tab to="/budget" label={t("navigation.budget")} icon={Wallet} />
+          <Tab to="/plan" label={t("navigation.plan")} icon={Wallet} />
           <Tab to="/stats" label={t("navigation.stats")} icon={BarChart3} />
           <Tab to="/profile" label={t("navigation.settings")} icon={Settings} />
         </div>

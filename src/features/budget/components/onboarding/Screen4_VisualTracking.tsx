@@ -1,12 +1,11 @@
 /**
- * Screen4_VisualTracking
- * Pantalla 4: Seguimiento visual
+ * Screen4_HealthCheck
+ * Pantalla 4: Health Check y seguimiento inteligente
  */
 
-import { TrendingUp, ChevronLeft, AlertTriangle } from 'lucide-react';
+import { ChevronLeft, AlertTriangle, Target } from 'lucide-react';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
-import { useTranslation } from 'react-i18next';
 
 type Props = {
   onNext: () => void;
@@ -19,15 +18,13 @@ type Props = {
   totalSteps: number;
 };
 
-export default function Screen4_VisualTracking({
+export default function Screen4_HealthCheck({
   onNext,
   onBack,
   showBack,
   currentStep,
   totalSteps,
 }: Props) {
-  const { t } = useTranslation('budget');
-
   return (
     <div
       className="relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
@@ -60,136 +57,94 @@ export default function Screen4_VisualTracking({
         <div className="mb-6">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-              {t('onboarding.screen4.title')}
+              Alertas Inteligentes
             </h1>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={50}>
             <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-              {t('onboarding.screen4.subtitle')}
+              Recibe notificaciones automáticas sobre el estado de tus planes.
             </p>
           </SlideAnimation>
         </div>
 
-        {/* Progress Example Cards */}
-        <div className="mb-6 space-y-4">
-          {/* Healthy Budget - 45% */}
+        {/* Health Check Banners */}
+        <div className="mb-6 space-y-3">
           <SlideAnimation direction="up" delay={100}>
-            <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
-                    <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                  </div>
-                  <span className="font-semibold text-gray-900 dark:text-gray-50">
-                    {t('onboarding.screen4.exampleTransport')}
-                  </span>
-                </div>
-                <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                  45%
-                </span>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mb-2 h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                <div
-                  className="h-full bg-emerald-500 transition-all duration-300"
-                  style={{ width: '45%' }}
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">
-                  $ 225.000 / $ 500.000
-                </span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                  {t('onboarding.screen4.statusGood')}
-                </span>
-              </div>
+            <div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-3 border border-red-200 dark:border-red-800">
+              <p className="text-sm font-medium text-red-700 dark:text-red-400">
+                ⚠️ Tienes 2 límites excedidos
+              </p>
             </div>
           </SlideAnimation>
 
-          {/* Warning Budget - 78% */}
           <SlideAnimation direction="up" delay={150}>
-            <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
-                    <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <span className="font-semibold text-gray-900 dark:text-gray-50">
-                    {t('onboarding.screen4.exampleEntertainment')}
-                  </span>
-                </div>
-                <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
-                  78%
-                </span>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mb-2 h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                <div
-                  className="h-full bg-amber-500 transition-all duration-300"
-                  style={{ width: '78%' }}
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">
-                  $ 390.000 / $ 500.000
-                </span>
-                <span className="text-amber-600 dark:text-amber-400 font-medium">
-                  {t('onboarding.screen4.statusWarning')}
-                </span>
-              </div>
-            </div>
-          </SlideAnimation>
-
-          {/* Exceeded Budget - 105% */}
-          <SlideAnimation direction="up" delay={200}>
-            <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/30">
-                    <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                  </div>
-                  <span className="font-semibold text-gray-900 dark:text-gray-50">
-                    {t('onboarding.screen4.exampleRestaurants')}
-                  </span>
-                </div>
-                <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                  105%
-                </span>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mb-2 h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                <div
-                  className="h-full bg-red-500 transition-all duration-300"
-                  style={{ width: '100%' }}
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">
-                  $ 525.000 / $ 500.000
-                </span>
-                <span className="text-red-600 dark:text-red-400 font-medium">
-                  {t('onboarding.screen4.statusExceeded')}
-                </span>
-              </div>
+            <div className="rounded-xl bg-teal-50 dark:bg-teal-950/30 p-3 border border-teal-200 dark:border-teal-800">
+              <p className="text-sm font-medium text-teal-700 dark:text-teal-400">
+                🎯 Has completado el 75% de tus metas de ahorro
+              </p>
             </div>
           </SlideAnimation>
         </div>
 
-        {/* Info card */}
-        <SlideAnimation direction="up" delay={250}>
-          <div className="flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
-            <TrendingUp size={20} className="mt-0.5 shrink-0 text-[#18B7B0]" strokeWidth={2.5} />
+        <SlideAnimation direction="up" delay={200}>
+          <div className="mb-6 flex gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 p-4">
+            <AlertTriangle size={20} className="mt-0.5 shrink-0 text-red-600 dark:text-red-400" strokeWidth={2.5} />
             <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-              <p className="font-medium mb-1">{t('onboarding.screen4.colorsTitle')}</p>
+              <p className="font-medium mb-1">Resumen Automático</p>
               <p>
-                {t('onboarding.screen4.colorsDescription')}
+                Visualiza un <strong>resumen del estado</strong> de todos tus planes activos: límites excedidos y progreso de metas.
+              </p>
+            </div>
+          </div>
+        </SlideAnimation>
+
+        {/* Intelligent Metrics Example */}
+        <SlideAnimation direction="up" delay={250}>
+          <div className="mb-4 rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">
+              Métricas Inteligentes
+            </h3>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                  <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Sugerencia Diaria
+                </p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
+                  $ 15.000
+                </p>
+              </div>
+
+              <div>
+                <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
+                  <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                  Días restantes
+                </p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
+                  12 días
+                </p>
+              </div>
+            </div>
+          </div>
+        </SlideAnimation>
+
+        <SlideAnimation direction="up" delay={300}>
+          <div className="flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
+            <Target size={20} className="mt-0.5 shrink-0 text-[#18B7B0]" strokeWidth={2.5} />
+            <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+              <p className="font-medium mb-1">Recomendaciones Personalizadas</p>
+              <p>
+                Recibe <strong>sugerencias diarias</strong> de cuánto gastar o ahorrar para cumplir tus objetivos según los días restantes.
               </p>
             </div>
           </div>
@@ -208,7 +163,7 @@ export default function Screen4_VisualTracking({
           onClick={onNext}
           className="w-full rounded-2xl bg-gray-900 dark:bg-emerald-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          {t('onboarding.screen4.start')}
+          ¡Comenzar!
         </button>
       </div>
     </div>
