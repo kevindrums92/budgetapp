@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Calendar, Repeat, Info, CirclePlus, ToggleRight, Eye, Clock, XCircle, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ScheduleListItem from "../components/ScheduleListItem";
 import AddActionSheet from "../components/AddActionSheet";
@@ -14,7 +13,6 @@ const FAB_HINT_KEY = "scheduled-fab-hint-shown";
 
 export default function ScheduledPage() {
   const { t } = useTranslation("scheduled");
-  const navigate = useNavigate();
   const transactions = useBudgetStore((s) => s.transactions);
   const getCategoryById = useBudgetStore((s) => s.getCategoryById);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);

@@ -26,13 +26,13 @@ import TopDaySheet from "../components/TopDaySheet";
 import DailyAverageBreakdownSheet from "../components/DailyAverageBreakdownSheet";
 import TopCategorySheet from "../components/TopCategorySheet";
 
-// Get last N months as YYYY-MM strings
-function getLastMonths(count: number): string[] {
+// Get last N months ending at a specific month (YYYY-MM)
+function getMonthsEndingAt(count: number, endMonth: string): string[] {
+  const [year, month] = endMonth.split("-").map(Number);
   const months: string[] = [];
-  const now = new Date();
 
   for (let i = count - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const d = new Date(year, month - 1 - i, 1);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     months.push(`${yyyy}-${mm}`);
@@ -119,9 +119,9 @@ export default function StatsPage() {
     [categoryChartData]
   );
 
-  // Bar chart data (income vs expenses for last 6 months)
+  // Bar chart data (income vs expenses for last 6 months ending at selected month)
   const monthlyData = useMemo<MonthlyData[]>(() => {
-    const months = getLastMonths(6);
+    const months = getMonthsEndingAt(6, selectedMonth);
     const locale = getLocale();
 
     return months.map((monthKey) => {
@@ -141,13 +141,13 @@ export default function StatsPage() {
         expense,
       };
     });
-  }, [transactions, getLocale]);
+  }, [transactions, selectedMonth, getLocale]);
 
   const hasMonthlyData = monthlyData.some((d) => d.income > 0 || d.expense > 0);
 
-  // Trend chart data (expenses for last 12 months)
+  // Trend chart data (expenses for last 12 months ending at selected month)
   const trendData = useMemo<TrendData[]>(() => {
-    const months = getLastMonths(12);
+    const months = getMonthsEndingAt(12, selectedMonth);
     const locale = getLocale();
 
     return months.map((monthKey) => {
@@ -164,7 +164,7 @@ export default function StatsPage() {
         expense,
       };
     });
-  }, [transactions, getLocale]);
+  }, [transactions, selectedMonth, getLocale]);
 
   const hasTrendData = trendData.some((d) => d.expense > 0);
 

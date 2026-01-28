@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -61,8 +61,107 @@ export default function HistoryPage() {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
+  // Category modal drag states
+  const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
+  const [isCategoryModalAnimating, setIsCategoryModalAnimating] = useState(false);
+  const [categoryDragOffset, setCategoryDragOffset] = useState(0);
+  const [isCategoryDragging, setIsCategoryDragging] = useState(false);
+  const categoryStartYRef = useRef(0);
+
   // Track if initial load is complete
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Constants for category modal drag
+  const CATEGORY_SHEET_HEIGHT = 600;
+  const CATEGORY_DRAG_THRESHOLD = 0.3;
+
+  // Category modal show/hide animation
+  useEffect(() => {
+    if (showCategoryModal) {
+      setIsCategoryModalVisible(true);
+      const timer = setTimeout(() => setIsCategoryModalAnimating(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setIsCategoryModalAnimating(false);
+      const timer = setTimeout(() => {
+        setIsCategoryModalVisible(false);
+        setCategoryDragOffset(0);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [showCategoryModal]);
+
+  // Category modal body scroll lock
+  useEffect(() => {
+    if (showCategoryModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showCategoryModal]);
+
+  // Category modal drag handlers
+  const handleCategoryDragStart = useCallback((clientY: number) => {
+    setIsCategoryDragging(true);
+    categoryStartYRef.current = clientY;
+  }, []);
+
+  const handleCategoryDragMove = useCallback(
+    (clientY: number) => {
+      if (!isCategoryDragging) return;
+      const diff = clientY - categoryStartYRef.current;
+      if (diff > 0) {
+        setCategoryDragOffset(Math.min(diff, CATEGORY_SHEET_HEIGHT));
+      } else {
+        setCategoryDragOffset(0);
+      }
+    },
+    [isCategoryDragging, CATEGORY_SHEET_HEIGHT]
+  );
+
+  const handleCategoryDragEnd = useCallback(() => {
+    if (!isCategoryDragging) return;
+    setIsCategoryDragging(false);
+    if (categoryDragOffset > CATEGORY_SHEET_HEIGHT * CATEGORY_DRAG_THRESHOLD) {
+      setShowCategoryModal(false);
+    }
+    setCategoryDragOffset(0);
+  }, [isCategoryDragging, categoryDragOffset, CATEGORY_SHEET_HEIGHT, CATEGORY_DRAG_THRESHOLD]);
+
+  // Category modal touch events
+  const handleCategoryTouchStart = useCallback(
+    (e: React.TouchEvent) => handleCategoryDragStart(e.touches[0].clientY),
+    [handleCategoryDragStart]
+  );
+  const handleCategoryTouchMove = useCallback(
+    (e: React.TouchEvent) => handleCategoryDragMove(e.touches[0].clientY),
+    [handleCategoryDragMove]
+  );
+  const handleCategoryTouchEnd = useCallback(
+    () => handleCategoryDragEnd(),
+    [handleCategoryDragEnd]
+  );
+
+  // Category modal mouse events for handle
+  const handleCategoryMouseDown = useCallback(
+    (e: React.MouseEvent) => handleCategoryDragStart(e.clientY),
+    [handleCategoryDragStart]
+  );
+
+  useEffect(() => {
+    if (!isCategoryDragging) return;
+    const handleMouseMove = (e: MouseEvent) => handleCategoryDragMove(e.clientY);
+    const handleMouseUp = () => handleCategoryDragEnd();
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isCategoryDragging, handleCategoryDragMove, handleCategoryDragEnd]);
 
   // Load filters from localStorage on mount (or reset if coming from home)
   useEffect(() => {
@@ -789,38 +888,67 @@ export default function HistoryPage() {
       )}
 
       {/* Category Selection Modal */}
-      {showCategoryModal && (
+      {isCategoryModalVisible && (
         <div className="fixed inset-0 z-[70]">
           {/* Backdrop */}
           <button
             type="button"
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black"
             onClick={() => setShowCategoryModal(false)}
+            style={{
+              opacity: isCategoryModalAnimating
+                ? Math.max(0, 1 - categoryDragOffset / CATEGORY_SHEET_HEIGHT) * 0.5
+                : 0,
+              transition: isCategoryDragging ? "none" : "opacity 300ms ease-out",
+            }}
+            aria-label="Close"
           />
 
           {/* Bottom Sheet */}
-          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl max-h-[80vh] flex flex-col">
-            {/* Drag Handle */}
-            <div className="flex justify-center py-3">
-              <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
-            </div>
-
-            {/* Header */}
-            <div className="px-4 pb-3 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {t("filters.category")}
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowCategoryModal(false)}
-                className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
+          <div
+            className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
+            style={{
+              maxHeight: `${CATEGORY_SHEET_HEIGHT}px`,
+              transform: `translateY(${
+                isCategoryModalAnimating ? categoryDragOffset : CATEGORY_SHEET_HEIGHT
+              }px)`,
+              transition: isCategoryDragging
+                ? "none"
+                : "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+            }}
+          >
+            {/* Header - drag enabled only here */}
+            <div
+              className="flex-none"
+              onTouchStart={handleCategoryTouchStart}
+              onTouchMove={handleCategoryTouchMove}
+              onTouchEnd={handleCategoryTouchEnd}
+            >
+              {/* Drag Handle */}
+              <div
+                className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
+                onMouseDown={handleCategoryMouseDown}
               >
-                <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-              </button>
+                <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
+              </div>
+
+              {/* Header */}
+              <div className="px-4 pb-3 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                  {t("filters.category")}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowCategoryModal(false)}
+                  className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95 transition-all"
+                >
+                  <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                </button>
+              </div>
             </div>
 
-            {/* Categories List (Scrollable) */}
-            <div className="flex-1 overflow-y-auto px-4">
+            {/* Categories List (Scrollable) - No drag events here */}
+            <div className="flex-1 overflow-y-auto px-4 min-h-0">
               <div className="space-y-2 pb-4">
                 {categoryDefinitions.map((category) => {
                   const IconComponent = icons[

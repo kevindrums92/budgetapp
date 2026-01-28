@@ -7,6 +7,17 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Fixed
+- **Stats Page**: Charts now sync with selected month instead of showing fixed time ranges
+  - Income vs Expenses chart displays last 6 months ending at selected month
+  - Expense Trend chart displays last 12 months ending at selected month
+  - Removed unwanted navigation from Top Category and Top Day modal transaction items
+
+### Added
+- **History Page**: Added drag-to-dismiss gesture to category filter modal
+  - Drag from header to close modal with smooth animation
+  - Scroll in category list works independently without triggering dismiss
+
 ### Added
 - **Scheduled Page Redesign**: Complete visual overhaul with educational empty state and improved UX
   - Educational empty state with teal theme (#18B7B0) and glow effects
