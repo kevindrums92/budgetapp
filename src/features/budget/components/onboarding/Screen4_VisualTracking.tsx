@@ -3,7 +3,7 @@
  * Pantalla 4: Health Check y seguimiento inteligente
  */
 
-import { ChevronLeft, AlertTriangle, Target } from 'lucide-react';
+import { AlertTriangle, Target, ChevronLeft } from 'lucide-react';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
 
@@ -27,9 +27,10 @@ export default function Screen4_HealthCheck({
 }: Props) {
   return (
     <div
-      className="relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950"
       style={{
         paddingTop: 'max(env(safe-area-inset-top), 16px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
       }}
     >
       {/* Header */}
@@ -52,8 +53,8 @@ export default function Screen4_HealthCheck({
         <div className="h-10 w-10" />
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 pt-4 pb-8">
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 overflow-y-auto px-6 pt-4">
         <div className="mb-6">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
@@ -139,7 +140,7 @@ export default function Screen4_HealthCheck({
         </SlideAnimation>
 
         <SlideAnimation direction="up" delay={300}>
-          <div className="flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
+          <div className="mb-4 flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
             <Target size={20} className="mt-0.5 shrink-0 text-[#18B7B0]" strokeWidth={2.5} />
             <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
               <p className="font-medium mb-1">Recomendaciones Personalizadas</p>
@@ -151,13 +152,8 @@ export default function Screen4_HealthCheck({
         </SlideAnimation>
       </main>
 
-      {/* CTA Button - Fixed Bottom */}
-      <div
-        className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
-        style={{
-          paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
-        }}
-      >
+      {/* CTA Button - Fixed at Bottom */}
+      <div className="shrink-0 px-6 pt-4 pb-2">
         <button
           type="button"
           onClick={onNext}

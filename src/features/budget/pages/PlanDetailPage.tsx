@@ -16,7 +16,6 @@ export default function PlanDetailPage() {
   const getBudgetProgress = store.getBudgetProgress;
   const deleteBudget = store.deleteBudget;
   const transactions = store.transactions;
-  const budgets = store.budgets;
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -25,51 +24,42 @@ export default function PlanDetailPage() {
   const progress = useMemo(() => {
     if (!id) return null;
     return getBudgetProgress(id);
-  }, [id, getBudgetProgress, budgets, transactions]);
-
-  // Redirect if budget not found
-  useEffect(() => {
-    if (id && !progress) {
-      navigate("/plan", { replace: true });
-    }
-  }, [id, progress, navigate]);
-
-  if (!progress || !id) return null;
-
-  const { budget, category, spent, saved, percentage, remaining, isExceeded, isCompleted } = progress;
-
-  const isCompletedBudget = budget.status === "completed";
-
-  const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons];
+  }, [id, getBudgetProgress]);
 
   // Filter transactions for this budget's category within the period
   const relevantTransactions = useMemo(() => {
+    if (!progress) return [];
+
     return transactions
       .filter((tx) => {
-        if (tx.category !== budget.categoryId) return false;
-        if (budget.type === "limit" && tx.type !== "expense") return false;
-        if (budget.type === "goal" && tx.type !== "expense") return false;
+        if (tx.category !== progress.budget.categoryId) return false;
+        if (progress.budget.type === "limit" && tx.type !== "expense") return false;
+        if (progress.budget.type === "goal" && tx.type !== "expense") return false;
 
         const txDate = new Date(tx.date);
-        const startDate = new Date(budget.period.startDate);
-        const endDate = new Date(budget.period.endDate);
+        const startDate = new Date(progress.budget.period.startDate);
+        const endDate = new Date(progress.budget.period.endDate);
 
         return txDate >= startDate && txDate <= endDate;
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [transactions, budget, category.id]);
+  }, [transactions, progress]);
 
   // Calculate intelligent metrics
   const intelligentMetrics = useMemo(() => {
+    if (!progress) return null;
+
+    const isCompletedBudget = progress.budget.status === "completed";
+
     if (isCompletedBudget) {
       // For completed budgets, show final results
-      const startDate = new Date(budget.period.startDate + "T12:00:00");
-      const endDate = new Date(budget.period.endDate + "T12:00:00");
+      const startDate = new Date(progress.budget.period.startDate + "T12:00:00");
+      const endDate = new Date(progress.budget.period.endDate + "T12:00:00");
       const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      const dailyAverage = budget.type === "limit" ? spent / totalDays : saved / totalDays;
+      const dailyAverage = progress.budget.type === "limit" ? progress.spent / totalDays : progress.saved / totalDays;
 
       return {
-        type: budget.type,
+        type: progress.budget.type,
         dailyAverage,
         totalDays,
         isCompleted: true as const,
@@ -79,12 +69,12 @@ export default function PlanDetailPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
 
-    const endDate = new Date(budget.period.endDate + "T23:59:59"); // End of the day
+    const endDate = new Date(progress.budget.period.endDate + "T23:59:59"); // End of the day
     const daysRemaining = Math.max(1, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
 
-    if (budget.type === "limit") {
+    if (progress.budget.type === "limit") {
       // Daily suggestion for limits
-      const dailySuggestion = remaining / daysRemaining;
+      const dailySuggestion = progress.remaining / daysRemaining;
       return {
         type: "limit" as const,
         dailySuggestion,
@@ -93,7 +83,7 @@ export default function PlanDetailPage() {
       };
     } else {
       // Daily suggestion for goals (how much to save per day to reach goal)
-      const dailySuggestion = remaining / daysRemaining;
+      const dailySuggestion = progress.remaining / daysRemaining;
 
       return {
         type: "goal" as const,
@@ -102,7 +92,22 @@ export default function PlanDetailPage() {
         isCompleted: false as const,
       };
     }
-  }, [budget, remaining, spent, saved, isCompletedBudget]);
+  }, [progress]);
+
+  // Redirect if budget not found
+  useEffect(() => {
+    if (id && !progress) {
+      navigate("/plan", { replace: true });
+    }
+  }, [id, progress, navigate]);
+
+  if (!progress || !id || !intelligentMetrics) return null;
+
+  const { budget, category, spent, saved, percentage, remaining, isExceeded, isCompleted } = progress;
+
+  const isCompletedBudget = budget.status === "completed";
+
+  const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons];
 
   // Format date for display
   const formatDate = (dateStr: string) => {

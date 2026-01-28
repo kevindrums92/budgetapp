@@ -22,6 +22,7 @@ export default function LoginScreen() {
   const { state, updatePhase, setAuthMethod } = useOnboarding();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [oauthError, setOAuthError] = useState<{ message: string; isRetryable: boolean } | null>(null);
 
   // Sync context with URL when component mounts
   useEffect(() => {
@@ -30,6 +31,33 @@ export default function LoginScreen() {
       updatePhase('login');
     }
   }, [state.phase, updatePhase]);
+
+  /**
+   * Listener para errores de OAuth callback
+   */
+  useEffect(() => {
+    const handleOAuthError = (event: Event) => {
+      const customEvent = event as CustomEvent<{ error: string; code: number; isRetryable: boolean }>;
+      const { error, isRetryable } = customEvent.detail;
+
+      console.log('[LoginScreen] OAuth error received:', { error, isRetryable });
+
+      // Stop loading state
+      setLoading(false);
+
+      // Show error modal
+      setOAuthError({
+        message: error,
+        isRetryable,
+      });
+    };
+
+    window.addEventListener('oauth-error', handleOAuthError);
+
+    return () => {
+      window.removeEventListener('oauth-error', handleOAuthError);
+    };
+  }, []);
 
   /**
    * Listener para detectar cuando el usuario regresa del OAuth
@@ -334,6 +362,55 @@ export default function LoginScreen() {
           </button>
         </p>
       </div>
+
+      {/* OAuth Error Modal */}
+      {oauthError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setOAuthError(null)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              Error de conexión
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {oauthError.message}
+            </p>
+
+            {/* Actions */}
+            <div className={oauthError.isRetryable ? "flex gap-3" : ""}>
+              <button
+                type="button"
+                onClick={() => setOAuthError(null)}
+                className={`${
+                  oauthError.isRetryable
+                    ? "flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    : "w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+                }`}
+              >
+                Cerrar
+              </button>
+
+              {oauthError.isRetryable && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOAuthError(null);
+                    handleGoogleLogin();
+                  }}
+                  className="flex-1 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white hover:bg-[#13948e]"
+                >
+                  Reintentar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

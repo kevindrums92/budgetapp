@@ -98,7 +98,7 @@ export default function PlanPage() {
   // Calculate health check
   const healthCheck = useMemo(() => {
     return getBudgetHealthCheck();
-  }, [budgets, getBudgetHealthCheck]);
+  }, [getBudgetHealthCheck]);
 
   const handleBudgetClick = (budgetId: string) => {
     // Navigate to detail page instead of opening modal

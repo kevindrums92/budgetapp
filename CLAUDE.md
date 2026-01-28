@@ -146,6 +146,188 @@ Pages that show the bottom navigation bar (Home, Budget, Stats, Trips).
 - Inactive color: `text-gray-500`
 - Icon size: 22px, strokeWidth 2.2 (active) / 1.8 (inactive)
 
+#### Onboarding Pages (Fullscreen wizard screens)
+
+Onboarding pages are fullscreen wizard-style screens with scrollable content and a fixed button at the bottom. Used for feature introductions (Welcome, Budget onboarding, etc.).
+
+**CRITICAL Layout Rules**:
+- Use `h-dvh` (exact viewport height), **NEVER** `min-h-dvh`
+- Button must be **outside** the scrollable area as a `shrink-0` flex child
+- **NEVER** use `position: absolute` for the bottom button
+- Main content uses `flex-1 overflow-y-auto` for scrolling
+
+**Complete Pattern**:
+```tsx
+import { ChevronLeft } from 'lucide-react';
+import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
+import ProgressDots from '@/features/onboarding/components/ProgressDots';
+
+type Props = {
+  onNext: () => void;
+  onBack: () => void;
+  onSkip: () => void;
+  showBack: boolean;
+  showSkip: boolean;
+  isLast: boolean;
+  currentStep: number;
+  totalSteps: number;
+};
+
+export default function OnboardingScreen({
+  onNext,
+  onBack,
+  onSkip,
+  showBack,
+  showSkip,
+  currentStep,
+  totalSteps,
+}: Props) {
+  return (
+    <div
+      className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{
+        paddingTop: 'max(env(safe-area-inset-top), 16px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
+      }}
+    >
+      {/* Header - shrink-0 */}
+      <header className="z-10 flex shrink-0 items-center justify-between px-6 pb-2 pt-4">
+        {showBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
+            aria-label="Volver"
+          >
+            <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
+          </button>
+        ) : (
+          <div className="h-10 w-10" /> {/* Spacer */}
+        )}
+
+        <ProgressDots total={totalSteps} current={currentStep} />
+
+        {showSkip ? (
+          <button
+            type="button"
+            onClick={onSkip}
+            className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
+          >
+            Omitir
+          </button>
+        ) : (
+          <div className="h-10 w-10" /> {/* Spacer */}
+        )}
+      </header>
+
+      {/* Main Content - flex-1 overflow-y-auto (SCROLLABLE) */}
+      <main className="flex-1 overflow-y-auto px-6 pt-4">
+        {/* Title Section */}
+        <div className="mb-6">
+          <SlideAnimation direction="right" delay={0}>
+            <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
+              Título de la Pantalla
+            </h1>
+          </SlideAnimation>
+
+          <SlideAnimation direction="up" delay={50}>
+            <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
+              Descripción breve del contenido de esta pantalla.
+            </p>
+          </SlideAnimation>
+        </div>
+
+        {/* Content with animations */}
+        <SlideAnimation direction="up" delay={100}>
+          <div className="mb-4 rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            {/* Card content */}
+          </div>
+        </SlideAnimation>
+
+        {/* More content... */}
+      </main>
+
+      {/* CTA Button - shrink-0 (FIXED at bottom, NOT absolute) */}
+      <div className="shrink-0 px-6 pt-4 pb-2">
+        <button
+          type="button"
+          onClick={onNext}
+          className="w-full rounded-2xl bg-gray-900 dark:bg-emerald-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
+        >
+          Continuar
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+**Layout Structure Explained**:
+```
+┌─────────────────────────────┐
+│  Header (shrink-0)          │  ← Fixed height, doesn't shrink
+│  [Back] [Progress] [Skip]   │
+├─────────────────────────────┤
+│                             │
+│  Main Content (flex-1)      │  ← Takes remaining space
+│  overflow-y-auto            │  ← Scrolls when content is tall
+│                             │
+│  - Title                    │
+│  - Cards                    │
+│  - Info boxes               │
+│                             │
+├─────────────────────────────┤
+│  Button (shrink-0)          │  ← Fixed height, doesn't shrink
+│  [Continuar]                │
+└─────────────────────────────┘
+```
+
+**Available Components**:
+
+1. **SlideAnimation** (`@/features/onboarding/components/SlideAnimation`):
+   - Props: `direction` ("up" | "down" | "left" | "right"), `delay` (ms)
+   - Wraps content with entrance animation
+   - Use staggered delays (0, 50, 100, 150...) for sequential reveals
+
+2. **ProgressDots** (`@/features/onboarding/components/ProgressDots`):
+   - Props: `total` (number), `current` (number)
+   - Shows progress indicator dots
+
+**Onboarding Screen Specs**:
+- Outer container: `flex h-dvh flex-col` (CRITICAL: `h-dvh` not `min-h-dvh`)
+- Safe area: `paddingTop/Bottom: max(env(safe-area-inset-*), 16px)`
+- Header: `shrink-0`, `z-10`
+- Main: `flex-1 overflow-y-auto px-6 pt-4`
+- Button container: `shrink-0 px-6 pt-4 pb-2`
+- Title: `text-3xl font-extrabold leading-tight tracking-tight`
+- Subtitle: `text-base leading-relaxed text-gray-600`
+- Cards: `rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm`
+
+**Common Mistakes to Avoid**:
+
+❌ Using `min-h-dvh` instead of `h-dvh`
+✅ Always use `h-dvh` for exact viewport height (enables proper scrolling)
+
+❌ Using `position: absolute` for the bottom button
+✅ Use flexbox with `shrink-0` (button stays at bottom naturally)
+
+❌ Using `OnboardingLayout` component for screens with lots of content
+✅ Create custom layout directly when content needs to scroll
+
+❌ Forgetting spacers when back/skip buttons are hidden
+✅ Always render `<div className="h-10 w-10" />` as placeholder
+
+❌ Not using `shrink-0` on header and button container
+✅ Both must have `shrink-0` to prevent flex shrinking
+
+**Examples**:
+- `src/features/budget/components/onboarding/Screen1_Welcome.tsx`
+- `src/features/budget/components/onboarding/Screen2_FlexiblePeriods.tsx`
+- `src/features/budget/components/onboarding/Screen3_RecurringBudgets.tsx`
+- `src/features/budget/components/onboarding/Screen4_VisualTracking.tsx`
+
+---
+
 #### Form Pages (Fullscreen, no header component)
 
 Special case: Transaction form uses a custom minimal header (not PageHeader).

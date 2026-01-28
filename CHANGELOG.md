@@ -7,6 +7,16 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Added
+- **OAuth Error Handling**: Add retry modal when Google login fails instead of infinite loading
+  - Display error modal with "Reintentar" button when OAuth callback fails (network errors, session errors, missing code)
+  - Custom event system (`oauth-error`) for communication between deep link handler (main.tsx) and LoginScreen
+  - Detects retryable errors (AuthRetryableFetchError, status 0) and shows retry option
+  - User can now recover from OAuth failures without closing/reopening the app
+- **Onboarding Design Guidelines**: Add comprehensive fullscreen wizard pattern documentation to CLAUDE.md
+  - Complete layout rules for h-dvh with flex-1 overflow-y-auto scrollable content
+  - Fixed button positioning pattern (shrink-0 flex child, never position absolute)
+  - SlideAnimation and ProgressDots component integration examples
+  - Safe area inset handling for iOS notch/home indicator
 - **Budget System Refactor (Plan)**: Complete redesign of budget system with two types of plans
   - **Spending Limits**: Set maximum spending caps for categories (groceries, restaurants, entertainment)
   - **Savings Goals**: Set savings targets for categories (investments, emergency fund, projects)

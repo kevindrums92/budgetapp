@@ -3,7 +3,7 @@
  * Pantalla 1: Bienvenida al módulo de presupuestos
  */
 
-import { Target, ChevronLeft, DollarSign, TrendingDown, TrendingUp } from 'lucide-react';
+import { Target, DollarSign, TrendingDown, TrendingUp, ChevronLeft } from 'lucide-react';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
 
@@ -29,9 +29,10 @@ export default function Screen1_Welcome({
 }: Props) {
   return (
     <div
-      className="relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950"
       style={{
         paddingTop: 'max(env(safe-area-inset-top), 16px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
       }}
     >
       {/* Header */}
@@ -64,8 +65,8 @@ export default function Screen1_Welcome({
         )}
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 pt-4 pb-8">
+      {/* Main Content - Scrollable */}
+      <main className="flex-1 overflow-y-auto px-6 pt-4">
         <div className="mb-8">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
@@ -90,7 +91,7 @@ export default function Screen1_Welcome({
         </SlideAnimation>
 
         {/* Feature List */}
-        <div className="space-y-4">
+        <div className="space-y-4 pb-4">
           <SlideAnimation direction="up" delay={150}>
             <div className="rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
               <div className="flex items-start gap-3 mb-2">
@@ -147,13 +148,8 @@ export default function Screen1_Welcome({
         </div>
       </main>
 
-      {/* CTA Button - Fixed Bottom */}
-      <div
-        className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
-        style={{
-          paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
-        }}
-      >
+      {/* CTA Button - Fixed at Bottom */}
+      <div className="shrink-0 px-6 pt-4 pb-2">
         <button
           type="button"
           onClick={onNext}

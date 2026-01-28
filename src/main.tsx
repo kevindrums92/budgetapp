@@ -51,6 +51,14 @@ if (isNative()) {
 
           if (error) {
             console.error('[DeepLink] Error exchanging code:', error);
+            // Dispatch custom event to notify UI of OAuth error
+            window.dispatchEvent(new CustomEvent('oauth-error', {
+              detail: {
+                error: error.message || 'Error al conectar con Google',
+                code: error.status || 0,
+                isRetryable: error.name === 'AuthRetryableFetchError' || error.status === 0,
+              }
+            }));
           } else {
             console.log('[DeepLink] Session established successfully');
             // Don't redirect here - LoginScreen's auth listener will handle navigation
@@ -66,12 +74,28 @@ if (isNative()) {
 
           if (error) {
             console.error('[DeepLink] Error setting session:', error);
+            // Dispatch custom event to notify UI of OAuth error
+            window.dispatchEvent(new CustomEvent('oauth-error', {
+              detail: {
+                error: error.message || 'Error al configurar sesión',
+                code: error.status || 0,
+                isRetryable: true,
+              }
+            }));
           } else {
             console.log('[DeepLink] Session set successfully');
             // Don't redirect here - LoginScreen's auth listener will handle navigation
           }
         } else {
           console.warn('[DeepLink] No code or tokens found in URL');
+          // Dispatch custom event for missing parameters
+          window.dispatchEvent(new CustomEvent('oauth-error', {
+            detail: {
+              error: 'No se recibió código de autenticación',
+              code: 0,
+              isRetryable: true,
+            }
+          }));
         }
       } catch (err) {
         console.error('[DeepLink] Error processing OAuth callback:', err);
