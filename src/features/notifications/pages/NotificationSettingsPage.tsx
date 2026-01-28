@@ -84,14 +84,31 @@ export default function NotificationSettingsPage() {
   ) => {
     if (!localPrefs) return;
 
-    const newPrefs = {
+    // Update local state with the new enabled value
+    const newLocalPrefs = {
       ...localPrefs,
       [parentKey]: { ...localPrefs[parentKey], enabled },
     };
-    setLocalPrefs(newPrefs);
+    setLocalPrefs(newLocalPrefs);
+
+    // Convert time fields to UTC before sending to server
+    let serverPrefs: any;
+    if (parentKey === 'quiet_hours') {
+      serverPrefs = {
+        enabled,
+        start: convertLocalToUTC(localPrefs.quiet_hours.start),
+        end: convertLocalToUTC(localPrefs.quiet_hours.end),
+      };
+    } else {
+      // daily_reminder or daily_summary
+      serverPrefs = {
+        enabled,
+        time: convertLocalToUTC(localPrefs[parentKey].time),
+      };
+    }
 
     setIsSaving(true);
-    await updatePrefs({ [parentKey]: newPrefs[parentKey] });
+    await updatePrefs({ [parentKey]: serverPrefs });
     setIsSaving(false);
   };
 
