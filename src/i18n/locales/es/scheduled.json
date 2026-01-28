@@ -6,6 +6,36 @@
     "inactive": "Inactivas ({{count}})",
     "inactive_zero": "Inactivas (0)"
   },
+  "infoBanner": {
+    "message": "Para agregar una programación, crea una transacción normal y marca el check de \"Programar\"."
+  },
+  "fab": {
+    "label": "Nueva Transacción",
+    "hint": "No olvides activar el check Recurrente"
+  },
+  "emptyState": {
+    "title": "Sin movimientos programados",
+    "subtitle": "Esta es una vista consolidada de tus pagos recurrentes. Actualmente no tienes ninguna programación activa.",
+    "howItWorks": {
+      "title": "¿Cómo crear una?",
+      "description": "Las programaciones no se crean desde aquí. Debes ir al formulario de Nueva Transacción y activar el switch de \"Programar\"."
+    },
+    "steps": {
+      "step1": {
+        "title": "Crear Gasto",
+        "description": "Ir al formulario"
+      },
+      "step2": {
+        "title": "Activar Recurrencia",
+        "description": "Habilitar switch"
+      },
+      "step3": {
+        "title": "Ver aquí",
+        "description": "Consultar estado"
+      }
+    },
+    "cta": "Registrar transacción"
+  },
   "emptyActive": {
     "title": "No tienes programaciones activas",
     "message": "Activa la programación al crear una transacción"

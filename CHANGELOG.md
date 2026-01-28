@@ -7,6 +7,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+### Added
+- **Scheduled Page Redesign**: Complete visual overhaul with educational empty state and improved UX
+  - Educational empty state with teal theme (#18B7B0) and glow effects
+  - "How it works" banner with 3-step visual guide (Create → Enable Recurrence → View)
+  - Info banner explaining how to create schedules (only visible on active tab)
+  - FAB with contextual hint that appears once per session (sessionStorage)
+  - Redesigned tabs with Clock/XCircle icons (only visible when schedules exist)
+  - FAB and info banner hidden on inactive tab for cleaner UX
+  - Full i18n translations (es, en, fr, pt) for all new content
+
 ## [0.12.0] - 2026-01-27
 
 ### Added
