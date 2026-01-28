@@ -63,15 +63,30 @@ export type BudgetPeriod = {
 
 export type BudgetStatus = "active" | "completed" | "archived";
 
+export type BudgetType = "limit" | "goal";
+
 export type Budget = {
   id: string;
   categoryId: string;     // Reference to Category.id
-  amount: number;         // Presupuesto asignado
+  amount: number;         // Presupuesto asignado (límite para 'limit', meta para 'goal')
+  type: BudgetType;       // Tipo: límite de gasto o meta de ahorro
   period: BudgetPeriod;   // Período del presupuesto
   accountId?: string;     // Optional: Para futura feature de cuentas
   isRecurring: boolean;   // Si se renueva automáticamente
   status: BudgetStatus;   // Estado del presupuesto
   createdAt: number;      // epoch ms
+};
+
+// Helper type for budget progress calculations
+export type BudgetProgress = {
+  budget: Budget;
+  category: Category;
+  spent: number;          // Para limits: cuánto se ha gastado
+  saved: number;          // Para goals: cuánto se ha ahorrado
+  percentage: number;     // 0-100+ (puede superar 100 en limits)
+  remaining: number;      // Para limits: cuánto queda | Para goals: cuánto falta
+  isExceeded: boolean;    // Solo para limits: si se superó el límite
+  isCompleted: boolean;   // Solo para goals: si se alcanzó la meta
 };
 
 // ==================== TRIPS ====================
@@ -108,10 +123,17 @@ export type Trip = {
   createdAt: number;         // epoch ms
 };
 
+// ==================== SECURITY ====================
+
+export type SecuritySettings = {
+  biometricEnabled: boolean;
+  lastAuthTimestamp?: number;
+};
+
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
@@ -124,9 +146,12 @@ export type BudgetState = {
   // Onboarding flags
   welcomeSeen?: boolean;             // First-time welcome onboarding completed
   budgetOnboardingSeen?: boolean;    // Budget module onboarding completed
+  savingsGoalOnboardingSeen?: boolean; // Savings goal onboarding completed
   // Scheduler
   lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull
   // Stats preferences
   excludedFromStats?: string[]; // Category IDs excluded from all stats calculations
+  // Security
+  security?: SecuritySettings;       // Biometric authentication settings
 };

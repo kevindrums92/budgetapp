@@ -12,10 +12,14 @@ import { CurrencyProvider } from "@/features/currency";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 
-// Eager load core pages (HomePage, BudgetPage)
+// Eager load core pages (HomePage, PlanPage)
 import HomePage from "@/features/transactions/pages/HomePage";
-import BudgetPage from "@/features/budget/pages/BudgetPage";
+import PlanPage from "@/features/budget/pages/PlanPage";
 import AddEditTransactionPage from "@/features/transactions/pages/AddEditTransactionPage";
+import HistoryPage from "@/features/transactions/pages/HistoryPage";
+
+// Lazy load budget detail page
+const PlanDetailPage = lazy(() => import("@/features/budget/pages/PlanDetailPage"));
 
 // Lazy load heavy pages (Recharts, complex features)
 const StatsPage = lazy(() => import("@/features/stats/pages/StatsPage"));
@@ -42,9 +46,14 @@ const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSetti
 const CurrencySettingsPage = lazy(() => import("@/features/profile/pages/CurrencySettingsPage"));
 const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"));
 
+// Lazy load legal pages
+const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfServicePage"));
+const PrivacyPolicyPage = lazy(() => import("@/features/profile/pages/PrivacyPolicyPage"));
+
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
+import BiometricGate from "@/features/biometric/components/BiometricGate";
 
 // Loading fallback component
 function PageLoader() {
@@ -65,16 +74,19 @@ function AppFrame() {
     location.pathname === "/add" ||
     location.pathname === "/backup" ||
     location.pathname === "/scheduled" ||
+    location.pathname === "/history" ||
     location.pathname.startsWith("/edit/") ||
+    location.pathname.startsWith("/plan/") ||
     location.pathname.startsWith("/trips/") ||
     location.pathname.startsWith("/category") ||
     location.pathname.startsWith("/categories") ||
     location.pathname.startsWith("/settings/") ||
+    location.pathname.startsWith("/legal/") ||
     location.pathname.startsWith("/onboarding");
 
   const showMonthSelector = useMemo(() => {
     return location.pathname === "/" ||
-           location.pathname === "/budget" ||
+           location.pathname === "/plan" ||
            location.pathname === "/stats";
   }, [location.pathname]);
 
@@ -93,7 +105,8 @@ function AppFrame() {
 
             {/* Main app routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path="/budget" element={<BudgetPage />} />
+            <Route path="/plan" element={<PlanPage />} />
+            <Route path="/plan/:id" element={<PlanDetailPage />} />
             <Route path="/stats" element={<StatsPage />} />
             <Route path="/trips" element={<TripsPage />} />
             <Route path="/trips/new" element={<AddEditTripPage />} />
@@ -111,6 +124,7 @@ function AppFrame() {
             <Route path="/add" element={<AddEditTransactionPage />} />
             <Route path="/edit/:id" element={<AddEditTransactionPage />} />
             <Route path="/scheduled" element={<ScheduledPage />} />
+            <Route path="/history" element={<HistoryPage />} />
 
             <Route path="/category/new" element={<AddEditCategoryPage />} />
             <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
@@ -129,6 +143,9 @@ function AppFrame() {
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export-csv" element={<ExportCSVPage />} />
 
+            <Route path="/legal/terms" element={<TermsOfServicePage />} />
+            <Route path="/legal/privacy" element={<PrivacyPolicyPage />} />
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
@@ -146,6 +163,7 @@ export default function App() {
         <BrowserRouter>
           <CloudSyncGate />
           <OnboardingGate />
+          <BiometricGate />
           <AppFrame />
         </BrowserRouter>
       </CurrencyProvider>

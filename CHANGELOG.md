@@ -4,7 +4,186 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.12.0] - 2026-01-27
+
+### Added
+- **OAuth Error Handling**: Add retry modal when Google login fails instead of infinite loading
+  - Display error modal with "Reintentar" button when OAuth callback fails (network errors, session errors, missing code)
+  - Custom event system (`oauth-error`) for communication between deep link handler (main.tsx) and LoginScreen
+  - Detects retryable errors (AuthRetryableFetchError, status 0) and shows retry option
+  - User can now recover from OAuth failures without closing/reopening the app
+- **Onboarding Design Guidelines**: Add comprehensive fullscreen wizard pattern documentation to CLAUDE.md
+  - Complete layout rules for h-dvh with flex-1 overflow-y-auto scrollable content
+  - Fixed button positioning pattern (shrink-0 flex child, never position absolute)
+  - SlideAnimation and ProgressDots component integration examples
+  - Safe area inset handling for iOS notch/home indicator
+- **Budget System Refactor (Plan)**: Complete redesign of budget system with two types of plans
+  - **Spending Limits**: Set maximum spending caps for categories (groceries, restaurants, entertainment)
+  - **Savings Goals**: Set savings targets for categories (investments, emergency fund, projects)
+  - **Active/Completed Tabs**: Filter plans by status with health check banners showing exceeded limits and goals progress
+  - **Completion Summaries**: Detailed results when plans end (limit respected/exceeded, goal achieved/not achieved with amounts)
+  - **Smart Metrics**: Daily suggestions, days remaining, average daily spending/saving calculations
+  - **Auto-Renewal**: Expired budgets automatically renew on app load (triggered in CloudSyncGate)
+  - **Read-Only State**: Completed budgets cannot be edited, only viewed or deleted with special confirmation
+  - **Redesigned Onboarding**: 4-screen wizard explaining plan types, tabs system, history analysis, and smart alerts
+  - **Budget Detail Page**: New dedicated page per budget with contextual metrics, activity list, and status-based UI
+  - Renamed routes: `/budget` → `/plan`, `/budget/:id` → `/plan/:id`
+  - Full i18n translations (es, en, fr, pt) for all new features and onboarding content
+  - Comprehensive FEATURES.md documentation update with complete system architecture
+
+### Added
+- **Dark Mode - Category Groups**: Complete dark mode support for category groups CRUD pages
+  - CategoryGroupsPage: dark variants for tabs, cards, empty states, and all interactive elements
+  - AddEditCategoryGroupPage: dark mode for form inputs, color picker modal, delete confirmation modal, and buttons
+  - Fixed expense tab contrast in dark mode (now uses light background when active)
+  - Fixed input transparency to inherit card background color
+  - Disabled button state properly styled for dark mode
+- **Automatic Keyboard Dismiss**: Keyboard now closes automatically when scrolling or touching outside input fields
+  - New `useKeyboardDismiss` hook applied to all pages and modals with text inputs
+  - Provides native mobile app UX: dismiss on scroll (500ms delay after focus) or touch outside
+  - Preserves input focus when switching between fields without closing keyboard
+  - Applied to 14 components: transaction forms, auth forms, search fields, modals, and settings pages
+  - Full documentation added to CLAUDE.md for future implementations
+- **Budget Management**: Added delete button to budget edit modal for easier budget removal
+
+### Fixed
+- **ESLint**: Removed 22 unused imports and variables across e2e test files and source code
+- **Tests**: Updated budget store tests to expect schemaVersion 7 (was expecting outdated v6)
+- **React Hooks**: Fixed useEffect dependency warnings in useOTPVerification and BudgetPage
+- **TypeScript**: Fixed "variable used before declaration" error in useOTPVerification hook
+- **Biometric Auth**: Restored biometric authentication timeout from 10s (testing) to 5 minutes (production)
+- Fix failing storage service tests expecting outdated schemaVersion 6 (updated to expect v7 after biometric security migration)
+- Fix localStorage mock isolation in test setup to prevent QuotaExceededError by creating fresh instance per test
+
+### Added
+- **Biometric Authentication System**: Complete Face ID/Touch ID/Fingerprint support for authenticated users on native platforms
+  - Integrated `@capgo/capacitor-native-biometric` plugin (v8.3.2) with Capacitor 8 compatibility
+  - Toggle in ProfilePage (Data & Security section) to enable/disable biometric authentication
+  - BiometricGate component triggers native OS prompt on cold start and app resume (5 minute timeout)
+  - Uses native system UI for authentication (no custom modal) with automatic fallback to device passcode when biometrics fail
+  - Lock screen overlay prevents access if user cancels authentication - must authenticate successfully to unlock
+  - Fixed double authentication prompt when enabling biometric - ProfilePage now updates lastAuthTimestamp after successful enable to prevent BiometricGate from prompting again immediately
+  - Fixed biometric prompt appearing immediately after fresh login - CloudSyncGate now updates lastAuthTimestamp when user authenticates to prevent unnecessary Face ID prompt
+  - Schema migration v6→v7 adding `security` field to BudgetState for biometric preferences
+  - Cloud sync integration for biometric settings across devices
+  - Full i18n support (es, en, fr, pt) for biometric UI
+  - iOS Face ID usage description added to Info.plist
+  - Only available for logged-in users on native platforms (iOS/Android)
+
+### Added
+- **iOS App Icon**: Added 1024x1024 app icon to iOS native project for proper home screen and App Store display
+- **Legal Pages**: Added Terms of Service and Privacy Policy pages required for App Store submission
+  - New pages: `/legal/terms` and `/legal/privacy`
+  - Accessible from ProfilePage in new "Legal" section
+  - Accessible from LoginScreen footer with clickable links
+  - Full i18n support (es, en, fr, pt) via dedicated "legal" namespace
+  - Complete translations for all sections in 4 languages
+  - Mobile-first design with dark mode support
+  - Auto-scroll to top on page load
+  - Content covers: data collection, security (RLS, Supabase), user rights, third-party services, GDPR compliance
+- **App Store Screenshots**: Added 9 optimized screenshots (1284×2778px) for TestFlight/App Store submission
+  - Screenshots cover: home balance, budgets, statistics, history/filters, add transaction, categories, scheduled transactions, stats modals, theme selector
+  - Documentation in `docs/app-store/screenshots/README.md` with order recommendations and descriptions
+- **Multi-Environment Configuration**: Complete environment separation for development and production
+  - Created `.env.development` (DEV Supabase project) and `.env.production` (PROD Supabase project)
+  - Development app uses Bundle ID `com.jhotech.smartspend.dev` and displays as "SmartSpend Dev"
+  - Production app uses Bundle ID `com.jhotech.smartspend` and displays as "SmartSpend"
+  - Automated configuration script (`configure-env.cjs`) that modifies Bundle ID and Display Name before builds
+  - New npm scripts: `ios:dev`, `ios:prod`, `android:dev`, `android:prod` with automatic environment setup
+  - Centralized environment config in `src/config/env.ts` with typed ENV object
+  - Optional EnvBadge component to visualize current environment during development
+  - Comprehensive documentation in `docs/ENVIRONMENTS.md`
+  - Allows installing both DEV and PROD apps simultaneously on the same device without conflicts
+
+### Changed
+- **iOS Bundle ID**: Updated from `com.smartspend.app` to `com.jhotech.smartspend` for App Store submission
+  - Updated Capacitor config, Xcode project settings, and Info.plist
+  - Updated CFBundleURLName for OAuth deep linking
+  - Version bumped to 0.11.1 (MARKETING_VERSION)
+- **Tests**: Removed obsolete test that validated transaction description as required field (now optional with category fallback)
+
+### Fixed
+- **OAuth Deep Linking Conflict**: Fixed Google OAuth redirecting to wrong app when both DEV and PROD apps are installed
+  - Development app now uses `smartspend-dev://` URL scheme
+  - Production app uses `smartspend://` URL scheme
+  - Added `getOAuthRedirectUrl()` helper in `src/config/env.ts` that returns correct scheme per environment
+  - Updated LoginScreen and AuthPage to use dynamic URL schemes
+  - Configure script now updates `CFBundleURLSchemes` in Info.plist automatically
+- **iOS/Android File Exports**: Fixed backup JSON and CSV exports failing on mobile devices by replacing blob URLs (which don't work on iOS) with Capacitor Filesystem + Share API for native file saving/sharing
+- **Transactions Without Description Not Saving**: Fixed critical bug where transactions without description appeared to save (no error, navigated back) but were silently rejected by the store. Store's `addTransaction` was validating that `name` must not be empty. Now uses category name as fallback when description is empty, ensuring transactions are always saved.
+- **CRITICAL: Guest Mode Data Loss on App Restart**: Fixed guest users losing all categories and transactions when closing and reopening the app. CloudSyncGate was incorrectly clearing localStorage on every startup when no Supabase session was detected, not distinguishing between guest mode (no session by design) and actual logout. Now only clears data when user was previously in cloud mode and logged out.
+- **Budget Onboarding Button Visibility on iOS**: Fixed CTA button not visible on budget onboarding screens (4 screens) on iOS devices by changing from fixed to absolute positioning and adjusting safe area spacing to match WelcomeOnboarding pattern
+- **History List Date Layout**: Fixed transaction date being compressed when category names are long by displaying date on separate line below category instead of inline with bullet separator
+
+### Changed
+- **Transaction Description Now Optional**: Changed transaction description field from required to optional based on user feedback. Only 3 fields are now required: amount, category, and date. When no description is provided, the category name is automatically used as the transaction name. Updated 7 display components (TransactionItem, HistoryPage, VirtualTransactionModal, ScheduleListItem, TopCategorySheet, TopDaySheet, CategoryMonthDetailPage) to show category name as fallback.
+- **CLAUDE.md Git Workflow Rules**: Added critical rule requiring explicit user authorization before any git commit or push operations (except when using /ship command or explicitly requested)
+- **Default Categories Icons**: Updated default category icons for better clarity (Arriendo: home→house, Otros Gastos: help-circle→package, Otros Ingresos: more-horizontal→coins)
+
+### Added
+- **History Page**: Added dedicated history page with advanced filters (date range presets, multi-select categories, type, status, amount range), search bar, CSV export, and localStorage filter persistence
+
+### Changed
+- **HomePage Filters**: Moved search bar and filters from HomePage to dedicated History page, replaced with flat "Ver historial completo" button for cleaner home view
+
+### Fixed
+- **Onboarding Fixed Buttons**: Fixed "Continuar" and "Comenzar" buttons not staying fixed at bottom during scroll by changing from absolute to fixed positioning with proper safe area insets
+- **iOS Search Bar Positioning**: Fixed sticky search bar overlapping TopHeader on iOS by calculating dynamic top position based on safe area insets instead of hardcoded 80px
+- **Onboarding Scroll Padding**: Fixed content getting cut off under fixed buttons by increasing bottom padding from pb-32 to pb-40 (categories screen) and pb-48 (complete screen)
+
+### Changed
+- **Default Categories**: Reduced default categories from 21 to 9 essentials (7 expenses: Mercado, Arriendo, Ropa, Entretenimiento, Salud, Transporte, Otros Gastos; 2 income: Salario, Otros Ingresos) for simpler onboarding
+- **Z-Index Hierarchy**: Increased TopHeader z-index from z-20 to z-30 to ensure it stays above sticky search bar (z-20)
+
+### Added
+- **2FA OTP System**: Implemented mandatory OTP verification for untrusted devices on login with automatic email/SMS delivery via `send2FAOTP()`
+- **OTP Back Button**: Added flat-style "Volver" button on OTP verification screen to allow users to cancel and return to login
+
+### Fixed
+- **Session Security**: Fixed critical vulnerability where users could bypass OTP verification by closing the app, now enforced via multi-layer `auth.pendingOtpVerification` flag with cleanup on unmount, app restart, and CloudSyncGate initialization
+- **Trusted Device Login Loop**: Fixed infinite redirect to login after successful authentication on trusted devices by clearing logout flag immediately after password verification
+- **OTP Purpose Handling**: Fixed OTP verification to correctly distinguish between 'signup' (new users) and '2fa' (returning users on untrusted devices) using purpose parameter
+
+### Fixed
+- **iOS Safe Area Insets**: Fixed all onboarding and auth screens to respect Dynamic Island/notch safe area on iOS by adding `env(safe-area-inset-top)` padding
+- **Onboarding Navigation Loop**: Fixed infinite redirect loop between onboarding steps by preventing OnboardingGate from competing with flow components when user is already inside onboarding paths
+- **iOS Input Zoom**: Fixed unwanted zoom when focusing search input on iOS by changing font size from 14px to 16px and adding `maximum-scale=1.0` to viewport
+- **OTP Screen Layout**: Fixed verify button not being visible on auth OTP screens by changing to fixed bottom positioning with proper safe area spacing
+
+### Changed
+- **Splash Screen**: Removed Capacitor SplashScreen plugin in favor of simpler HTML-based splash screen with 800ms display time
+- **Screen Orientation**: Locked app to portrait-only mode on all platforms (iOS, Android, PWA) via manifest and native configs
+
+### Added
+- **Stats Bottom Sheets**: Refactored all 5 stats modals from centered dialogs to mobile-first bottom sheets
+  - Added drag-to-dismiss gesture (30% threshold) with smooth animations
+  - Created dedicated components: FilterStatisticsSheet, ComparisonSheet, TopDaySheet, DailyAverageBreakdownSheet, TopCategorySheet
+  - Drag handlers isolated to header only, scrollable content unaffected
+  - Category exclusion notices moved to sheet headers (always visible during scroll)
+  - Individual body scroll lock per sheet (removed global lock from StatsPage)
+- **iOS/Android Native Support**: Complete Capacitor migration for native mobile apps
+  - OAuth deep linking with custom URL scheme (`smartspend://auth/callback`)
+  - Native status bar sync with app theme (dark/light mode)
+  - Safe area insets for iOS notch/Dynamic Island on headers
+  - Unified network service (Capacitor Network plugin for native, navigator.onLine for web)
+  - Platform detection utilities (isNative, isIOS, isAndroid, isWeb)
+  - Native splash screen control via @capacitor/splash-screen
+  - Android hardware back button handling
+- **E2E Test Suite**: Added 10 comprehensive Playwright test files covering critical user flows
+  - Onboarding flow, transaction management, scheduled transactions
+  - Category management, budget tracking, cloud sync
+  - Trip expenses, settings/preferences, search/filtering
+  - Navigation and integration tests
+
+### Fixed
+- **OAuth Login Flow**: Fixed returning users being redirected to onboarding config instead of home after login by checking localStorage directly instead of context state
+- **Logout Navigation**: Fixed logout leaving user on home screen instead of login by prioritizing logout flag over active session in navigation logic
+- **PageHeader Safe Area**: Added safe area inset padding for iOS to prevent back button being hidden behind notch
+- **Budget Onboarding Wizard Button Spacing**: Fixed bottom button being cut off on iPhone by changing from absolute to fixed positioning with proper safe area spacing (calc(env(safe-area-inset-bottom) + 24px))
+- **Native Splash Screen**: Moved splash screen hide logic from Welcome component to main.tsx with 1.2s minimum display time for smoother app startup
 
 ## [0.11.1] - 2026-01-25
 

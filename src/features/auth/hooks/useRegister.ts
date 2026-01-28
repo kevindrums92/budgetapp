@@ -48,6 +48,9 @@ export function useRegister(): UseRegisterReturn {
       // New users always need OTP verification
       console.log('[useRegister] Registration successful, redirecting to OTP');
 
+      // ⚠️ CRITICAL: Mark session as pending OTP verification
+      localStorage.setItem('auth.pendingOtpVerification', Date.now().toString());
+
       const sessionData: AuthSessionData = {
         identifier: identifierType === 'email'
           ? normalizeEmail(identifier)

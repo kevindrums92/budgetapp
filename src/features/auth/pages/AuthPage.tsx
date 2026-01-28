@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Shield, ChevronLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import { isNative } from '@/shared/utils/platform';
+import { getOAuthRedirectUrl } from '@/config/env';
 
 import AuthTabs from '../components/AuthTabs';
 import LoginForm from '../components/LoginForm';
@@ -31,10 +33,13 @@ export default function AuthPage() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
+      // Native apps need custom URL scheme for OAuth redirect
+      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo,
           queryParams: {
             prompt: 'select_account',
           },
@@ -57,9 +62,12 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Header with back button */}
-      <div className="flex items-center px-4 pt-4">
+      <div className="flex items-center px-4 pt-3">
         <button
           type="button"
           onClick={handleBack}

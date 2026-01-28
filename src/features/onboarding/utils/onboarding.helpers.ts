@@ -21,7 +21,20 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
 
   // 3. Check si hay sesión activa
   const { data } = await supabase.auth.getSession();
-  const hasActiveSession = !!data.session;
+  let hasActiveSession = !!data.session;
+
+  // ⚠️ CRITICAL SECURITY: Check if session is pending OTP verification
+  // If session exists but OTP was never verified, invalidate it
+  if (hasActiveSession) {
+    const pendingOtp = localStorage.getItem('auth.pendingOtpVerification');
+    if (pendingOtp) {
+      // If pending OTP exists (regardless of age), this session is invalid
+      console.warn('[determineStartScreen] ⚠️ SECURITY: Session pending OTP verification detected - invalidating session');
+      localStorage.removeItem('auth.pendingOtpVerification');
+      await supabase.auth.signOut();
+      hasActiveSession = false;
+    }
+  }
 
   // 4. Check si el usuario hizo logout explícito
   const hasLoggedOut = localStorage.getItem(ONBOARDING_KEYS.LOGOUT) === 'true';
@@ -35,6 +48,13 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
     progressKey: localStorage.getItem(ONBOARDING_KEYS.PROGRESS),
     logoutKey: localStorage.getItem(ONBOARDING_KEYS.LOGOUT),
   });
+
+  // CASO 0: Logout explícito → LOGIN (verificar ANTES de sesión activa)
+  // El signOut() de Supabase es async, la sesión puede seguir "activa" brevemente
+  if (hasLoggedOut && onboardingEverCompleted) {
+    console.log('[determineStartScreen] → LOGIN (logout explícito, prioridad sobre sesión)');
+    return 'login';
+  }
 
   // CASO 1: Usuario con sesión activa → Verificar si completó onboarding
   if (hasActiveSession) {
@@ -77,14 +97,7 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
     return 'continue';
   }
 
-  // CASO 2: Logout explícito → LOGIN
-  // Usuario que ya completó onboarding y cerró sesión
-  if (onboardingEverCompleted && hasLoggedOut) {
-    console.log('[determineStartScreen] → LOGIN (logout explícito)');
-    return 'login';
-  }
-
-  // CASO 3: Onboarding ya completado (guest mode) → APP
+  // CASO 2: Onboarding ya completado (guest mode) → APP
   // Si el onboarding ya se completó alguna vez, dejar usar la app
   // (funciona en guest mode si no hay sesión ni logout)
   if (onboardingEverCompleted) {

@@ -1,0 +1,89 @@
+{
+  "lastUpdated": "Dernière mise à jour",
+  "terms": {
+    "title": "Conditions d'utilisation",
+    "introduction": {
+      "title": "Introduction",
+      "content": "Bienvenue sur SmartSpend. En utilisant notre application, vous acceptez ces conditions d'utilisation. SmartSpend est une application de gestion de finances personnelles conçue pour vous aider à suivre vos dépenses, revenus et budgets."
+    },
+    "service": {
+      "title": "Description du Service",
+      "content": "SmartSpend offre :"
+    },
+    "accounts": {
+      "title": "Comptes Utilisateur",
+      "content": "Vous pouvez utiliser SmartSpend en deux modes :"
+    },
+    "ownership": {
+      "title": "Propriété des Données",
+      "content": "Toutes vos données financières vous appartiennent. SmartSpend ne partage, ne vend ni n'utilise vos données pour la publicité. Vous pouvez exporter ou supprimer vos données à tout moment depuis les paramètres de l'application."
+    },
+    "use": {
+      "title": "Utilisation Acceptable",
+      "content": "En utilisant SmartSpend, vous acceptez de :"
+    },
+    "limitations": {
+      "title": "Limitation de Responsabilité",
+      "content": "SmartSpend est fourni \"tel quel\" sans garanties d'aucune sorte. Nous ne sommes pas responsables des pertes financières, dommages ou inexactitudes dans les données. Il est de votre responsabilité de vérifier l'exactitude de vos registres financiers et d'effectuer des sauvegardes régulières de vos données."
+    },
+    "availability": {
+      "title": "Disponibilité du Service",
+      "content": "Nous faisons de notre mieux pour maintenir SmartSpend disponible, mais nous ne garantissons pas une disponibilité à 100%. Nous pouvons suspendre ou arrêter le service à tout moment avec préavis."
+    },
+    "changes": {
+      "title": "Modifications des Conditions",
+      "content": "Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications seront publiées sur cette page avec une date de mise à jour. Votre utilisation continue de SmartSpend après les modifications constitue votre acceptation des nouvelles conditions."
+    },
+    "contact": {
+      "title": "Contact",
+      "content": "Si vous avez des questions sur ces conditions, vous pouvez nous contacter à :"
+    }
+  },
+  "privacy": {
+    "title": "Politique de confidentialité",
+    "introduction": {
+      "title": "Introduction",
+      "content": "Chez SmartSpend, nous respectons votre vie privée et nous nous engageons à protéger vos données personnelles. Cette politique explique comment nous collectons, utilisons et protégeons vos informations."
+    },
+    "collection": {
+      "title": "Informations que Nous Collectons",
+      "intro": "Selon le mode que vous utilisez, nous collectons :"
+    },
+    "usage": {
+      "title": "Comment Nous Utilisons Vos Informations",
+      "intro": "Nous utilisons vos informations exclusivement pour :"
+    },
+    "storage": {
+      "title": "Stockage et Sécurité",
+      "content": "Vos données sont protégées par :"
+    },
+    "thirdParty": {
+      "title": "Services Tiers",
+      "intro": "SmartSpend utilise les services suivants :"
+    },
+    "retention": {
+      "title": "Conservation des Données",
+      "content": "Nous conservons vos données tant que vous maintenez votre compte actif ou selon les besoins pour vous fournir des services. Vous pouvez supprimer votre compte et toutes vos données à tout moment depuis les paramètres de l'application. Les données en mode invité n'existent que sur votre appareil et sont supprimées lorsque vous effacez les données du navigateur."
+    },
+    "rights": {
+      "title": "Vos Droits",
+      "intro": "Vous avez le droit de :"
+    },
+    "cookies": {
+      "title": "Cookies et Stockage Local",
+      "content": "SmartSpend utilise le localStorage du navigateur pour stocker vos préférences (langue, thème, devise) et données financières (en mode invité). Nous n'utilisons pas de cookies de suivi publicitaire. Les sessions d'authentification sont gérées via des jetons sécurisés Supabase."
+    },
+    "children": {
+      "title": "Confidentialité des Mineurs",
+      "content": "SmartSpend n'est pas destiné aux enfants de moins de 13 ans. Nous ne collectons pas intentionnellement d'informations auprès d'enfants. Si vous découvrez qu'un mineur a fourni des données personnelles, contactez-nous pour les supprimer."
+    },
+    "changes": {
+      "title": "Modifications de cette Politique",
+      "content": "Nous pouvons mettre à jour cette politique de confidentialité périodiquement. Nous vous informerons des changements importants par un avis dans l'application. La date de \"dernière mise à jour\" en haut de cette page indique quand elle a été modifiée pour la dernière fois."
+    },
+    "contact": {
+      "title": "Contact",
+      "content": "Si vous avez des questions sur cette politique de confidentialité ou souhaitez exercer vos droits, contactez-nous :"
+    }
+  }
+}

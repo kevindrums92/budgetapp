@@ -207,22 +207,39 @@ export async function signInWithPhone(
 /**
  * Verify OTP code
  * For email signup confirmation, uses type 'signup'
+ * For email 2FA/login, uses type 'email'
  * For phone SMS, uses type 'sms'
  */
 export async function verifyOTP(
   identifier: string,
   token: string,
-  type: OTPType
+  type: OTPType,
+  purpose: 'signup' | '2fa' = 'signup'
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // For email, use 'signup' type (Supabase confirmation OTP)
-    // For phone, use 'sms' type
-    const { error} = await supabase.auth.verifyOtp({
-      ...(type === 'email'
-        ? { email: normalizeEmail(identifier), type: 'signup' }
-        : { phone: validatePhone(identifier).normalized, type: 'sms' }),
-      token,
-    });
+    // For signup: use 'signup' type
+    // For 2FA login: use 'email' type (magic link OTP)
+    // For phone: use 'sms' type
+    let verifyOptions;
+
+    if (type === 'email') {
+      const otpType = purpose === 'signup' ? 'signup' : 'email';
+      verifyOptions = {
+        email: normalizeEmail(identifier),
+        type: otpType as any,
+        token
+      };
+    } else {
+      verifyOptions = {
+        phone: validatePhone(identifier).normalized,
+        type: 'sms' as any,
+        token
+      };
+    }
+
+    console.log('[AuthService] Verifying OTP with type:', type, 'purpose:', purpose);
+
+    const { error } = await supabase.auth.verifyOtp(verifyOptions);
 
     if (error) {
       console.error('[AuthService] OTP verify error:', error);
@@ -240,6 +257,53 @@ export async function verifyOTP(
     return {
       success: false,
       error: 'Error al verificar el código',
+    };
+  }
+}
+
+/**
+ * Send OTP for 2FA login verification
+ * Called when device is not trusted after password login
+ */
+export async function send2FAOTP(
+  identifier: string,
+  type: 'email' | 'phone'
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    console.log('[AuthService] Sending 2FA OTP for:', type, identifier);
+
+    const { error } = await supabase.auth.signInWithOtp({
+      ...(type === 'email'
+        ? { email: normalizeEmail(identifier) }
+        : { phone: validatePhone(identifier).normalized }),
+      options: {
+        shouldCreateUser: false, // Don't create user, they already exist
+      },
+    });
+
+    if (error) {
+      console.error('[AuthService] 2FA OTP send error:', error);
+
+      if (error.message.includes('rate') || error.message.includes('limit')) {
+        return {
+          success: false,
+          error: 'Demasiados intentos. Espera un momento.',
+        };
+      }
+
+      return {
+        success: false,
+        error: 'No se pudo enviar el código',
+      };
+    }
+
+    console.log('[AuthService] 2FA OTP sent successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('[AuthService] 2FA OTP send exception:', error);
+    return {
+      success: false,
+      error: 'Error al enviar el código',
     };
   }
 }

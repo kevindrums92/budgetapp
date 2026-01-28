@@ -93,9 +93,12 @@ export default function Screen4_Complete() {
   const selectedCategoriesCount = state.selections.selectedCategories?.length || DEFAULT_CATEGORIES.length;
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Progress - All complete */}
-      <div className="flex gap-1.5 px-6 pt-4">
+      <div className="flex gap-1.5 px-6 pt-3">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
@@ -119,7 +122,7 @@ export default function Screen4_Complete() {
       </div>
 
       {/* Configuration summary */}
-      <div className="flex-1 px-6">
+      <div className="flex-1 overflow-y-auto px-6 pb-48">
         <div className="mb-6 rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
           <h2 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
             {t('complete.configTitle')}
@@ -210,7 +213,7 @@ export default function Screen4_Complete() {
       </div>
 
       {/* Action */}
-      <div className="px-6 pb-8">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-gray-50 dark:bg-gray-950 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4">
         <button
           type="button"
           onClick={handleComplete}

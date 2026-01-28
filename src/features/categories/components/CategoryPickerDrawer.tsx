@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { X, Search, Plus } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import type { TransactionType, Category } from "@/types/budget.types";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
@@ -29,6 +30,9 @@ export default function CategoryPickerDrawer({
   const navigate = useNavigate();
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);

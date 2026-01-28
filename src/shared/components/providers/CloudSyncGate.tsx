@@ -65,6 +65,7 @@ export default function CloudSyncGate() {
   const setCloudMode = useBudgetStore((s) => s.setCloudMode);
   const setCloudStatus = useBudgetStore((s) => s.setCloudStatus);
   const setUser = useBudgetStore((s) => s.setUser);
+  const updateLastAuthTimestamp = useBudgetStore((s) => s.updateLastAuthTimestamp);
 
   const setWelcomeSeen = useBudgetStore((s) => s.setWelcomeSeen);
 
@@ -78,6 +79,7 @@ export default function CloudSyncGate() {
   const welcomeSeen = useBudgetStore((s) => s.welcomeSeen);
   const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
+  const security = useBudgetStore((s) => s.security);
 
   const initializedRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
@@ -122,8 +124,32 @@ export default function CloudSyncGate() {
   }
 
   async function initForSession() {
+    console.log("[CloudSyncGate] initForSession() called");
     const { data } = await supabase.auth.getSession();
     const session = data.session;
+    console.log("[CloudSyncGate] Session:", session ? `User ${session.user.id}` : "null");
+
+    // ⚠️ CRITICAL SECURITY: Check if session is pending OTP verification
+    // If user closed app without verifying OTP, sign them out
+    if (session) {
+      const pendingOtp = localStorage.getItem('auth.pendingOtpVerification');
+      if (pendingOtp) {
+        const timestamp = parseInt(pendingOtp, 10);
+        const elapsed = Date.now() - timestamp;
+        // If pending OTP is older than 10 minutes, it's definitely abandoned
+        if (elapsed > 10 * 60 * 1000) {
+          console.warn("[CloudSyncGate] ⚠️ SECURITY: Found abandoned session pending OTP (>10min) - signing out");
+          localStorage.removeItem('auth.pendingOtpVerification');
+          await supabase.auth.signOut();
+          // Refresh to restart the flow
+          window.location.reload();
+          return;
+        } else {
+          // Recent pending OTP, user might still be in the flow
+          console.log("[CloudSyncGate] Session pending OTP verification (recent), allowing continuation");
+        }
+      }
+    }
 
     if (!session) {
       // HMR Protection: If we're in development and already have cloud data,
@@ -145,18 +171,33 @@ export default function CloudSyncGate() {
         return;
       }
 
-      logger.info("CloudSync", "No session found, switching to guest mode");
-      // Regla tuya: deslogueado => no queda data local
-      clearPendingSnapshot();
-      clearState();
-      // Categories will be created during onboarding
-      replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
+      logger.info("CloudSync", "No session found, checking if guest mode or logout");
 
-      // Reset welcome para que vuelva a salir en guest
-      try {
-        localStorage.removeItem(SEEN_KEY);
-      } catch {}
-      setWelcomeSeen(false);
+      // ✅ CRITICAL FIX: Only clear state if user was previously in cloud mode and logged out
+      // If user is in guest mode (never logged in), preserve their local data
+      const wasInCloudMode = currentMode === "cloud";
+      const hasLocalData = useBudgetStore.getState().categoryDefinitions.length > 0 ||
+                           useBudgetStore.getState().transactions.length > 0;
+
+      if (wasInCloudMode) {
+        // User was logged in and now logged out → clear everything
+        logger.info("CloudSync", "User logged out from cloud mode, clearing local data");
+        clearPendingSnapshot();
+        clearState();
+        replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
+
+        // Reset welcome para que vuelva a salir en guest
+        try {
+          localStorage.removeItem(SEEN_KEY);
+        } catch {}
+        setWelcomeSeen(false);
+      } else if (!hasLocalData) {
+        // No session, no local data → user hasn't completed onboarding yet
+        logger.info("CloudSync", "No session, no local data - user hasn't completed onboarding");
+      } else {
+        // No session but has local data → guest mode user returning to app
+        logger.info("CloudSync", "No session but has local data - guest mode user, preserving data");
+      }
 
       // ✅ Clear user state atomically
       setUser({
@@ -384,7 +425,17 @@ export default function CloudSyncGate() {
           }
         }
 
+        console.log("[CloudSyncGate] Applying cloud data to local state:", {
+          transactions: cloud.transactions.length,
+          categories: cloud.categoryDefinitions.length,
+        });
         replaceAllData(cloud);
+
+        // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
+        updateLastAuthTimestamp();
+
+        // ✅ Renew expired budgets after loading cloud data
+        useBudgetStore.getState().renewExpiredBudgets();
 
         // Push the fixed data back to cloud if we added defaults
         if (needsPush) {
@@ -406,6 +457,9 @@ export default function CloudSyncGate() {
             categoryDefinitions: localSnapshot.categoryDefinitions.length,
           });
           await upsertCloudState(localSnapshot);
+
+          // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
+          updateLastAuthTimestamp();
         } else {
           // WARNING: Local is empty, do NOT overwrite cloud
           // This could be a SIGNED_OUT->SIGNED_IN race condition
@@ -504,6 +558,7 @@ export default function CloudSyncGate() {
       }
 
       if (event === "SIGNED_IN") {
+        console.log("[CloudSyncGate] SIGNED_IN event received, re-initializing...");
         initializedRef.current = false;
         initForSession();
       }
@@ -536,7 +591,7 @@ export default function CloudSyncGate() {
     checkNetworkAndPush();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, security]);
 
   const mode = useBudgetStore.getState().cloudMode;
 

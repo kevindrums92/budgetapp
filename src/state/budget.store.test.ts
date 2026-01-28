@@ -165,21 +165,6 @@ describe('budget.store', () => {
         expect(transactions[0].amount).toBe(25001);
       });
 
-      it('should not add transaction with empty name', () => {
-        const store = useBudgetStore.getState();
-
-        store.addTransaction({
-          type: 'expense',
-          name: '   ',
-          category: 'Test',
-          amount: 25000,
-          date: '2026-01-15',
-        });
-
-        const transactions = useBudgetStore.getState().transactions;
-        expect(transactions).toHaveLength(0);
-      });
-
       it('should not add transaction with invalid amount', () => {
         const store = useBudgetStore.getState();
 
@@ -1391,7 +1376,7 @@ describe('budget.store', () => {
 
         const snapshot = store.getSnapshot();
 
-        expect(snapshot.schemaVersion).toBe(6);
+        expect(snapshot.schemaVersion).toBe(7);
         expect(snapshot.transactions).toHaveLength(1);
         expect(snapshot.transactions[0].name).toBe('Test');
         expect(snapshot.categories).toBeDefined();
@@ -1473,10 +1458,10 @@ describe('budget.store', () => {
 
         store.replaceAllData(newData);
 
-        // replaceAllData normalizes to v6 before saving
+        // replaceAllData normalizes to v7 before saving
         expect(storageService.saveState).toHaveBeenCalledWith({
           ...newData,
-          schemaVersion: 6,
+          schemaVersion: 7,
         });
       });
     });
@@ -1605,6 +1590,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1630,6 +1616,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: -100,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1649,6 +1636,7 @@ describe('budget.store', () => {
           const firstBudgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1663,6 +1651,7 @@ describe('budget.store', () => {
           const secondBudgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 300000,
+            type: 'limit',
             period: {
               type: 'custom',
               startDate: '2026-01-15',
@@ -1681,6 +1670,7 @@ describe('budget.store', () => {
           const budget1 = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1692,6 +1682,7 @@ describe('budget.store', () => {
           const budget2 = store.createBudget({
             categoryId: 'cat-restaurant',
             amount: 300000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1713,6 +1704,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1738,6 +1730,7 @@ describe('budget.store', () => {
           store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1749,6 +1742,7 @@ describe('budget.store', () => {
           const budget2 = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-02-01',
@@ -1780,6 +1774,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1803,6 +1798,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1825,6 +1821,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1860,6 +1857,7 @@ describe('budget.store', () => {
           const budgetId = store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1902,6 +1900,7 @@ describe('budget.store', () => {
           store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',
@@ -1930,6 +1929,7 @@ describe('budget.store', () => {
           store.createBudget({
             categoryId: 'cat-groceries',
             amount: 500000,
+            type: 'limit',
             period: {
               type: 'month',
               startDate: '2026-01-01',

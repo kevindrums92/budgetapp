@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -33,6 +34,9 @@ export default function AddEditTransactionPage() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const isEdit = Boolean(params.id);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
@@ -171,9 +175,9 @@ export default function AddEditTransactionPage() {
 
   const amountNumber = Number(amount);
   const canSave =
-    name.trim().length > 0 &&
     Number.isFinite(amountNumber) &&
     amountNumber > 0 &&
+    categoryId !== null &&
     date.length === 10;
 
   // Check if user changed values (excluding schedule)
@@ -458,13 +462,13 @@ export default function AddEditTransactionPage() {
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {t("form.description")}
+                  {t("form.description")} <span className="text-gray-400 dark:text-gray-500">(opcional)</span>
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={type === "income" ? t("form.placeholderIncome") : t("form.placeholderExpense")}
+                  placeholder="Ej: Cena familiar, Pago Netflix..."
                   className="w-full border-0 p-0 bg-transparent text-base text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0"
                 />
               </div>

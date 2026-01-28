@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,11 +16,15 @@ import {
 } from "recharts";
 import { icons, PieChart as PieChartIcon, BarChart3, TrendingUp, CheckCircle, AlertCircle, ChevronRight, DollarSign, Calendar, SlidersHorizontal } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { monthLabel } from "@/services/dates.service";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCurrency } from "@/features/currency";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import type { Category } from "@/types/budget.types";
+import FilterStatisticsSheet from "../components/FilterStatisticsSheet";
+import ComparisonSheet from "../components/ComparisonSheet";
+import TopDaySheet from "../components/TopDaySheet";
+import DailyAverageBreakdownSheet from "../components/DailyAverageBreakdownSheet";
+import TopCategorySheet from "../components/TopCategorySheet";
 
 // Get last N months as YYYY-MM strings
 function getLastMonths(count: number): string[] {
@@ -84,19 +88,6 @@ export default function StatsPage() {
   const [showTopCategoryModal, setShowTopCategoryModal] = useState(false);
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
-  const toggleCategoryFromStats = useBudgetStore((s) => s.toggleCategoryFromStats);
-
-  // Lock body scroll when modals are open
-  useEffect(() => {
-    if (showDailyAverageModal || showDailyAverageBreakdownModal || showComparisonModal || showTopDayModal || showTopCategoryModal) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [showDailyAverageModal, showDailyAverageBreakdownModal, showComparisonModal, showTopDayModal, showTopCategoryModal]);
 
   // Donut chart data (expenses by category for selected month)
   const categoryChartData = useMemo<CategoryChartItem[]>(() => {
@@ -664,508 +655,61 @@ export default function StatsPage() {
         )}
       </div>
 
-      {/* Filter Statistics Modal */}
-      {showDailyAverageModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowDailyAverageModal(false)}
-          />
+      {/* Filter Statistics Sheet */}
+      <FilterStatisticsSheet
+        open={showDailyAverageModal}
+        onClose={() => setShowDailyAverageModal(false)}
+        categoriesWithExpenses={quickStats.categoriesWithExpenses}
+      />
 
-          {/* Modal Card */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
-            {/* Header */}
-            <div className="p-6 pb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {t('dailyAverageModal.title')}
-              </h3>
+      {/* Comparison Sheet */}
+      <ComparisonSheet
+        open={showComparisonModal}
+        onClose={() => setShowComparisonModal(false)}
+        isCurrentMonth={quickStats.isCurrentMonth}
+        comparisonDay={quickStats.comparisonDay}
+        prevMonth={quickStats.prevMonth}
+        prevMonthExpenses={quickStats.prevMonthExpenses}
+        currentMonthExpensesFiltered={quickStats.currentMonthExpensesFiltered}
+        selectedMonth={selectedMonth}
+        monthDiff={quickStats.monthDiff}
+        monthDiffPercent={quickStats.monthDiffPercent}
+        excludedCategoriesCount={(excludedFromStats ?? []).length}
+      />
 
-              {/* Info Banner */}
-              <div className="mt-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3">
-                <p className="text-xs text-blue-800 dark:text-blue-300">
-                  {t('dailyAverageModal.infoBanner')}
-                </p>
-              </div>
-            </div>
+      {/* Top Day Sheet */}
+      <TopDaySheet
+        open={showTopDayModal}
+        onClose={() => setShowTopDayModal(false)}
+        topDayName={quickStats.topDayName}
+        topDayTransactions={quickStats.topDayTransactions}
+        selectedMonth={selectedMonth}
+        categoryDefinitions={categoryDefinitions}
+        excludedCategoriesCount={(excludedFromStats ?? []).length}
+      />
 
-            {/* Categories List - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 space-y-2 min-h-0 pb-4">
-              {quickStats.categoriesWithExpenses.map((category) => {
-                const isIncluded = !(excludedFromStats ?? []).includes(category.id);
-                const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons];
+      {/* Daily Average Breakdown Sheet */}
+      <DailyAverageBreakdownSheet
+        open={showDailyAverageBreakdownModal}
+        onClose={() => setShowDailyAverageBreakdownModal(false)}
+        totalForAverage={quickStats.totalForAverage}
+        currentDay={quickStats.currentDay}
+        isCurrentMonth={quickStats.isCurrentMonth}
+        dailyAverage={quickStats.dailyAverage}
+        daysInMonth={quickStats.daysInMonth}
+        excludedCategoriesCount={(excludedFromStats ?? []).length}
+      />
 
-                return (
-                  <button
-                    key={category.id}
-                    type="button"
-                    onClick={() => toggleCategoryFromStats(category.id)}
-                    className="w-full flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    {/* Checkbox */}
-                    <div
-                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors ${
-                        isIncluded
-                          ? 'bg-emerald-500 border-emerald-500'
-                          : 'bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600'
-                      }`}
-                    >
-                      {isIncluded && (
-                        <icons.Check className="h-3 w-3 text-white" strokeWidth={3} />
-                      )}
-                    </div>
-
-                    {/* Category Icon */}
-                    <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: category.color + "20" }}
-                    >
-                      {IconComponent && (
-                        <IconComponent
-                          className="h-4 w-4"
-                          style={{ color: category.color }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Category Name & Total */}
-                    <div className="flex-1 text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                        {category.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {formatAmount(category.total)}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Close Button */}
-            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
-              <button
-                type="button"
-                onClick={() => setShowDailyAverageModal(false)}
-                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-              >
-                {t('dailyAverageModal.close')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Comparison Modal */}
-      {showComparisonModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowComparisonModal(false)}
-          />
-
-          {/* Modal Card */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl">
-            {/* Header */}
-            <div className="p-6 pb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {t('comparisonModal.title')}
-              </h3>
-
-              {/* Info Banner */}
-              <div className="mt-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 p-3">
-                <p className="text-xs text-blue-800 dark:text-blue-300">
-                  {quickStats.isCurrentMonth
-                    ? t('comparisonModal.infoBannerCurrent', { days: quickStats.comparisonDay })
-                    : t('comparisonModal.infoBannerComplete')}
-                </p>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="px-6 space-y-3">
-              {/* Previous Month */}
-              <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {monthLabel(quickStats.prevMonth, getLocale())}
-                  {quickStats.isCurrentMonth && ` ${t('comparisonModal.dayRange', { day: quickStats.comparisonDay })}`}
-                </p>
-                <p className="mt-1 text-base font-semibold text-gray-900 dark:text-gray-50">
-                  {formatAmount(quickStats.prevMonthExpenses)}
-                </p>
-              </div>
-
-              {/* Current Month */}
-              <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {monthLabel(selectedMonth, getLocale())}
-                  {quickStats.isCurrentMonth && ` ${t('comparisonModal.dayRange', { day: quickStats.comparisonDay })}`}
-                </p>
-                <p className="mt-1 text-base font-semibold text-gray-900 dark:text-gray-50">
-                  {formatAmount(quickStats.currentMonthExpensesFiltered)}
-                </p>
-              </div>
-
-              {/* Explanation */}
-              <div className="flex items-start gap-2 rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
-                {quickStats.monthDiff > 0 ? (
-                  <AlertCircle className="h-5 w-5 shrink-0 text-red-500 dark:text-red-400 mt-0.5" />
-                ) : quickStats.monthDiff < 0 ? (
-                  <CheckCircle className="h-5 w-5 shrink-0 text-emerald-500 dark:text-emerald-400 mt-0.5" />
-                ) : (
-                  <icons.Minus className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500 mt-0.5" />
-                )}
-                <div>
-                  <p
-                    className={`text-sm font-medium mb-1 ${
-                      quickStats.monthDiff > 0
-                        ? "text-red-600 dark:text-red-400"
-                        : quickStats.monthDiff < 0
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-gray-600 dark:text-gray-400"
-                    }`}
-                  >
-                    {quickStats.monthDiff > 0 ? "+" : ""}
-                    {quickStats.monthDiffPercent.toFixed(0)}%
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {quickStats.monthDiff > 0
-                      ? t('comparisonModal.spentMore', { percent: Math.abs(quickStats.monthDiffPercent).toFixed(0) })
-                      : quickStats.monthDiff < 0
-                      ? t('comparisonModal.spentLess', { percent: Math.abs(quickStats.monthDiffPercent).toFixed(0) })
-                      : t('comparisonModal.spentSame')}
-                  </p>
-                </div>
-              </div>
-
-              {/* Categories excluded note */}
-              {(excludedFromStats ?? []).length > 0 && (
-                <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
-                  <p className="text-xs text-gray-700 dark:text-gray-300">
-                    {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Close Button */}
-            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
-              <button
-                type="button"
-                onClick={() => setShowComparisonModal(false)}
-                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-              >
-                {t('comparisonModal.understood')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Top Day Modal */}
-      {showTopDayModal && quickStats.topDayName && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowTopDayModal(false)}
-          />
-
-          {/* Modal Card */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
-            {/* Header */}
-            <div className="p-6 pb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {quickStats.topDayName}
-              </h3>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {quickStats.topDayTransactions.length} {quickStats.topDayTransactions.length === 1 ? 'transacción' : 'transacciones'} en {monthLabel(selectedMonth, getLocale())}
-              </p>
-            </div>
-
-            {/* Transactions List - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 space-y-2 min-h-0 pb-4">
-              {quickStats.topDayTransactions.map((transaction) => {
-                const category = categoryDefinitions.find((c) => c.id === transaction.category);
-                const IconComponent = category
-                  ? icons[kebabToPascal(category.icon) as keyof typeof icons]
-                  : null;
-
-                return (
-                  <button
-                    key={transaction.id}
-                    type="button"
-                    onClick={() => {
-                      setShowTopDayModal(false);
-                      navigate(`/transaction/${transaction.id}`);
-                    }}
-                    className="w-full flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    {/* Category Icon */}
-                    <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: category ? category.color + "20" : "#E5E7EB" }}
-                    >
-                      {IconComponent && category && (
-                        <IconComponent
-                          className="h-5 w-5"
-                          style={{ color: category.color }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Transaction Info */}
-                    <div className="flex-1 min-w-0 text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">
-                        {transaction.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(transaction.date + "T12:00:00").toLocaleDateString(getLocale(), {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </p>
-                    </div>
-
-                    {/* Amount */}
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                      {formatAmount(transaction.amount)}
-                    </p>
-                  </button>
-                );
-              })}
-
-              {/* Categories excluded note (inside scrollable area) */}
-              {(excludedFromStats ?? []).length > 0 && (
-                <div className="pt-2">
-                  <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
-                    <p className="text-xs text-gray-700 dark:text-gray-300">
-                      {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Close Button */}
-            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
-              <button
-                type="button"
-                onClick={() => setShowTopDayModal(false)}
-                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-              >
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Daily Average Breakdown Modal */}
-      {showDailyAverageBreakdownModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowDailyAverageBreakdownModal(false)}
-          />
-
-          {/* Modal Card */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
-            {/* Header */}
-            <div className="p-6 pb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {t('dailyAverageBreakdownModal.title')}
-              </h3>
-            </div>
-
-            {/* Content - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 space-y-4 min-h-0">
-              {/* How it's calculated */}
-              <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 p-4">
-                <p className="text-xs font-medium text-blue-900 dark:text-blue-300 mb-2">
-                  {t('dailyAverageBreakdownModal.howCalculated')}
-                </p>
-                <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                  {t('dailyAverageBreakdownModal.formula')}
-                </p>
-              </div>
-
-              {/* Calculation breakdown */}
-              <div className="space-y-3">
-                {/* Total Spent */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {t('dailyAverageBreakdownModal.totalSpent')}
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-                    {formatAmount(quickStats.totalForAverage)}
-                  </span>
-                </div>
-
-                {/* Days in Month / Days Elapsed */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {quickStats.isCurrentMonth
-                      ? t('dailyAverageBreakdownModal.daysElapsed')
-                      : t('dailyAverageBreakdownModal.daysInMonth')
-                    }
-                  </span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-                    {quickStats.currentDay}
-                  </span>
-                </div>
-
-                {/* Divider */}
-                <div className="border-t border-gray-200 dark:border-gray-700" />
-
-                {/* Daily Average */}
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                    {t('dailyAverageBreakdownModal.average')}
-                  </span>
-                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                    {formatAmount(quickStats.dailyAverage)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Projection */}
-              <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 p-4">
-                <p className="text-xs font-medium text-emerald-900 dark:text-emerald-300 mb-1">
-                  {t('dailyAverageBreakdownModal.projection')}
-                </p>
-                <p className="text-xs text-emerald-800 dark:text-emerald-400 mb-2">
-                  {t('dailyAverageBreakdownModal.projectionText')}
-                </p>
-                <p className="text-xl font-bold text-emerald-900 dark:text-emerald-100">
-                  {formatAmount(quickStats.dailyAverage * quickStats.daysInMonth)} <span className="text-sm font-normal">{t('dailyAverageBreakdownModal.thisMonth')}</span>
-                </p>
-              </div>
-
-              {/* Categories excluded note */}
-              {(excludedFromStats ?? []).length > 0 && (
-                <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
-                  <p className="text-xs text-gray-700 dark:text-gray-300">
-                    {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Close Button */}
-            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
-              <button
-                type="button"
-                onClick={() => setShowDailyAverageBreakdownModal(false)}
-                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-              >
-                {t('dailyAverageBreakdownModal.close')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Top Category Modal */}
-      {showTopCategoryModal && quickStats.topCategory && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowTopCategoryModal(false)}
-          />
-
-          {/* Modal Card */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 shadow-xl max-h-[80vh] flex flex-col">
-            {/* Header */}
-            <div className="p-6 pb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {quickStats.topCategory.name}
-              </h3>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {t('topCategoryModal.transactions', { count: quickStats.topCategoryTransactions.length })} {monthLabel(selectedMonth, getLocale())}
-              </p>
-            </div>
-
-            {/* Transactions List - Scrollable */}
-            <div className="flex-1 overflow-y-auto px-6 space-y-2 min-h-0 pb-4">
-              {quickStats.topCategoryTransactions.map((transaction) => {
-                const category = categoryDefinitions.find((c) => c.id === transaction.category);
-                const IconComponent = category
-                  ? icons[kebabToPascal(category.icon) as keyof typeof icons]
-                  : null;
-
-                return (
-                  <button
-                    key={transaction.id}
-                    type="button"
-                    onClick={() => {
-                      setShowTopCategoryModal(false);
-                      navigate(`/transaction/${transaction.id}`);
-                    }}
-                    className="w-full flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    {/* Category Icon */}
-                    <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: category ? category.color + "20" : "#E5E7EB" }}
-                    >
-                      {IconComponent && category && (
-                        <IconComponent
-                          className="h-5 w-5"
-                          style={{ color: category.color }}
-                        />
-                      )}
-                    </div>
-
-                    {/* Transaction Info */}
-                    <div className="flex-1 min-w-0 text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-50 truncate">
-                        {transaction.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(transaction.date + "T12:00:00").toLocaleDateString(getLocale(), {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </p>
-                    </div>
-
-                    {/* Amount */}
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                      {formatAmount(transaction.amount)}
-                    </p>
-                  </button>
-                );
-              })}
-
-              {/* Categories excluded note (inside scrollable area) */}
-              {(excludedFromStats ?? []).length > 0 && (
-                <div className="pt-2">
-                  <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
-                    <p className="text-xs text-gray-700 dark:text-gray-300">
-                      {t('dailyAverageBreakdownModal.categoriesExcluded', { count: (excludedFromStats ?? []).length })}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Close Button */}
-            <div className="px-6 pt-4 pb-[calc(env(safe-area-inset-bottom)+24px)]">
-              <button
-                type="button"
-                onClick={() => setShowTopCategoryModal(false)}
-                className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-              >
-                {t('topCategoryModal.close')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Top Category Sheet */}
+      <TopCategorySheet
+        open={showTopCategoryModal}
+        onClose={() => setShowTopCategoryModal(false)}
+        topCategory={quickStats.topCategory}
+        topCategoryTransactions={quickStats.topCategoryTransactions}
+        selectedMonth={selectedMonth}
+        categoryDefinitions={categoryDefinitions}
+        excludedCategoriesCount={(excludedFromStats ?? []).length}
+      />
       </main>
     </div>
   );

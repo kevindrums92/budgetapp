@@ -50,8 +50,11 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   }, [cloudMode, cloudStatus]);
 
   return (
-    <header className="sticky top-0 z-20 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.30)]">
-      <div className="mx-auto max-w-xl px-4 pt-6 pb-2">
+    <header className="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.30)]">
+      <div
+        className="mx-auto max-w-xl px-4 pb-2"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 24px)' }}
+      >
         <div className="flex items-start justify-between">
           {/* Left: Logo + Content */}
           <div className="flex items-center gap-3">

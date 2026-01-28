@@ -39,12 +39,16 @@ export default function OnboardingLayout({
     <div
       className={`relative flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950 ${className}`}
       style={{
-        paddingTop: 'max(env(safe-area-inset-top), 16px)',
         paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
       }}
     >
       {/* Header */}
-      <header className="z-10 flex shrink-0 items-center justify-between px-6 pb-2 pt-4">
+      <header
+        className="z-10 flex shrink-0 items-center justify-between px-6 pb-2 pt-4"
+        style={{
+          paddingTop: 'max(env(safe-area-inset-top), 16px)',
+        }}
+      >
         {/* Back Button */}
         {showBackButton && onBack ? (
           <button

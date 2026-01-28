@@ -58,16 +58,21 @@ export default function TripsPage() {
     setTripToDelete(null);
   }
 
-  function handleExportTrips() {
+  async function handleExportTrips() {
     if (trips.length === 0) return;
 
-    // Add spent amount to each trip
-    const tripsWithSpent = trips.map((trip) => ({
-      ...trip,
-      spent: getTripSpent(trip.id),
-    }));
+    try {
+      // Add spent amount to each trip
+      const tripsWithSpent = trips.map((trip) => ({
+        ...trip,
+        spent: getTripSpent(trip.id),
+      }));
 
-    exportTripsToCSV(tripsWithSpent, "viajes");
+      await exportTripsToCSV(tripsWithSpent, "viajes");
+    } catch (error) {
+      console.error('[TripsPage] Export failed:', error);
+      alert('Error al exportar el archivo. Por favor, inténtalo de nuevo.');
+    }
   }
 
   function formatDateRange(start: string, end: string | null) {

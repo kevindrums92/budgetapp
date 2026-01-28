@@ -1,0 +1,28 @@
+{
+  "title": "Histórico e Filtros",
+  "filters": {
+    "dateRange": "Intervalo de Datas",
+    "thisMonth": "Este Mês",
+    "lastMonth": "Mês Passado",
+    "custom": "Personalizado",
+    "type": "Tipo",
+    "allTypes": "Todos",
+    "status": "Estado",
+    "allStatus": "Todos",
+    "paid": "Pago",
+    "pendingStatus": "Pendente",
+    "planned": "Planejado",
+    "category": "Categoria",
+    "selectCategory": "Selecionar categoria",
+    "allCategories": "Todas as categorias",
+    "amountRange": "Faixa de Valor",
+    "minimum": "Mínimo",
+    "maximum": "Máximo",
+    "noLimit": "Sem limite"
+  },
+  "results": {
+    "title": "Resultados ({{count}})",
+    "exportCSV": "Exportar CSV",
+    "noResults": "Nenhuma transação encontrada com os filtros aplicados"
+  }
+}

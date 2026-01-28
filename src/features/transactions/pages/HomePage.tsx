@@ -1,27 +1,24 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Plus, X, Search, Calculator, SlidersHorizontal, Check } from "lucide-react";
+import { Plus, X, Calculator, ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
 import TransactionList from "@/features/transactions/components/TransactionList";
 import AddActionSheet from "@/features/transactions/components/AddActionSheet";
 import ScheduledBanner from "@/features/transactions/components/ScheduledBanner";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
-import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { generateVirtualTransactions, generatePastDueTransactions, materializeTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 import { todayISO } from "@/services/dates.service";
 
 export default function HomePage() {
   const { t } = useTranslation('home');
   const { formatAmount } = useCurrency();
+  const navigate = useNavigate();
   const [addSheetOpen, setAddSheetOpen] = useState(false);
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "expense" | "income" | "pending" | "recurring">("all");
-  const [showExportModal, setShowExportModal] = useState(false);
   const [hideScheduledBannerSession, setHideScheduledBannerSession] = useState(false);
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -41,7 +38,6 @@ export default function HomePage() {
 
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
-  const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const addTransaction = useBudgetStore((s) => s.addTransaction);
 
   const today = todayISO();
@@ -127,19 +123,6 @@ export default function HomePage() {
   // Check if scheduled banner should be hidden for current month
   const isScheduledBannerHiddenForMonth = hiddenScheduledMonths.includes(selectedMonth);
 
-  const handleExport = () => {
-    // Filter transactions by selected month
-    const monthTransactions = transactions.filter((t) => t.date.slice(0, 7) === selectedMonth);
-
-    if (monthTransactions.length === 0) {
-      alert(t('export.noTransactions'));
-      return;
-    }
-
-    // Export to CSV
-    exportTransactionsToCSV(monthTransactions, categoryDefinitions, `transacciones-${selectedMonth}`);
-    setShowExportModal(false);
-  };
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
@@ -178,135 +161,17 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Sticky Search Bar & Filter Dropdown */}
+      {/* Navigation to History */}
       {hasTransactions && (
-        <div
-          className="sticky top-[80px] z-20 bg-gray-50 dark:bg-gray-950 pb-3 pt-6"
-          onClick={() => showFilterMenu && setShowFilterMenu(false)}
-        >
-          <div className="mx-auto max-w-xl px-4">
-            <div className="flex gap-3 relative">
-              {/* Search Input */}
-              <div className="relative flex-1 group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 group-focus-within:text-[#18B7B0] transition">
-                  <Search size={18} />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t('search')}
-                  className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 pl-10 pr-10 text-sm font-medium text-gray-700 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20 shadow-sm transition"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-              </div>
-
-              {/* Filter Button & Dropdown Menu */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowFilterMenu(!showFilterMenu);
-                  }}
-                  className={`w-11 h-11 border rounded-xl flex items-center justify-center shadow-sm transition active:scale-95 ${
-                    filterType !== "all" || showFilterMenu
-                      ? "bg-teal-50 dark:bg-teal-900/30 border-teal-200 dark:border-teal-700 text-[#18B7B0]"
-                      : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-teal-300 dark:hover:border-teal-600 hover:text-[#18B7B0]"
-                  }`}
-                >
-                  <SlidersHorizontal size={20} />
-                </button>
-
-                {/* Dropdown Menu */}
-                {showFilterMenu && (
-                  <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-1 z-50 animate-in fade-in zoom-in-95 duration-200">
-                    <p className="px-3 py-2 text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">
-                      {t('filter')}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFilterType("all");
-                        setShowFilterMenu(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
-                    >
-                      <span className={filterType === "all" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
-                        {t('filters.all')}
-                      </span>
-                      {filterType === "all" && <Check size={14} className="text-[#18B7B0]" />}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFilterType("expense");
-                        setShowFilterMenu(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
-                    >
-                      <span className={filterType === "expense" ? "text-rose-600 dark:text-rose-400" : "text-gray-700 dark:text-gray-200"}>
-                        {t('filters.expenses')}
-                      </span>
-                      {filterType === "expense" && <Check size={14} className="text-rose-600 dark:text-rose-400" />}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFilterType("income");
-                        setShowFilterMenu(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
-                    >
-                      <span className={filterType === "income" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
-                        {t('filters.income')}
-                      </span>
-                      {filterType === "income" && <Check size={14} className="text-[#18B7B0]" />}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFilterType("pending");
-                        setShowFilterMenu(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
-                    >
-                      <span className={filterType === "pending" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
-                        {t('filters.pending')}
-                      </span>
-                      {filterType === "pending" && <Check size={14} className="text-[#18B7B0]" />}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFilterType("recurring");
-                        setShowFilterMenu(false);
-                      }}
-                      className="w-full text-left px-3 py-2 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center justify-between group"
-                    >
-                      <span className={filterType === "recurring" ? "text-[#18B7B0]" : "text-gray-700 dark:text-gray-200"}>
-                        {t('filters.recurring')}
-                      </span>
-                      {filterType === "recurring" && <Check size={14} className="text-[#18B7B0]" />}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+        <div className="mx-auto max-w-xl px-4 pt-6 pb-3">
+          <button
+            type="button"
+            onClick={() => navigate('/history', { state: { resetFilters: true } })}
+            className="flex items-center gap-1 py-2 text-sm font-medium text-[#18B7B0] active:scale-95 transition-all"
+          >
+            <span>Ver historial completo</span>
+            <ChevronRight size={16} />
+          </button>
         </div>
       )}
 
@@ -324,7 +189,7 @@ export default function HomePage() {
           />
         )}
 
-        <TransactionList searchQuery={searchQuery} filterType={filterType} />
+        <TransactionList />
       </main>
 
       {/* FAB para agregar transacción */}
@@ -404,54 +269,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Export Modal */}
-      {showExportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 dark:bg-black/70"
-            onClick={() => setShowExportModal(false)}
-          />
-
-          {/* Modal Card */}
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t('export.title')}
-            </h3>
-            <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
-              {t('export.info')}
-            </p>
-
-            {/* Info */}
-            <div className="mb-6 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">{t('export.total')}</span>
-                <span className="font-semibold text-gray-900 dark:text-gray-50">
-                  {transactions.filter((t) => t.date.slice(0, 7) === selectedMonth).length}
-                </span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowExportModal(false)}
-                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                {t('hideDailyBudget.cancel')}
-              </button>
-              <button
-                type="button"
-                onClick={handleExport}
-                className="flex-1 rounded-xl bg-emerald-500 dark:bg-emerald-600 py-3 text-sm font-medium text-white hover:bg-emerald-600 dark:hover:bg-emerald-500"
-              >
-                {t('export.title')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

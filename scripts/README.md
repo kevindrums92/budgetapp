@@ -35,6 +35,47 @@ npm run release
 
 ## 🔧 Scripts de Desarrollo
 
+### `configure-env.js` - Configuración de Ambientes
+
+**Propósito:** Configura automáticamente el Bundle ID y Display Name según el ambiente antes de generar builds nativos.
+
+**Uso manual:**
+```bash
+node scripts/configure-env.js development
+node scripts/configure-env.js production
+```
+
+**Uso integrado (recomendado):**
+```bash
+npm run ios:dev      # Ejecuta configure:dev automáticamente
+npm run ios:prod     # Ejecuta configure:prod automáticamente
+```
+
+**Modificaciones que realiza:**
+
+| Archivo | Cambios |
+|---------|---------|
+| `capacitor.config.ts` | `appId` y `appName` |
+| `ios/App/App/Info.plist` | `CFBundleDisplayName` y `CFBundleURLName` |
+| `ios/App/App.xcodeproj/project.pbxproj` | `PRODUCT_BUNDLE_IDENTIFIER` |
+
+**Configuraciones por ambiente:**
+
+| Ambiente | Bundle ID | Display Name |
+|----------|-----------|--------------|
+| development | `com.jhotech.smartspend.dev` | SmartSpend Dev |
+| production | `com.jhotech.smartspend` | SmartSpend |
+
+**Beneficio:**
+
+Permite tener ambas versiones instaladas simultáneamente:
+- 📱 "SmartSpend Dev" (desarrollo local)
+- 🚀 "SmartSpend" (TestFlight/App Store)
+
+⚠️ **Importante:** Antes de commitear cambios en archivos nativos, ejecuta `npm run configure:prod` para restaurar el estado de producción.
+
+---
+
 ### `npm run dev:sync`
 
 Sincroniza tu rama `develop` local con origin.

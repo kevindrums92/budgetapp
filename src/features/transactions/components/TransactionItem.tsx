@@ -77,7 +77,7 @@ export default function TransactionItem({
       <div className="min-w-0 flex-1 text-left">
         <div className="flex items-center gap-1.5">
           <p className="truncate font-semibold text-gray-900 dark:text-gray-50 text-sm">
-            {transaction.name}
+            {transaction.name.trim() || category?.name || transaction.category}
           </p>
           {/* Show repeat icon only for active scheduled transactions */}
           {transaction.schedule?.enabled && (

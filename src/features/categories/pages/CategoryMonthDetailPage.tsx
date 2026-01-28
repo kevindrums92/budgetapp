@@ -140,7 +140,7 @@ export default function CategoryMonthDetailPage() {
                 <div className="min-w-0 flex-1 text-left">
                   <div className="flex items-center gap-1.5">
                     <p className="truncate font-semibold text-gray-900 dark:text-gray-50 text-sm">
-                      {transaction.name}
+                      {transaction.name.trim() || category?.name || "Sin descripción"}
                     </p>
                     {transaction.isRecurring && (
                       <Repeat className="h-3 w-3 shrink-0 text-gray-400 dark:text-gray-500" />

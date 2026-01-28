@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { OTPType } from '../types/auth.types';
-import { verifyOTP, resendOTP } from '../services/auth.service';
+import { verifyOTP, resendOTP, send2FAOTP } from '../services/auth.service';
 
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 30; // seconds
@@ -30,8 +30,8 @@ interface UseOTPVerificationReturn {
   otpCode: string;
 
   // Actions
-  verify: (identifier: string, type: OTPType) => Promise<boolean>;
-  resend: (identifier: string, type: OTPType) => Promise<boolean>;
+  verify: (identifier: string, type: OTPType, purpose?: 'signup' | '2fa') => Promise<boolean>;
+  resend: (identifier: string, type: OTPType, purpose?: 'signup' | '2fa') => Promise<boolean>;
 }
 
 export function useOTPVerification(): UseOTPVerificationReturn {
@@ -41,17 +41,6 @@ export function useOTPVerification(): UseOTPVerificationReturn {
   const [resendCooldown, setResendCooldown] = useState(RESEND_COOLDOWN);
 
   const cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Start cooldown timer on mount (user just received OTP)
-  useEffect(() => {
-    startCooldown();
-
-    return () => {
-      if (cooldownTimerRef.current) {
-        clearInterval(cooldownTimerRef.current);
-      }
-    };
-  }, []);
 
   // Start cooldown timer
   const startCooldown = useCallback(() => {
@@ -72,6 +61,18 @@ export function useOTPVerification(): UseOTPVerificationReturn {
         return prev - 1;
       });
     }, 1000);
+  }, []);
+
+  // Start cooldown timer on mount (user just received OTP)
+  useEffect(() => {
+    startCooldown();
+
+    return () => {
+      if (cooldownTimerRef.current) {
+        clearInterval(cooldownTimerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Set a single digit
@@ -113,7 +114,8 @@ export function useOTPVerification(): UseOTPVerificationReturn {
   // Verify OTP
   const verify = useCallback(async (
     identifier: string,
-    type: OTPType
+    type: OTPType,
+    purpose: 'signup' | '2fa' = 'signup'
   ): Promise<boolean> => {
     if (!isComplete) return false;
 
@@ -121,7 +123,7 @@ export function useOTPVerification(): UseOTPVerificationReturn {
     setError(null);
 
     try {
-      const result = await verifyOTP(identifier, otpCode, type);
+      const result = await verifyOTP(identifier, otpCode, type, purpose);
 
       if (!result.success) {
         setError(result.error || 'Código incorrecto');
@@ -142,12 +144,23 @@ export function useOTPVerification(): UseOTPVerificationReturn {
   // Resend OTP
   const resend = useCallback(async (
     identifier: string,
-    type: OTPType
+    type: OTPType,
+    purpose: 'signup' | '2fa' = 'signup'
   ): Promise<boolean> => {
     if (!canResend) return false;
 
     try {
-      const result = await resendOTP(identifier, type);
+      let result;
+
+      // For 2FA login, use send2FAOTP
+      // For signup, use resendOTP
+      if (purpose === '2fa') {
+        // Map OTPType to send2FAOTP type ('email' | 'phone')
+        const send2FAType = type === 'email' ? 'email' : 'phone';
+        result = await send2FAOTP(identifier, send2FAType);
+      } else {
+        result = await resendOTP(identifier, type);
+      }
 
       if (!result.success) {
         setError(result.error || 'No se pudo reenviar el código');

@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Trash2 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { CATEGORY_COLORS } from "@/constants/categories/category-colors";
 import type { TransactionType } from "@/types/budget.types";
 import PageHeader from "@/shared/components/layout/PageHeader";
@@ -15,6 +16,9 @@ export default function AddEditCategoryGroupPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
   const addCategoryGroup = useBudgetStore((s) => s.addCategoryGroup);
@@ -76,7 +80,7 @@ export default function AddEditCategoryGroupPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header */}
       <PageHeader
         title={isEditing ? t("groups.form.editTitle") : t("groups.form.newTitle")}
@@ -85,9 +89,9 @@ export default function AddEditCategoryGroupPage() {
             <button
               type="button"
               onClick={handleDelete}
-              className="rounded-full p-2 hover:bg-red-50"
+              className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-900/20"
             >
-              <Trash2 className="h-5 w-5 text-red-500" />
+              <Trash2 className="h-5 w-5 text-red-500 dark:text-red-400" />
             </button>
           ) : undefined
         }
@@ -106,7 +110,7 @@ export default function AddEditCategoryGroupPage() {
               className="h-20 w-20 rounded-2xl shadow-sm"
               style={{ backgroundColor: color }}
             />
-            <div className="mt-2 text-xs text-gray-500">
+            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
               {t("groups.form.tapToChangeColor")}
             </div>
           </button>
@@ -115,8 +119,8 @@ export default function AddEditCategoryGroupPage() {
         {/* Form Fields */}
         <div className="space-y-4">
           {/* Name */}
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <label className="mb-1 block text-xs font-medium text-gray-500">
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
               {t("groups.form.name")}
             </label>
             <input
@@ -124,13 +128,13 @@ export default function AddEditCategoryGroupPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t("groups.form.namePlaceholder")}
-              className="w-full text-base text-gray-900 outline-none placeholder:text-gray-400"
+              className="w-full bg-transparent text-base text-gray-900 dark:text-gray-50 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
             />
           </div>
 
           {/* Type */}
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <label className="mb-2 block text-xs font-medium text-gray-500">
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
               {t("groups.form.type")}
             </label>
             <div className="flex gap-2">
@@ -141,7 +145,7 @@ export default function AddEditCategoryGroupPage() {
                 className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
                   type === "expense"
                     ? "bg-gray-900 text-white"
-                    : "bg-gray-100 text-gray-600"
+                    : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                 } ${isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {t("groups.form.typeExpense")}
@@ -153,14 +157,14 @@ export default function AddEditCategoryGroupPage() {
                 className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
                   type === "income"
                     ? "bg-emerald-500 text-white"
-                    : "bg-gray-100 text-gray-600"
+                    : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                 } ${isEditing ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 {t("groups.form.typeIncome")}
               </button>
             </div>
             {isEditing && (
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
                 {t("groups.form.typeWarning")}
               </p>
             )}
@@ -169,12 +173,12 @@ export default function AddEditCategoryGroupPage() {
       </div>
 
       {/* Save Button */}
-      <div className="sticky bottom-0 bg-white p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="sticky bottom-0 bg-white dark:bg-gray-900 p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)]">
         <button
           type="button"
           onClick={handleSave}
           disabled={!name.trim()}
-          className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300"
+          className="w-full rounded-2xl bg-emerald-500 py-4 text-base font-semibold text-white transition-colors hover:bg-emerald-600 disabled:bg-gray-300 dark:disabled:bg-gray-700"
         >
           {t("groups.form.save")}
         </button>
@@ -184,11 +188,11 @@ export default function AddEditCategoryGroupPage() {
       {showColorPicker && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 dark:bg-black/70"
             onClick={() => setShowColorPicker(false)}
           />
-          <div className="relative w-full max-w-lg rounded-t-3xl bg-white px-6 py-8 shadow-xl">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">
+          <div className="relative w-full max-w-lg rounded-t-3xl bg-white dark:bg-gray-900 px-6 py-8 shadow-xl">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("groups.form.selectColor")}
             </h3>
             <div className="grid grid-cols-6 gap-3">
@@ -201,7 +205,7 @@ export default function AddEditCategoryGroupPage() {
                     setShowColorPicker(false);
                   }}
                   className={`h-12 w-12 rounded-xl transition-transform ${
-                    c === color ? "ring-2 ring-gray-900 ring-offset-2 scale-110" : ""
+                    c === color ? "ring-2 ring-gray-900 dark:ring-gray-50 ring-offset-2 scale-110" : ""
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -210,7 +214,7 @@ export default function AddEditCategoryGroupPage() {
             <button
               type="button"
               onClick={() => setShowColorPicker(false)}
-              className="mt-6 w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700"
+              className="mt-6 w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               {t("groups.form.cancel")}
             </button>
@@ -222,28 +226,28 @@ export default function AddEditCategoryGroupPage() {
       {confirmDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 dark:bg-black/70"
             onClick={() => setConfirmDelete(false)}
           />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">
               {t("groups.form.delete.title")}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               {t("groups.form.delete.message")}
             </p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 {t("groups.form.delete.cancel")}
               </button>
               <button
                 type="button"
                 onClick={confirmDeleteGroup}
-                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
+                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600 dark:hover:bg-red-700"
               >
                 {t("groups.form.delete.confirm")}
               </button>

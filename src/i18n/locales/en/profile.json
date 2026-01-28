@@ -2,7 +2,8 @@
   "sections": {
     "appearance": "Appearance",
     "expenseManagement": "Expense Management",
-    "dataSecurity": "Data & Security"
+    "dataSecurity": "Data & Security",
+    "legal": "Legal"
   },
   "menu": {
     "categories": "Categories",
@@ -11,8 +12,18 @@
     "scheduledSubtitle": "Automatic transactions",
     "backup": "Backup & Restore",
     "backupSubtitle": "Backup and restore data",
+    "biometric": "Biometric Authentication",
+    "biometricEnabled": "Enabled ({{type}})",
+    "biometricDisabled": "Disabled",
     "exportCSV": "Export CSV",
     "exportCSVSubtitle": "Download data in CSV format"
+  },
+  "biometricLock": {
+    "unlockReason": "Unlock SmartSpend",
+    "enableReason": "Enable biometric authentication",
+    "title": "SmartSpend is locked",
+    "subtitle": "Use Face ID or your passcode to unlock",
+    "unlockButton": "Unlock"
   },
   "preferences": {
     "title": "Preferences",
@@ -76,5 +87,14 @@
       "description": "Export transactions, categories and budgets"
     },
     "items": "items"
+  },
+  "legal": {
+    "lastUpdated": "Last updated",
+    "terms": {
+      "title": "Terms of Service"
+    },
+    "privacy": {
+      "title": "Privacy Policy"
+    }
   }
 }

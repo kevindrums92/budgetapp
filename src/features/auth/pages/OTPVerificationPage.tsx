@@ -3,7 +3,7 @@
  * OTP verification after login/register
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { KeyRound, Loader2 } from 'lucide-react';
@@ -13,7 +13,7 @@ import TrustDevicePrompt from '../components/TrustDevicePrompt';
 import { useOTPVerification } from '../hooks/useOTPVerification';
 import { getDeviceFingerprint, trustDevice } from '../services/device.service';
 import { maskEmail, maskPhone } from '../services/validation.service';
-import { getCurrentUser } from '../services/auth.service';
+import { getCurrentUser, signOut } from '../services/auth.service';
 import type { AuthSessionData, OTPType } from '../types/auth.types';
 
 export default function OTPVerificationPage() {
@@ -27,6 +27,10 @@ export default function OTPVerificationPage() {
   const otp = useOTPVerification();
   const [showTrustPrompt, setShowTrustPrompt] = useState(false);
   const [isTrusting, setIsTrusting] = useState(false);
+  const [isGoingBack, setIsGoingBack] = useState(false);
+
+  // Track if OTP was verified (to prevent logout on successful verification)
+  const didVerifyRef = useRef(false);
 
   // Redirect if no session data
   useEffect(() => {
@@ -35,6 +39,18 @@ export default function OTPVerificationPage() {
       navigate('/onboarding/auth', { replace: true });
     }
   }, [sessionData, navigate]);
+
+  // ⚠️ CRITICAL SECURITY: Cleanup session on unmount if OTP was not verified
+  // This prevents the bug where users can close OTP screen and keep the session active
+  useEffect(() => {
+    return () => {
+      // If component unmounts and user didn't verify OTP and isn't navigating properly, sign them out
+      if (!didVerifyRef.current && !isGoingBack) {
+        console.warn('[OTPVerificationPage] ⚠️ SECURITY: Unmounting without OTP verification - signing out');
+        signOut();
+      }
+    };
+  }, [isGoingBack]);
 
   if (!sessionData) {
     return null;
@@ -49,9 +65,15 @@ export default function OTPVerificationPage() {
 
   // Handle verify
   const handleVerify = async () => {
-    const success = await otp.verify(identifier, otpType);
+    // Determine OTP purpose: signup for new users, 2fa for existing users
+    const purpose = isNewUser ? 'signup' : '2fa';
+    const success = await otp.verify(identifier, otpType, purpose);
 
     if (success) {
+      // ✅ Mark as verified to prevent logout on unmount
+      didVerifyRef.current = true;
+      // ✅ Clear pending OTP verification flag
+      localStorage.removeItem('auth.pendingOtpVerification');
       // Show trust device prompt
       setShowTrustPrompt(true);
     }
@@ -72,41 +94,91 @@ export default function OTPVerificationPage() {
       console.error('[OTPVerificationPage] Trust device error:', err);
     }
 
-    completeAuth();
+    await completeAuth();
   };
 
   // Handle skip trust
-  const handleSkipTrust = () => {
-    completeAuth();
+  const handleSkipTrust = async () => {
+    await completeAuth();
+  };
+
+  // Handle back button - sign out and return to auth page
+  const handleGoBack = async () => {
+    setIsGoingBack(true);
+    console.log('[OTPVerificationPage] User cancelled OTP verification - signing out');
+    // Clear pending OTP flag
+    localStorage.removeItem('auth.pendingOtpVerification');
+    await signOut();
+    navigate('/onboarding/auth', { replace: true });
   };
 
   // Complete authentication and navigate to app
-  const completeAuth = () => {
+  const completeAuth = async () => {
     setIsTrusting(false);
     setShowTrustPrompt(false);
 
-    // Navigate to first config if new user, otherwise to app
+    // ✅ Clear logout flag - user just successfully authenticated
+    const { ONBOARDING_KEYS } = await import('@/features/onboarding/utils/onboarding.constants');
+    localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
+
+    // ✅ CRITICAL: Check cloud data to detect returning users who cleared localStorage
+    // Even if isNewUser=false, the user might have cloud data from previous installs
+    if (!isNewUser) {
+      console.log('[OTPVerificationPage] Existing user, checking cloud data...');
+
+      try {
+        const { getCloudState } = await import('@/services/cloudState.service');
+        const cloudData = await getCloudState();
+
+        if (cloudData) {
+          const hasCloudData = (cloudData.categoryDefinitions && cloudData.categoryDefinitions.length > 0) ||
+                               (cloudData.transactions && cloudData.transactions.length > 0) ||
+                               (cloudData.trips && cloudData.trips.length > 0);
+
+          if (hasCloudData) {
+            console.log('[OTPVerificationPage] → App (cloud has data, returning user)');
+            // Mark onboarding as complete to avoid checking again
+            localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+            localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+            navigate('/', { replace: true });
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('[OTPVerificationPage] Error checking cloud data:', err);
+        // Continue with normal flow if cloud check fails
+      }
+    }
+
+    // Navigate to first config if new user or no cloud data, otherwise to app
     if (isNewUser) {
+      console.log('[OTPVerificationPage] → First Config (new user)');
       navigate('/onboarding/config/1', { replace: true });
     } else {
+      console.log('[OTPVerificationPage] → App (returning user, no cloud data check passed)');
       navigate('/', { replace: true });
     }
   };
 
   // Handle resend
   const handleResend = async () => {
-    await otp.resend(identifier, otpType);
+    // Determine OTP purpose: signup for new users, 2fa for existing users
+    const purpose = isNewUser ? 'signup' : '2fa';
+    await otp.resend(identifier, otpType, purpose);
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Progress bar at top */}
       <div className="h-1 w-full bg-gray-200 dark:bg-gray-800">
         <div className="h-full w-1/3 bg-[#18B7B0] transition-all duration-300" />
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col items-center px-6 pt-12">
+      <div className="flex flex-1 flex-col items-center px-6 pt-12 pb-32">
         {/* Icon */}
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#18B7B0]/10">
           <KeyRound className="h-10 w-10 text-[#18B7B0]" />
@@ -143,7 +215,7 @@ export default function OTPVerificationPage() {
         )}
 
         {/* Resend link */}
-        <div className="mb-8 text-center">
+        <div className="text-center">
           {otp.canResend ? (
             <button
               type="button"
@@ -160,18 +232,33 @@ export default function OTPVerificationPage() {
         </div>
       </div>
 
-      {/* Verify button */}
-      <div className="px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+      {/* Action buttons - Verify + Back */}
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-950 px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        {/* Verify button */}
         <button
           type="button"
           onClick={handleVerify}
-          disabled={!otp.isComplete || otp.isVerifying}
+          disabled={!otp.isComplete || otp.isVerifying || isGoingBack}
           className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {otp.isVerifying ? (
             <Loader2 className="mx-auto h-5 w-5 animate-spin" />
           ) : (
-            t('auth.verify.button', 'Verificar y entrar')
+            t('auth.verify.button', 'Verificar')
+          )}
+        </button>
+
+        {/* Back button - flat style */}
+        <button
+          type="button"
+          onClick={handleGoBack}
+          disabled={otp.isVerifying || isGoingBack}
+          className="mt-3 w-full py-3 text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors hover:text-gray-900 dark:hover:text-gray-200 disabled:opacity-40"
+        >
+          {isGoingBack ? (
+            <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+          ) : (
+            t('auth.verify.back', 'Volver')
           )}
         </button>
       </div>

@@ -6,6 +6,7 @@
 import { useTranslation } from 'react-i18next';
 import { User, Mail, Phone, Lock, Loader2, Check } from 'lucide-react';
 import { useAuthForm } from '../hooks/useAuthForm';
+import { useKeyboardDismiss } from '@/hooks/useKeyboardDismiss';
 import PasswordInput from './PasswordInput';
 
 interface RegisterFormProps {
@@ -21,6 +22,9 @@ export default function RegisterForm({
 }: RegisterFormProps) {
   const { t } = useTranslation('onboarding');
   const form = useAuthForm({ mode: 'register' });
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { todayISO } from "@/services/dates.service";
 import type { TripStatus } from "@/types/budget.types";
 import PageHeader from "@/shared/components/layout/PageHeader";
@@ -19,6 +20,9 @@ export default function AddEditTripPage() {
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
   const isEdit = Boolean(params.id);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const addTrip = useBudgetStore((s) => s.addTrip);
   const updateTrip = useBudgetStore((s) => s.updateTrip);

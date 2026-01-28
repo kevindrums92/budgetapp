@@ -4,6 +4,7 @@
  */
 
 import type { Transaction, Category, Trip } from "@/types/budget.types";
+import { downloadCSV as downloadCSVFile } from "@/shared/utils/download.utils";
 
 /**
  * Export transactions to CSV format
@@ -13,11 +14,11 @@ import type { Transaction, Category, Trip } from "@/types/budget.types";
  * @param categories - Array of categories for name lookup
  * @param filename - Output filename (without extension)
  */
-export function exportTransactionsToCSV(
+export async function exportTransactionsToCSV(
   transactions: Transaction[],
   categories: Category[],
   filename: string = "transacciones"
-): void {
+): Promise<void> {
   // Create category lookup map
   const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
 
@@ -51,12 +52,8 @@ export function exportTransactionsToCSV(
     ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")),
   ].join("\n");
 
-  // Add UTF-8 BOM for Excel compatibility
-  const bom = "\uFEFF";
-  const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
-
-  // Trigger download
-  downloadBlob(blob, `${filename}.csv`);
+  // Trigger download (BOM is added automatically in downloadCSVFile)
+  await downloadCSVFile(csvContent, filename);
 }
 
 
@@ -66,10 +63,10 @@ export function exportTransactionsToCSV(
  * @param trips - Array of trips to export (with spent property added)
  * @param filename - Output filename (without extension)
  */
-export function exportTripsToCSV(
+export async function exportTripsToCSV(
   trips: Array<Trip & { spent: number }>,
   filename: string = "viajes"
-): void {
+): Promise<void> {
   // CSV headers
   const headers = ["Nombre", "Destino", "Presupuesto", "Gastado", "Disponible", "Fecha Inicio", "Fecha Fin", "Estado"];
 
@@ -115,12 +112,8 @@ export function exportTripsToCSV(
     ...rows.map((row) => row.map((cell) => escapeCsvCell(cell)).join(",")),
   ].join("\n");
 
-  // Add UTF-8 BOM for Excel compatibility
-  const bom = "\uFEFF";
-  const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
-
-  // Trigger download
-  downloadBlob(blob, `${filename}.csv`);
+  // Trigger download (BOM is added automatically in downloadCSVFile)
+  await downloadCSVFile(csvContent, filename);
 }
 
 /**
@@ -136,18 +129,4 @@ function escapeCsvCell(cell: string): string {
   }
 
   return str;
-}
-
-/**
- * Trigger browser download of a blob
- */
-function downloadBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-
-  // Cleanup
-  URL.revokeObjectURL(url);
 }

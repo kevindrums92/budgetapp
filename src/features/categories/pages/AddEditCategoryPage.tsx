@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ChevronDown, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
+import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/categories/category-icons";
 import { DEFAULT_CATEGORY_COLOR } from "@/constants/categories/category-colors";
 import type { TransactionType } from "@/types/budget.types";
@@ -17,6 +18,9 @@ export default function AddEditCategoryPage() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const isEditing = Boolean(id);
+
+  // Dismiss keyboard on scroll or touch outside
+  useKeyboardDismiss();
 
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
@@ -85,8 +89,8 @@ export default function AddEditCategoryPage() {
       navigate(-1);
     } else {
       const newId = addCategory({ name: name.trim(), icon, color, type, groupId });
-      // If coming from transaction form or onboarding, store new category and go back
-      if ((returnTo === "transaction" || returnTo === "onboarding") && newId) {
+      // If coming from any form that needs the new category, store it in session storage
+      if (returnTo && newId) {
         // Store newCategoryId in session storage for the form to pick up
         sessionStorage.setItem("newCategoryId", newId);
       }

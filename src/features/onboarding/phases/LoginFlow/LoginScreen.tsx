@@ -11,16 +11,53 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Shield, User, Chrome, Apple, Mail, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import { isNative } from '@/shared/utils/platform';
+import { getOAuthRedirectUrl } from '@/config/env';
 import { useOnboarding } from '../../OnboardingContext';
-import { markOnboardingComplete } from '../../utils/onboarding.helpers';
 import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
 
 export default function LoginScreen() {
   const { t } = useTranslation('onboarding');
   const navigate = useNavigate();
-  const { state, setAuthMethod } = useOnboarding();
+  const { state, updatePhase, setAuthMethod } = useOnboarding();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [oauthError, setOAuthError] = useState<{ message: string; isRetryable: boolean } | null>(null);
+
+  // Sync context with URL when component mounts
+  useEffect(() => {
+    if (state.phase !== 'login') {
+      console.log('[LoginScreen] Syncing context phase to login');
+      updatePhase('login');
+    }
+  }, [state.phase, updatePhase]);
+
+  /**
+   * Listener para errores de OAuth callback
+   */
+  useEffect(() => {
+    const handleOAuthError = (event: Event) => {
+      const customEvent = event as CustomEvent<{ error: string; code: number; isRetryable: boolean }>;
+      const { error, isRetryable } = customEvent.detail;
+
+      console.log('[LoginScreen] OAuth error received:', { error, isRetryable });
+
+      // Stop loading state
+      setLoading(false);
+
+      // Show error modal
+      setOAuthError({
+        message: error,
+        isRetryable,
+      });
+    };
+
+    window.addEventListener('oauth-error', handleOAuthError);
+
+    return () => {
+      window.removeEventListener('oauth-error', handleOAuthError);
+    };
+  }, []);
 
   /**
    * Listener para detectar cuando el usuario regresa del OAuth
@@ -28,6 +65,13 @@ export default function LoginScreen() {
    */
   useEffect(() => {
     const checkSession = async () => {
+      // Si hay flag de logout, ignorar sesión existente (puede estar cerrándose)
+      // El usuario llegó aquí porque hizo logout, no por OAuth callback
+      if (localStorage.getItem(ONBOARDING_KEYS.LOGOUT) === 'true') {
+        console.log('[LoginScreen] Logout flag detected, ignoring existing session');
+        return;
+      }
+
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         console.log('[LoginScreen] Session detected on mount, handling OAuth callback');
@@ -58,22 +102,51 @@ export default function LoginScreen() {
   /**
    * Maneja el retorno exitoso de OAuth
    */
-  const handleOAuthCallback = () => {
+  const handleOAuthCallback = async () => {
     setAuthMethod('google');
 
     // Limpiar flag de logout (el usuario se logueó de nuevo)
     localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
 
-    if (state.isFirstTime) {
-      // Primera vez: ir a First Config
-      console.log('[LoginScreen] OAuth success → First Config');
-      navigate('/onboarding/config/1', { replace: true });
-    } else {
+    // Verificar directamente en localStorage (más confiable que el estado del contexto)
+    const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
+
+    if (onboardingCompleted) {
       // Returning user: ir directo a app
-      console.log('[LoginScreen] OAuth success → App (returning user)');
-      markOnboardingComplete();
+      console.log('[LoginScreen] OAuth success → App (returning user, onboarding completed)');
       navigate('/', { replace: true });
+      return;
     }
+
+    // ✅ CRITICAL: Check cloud data to detect returning users who cleared localStorage
+    // If user has cloud data, skip FirstConfig and go directly to app
+    try {
+      console.log('[LoginScreen] Checking cloud data for returning user detection...');
+      const { getCloudState } = await import('@/services/cloudState.service');
+      const cloudData = await getCloudState();
+
+      if (cloudData) {
+        const hasCloudData = (cloudData.categoryDefinitions && cloudData.categoryDefinitions.length > 0) ||
+                             (cloudData.transactions && cloudData.transactions.length > 0) ||
+                             (cloudData.trips && cloudData.trips.length > 0);
+
+        if (hasCloudData) {
+          console.log('[LoginScreen] OAuth success → App (cloud has data, returning user)');
+          // Mark onboarding as complete to avoid checking again
+          localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+          localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+          navigate('/', { replace: true });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('[LoginScreen] Error checking cloud data:', err);
+      // Continue with normal flow if cloud check fails
+    }
+
+    // Nueva cuenta: ir a First Config
+    console.log('[LoginScreen] OAuth success → First Config (new user, no cloud data)');
+    navigate('/onboarding/config/1', { replace: true });
   };
 
   /**
@@ -90,15 +163,16 @@ export default function LoginScreen() {
       // Limpiar flag de logout (el usuario eligió continuar como invitado)
       localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
 
-      // Determinar siguiente pantalla según contexto
-      if (state.isFirstTime) {
-        // Primera vez: ir a First Config
+      // Verificar directamente en localStorage (más confiable que el estado del contexto)
+      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
+
+      if (!onboardingCompleted) {
+        // Primera vez: ir a First Config (guest mode, no cloud data to check)
         console.log('[LoginScreen] Guest mode selected → First Config');
         navigate('/onboarding/config/1', { replace: true });
       } else {
         // Returning user (logout): ir directo a app
         console.log('[LoginScreen] Guest mode selected → App (returning user)');
-        markOnboardingComplete();
         navigate('/', { replace: true });
       }
     } catch (err) {
@@ -117,11 +191,16 @@ export default function LoginScreen() {
     setError(null);
 
     try {
+      // Native apps use custom URL scheme for OAuth deep linking
+      // The scheme changes per environment (smartspend:// vs smartspend-dev://)
+      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
+
+      console.log('[LoginScreen] OAuth redirect URL:', redirectTo);
+
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          // Redirigir al origin (sin path) para que funcione correctamente en localhost
-          redirectTo: window.location.origin,
+          redirectTo,
           queryParams: {
             prompt: 'select_account',
           },
@@ -156,9 +235,12 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Header con icono de seguridad */}
-      <div className="flex flex-col items-center px-6 pt-12 pb-8">
+      <div className="flex flex-col items-center px-6 pt-8 pb-8">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
           <Shield size={40} className="text-white" strokeWidth={2.5} />
         </div>
@@ -263,15 +345,72 @@ export default function LoginScreen() {
         {/* Privacy Notice */}
         <p className="mt-6 text-center text-xs leading-relaxed text-gray-500 dark:text-gray-400">
           {t('login.termsPrefix')}{' '}
-          <button type="button" className="font-medium text-[#18B7B0] underline">
+          <button
+            type="button"
+            onClick={() => navigate('/legal/terms')}
+            className="font-medium text-[#18B7B0] underline"
+          >
             {t('login.termsService')}
           </button>{' '}
           {t('login.termsAnd')}{' '}
-          <button type="button" className="font-medium text-[#18B7B0] underline">
+          <button
+            type="button"
+            onClick={() => navigate('/legal/privacy')}
+            className="font-medium text-[#18B7B0] underline"
+          >
             {t('login.termsPrivacy')}
           </button>
         </p>
       </div>
+
+      {/* OAuth Error Modal */}
+      {oauthError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setOAuthError(null)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              Error de conexión
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {oauthError.message}
+            </p>
+
+            {/* Actions */}
+            <div className={oauthError.isRetryable ? "flex gap-3" : ""}>
+              <button
+                type="button"
+                onClick={() => setOAuthError(null)}
+                className={`${
+                  oauthError.isRetryable
+                    ? "flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                    : "w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+                }`}
+              >
+                Cerrar
+              </button>
+
+              {oauthError.isRetryable && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOAuthError(null);
+                    handleGoogleLogin();
+                  }}
+                  className="flex-1 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white hover:bg-[#13948e]"
+                >
+                  Reintentar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

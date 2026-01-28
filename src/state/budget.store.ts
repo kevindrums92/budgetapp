@@ -14,11 +14,15 @@ import type {
   Budget,
   BudgetPeriod,
   BudgetStatus,
+  BudgetType,
+  BudgetProgress,
+  SecuritySettings,
 } from "@/types/budget.types";
 import { loadState, saveState } from "@/services/storage.service";
 import { currentMonthKey, todayISO } from "@/services/dates.service";
 import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/category-groups/default-category-groups";
 import { getBudgetsToRenew, renewRecurringBudget, validateBudgetOverlap } from "@/features/budget/services/budget.service";
+import { migrateBudgets } from "@/services/migration.service";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
 type CloudMode = "guest" | "cloud";
@@ -71,6 +75,7 @@ type AddCategoryGroupInput = {
 type CreateBudgetInput = {
   categoryId: string;
   amount: number;
+  type: BudgetType;
   period: BudgetPeriod;
   accountId?: string;
   isRecurring: boolean;
@@ -139,11 +144,22 @@ type BudgetStore = BudgetState & {
   getBudgetById: (id: string) => Budget | undefined;
   renewExpiredBudgets: () => void;
 
+  // Budget Progress & Health Check
+  getBudgetProgress: (budgetId: string) => BudgetProgress | null;
+  getBudgetHealthCheck: () => {
+    exceededLimits: number;
+    totalLimits: number;
+    goalPercentage: number;
+    totalGoals: number;
+  };
+
   // Landing
   welcomeSeen: boolean;
   setWelcomeSeen: (v: boolean) => void;
   budgetOnboardingSeen: boolean;
   setBudgetOnboardingSeen: (v: boolean) => void;
+  savingsGoalOnboardingSeen: boolean;
+  setSavingsGoalOnboardingSeen: (v: boolean) => void;
 
   cloudMode: CloudMode;
   cloudStatus: CloudStatus;
@@ -158,13 +174,18 @@ type BudgetStore = BudgetState & {
   excludedFromStats: string[];
   toggleCategoryFromStats: (categoryId: string) => void;
 
+  // Security
+  toggleBiometricAuth: () => void;
+  updateLastAuthTimestamp: () => void;
+  getBiometricSettings: () => SecuritySettings;
+
   // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 6,
+  schemaVersion: 7,
   transactions: [],
   categories: [],
   categoryDefinitions: [], // Las categorías se crean durante el onboarding
@@ -172,6 +193,7 @@ const defaultState: BudgetState = {
   budgets: [],
   trips: [],
   tripExpenses: [],
+  security: { biometricEnabled: false },
 };
 
 function uniqSorted(arr: string[]) {
@@ -183,9 +205,13 @@ function uniqSorted(arr: string[]) {
 export const useBudgetStore = create<BudgetStore>((set, get) => {
   const hydrated = loadState() ?? defaultState;
 
+  // Migrate budgets if necessary
+  const migratedBudgets = migrateBudgets(hydrated.budgets ?? []);
+
   return {
     // ---------- STATE ----------
     ...hydrated,
+    budgets: migratedBudgets,
 
     cloudMode: "guest",
     cloudStatus: "idle",
@@ -219,6 +245,19 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       saveState(get());
     },
 
+    savingsGoalOnboardingSeen: (() => {
+      try { return localStorage.getItem("budget.savingsGoalOnboardingSeen.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setSavingsGoalOnboardingSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("budget.savingsGoalOnboardingSeen.v1", "1");
+        else localStorage.removeItem("budget.savingsGoalOnboardingSeen.v1");
+      } catch { }
+      set({ savingsGoalOnboardingSeen: v });
+      saveState(get());
+    },
+
     // UI month
     selectedMonth: currentMonthKey(),
     setSelectedMonth: (monthKey) => set({ selectedMonth: monthKey }),
@@ -233,12 +272,19 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     // ---------- CRUD ----------
     addTransaction: (input) => {
-      const name = input.name.trim();
+      const nameInput = input.name.trim();
       const categoryRaw = input.category.trim();
       const category = categoryRaw.length ? categoryRaw : "Sin categoría";
 
-      if (!name) return;
       if (!Number.isFinite(input.amount) || input.amount <= 0) return;
+
+      // If name is empty, use category name as fallback
+      let name = nameInput;
+      if (!name) {
+        // Find category definition to get translated name
+        const categoryDef = get().categoryDefinitions.find(c => c.id === category);
+        name = categoryDef?.name || category;
+      }
 
       const tx: Transaction = {
         id: crypto.randomUUID(),
@@ -257,7 +303,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
@@ -310,7 +356,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
@@ -328,7 +374,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -364,7 +410,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -387,7 +433,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -405,7 +451,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -441,7 +487,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -464,7 +510,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -482,7 +528,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -515,7 +561,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
@@ -540,7 +586,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -558,7 +604,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
@@ -593,7 +639,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -618,7 +664,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -650,7 +696,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -681,6 +727,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         {
           categoryId: input.categoryId,
           amount: Math.round(input.amount),
+          type: input.type,
           period: input.period,
           accountId: input.accountId,
           isRecurring: input.isRecurring,
@@ -698,6 +745,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         id: crypto.randomUUID(),
         categoryId: input.categoryId,
         amount: Math.round(input.amount),
+        type: input.type,
         period: input.period,
         accountId: input.accountId,
         isRecurring: input.isRecurring,
@@ -707,7 +755,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -739,6 +787,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
             {
               categoryId: updatedBudget.categoryId,
               amount: updatedBudget.amount,
+              type: updatedBudget.type,
               period: updatedBudget.period,
               accountId: updatedBudget.accountId,
               isRecurring: updatedBudget.isRecurring,
@@ -760,7 +809,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -781,7 +830,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteBudget: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -804,7 +853,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -854,7 +903,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -872,11 +921,92 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       });
     },
 
+    // ---------- BUDGET PROGRESS & HEALTH CHECK ----------
+    getBudgetProgress: (budgetId) => {
+      const state = get();
+      const budget = state.budgets.find((b) => b.id === budgetId);
+      if (!budget) return null;
+
+      const category = state.categoryDefinitions.find((c) => c.id === budget.categoryId);
+      if (!category) return null;
+
+      // Filter transactions for this category within budget period
+      const transactions = state.transactions.filter((t) => {
+        if (t.category !== budget.categoryId) return false;
+
+        const txDate = new Date(t.date);
+        const periodStart = new Date(budget.period.startDate);
+        const periodEnd = new Date(budget.period.endDate);
+
+        return txDate >= periodStart && txDate <= periodEnd && t.type === "expense";
+      });
+
+      const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0);
+
+      if (budget.type === "limit") {
+        // Logic for spending limits
+        const percentage = budget.amount > 0 ? (totalAmount / budget.amount) * 100 : 0;
+        const remaining = budget.amount - totalAmount;
+
+        return {
+          budget,
+          category,
+          spent: totalAmount,
+          saved: 0,
+          percentage,
+          remaining,
+          isExceeded: totalAmount > budget.amount,
+          isCompleted: false,
+        };
+      } else {
+        // Logic for savings goals
+        const percentage = budget.amount > 0 ? (totalAmount / budget.amount) * 100 : 0;
+        const remaining = Math.max(budget.amount - totalAmount, 0);
+
+        return {
+          budget,
+          category,
+          spent: 0,
+          saved: totalAmount,
+          percentage,
+          remaining,
+          isExceeded: false,
+          isCompleted: totalAmount >= budget.amount,
+        };
+      }
+    },
+
+    getBudgetHealthCheck: () => {
+      const state = get();
+      const activeBudgets = state.budgets.filter((b) => b.status === "active");
+
+      const allProgress = activeBudgets
+        .map((b) => get().getBudgetProgress(b.id))
+        .filter((p): p is BudgetProgress => p !== null);
+
+      const limits = allProgress.filter((p) => p.budget.type === "limit");
+      const goals = allProgress.filter((p) => p.budget.type === "goal");
+
+      const exceededLimits = limits.filter((p) => p.isExceeded).length;
+
+      // Weighted average of completed goals
+      const goalTotalAmount = goals.reduce((sum, g) => sum + g.budget.amount, 0);
+      const goalSavedAmount = goals.reduce((sum, g) => sum + g.saved, 0);
+      const goalPercentage = goalTotalAmount > 0 ? Math.round((goalSavedAmount / goalTotalAmount) * 100) : 0;
+
+      return {
+        exceededLimits,
+        totalLimits: limits.length,
+        goalPercentage,
+        totalGoals: goals.length,
+      };
+    },
+
     // ---------- SYNC HELPERS ----------
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 6,
+        schemaVersion: 7,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
@@ -886,8 +1016,10 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         tripExpenses: s.tripExpenses ?? [],
         welcomeSeen: s.welcomeSeen,
         budgetOnboardingSeen: s.budgetOnboardingSeen,
+        savingsGoalOnboardingSeen: s.savingsGoalOnboardingSeen,
         lastSchedulerRun: s.lastSchedulerRun,
         excludedFromStats: s.excludedFromStats,
+        security: s.security,
       };
     },
 
@@ -909,7 +1041,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         const current = state.excludedFromStats ?? [];
         const isExcluded = current.includes(categoryId);
         const next: BudgetState = {
-          schemaVersion: 6,
+          schemaVersion: 7,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -924,15 +1056,55 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           excludedFromStats: isExcluded
             ? current.filter((id) => id !== categoryId)
             : [...current, categoryId],
+          security: state.security,
         };
         saveState(next);
         return next;
       });
     },
 
+    // Security
+    toggleBiometricAuth: () => {
+      set((state) => {
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 7,
+          security: {
+            biometricEnabled: !(state.security?.biometricEnabled ?? false),
+            lastAuthTimestamp: state.security?.lastAuthTimestamp,
+          },
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    updateLastAuthTimestamp: () => {
+      set((state) => {
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 7,
+          security: {
+            biometricEnabled: state.security?.biometricEnabled ?? false,
+            lastAuthTimestamp: Date.now(),
+          },
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    getBiometricSettings: () => {
+      const state = get();
+      return state.security ?? { biometricEnabled: false };
+    },
+
     replaceAllData: (data) => {
+      // Migrate budgets from cloud data
+      const migratedBudgets = migrateBudgets(data.budgets ?? []);
+
       // guarda como cache local (cloud cache)
-      const normalizedData = { ...data, schemaVersion: 6 as const };
+      const normalizedData = { ...data, schemaVersion: 7 as const, budgets: migratedBudgets };
       saveState(normalizedData);
 
       // Sync onboarding flags to localStorage
@@ -948,21 +1120,29 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           else localStorage.removeItem("budget.budgetOnboardingSeen.v1");
         } catch { }
       }
+      if (data.savingsGoalOnboardingSeen !== undefined) {
+        try {
+          if (data.savingsGoalOnboardingSeen) localStorage.setItem("budget.savingsGoalOnboardingSeen.v1", "1");
+          else localStorage.removeItem("budget.savingsGoalOnboardingSeen.v1");
+        } catch { }
+      }
 
       // set explícito (NO meter funciones del store dentro)
       set({
-        schemaVersion: 6,
+        schemaVersion: 7,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
         categoryGroups: data.categoryGroups ?? [],
-        budgets: data.budgets ?? [],
+        budgets: migratedBudgets,
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
         welcomeSeen: data.welcomeSeen ?? false,
         budgetOnboardingSeen: data.budgetOnboardingSeen ?? false,
+        savingsGoalOnboardingSeen: data.savingsGoalOnboardingSeen ?? false,
         lastSchedulerRun: data.lastSchedulerRun,
         excludedFromStats: data.excludedFromStats ?? [],
+        security: data.security ?? { biometricEnabled: false },
       });
     },
   };

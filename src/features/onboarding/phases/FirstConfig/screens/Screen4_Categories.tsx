@@ -112,9 +112,12 @@ export default function Screen4_Categories() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Progress */}
-      <div className="flex gap-1.5 px-6 pt-4">
+      <div className="flex gap-1.5 px-6 pt-3">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
@@ -164,8 +167,8 @@ export default function Screen4_Categories() {
       </div>
 
       {/* Categories list */}
-      <div className="flex-1 overflow-y-auto px-6 pb-32">
-        <div className="space-y-4 pb-4">
+      <div className="flex-1 overflow-y-auto px-6 pb-40">
+        <div className="space-y-4">
           {categoriesByGroup.map(({ group, categories }) => (
             <div key={group.id}>
               {/* Group header */}
@@ -224,7 +227,7 @@ export default function Screen4_Categories() {
         </div>
 
         {/* Disclaimer */}
-        <div className="rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4 mb-4">
+        <div className="mt-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4">
           <p className="text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
             {t('categories.note')}
           </p>

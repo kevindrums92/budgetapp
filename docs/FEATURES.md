@@ -161,42 +161,82 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ---
 
-## 💰 Sistema de Presupuestos
+## 💰 Sistema de Presupuestos (Plan)
 
-### Budget Module Completo
-- **Presupuestos por categoría** con períodos flexibles
-- **Períodos soportados**: Semanal, Mensual, Trimestral, Anual, Personalizado
-- **Presupuestos recurrentes** que se renuevan automáticamente
-- **Tracking en tiempo real** con indicadores visuales de color
-  - Verde: < 70% gastado
-  - Amarillo: 70-100% gastado
-  - Rojo: > 100% gastado
-- **Progreso visual** con barras de progreso
-- Monto gastado, monto restante y porcentaje de progreso
+### Dos Tipos de Planes
+1. **Límites de Gasto** (Spending Limits)
+   - Define un tope máximo de gasto para una categoría
+   - Control de gastos variables (mercado, restaurantes, entretenimiento)
+   - Alertas cuando te acercas o excedes el límite
+   - Cálculo de monto restante disponible
+
+2. **Metas de Ahorro** (Savings Goals)
+   - Establece objetivos de ahorro por categoría
+   - Seguimiento de progreso hacia la meta
+   - Indicadores de cuánto falta para cumplir el objetivo
+   - Categorías como inversiones, fondo de emergencia, proyectos
+
+### Características del Sistema
+- **Períodos flexibles**: Semanal, Mensual, Trimestral, Anual, Personalizado
+- **Presupuestos recurrentes** que se renuevan automáticamente al finalizar
+- **Tracking en tiempo real** con indicadores visuales de color:
+  - Verde/Teal: Buen estado (< 75%)
+  - Amarillo: Cerca del límite (75-100%)
+  - Rojo: Límite excedido (> 100%)
 - **Múltiples presupuestos** por categoría con diferentes períodos
-- **Cloud sync** completo para presupuestos
-- Dark mode support en todo el módulo
-- Soporte i18n completo
+- **Auto-renovación** de presupuestos expirados al cargar la app
+
+### Tabs de Historial
+- **Tab "Activos"**: Planes en curso
+  - Health Check banners (límites excedidos, progreso de metas)
+  - Alertas automáticas de estado
+  - Filtrado solo en tab activo
+- **Tab "Completados"**: Planes finalizados
+  - Resumen de resultados:
+    - ✓ Límite Respetado: Muestra cuánto ahorraste
+    - ⚠ Límite Excedido: Muestra cuánto te pasaste
+    - 🎉 Meta Cumplida: Muestra si superaste la meta
+    - Meta No Alcanzada: Muestra % logrado y faltante
+  - Historial completo de períodos finalizados
+  - Análisis de desempeño
+
+### Métricas Inteligentes
+- **Sugerencia Diaria**: Cuánto gastar/ahorrar por día para cumplir objetivo
+- **Días Restantes**: Cuenta regresiva del período
+- **Promedio Diario** (budgets completados): Análisis del gasto/ahorro diario
+- **Duración** (budgets completados): Total de días del período
+
+### Budget Detail Page
+- **Vista completa** del presupuesto individual
+- **Progreso visual** con barra de estado y porcentaje
+- **Métricas contextuales** según estado (activo/completado)
+- **Actividad reciente**: Lista de transacciones relacionadas
+- **Edición bloqueada** para presupuestos completados
+- **Eliminación con confirmación** y advertencia especial para completados
 
 ### Budget Onboarding
-- **Wizard de onboarding** con 4 pantallas animadas
-- Carousel interactivo con Embla Carousel
-- Explicación de funcionalidades:
-  1. Bienvenida al módulo de presupuestos
-  2. Establecer límites por categoría
-  3. Monitorear progreso en tiempo real
-  4. Diferencia entre Balance y Presupuesto
-- Se muestra solo una vez (flag en localStorage)
-- Progress dots animados
-- Swipe navigation y clickable dots
+- **Wizard de 4 pantallas** completamente rediseñado:
+  1. Bienvenida: Intro a Planes (límites, metas, seguimiento)
+  2. Tipos de Planes: Ejemplos visuales de límites vs metas
+  3. Historial: Tabs y resúmenes de resultados
+  4. Alertas: Health check, métricas y recomendaciones
+- **Carousel interactivo** con Embla Carousel
+- **Progress dots** animados con navegación
+- **Traducido a 4 idiomas** (es, en, fr, pt)
+- Se muestra solo una vez (flag en cloud sync)
 
-### Vista de Presupuesto
-- **Resumen mensual**: ingresos vs gastos
-- **Balance disponible** destacado
-- **Progreso por categoría** con barras visuales
-- **Indicadores de cumplimiento** con colores semánticos
-- Modal de breakdown del promedio diario
-- Filtrado de categorías excluidas
+### Health Check System
+- **Banner de límites excedidos**: Muestra cuántos límites superaste
+- **Banner de progreso de metas**: Porcentaje de metas completadas
+- **Cálculo automático** de estado general
+- **Visibilidad condicional**: Solo en tab "Activos"
+
+### Cloud Sync & Persistencia
+- **Sincronización completa** de presupuestos
+- **Auto-renovación** sincronizada con cloud data
+- **Migración de esquema** v6 → v7 con campo budgets
+- **Persistencia de preferencias** (onboarding visto)
+- Dark mode support en todo el módulo
 
 ---
 
@@ -291,6 +331,22 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 - **ForgotPasswordModal** integrado en AuthPage
 - Usuarios permanecen logueados después de reset
 - Navegación a home en lugar de login
+
+### Biometric Authentication
+- **Face ID / Touch ID / Fingerprint** para usuarios autenticados
+- **Plugin**: `@capgo/capacitor-native-biometric` (v8.3.2) compatible con Capacitor 8
+- **Toggle de configuración** en ProfilePage (Datos y Seguridad)
+- **Prompt nativo del OS** (no modal custom) con fallback automático a código del dispositivo
+- **Lock screen overlay**: Bloquea la app si el usuario cancela la autenticación
+- **Triggers de autenticación**:
+  - Cold start (al abrir la app)
+  - App resume después de 5 minutos de inactividad
+- **Solo usuarios logueados** en plataformas nativas (iOS/Android)
+- **Schema migration v6→v7**: Campo `security` en BudgetState
+- **Cloud sync**: Configuración se sincroniza entre dispositivos
+- **i18n completo**: Traducido a español, inglés, francés y portugués
+- **iOS Face ID usage description** configurado en Info.plist
+- **Timestamp tracking**: Previene autenticación redundante al habilitar
 
 ### Onboarding System
 - **Welcome Flow**: 6 pantallas de introducción visual
@@ -494,7 +550,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ### Storage Service
 - **localStorage** como storage principal
-- **Schema versioning**: v1 → v6 con migrations automáticas
+- **Schema versioning**: v1 → v7 con migrations automáticas
 - **Data integrity**: Validación y deduplicación
 - **Error handling**: Quota exceeded, corrupted state
 - **Migration paths**:
@@ -503,6 +559,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
   - v3→v4: isRecurring field
   - v4→v5: Scheduled transactions (sourceTemplateId)
   - v5→v6: Budget system
+  - v6→v7: Biometric security settings
 
 ### Cloud State Service
 - **Supabase integration** para cloud sync

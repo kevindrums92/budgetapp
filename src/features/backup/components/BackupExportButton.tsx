@@ -22,7 +22,7 @@ export default function BackupExportButton() {
       const backup = await createBackup(state, userId, "manual");
 
       // Trigger download
-      downloadBackup(backup);
+      await downloadBackup(backup);
 
       logger.info("Backup", "Export successful:", {
         transactions: backup.stats.totalTransactions,

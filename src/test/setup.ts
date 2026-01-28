@@ -51,14 +51,16 @@ function createLocalStorageMock() {
   );
 }
 
-const localStorageMock = createLocalStorageMock();
-
 beforeEach(() => {
+  // Create a fresh localStorage mock for each test
+  const localStorageMock = createLocalStorageMock();
+
   // Mock localStorage (works in both jsdom and node)
   if (typeof window !== 'undefined') {
     Object.defineProperty(window, 'localStorage', {
       value: localStorageMock,
       writable: true,
+      configurable: true,
     });
   } else {
     Object.defineProperty(global, 'localStorage', {

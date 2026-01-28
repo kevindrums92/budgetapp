@@ -6,7 +6,9 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
-import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder } from "lucide-react";
+import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint } from "lucide-react";
+import { Capacitor } from '@capacitor/core';
+import { authenticateWithBiometrics, checkBiometricAvailability, getBiometryDisplayName } from "@/features/biometric/services/biometric.service";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -19,9 +21,14 @@ export default function ProfilePage() {
   const user = useBudgetStore((s) => s.user);
   const cloudMode = useBudgetStore((s) => s.cloudMode);
   const cloudStatus = useBudgetStore((s) => s.cloudStatus);
+  const security = useBudgetStore((s) => s.security);
+  const toggleBiometricAuth = useBudgetStore((s) => s.toggleBiometricAuth);
+  const updateLastAuthTimestamp = useBudgetStore((s) => s.updateLastAuthTimestamp);
 
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [biometryType, setBiometryType] = useState<string>('Face ID');
 
   // Get current theme name for display
   const currentThemeName = useMemo(() => {
@@ -40,6 +47,8 @@ export default function ProfilePage() {
     };
   }, []);
 
+  const isLoggedIn = !!user.email;
+
   // Auth actions
   async function signOut() {
     setLoading(true);
@@ -53,7 +62,56 @@ export default function ProfilePage() {
     navigate("/");
   }
 
-  const isLoggedIn = !!user.email;
+  // Handle biometric toggle
+  async function handleBiometricToggle() {
+    const isCurrentlyEnabled = security?.biometricEnabled ?? false;
+
+    // If disabling, just toggle off
+    if (isCurrentlyEnabled) {
+      console.log('[ProfilePage] Disabling biometric auth');
+      toggleBiometricAuth();
+      return;
+    }
+
+    // If enabling, first check availability then authenticate
+    console.log('[ProfilePage] Attempting to enable biometric auth');
+
+    try {
+      // Check if biometric is available
+      console.log('[ProfilePage] Checking biometric availability...');
+      const availability = await checkBiometricAvailability();
+
+      if (!availability.isAvailable) {
+        console.log('[ProfilePage] Biometric not available:', availability.reason);
+        setErrorMessage(availability.reason || 'Autenticación biométrica no disponible en este dispositivo');
+        return;
+      }
+
+      // Store the biometry type for display
+      const displayName = getBiometryDisplayName(availability.biometryType);
+      setBiometryType(displayName);
+      console.log('[ProfilePage] Biometry type:', displayName);
+
+      // Request biometric authentication
+      const authResult = await authenticateWithBiometrics(t('biometricLock.enableReason'));
+
+      if (authResult.success) {
+        console.log('[ProfilePage] Biometric authentication successful, enabling');
+        toggleBiometricAuth();
+        updateLastAuthTimestamp(); // Mark that user just authenticated to prevent BiometricGate from prompting again
+      } else {
+        console.log('[ProfilePage] Biometric authentication failed:', authResult.error);
+        if (authResult.errorCode === 'NOT_AVAILABLE') {
+          setErrorMessage('Face ID no está disponible en este dispositivo');
+        } else if (authResult.errorCode !== 'USER_CANCEL') {
+          setErrorMessage('No se pudo autenticar. Por favor intenta de nuevo.');
+        }
+      }
+    } catch (error) {
+      console.error('[ProfilePage] Error in biometric toggle:', error);
+      setErrorMessage('Error al verificar autenticación biométrica');
+    }
+  }
 
   // Generate initials for avatar fallback
   const initials = user.name
@@ -248,11 +306,44 @@ export default function ProfilePage() {
               sublabel={t('menu.backupSubtitle')}
               onClick={() => navigate("/backup")}
             />
+            {isLoggedIn && Capacitor.isNativePlatform() && (
+              <MenuItem
+                icon={<Fingerprint size={20} />}
+                label={t('menu.biometric')}
+                sublabel={
+                  security?.biometricEnabled
+                    ? t('menu.biometricEnabled', { type: biometryType })
+                    : t('menu.biometricDisabled')
+                }
+                onClick={handleBiometricToggle}
+                showToggle
+                toggleValue={security?.biometricEnabled ?? false}
+              />
+            )}
             <MenuItem
               icon={<FileText size={20} />}
               label={t('menu.exportCSV')}
               sublabel={t('menu.exportCSVSubtitle')}
               onClick={() => navigate('/settings/export-csv')}
+            />
+          </div>
+        </div>
+
+        {/* Legal Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 px-1">
+            {t('sections.legal', 'Legal')}
+          </h3>
+          <div className="rounded-2xl bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+            <MenuItem
+              icon={<ScrollText size={20} />}
+              label={t('legal.terms.title', 'Términos de Servicio')}
+              onClick={() => navigate('/legal/terms')}
+            />
+            <MenuItem
+              icon={<Lock size={20} />}
+              label={t('legal.privacy.title', 'Política de Privacidad')}
+              onClick={() => navigate('/legal/privacy')}
             />
           </div>
         </div>
@@ -276,6 +367,31 @@ export default function ProfilePage() {
           v{__APP_VERSION__} ({__GIT_HASH__})
         </p>
       </div>
+
+      {/* Error modal */}
+      {errorMessage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setErrorMessage(null)}
+          />
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              Error
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {errorMessage}
+            </p>
+            <button
+              type="button"
+              onClick={() => setErrorMessage(null)}
+              className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -286,9 +402,11 @@ type MenuItemProps = {
   sublabel?: string;
   onClick: () => void;
   showBadge?: boolean;
+  showToggle?: boolean;
+  toggleValue?: boolean;
 };
 
-function MenuItem({ icon, label, sublabel, onClick, showBadge }: MenuItemProps) {
+function MenuItem({ icon, label, sublabel, onClick, showBadge, showToggle, toggleValue }: MenuItemProps) {
   return (
     <button
       type="button"
@@ -310,7 +428,17 @@ function MenuItem({ icon, label, sublabel, onClick, showBadge }: MenuItemProps) 
             !
           </span>
         )}
-        <ChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
+        {showToggle ? (
+          <div className={`relative h-8 w-14 rounded-full transition-all ${
+            toggleValue ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-700'
+          }`}>
+            <span className={`absolute top-1 left-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform ${
+              toggleValue ? 'translate-x-6' : 'translate-x-0'
+            }`} />
+          </div>
+        ) : (
+          <ChevronRight size={18} className="text-gray-400 dark:text-gray-500" />
+        )}
       </div>
     </button>
   );

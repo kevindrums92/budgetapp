@@ -51,7 +51,10 @@ export default function ResetPasswordPage() {
   // Success state
   if (success) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 px-6">
+      <div
+        className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 px-6"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
         <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
         </div>
@@ -67,14 +70,17 @@ export default function ResetPasswordPage() {
 
   // Form
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div
+      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
       {/* Progress bar */}
       <div className="h-1 w-full bg-gray-200 dark:bg-gray-800">
         <div className="h-full w-2/3 bg-[#18B7B0] transition-all duration-300" />
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col items-center px-6 pt-12">
+      <div className="flex flex-1 flex-col items-center px-6 pt-12 pb-32">
         {/* Icon */}
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#18B7B0]/10">
           <KeyRound className="h-10 w-10 text-[#18B7B0]" />
@@ -157,7 +163,7 @@ export default function ResetPasswordPage() {
       </div>
 
       {/* Submit button */}
-      <div className="px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-950 px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button
           type="button"
           onClick={handleSubmit}

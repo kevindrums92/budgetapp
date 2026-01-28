@@ -9,6 +9,7 @@ import type { AuthSessionData } from '../types/auth.types';
 import {
   signInWithEmail,
   signInWithPhone,
+  send2FAOTP,
 } from '../services/auth.service';
 import {
   getDeviceFingerprint,
@@ -54,10 +55,29 @@ export function useLogin(): UseLoginReturn {
       if (isTrusted) {
         // Device is trusted, skip OTP and go directly to app
         console.log('[useLogin] Trusted device, skipping OTP');
+        // Clear pending OTP flag if it exists
+        localStorage.removeItem('auth.pendingOtpVerification');
+        // Clear logout flag - user just successfully authenticated
+        const { ONBOARDING_KEYS } = await import('@/features/onboarding/utils/onboarding.constants');
+        localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
         navigate('/', { replace: true });
       } else {
         // Device not trusted, need OTP verification
-        console.log('[useLogin] Untrusted device, redirecting to OTP');
+        console.log('[useLogin] Untrusted device, sending 2FA OTP');
+
+        // Send 2FA OTP code
+        // Map identifierType to send2FAOTP type
+        const send2FAType = identifierType === 'email' ? 'email' : 'phone';
+        const otpResult = await send2FAOTP(identifier, send2FAType);
+
+        if (!otpResult.success) {
+          setError(otpResult.error || 'Error al enviar el código de verificación');
+          return;
+        }
+
+        // ⚠️ CRITICAL: Mark session as pending OTP verification
+        // This will be used to detect and cleanup unverified sessions
+        localStorage.setItem('auth.pendingOtpVerification', Date.now().toString());
 
         const sessionData: AuthSessionData = {
           identifier: identifierType === 'email'

@@ -1,0 +1,89 @@
+{
+  "lastUpdated": "Última atualização",
+  "terms": {
+    "title": "Termos de Serviço",
+    "introduction": {
+      "title": "Introdução",
+      "content": "Bem-vindo ao SmartSpend. Ao usar nosso aplicativo, você aceita estes termos de serviço. SmartSpend é um aplicativo de gestão de finanças pessoais projetado para ajudá-lo a rastrear suas despesas, receitas e orçamentos."
+    },
+    "service": {
+      "title": "Descrição do Serviço",
+      "content": "SmartSpend oferece:"
+    },
+    "accounts": {
+      "title": "Contas de Usuário",
+      "content": "Você pode usar o SmartSpend em dois modos:"
+    },
+    "ownership": {
+      "title": "Propriedade de Dados",
+      "content": "Todos os seus dados financeiros pertencem a você. SmartSpend não compartilha, vende ou usa seus dados para publicidade. Você pode exportar ou excluir seus dados a qualquer momento nas configurações do aplicativo."
+    },
+    "use": {
+      "title": "Uso Aceitável",
+      "content": "Ao usar o SmartSpend, você concorda em:"
+    },
+    "limitations": {
+      "title": "Limitação de Responsabilidade",
+      "content": "SmartSpend é fornecido \"como está\" sem garantias de qualquer tipo. Não somos responsáveis por perdas financeiras, danos ou imprecisões nos dados. É sua responsabilidade verificar a precisão de seus registros financeiros e realizar backups regulares de seus dados."
+    },
+    "availability": {
+      "title": "Disponibilidade do Serviço",
+      "content": "Fazemos nosso melhor esforço para manter o SmartSpend disponível, mas não garantimos 100% de tempo de atividade. Podemos suspender ou descontinuar o serviço a qualquer momento com aviso prévio."
+    },
+    "changes": {
+      "title": "Alterações nos Termos",
+      "content": "Reservamo-nos o direito de modificar estes termos a qualquer momento. As alterações serão publicadas nesta página com uma data de atualização. Seu uso contínuo do SmartSpend após as alterações constitui sua aceitação dos novos termos."
+    },
+    "contact": {
+      "title": "Contato",
+      "content": "Se você tiver dúvidas sobre estes termos, pode nos contatar em:"
+    }
+  },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "introduction": {
+      "title": "Introdução",
+      "content": "No SmartSpend, respeitamos sua privacidade e estamos comprometidos em proteger seus dados pessoais. Esta política explica como coletamos, usamos e protegemos suas informações."
+    },
+    "collection": {
+      "title": "Informações que Coletamos",
+      "intro": "Dependendo do modo que você usa, coletamos:"
+    },
+    "usage": {
+      "title": "Como Usamos Suas Informações",
+      "intro": "Usamos suas informações exclusivamente para:"
+    },
+    "storage": {
+      "title": "Armazenamento e Segurança",
+      "content": "Seus dados são protegidos através de:"
+    },
+    "thirdParty": {
+      "title": "Serviços de Terceiros",
+      "intro": "SmartSpend utiliza os seguintes serviços:"
+    },
+    "retention": {
+      "title": "Retenção de Dados",
+      "content": "Mantemos seus dados enquanto você mantiver sua conta ativa ou conforme necessário para fornecer serviços. Você pode excluir sua conta e todos os seus dados a qualquer momento nas configurações do aplicativo. Os dados no modo convidado existem apenas no seu dispositivo e são excluídos ao limpar os dados do navegador."
+    },
+    "rights": {
+      "title": "Seus Direitos",
+      "intro": "Você tem o direito de:"
+    },
+    "cookies": {
+      "title": "Cookies e Armazenamento Local",
+      "content": "SmartSpend usa localStorage do navegador para armazenar suas preferências (idioma, tema, moeda) e dados financeiros (no modo convidado). Não usamos cookies de rastreamento publicitário. As sessões de autenticação são gerenciadas através de tokens seguros do Supabase."
+    },
+    "children": {
+      "title": "Privacidade de Menores",
+      "content": "SmartSpend não é destinado a menores de 13 anos. Não coletamos intencionalmente informações de crianças. Se você descobrir que um menor forneceu dados pessoais, entre em contato conosco para excluí-los."
+    },
+    "changes": {
+      "title": "Alterações nesta Política",
+      "content": "Podemos atualizar esta política de privacidade periodicamente. Notificaremos você sobre alterações significativas através de um aviso no aplicativo. A data de \"última atualização\" no topo desta página indica quando foi modificada pela última vez."
+    },
+    "contact": {
+      "title": "Contato",
+      "content": "Se você tiver dúvidas sobre esta política de privacidade ou desejar exercer seus direitos, entre em contato conosco:"
+    }
+  }
+}

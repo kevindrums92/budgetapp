@@ -1,0 +1,28 @@
+{
+  "title": "History and Filters",
+  "filters": {
+    "dateRange": "Date Range",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "custom": "Custom",
+    "type": "Type",
+    "allTypes": "All",
+    "status": "Status",
+    "allStatus": "All",
+    "paid": "Paid",
+    "pendingStatus": "Pending",
+    "planned": "Planned",
+    "category": "Category",
+    "selectCategory": "Select category",
+    "allCategories": "All categories",
+    "amountRange": "Amount Range",
+    "minimum": "Minimum",
+    "maximum": "Maximum",
+    "noLimit": "No limit"
+  },
+  "results": {
+    "title": "Results ({{count}})",
+    "exportCSV": "Export CSV",
+    "noResults": "No transactions found with applied filters"
+  }
+}

@@ -18,6 +18,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-groceries",
         amount: 500000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2026-01-01",
@@ -96,6 +97,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-groceries",
         amount: 100000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2026-01-01",
@@ -131,6 +133,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-groceries",
         amount: 500000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2026-01-01",
@@ -158,6 +161,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-1",
           amount: 100000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -171,6 +175,7 @@ describe("budget.service", () => {
           id: "budget-2",
           categoryId: "cat-2",
           amount: 200000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-02-01",
@@ -184,6 +189,7 @@ describe("budget.service", () => {
           id: "budget-3",
           categoryId: "cat-3",
           amount: 300000,
+          type: "limit",
           period: {
             type: "quarter",
             startDate: "2026-01-01",
@@ -198,6 +204,7 @@ describe("budget.service", () => {
           id: "budget-4",
           categoryId: "cat-4",
           amount: 400000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -227,6 +234,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-1",
         amount: 100000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2025-12-01",
@@ -245,6 +253,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-1",
         amount: 100000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2025-12-01",
@@ -263,6 +272,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-1",
         amount: 100000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2025-12-01",
@@ -281,6 +291,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-1",
         amount: 100000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2026-01-01",
@@ -306,6 +317,7 @@ describe("budget.service", () => {
         id: "budget-1",
         categoryId: "cat-groceries",
         amount: 500000,
+        type: "limit",
         period: {
           type: "month",
           startDate: "2025-12-01",
@@ -339,6 +351,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -353,6 +366,7 @@ describe("budget.service", () => {
       const newBudget = {
         categoryId: "cat-groceries",
         amount: 300000,
+        type: "limit" as const,
         period: {
           type: "month" as const,
           startDate: "2026-01-15",
@@ -373,6 +387,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -387,6 +402,7 @@ describe("budget.service", () => {
       const newBudget = {
         categoryId: "cat-groceries",
         amount: 300000,
+        type: "limit" as const,
         period: {
           type: "month" as const,
           startDate: "2026-02-01",
@@ -407,6 +423,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -421,6 +438,7 @@ describe("budget.service", () => {
       const newBudget = {
         categoryId: "cat-restaurant", // Diferente categoría
         amount: 300000,
+        type: "limit" as const,
         period: {
           type: "month" as const,
           startDate: "2026-01-15",
@@ -441,6 +459,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -455,6 +474,7 @@ describe("budget.service", () => {
       const newBudget = {
         categoryId: "cat-groceries",
         amount: 600000, // Editando el monto
+        type: "limit" as const,
         period: {
           type: "month" as const,
           startDate: "2026-01-01",
@@ -479,6 +499,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -493,6 +514,7 @@ describe("budget.service", () => {
       const newBudget = {
         categoryId: "cat-groceries",
         amount: 300000,
+        type: "limit" as const,
         period: {
           type: "month" as const,
           startDate: "2026-01-15",
@@ -515,6 +537,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-1",
           amount: 100000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2025-12-01",
@@ -528,6 +551,7 @@ describe("budget.service", () => {
           id: "budget-2",
           categoryId: "cat-2",
           amount: 200000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -541,6 +565,7 @@ describe("budget.service", () => {
           id: "budget-3",
           categoryId: "cat-3",
           amount: 300000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2025-11-01",
@@ -567,6 +592,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -580,6 +606,7 @@ describe("budget.service", () => {
           id: "budget-2",
           categoryId: "cat-restaurant",
           amount: 300000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -607,6 +634,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -633,6 +661,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -646,6 +675,7 @@ describe("budget.service", () => {
           id: "budget-2",
           categoryId: "cat-groceries",
           amount: 600000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -674,6 +704,7 @@ describe("budget.service", () => {
           id: "budget-1",
           categoryId: "cat-groceries",
           amount: 500000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -687,6 +718,7 @@ describe("budget.service", () => {
           id: "budget-2",
           categoryId: "cat-restaurant",
           amount: 300000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-01-01",
@@ -701,6 +733,7 @@ describe("budget.service", () => {
           id: "budget-3",
           categoryId: "cat-transport",
           amount: 200000,
+          type: "limit",
           period: {
             type: "month",
             startDate: "2026-02-01",
