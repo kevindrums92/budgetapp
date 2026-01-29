@@ -34,5 +34,13 @@
     }
   },
   "saving": "Saving...",
-  "info": "Notifications are sent according to your device's time zone."
+  "info": "Notifications are sent according to your device's time zone.",
+  "disableAll": {
+    "button": "Disable all notifications",
+    "confirmTitle": "Disable notifications?",
+    "confirmMessage": "All your settings will be deleted and you'll need to configure them again if you decide to reactivate them.",
+    "cancel": "Cancel",
+    "confirm": "Disable",
+    "disabling": "Disabling..."
+  }
 }

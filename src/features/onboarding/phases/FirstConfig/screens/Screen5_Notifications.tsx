@@ -15,8 +15,7 @@ import {
   updatePreferences,
 } from '@/services/pushNotification.service';
 import { supabase } from '@/lib/supabaseClient';
-import { convertLocalToUTC } from '@/shared/utils/timezone';
-import type { NotificationPreferences } from '@/types/notifications';
+import { DEFAULT_NOTIFICATION_PREFERENCES } from '@/types/notifications';
 
 const NEXT_STEP = '/onboarding/config/6';
 
@@ -47,23 +46,8 @@ export default function Screen5_Notifications() {
     try {
       const granted = await requestPermissions();
       if (granted) {
-        const prefs: NotificationPreferences = {
-          scheduled_transactions: true,
-          daily_reminder: {
-            enabled: true,
-            time: convertLocalToUTC('21:00'),
-          },
-          daily_summary: {
-            enabled: true,
-            time: convertLocalToUTC('21:00'),
-          },
-          quiet_hours: {
-            enabled: true,
-            start: convertLocalToUTC('23:00'),
-            end: convertLocalToUTC('06:00'),
-          },
-        };
-        await updatePreferences(prefs);
+        // Apply default notification preferences (daily reminder + summary at 9pm, quiet hours 11pm-6am)
+        await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
       }
     } catch (err) {
       console.error('[PushOnboarding] Error:', err);

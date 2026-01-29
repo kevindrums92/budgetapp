@@ -8,6 +8,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(push): add "disable all notifications" functionality with confirmation modal and complete cleanup (deletes token, clears preferences, resets banner tracking)
+- fix(push): prevent auto-reactivation after manual disable using `push_notifications_manually_disabled` localStorage flag
+- fix(push): show push banner to users who manually disabled notifications (checks both permission status AND manual disable flag)
+- refactor(push): centralize default notification preferences in `DEFAULT_NOTIFICATION_PREFERENCES` constant (used across onboarding, settings, and re-enabling)
+- feat(i18n): add translations for disable button, push banner, and "view full history" button in all 4 languages (es, en, fr, pt)
+- fix(onboarding): clear ALL onboarding state on logout to ensure new users go through FirstConfig (fixes bug where logout + login with different account would skip onboarding)
+- feat(ios): enhance configure-env script to automatically set APNs environment (development/production) and copy correct Firebase config file
+- chore: add git helper scripts (`git:ignore-env`, `git:track-env`) to manage skip-worktree for environment config files
+- chore: version Firebase config files (.dev and .prod) and remove from .gitignore for better environment management
 - feat(push): add contextual banner on HomePage to encourage push notification activation for authenticated users with 3+ transactions
 - feat(push): implement intelligent banner tracking system (dismisses hide for 3 days, permanently hidden after 3 dismisses or successful activation)
 - feat(push): auto-configure default preferences on activation (daily reminder + summary at 9pm local, quiet hours 11pm-6am) with automatic UTC conversion

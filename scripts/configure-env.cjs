@@ -8,6 +8,8 @@
  * - Display Name (SmartSpend vs SmartSpend Dev)
  * - URL Scheme (smartspend vs smartspend-dev) for OAuth deep linking
  * - Xcode project settings
+ * - APNs environment (development vs production)
+ * - Firebase configuration file (GoogleService-Info.plist)
  *
  * Usage:
  *   node scripts/configure-env.cjs development
@@ -25,13 +27,15 @@ const configs = {
     appId: 'com.jhotech.smartspend.dev',
     appName: 'SmartSpend Dev',
     displayName: 'SmartSpend Dev',
-    urlScheme: 'smartspend-dev'
+    urlScheme: 'smartspend-dev',
+    apnsEnvironment: 'development'
   },
   production: {
     appId: 'com.jhotech.smartspend',
     appName: 'SmartSpend',
     displayName: 'SmartSpend',
-    urlScheme: 'smartspend'
+    urlScheme: 'smartspend',
+    apnsEnvironment: 'production'
   }
 };
 
@@ -109,7 +113,39 @@ if (fs.existsSync(pbxprojPath)) {
   console.log(`   - PRODUCT_BUNDLE_IDENTIFIER: ${config.appId}`);
 }
 
+// 4. Update App.entitlements (APNs environment)
+const entitlementsPath = path.join(__dirname, '../ios/App/App/App.entitlements');
+if (fs.existsSync(entitlementsPath)) {
+  let entitlements = fs.readFileSync(entitlementsPath, 'utf8');
+
+  // Update aps-environment
+  entitlements = entitlements.replace(
+    /(<key>aps-environment<\/key>\s*<string>).*?(<\/string>)/,
+    `$1${config.apnsEnvironment}$2`
+  );
+
+  fs.writeFileSync(entitlementsPath, entitlements);
+  console.log(`✅ Updated App.entitlements`);
+  console.log(`   - aps-environment: ${config.apnsEnvironment}`);
+}
+
+// 5. Copy Firebase configuration file
+const firebaseSuffix = env === 'development' ? 'dev' : 'prod';
+const firebaseSourcePath = path.join(__dirname, `../ios/App/App/GoogleService-Info.plist.${firebaseSuffix}`);
+const firebaseDestPath = path.join(__dirname, '../ios/App/App/GoogleService-Info.plist');
+
+if (fs.existsSync(firebaseSourcePath)) {
+  fs.copyFileSync(firebaseSourcePath, firebaseDestPath);
+  console.log(`✅ Copied Firebase configuration`);
+  console.log(`   - From: GoogleService-Info.plist.${firebaseSuffix}`);
+  console.log(`   - To: GoogleService-Info.plist`);
+} else {
+  console.warn(`⚠️  Warning: Firebase config not found at ${firebaseSourcePath}`);
+}
+
 console.log(`\n✨ Configuration complete for ${env.toUpperCase()}\n`);
 console.log(`📱 App will be installed as: "${config.displayName}"`);
 console.log(`🆔 Bundle ID: ${config.appId}`);
-console.log(`🔗 URL Scheme: ${config.urlScheme}://\n`);
+console.log(`🔗 URL Scheme: ${config.urlScheme}://`);
+console.log(`🔔 APNs Environment: ${config.apnsEnvironment}`);
+console.log(`🔥 Firebase: GoogleService-Info.plist.${firebaseSuffix}\n`);

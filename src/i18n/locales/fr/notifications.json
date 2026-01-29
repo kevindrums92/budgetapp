@@ -34,5 +34,13 @@
     }
   },
   "saving": "Enregistrement...",
-  "info": "Les notifications sont envoyées selon le fuseau horaire de votre appareil."
+  "info": "Les notifications sont envoyées selon le fuseau horaire de votre appareil.",
+  "disableAll": {
+    "button": "Désactiver toutes les notifications",
+    "confirmTitle": "Désactiver les notifications ?",
+    "confirmMessage": "Tous vos paramètres seront supprimés et vous devrez les reconfigurer si vous décidez de les réactiver.",
+    "cancel": "Annuler",
+    "confirm": "Désactiver",
+    "disabling": "Désactivation..."
+  }
 }

@@ -9,10 +9,12 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Bell, Calendar, Clock, Moon, TrendingUp } from 'lucide-react';
 import PageHeader from '@/shared/components/layout/PageHeader';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { disablePushNotifications } from '@/services/pushNotification.service';
 import type { NotificationPreferences } from '@/types/notifications';
 import { convertLocalToUTC, convertUTCToLocal } from '@/shared/utils/timezone';
 
@@ -37,6 +39,7 @@ function convertLocalPrefsToServer(localPrefs: NotificationPreferences): Notific
 }
 
 export default function NotificationSettingsPage() {
+  const navigate = useNavigate();
   const { t } = useTranslation('notifications');
   const {
     isAvailable,
@@ -49,6 +52,8 @@ export default function NotificationSettingsPage() {
 
   const [localPrefs, setLocalPrefs] = useState<NotificationPreferences | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showDisableConfirm, setShowDisableConfirm] = useState(false);
+  const [isDisabling, setIsDisabling] = useState(false);
 
   // Sync local state with server preferences (convert UTC to local for display)
   useEffect(() => {
@@ -143,6 +148,26 @@ export default function NotificationSettingsPage() {
 
   const handleRequestPermission = async () => {
     await requestPermission();
+  };
+
+  const handleDisableNotifications = async () => {
+    setIsDisabling(true);
+    try {
+      const success = await disablePushNotifications();
+      if (success) {
+        console.log('[NotificationSettings] Notifications disabled successfully');
+        // Navigate back to profile page
+        navigate('/profile');
+      } else {
+        console.error('[NotificationSettings] Failed to disable notifications');
+        // Show error or stay on page
+      }
+    } catch (error) {
+      console.error('[NotificationSettings] Error disabling notifications:', error);
+    } finally {
+      setIsDisabling(false);
+      setShowDisableConfirm(false);
+    }
   };
 
   // Not available on this platform
@@ -359,11 +384,65 @@ export default function NotificationSettingsPage() {
           )}
         </div>
 
+        {/* Disable All Notifications Button - Flat style */}
+        <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
+          <button
+            type="button"
+            onClick={() => setShowDisableConfirm(true)}
+            className="w-full py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 active:scale-[0.98] transition-all"
+          >
+            {t('disableAll.button', 'Desactivar todas las notificaciones')}
+          </button>
+        </div>
+
         {/* Info text */}
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-2">
           {t('info')}
         </p>
       </div>
+
+      {/* Disable Confirmation Modal */}
+      {showDisableConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 dark:bg-black/70"
+            onClick={() => !isDisabling && setShowDisableConfirm(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t('disableAll.confirmTitle', '¿Desactivar notificaciones?')}
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {t('disableAll.confirmMessage', 'Se eliminarán todos tus ajustes y deberás configurarlos de nuevo si decides reactivarlas.')}
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowDisableConfirm(false)}
+                disabled={isDisabling}
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50"
+              >
+                {t('disableAll.cancel', 'Cancelar')}
+              </button>
+              <button
+                type="button"
+                onClick={handleDisableNotifications}
+                disabled={isDisabling}
+                className="flex-1 rounded-xl bg-red-500 dark:bg-red-600 py-3 text-sm font-medium text-white hover:bg-red-600 dark:hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDisabling
+                  ? t('disableAll.disabling', 'Desactivando...')
+                  : t('disableAll.confirm', 'Desactivar')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

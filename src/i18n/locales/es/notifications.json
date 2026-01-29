@@ -34,5 +34,13 @@
     }
   },
   "saving": "Guardando...",
-  "info": "Las notificaciones se envían según la zona horaria de tu dispositivo."
+  "info": "Las notificaciones se envían según la zona horaria de tu dispositivo.",
+  "disableAll": {
+    "button": "Desactivar todas las notificaciones",
+    "confirmTitle": "¿Desactivar notificaciones?",
+    "confirmMessage": "Se eliminarán todos tus ajustes y deberás configurarlos de nuevo si decides reactivarlas.",
+    "cancel": "Cancelar",
+    "confirm": "Desactivar",
+    "disabling": "Desactivando..."
+  }
 }

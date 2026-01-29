@@ -80,8 +80,12 @@ export default function HomePage() {
       }
 
       // Check if push is already enabled
+      // BUT also check if user manually disabled (in that case, we SHOULD show the banner)
+      const manuallyDisabled = localStorage.getItem('push_notifications_manually_disabled') === 'true';
       const permissionStatus = await checkPermissionStatus();
-      if (permissionStatus === "granted") {
+
+      if (permissionStatus === "granted" && !manuallyDisabled) {
+        // Permissions granted AND not manually disabled → already enabled, don't show banner
         setShowPushBanner(false);
         return;
       }
@@ -240,10 +244,10 @@ export default function HomePage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-500 mb-0.5">
-                  Notificaciones
+                  {t('pushBanner.title')}
                 </p>
                 <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight mb-2">
-                  Recibe alertas cuando te acerques al límite de tu presupuesto
+                  {t('pushBanner.description')}
                 </p>
                 <button
                   type="button"
@@ -251,7 +255,7 @@ export default function HomePage() {
                   disabled={isEnablingPush}
                   className="text-xs font-semibold text-emerald-600 dark:text-emerald-500 active:scale-95 transition-all disabled:opacity-50"
                 >
-                  {isEnablingPush ? "Activando..." : "Activar ahora"}
+                  {isEnablingPush ? t('pushBanner.enabling') : t('pushBanner.enable')}
                 </button>
               </div>
             </div>
@@ -275,7 +279,7 @@ export default function HomePage() {
             onClick={() => navigate('/history', { state: { resetFilters: true } })}
             className="flex items-center gap-1 py-2 text-sm font-medium text-[#18B7B0] active:scale-95 transition-all"
           >
-            <span>Ver historial completo</span>
+            <span>{t('viewFullHistory')}</span>
             <ChevronRight size={16} />
           </button>
         </div>

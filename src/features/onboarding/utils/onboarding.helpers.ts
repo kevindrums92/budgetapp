@@ -183,8 +183,13 @@ export function getSavedSelections() {
  */
 export function markLogout() {
   localStorage.setItem(ONBOARDING_KEYS.LOGOUT, 'true');
-  // Clear progress and selections so they don't carry over to the next user
+
+  // Clear ALL onboarding state so next user starts fresh
+  // This ensures that a new user will go through FirstConfig
+  localStorage.removeItem(ONBOARDING_KEYS.COMPLETED);
   localStorage.removeItem(ONBOARDING_KEYS.PROGRESS);
   localStorage.removeItem(ONBOARDING_KEYS.SELECTIONS);
-  console.log('[Onboarding] Logout marked');
+  localStorage.removeItem(ONBOARDING_KEYS.TIMESTAMP);
+
+  console.log('[Onboarding] Logout marked, onboarding state cleared for next user');
 }
