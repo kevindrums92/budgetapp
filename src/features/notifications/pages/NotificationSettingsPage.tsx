@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Bell, Calendar, Clock, Moon, TrendingUp } from 'lucide-react';
 import PageHeader from '@/shared/components/layout/PageHeader';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
@@ -33,6 +34,7 @@ function convertLocalToUTC(timeLocal: string): string {
 }
 
 export default function NotificationSettingsPage() {
+  const { t } = useTranslation('notifications');
   const {
     isAvailable,
     permissionStatus,
@@ -162,16 +164,16 @@ export default function NotificationSettingsPage() {
   if (!isAvailable) {
     return (
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
-        <PageHeader title="Notificaciones" />
+        <PageHeader title={t('title')} />
 
         <div className="flex-1 px-4 pt-6 pb-8">
           <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm text-center">
             <Bell className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
             <h2 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              No disponible
+              {t('unavailable.title')}
             </h2>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Las notificaciones push solo estan disponibles en la app nativa para iOS y Android.
+              {t('unavailable.description')}
             </p>
           </div>
         </div>
@@ -183,7 +185,7 @@ export default function NotificationSettingsPage() {
   if (permissionStatus !== 'granted' && permissionStatus !== 'loading') {
     return (
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
-        <PageHeader title="Notificaciones" />
+        <PageHeader title={t('title')} />
 
         <div className="flex-1 px-4 pt-6 pb-8">
           <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm">
@@ -191,10 +193,10 @@ export default function NotificationSettingsPage() {
               <Bell className="h-8 w-8 text-teal-500 dark:text-teal-400" />
             </div>
             <h2 className="mt-4 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
-              Activa las notificaciones
+              {t('permissionRequest.title')}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">
-              Recibe recordatorios para registrar tus gastos, alertas de presupuesto y resumen diario de tus finanzas.
+              {t('permissionRequest.description')}
             </p>
 
             <button
@@ -203,12 +205,12 @@ export default function NotificationSettingsPage() {
               disabled={isLoading}
               className="mt-6 w-full rounded-2xl bg-teal-500 dark:bg-teal-600 py-4 text-base font-semibold text-white transition-colors hover:bg-teal-600 dark:hover:bg-teal-700 active:scale-[0.98] disabled:bg-gray-300 dark:disabled:bg-gray-700"
             >
-              {isLoading ? 'Activando...' : 'Activar notificaciones'}
+              {isLoading ? t('permissionRequest.buttonLoading') : t('permissionRequest.button')}
             </button>
 
             {permissionStatus === 'denied' && (
               <p className="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">
-                Si negaste el permiso, puedes habilitarlo desde la configuracion de tu dispositivo.
+                {t('permissionRequest.permissionDenied')}
               </p>
             )}
           </div>
@@ -221,7 +223,7 @@ export default function NotificationSettingsPage() {
   if (isLoading || !localPrefs) {
     return (
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
-        <PageHeader title="Notificaciones" />
+        <PageHeader title={t('title')} />
 
         <div className="flex-1 px-4 pt-6 pb-8">
           <div className="animate-pulse space-y-4">
@@ -238,10 +240,10 @@ export default function NotificationSettingsPage() {
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header */}
       <PageHeader
-        title="Notificaciones"
+        title={t('title')}
         rightActions={
           isSaving ? (
-            <span className="text-xs text-gray-400 dark:text-gray-500">Guardando...</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500">{t('saving')}</span>
           ) : null
         }
       />
@@ -254,9 +256,9 @@ export default function NotificationSettingsPage() {
               <Calendar className="h-5 w-5 text-blue-500 dark:text-blue-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-gray-900 dark:text-gray-50">Transacciones programadas</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-50">{t('notifications.scheduledTransactions.title')}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Aviso 1 dia antes de cada transaccion pendiente
+                {t('notifications.scheduledTransactions.description')}
               </p>
             </div>
             <Toggle
@@ -273,9 +275,9 @@ export default function NotificationSettingsPage() {
               <Bell className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-gray-900 dark:text-gray-50">Recordatorio diario</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-50">{t('notifications.dailyReminder.title')}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Solo si no has registrado gastos hoy
+                {t('notifications.dailyReminder.description')}
               </p>
             </div>
             <Toggle
@@ -287,7 +289,7 @@ export default function NotificationSettingsPage() {
           {localPrefs.daily_reminder.enabled && (
             <div className="mt-4 flex items-center gap-3 pl-13">
               <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">Hora del recordatorio:</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('notifications.dailyReminder.timeLabel')}</span>
               <input
                 type="time"
                 value={localPrefs.daily_reminder.time}
@@ -305,9 +307,9 @@ export default function NotificationSettingsPage() {
               <TrendingUp className="h-5 w-5 text-purple-500 dark:text-purple-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-gray-900 dark:text-gray-50">Resumen diario</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-50">{t('notifications.dailySummary.title')}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Resumen de tus movimientos del dia
+                {t('notifications.dailySummary.description')}
               </p>
             </div>
             <Toggle
@@ -319,7 +321,7 @@ export default function NotificationSettingsPage() {
           {localPrefs.daily_summary.enabled && (
             <div className="mt-4 flex items-center gap-3 pl-13">
               <Clock className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">Hora del resumen:</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('notifications.dailySummary.timeLabel')}</span>
               <input
                 type="time"
                 value={localPrefs.daily_summary.time}
@@ -337,9 +339,9 @@ export default function NotificationSettingsPage() {
               <Moon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             </div>
             <div className="flex-1">
-              <h3 className="font-medium text-gray-900 dark:text-gray-50">Horas de silencio</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-50">{t('notifications.quietHours.title')}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                No recibir notificaciones en este horario
+                {t('notifications.quietHours.description')}
               </p>
             </div>
             <Toggle
@@ -351,7 +353,7 @@ export default function NotificationSettingsPage() {
           {localPrefs.quiet_hours.enabled && (
             <div className="mt-4 space-y-3 pl-13">
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 dark:text-gray-400 w-16">Desde:</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400 w-16">{t('notifications.quietHours.startLabel')}</span>
                 <input
                   type="time"
                   value={localPrefs.quiet_hours.start}
@@ -360,7 +362,7 @@ export default function NotificationSettingsPage() {
                 />
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 dark:text-gray-400 w-16">Hasta:</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400 w-16">{t('notifications.quietHours.endLabel')}</span>
                 <input
                   type="time"
                   value={localPrefs.quiet_hours.end}
@@ -374,7 +376,7 @@ export default function NotificationSettingsPage() {
 
         {/* Info text */}
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 pt-2">
-          Las notificaciones se envian segun la zona horaria de tu dispositivo.
+          {t('info')}
         </p>
       </div>
     </div>

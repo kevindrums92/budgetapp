@@ -31,8 +31,8 @@ CREATE TABLE push_tokens (
     },
     "quiet_hours": {
       "enabled": false,
-      "start": "22:00",
-      "end": "08:00"
+      "start": "23:59",
+      "end": "00:00"
     }
   }',
   is_active BOOLEAN DEFAULT true,

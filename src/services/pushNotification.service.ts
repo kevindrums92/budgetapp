@@ -10,6 +10,7 @@ import { Capacitor } from '@capacitor/core';
 import { supabase } from '@/lib/supabaseClient';
 import { isNative, getPlatform } from '@/shared/utils/platform';
 import type { NotificationPreferences, Platform } from '@/types/notifications';
+import { DEFAULT_NOTIFICATION_PREFERENCES } from '@/types/notifications';
 
 type NotificationListener = (notification: unknown) => void;
 type TokenListener = (token: string) => void;
@@ -145,6 +146,7 @@ async function registerAndSaveToken(): Promise<void> {
 
 /**
  * Save FCM token to Supabase
+ * Uses a SECURITY DEFINER function to bypass RLS and allow token takeover between users
  */
 async function saveTokenToBackend(token: string): Promise<void> {
   try {
@@ -160,26 +162,21 @@ async function saveTokenToBackend(token: string): Promise<void> {
     const platform = getPlatform() as Platform;
     const deviceInfo = getDeviceInfo();
 
-    const { error } = await supabase.from('push_tokens').upsert(
-      {
-        user_id: user.id,
-        token,
-        platform,
-        device_info: deviceInfo,
-        is_active: true,
-        last_used_at: new Date().toISOString(),
-      },
-      {
-        onConflict: 'token',
-      }
-    );
+    // Use RPC to call SECURITY DEFINER function (bypasses RLS)
+    const { data, error } = await supabase.rpc('upsert_push_token', {
+      p_user_id: user.id,
+      p_token: token,
+      p_platform: platform,
+      p_device_info: deviceInfo,
+      p_preferences: DEFAULT_NOTIFICATION_PREFERENCES,
+    });
 
     if (error) {
       console.error('[PushNotification] Failed to save token:', error);
       return;
     }
 
-    console.log('[PushNotification] Token saved to backend');
+    console.log('[PushNotification] Token saved to backend:', data);
   } catch (error) {
     console.error('[PushNotification] saveTokenToBackend error:', error);
   }
@@ -273,14 +270,20 @@ export async function getPreferences(): Promise<NotificationPreferences | null> 
       .select('preferences')
       .eq('token', state.token)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('[PushNotification] Failed to get preferences:', error);
       return null;
     }
 
-    return data?.preferences as NotificationPreferences;
+    // If no token record exists yet (first time setup), return defaults
+    if (!data) {
+      console.log('[PushNotification] No preferences found, returning defaults');
+      return DEFAULT_NOTIFICATION_PREFERENCES;
+    }
+
+    return data.preferences as NotificationPreferences;
   } catch (error) {
     console.error('[PushNotification] getPreferences error:', error);
     return null;
@@ -289,6 +292,7 @@ export async function getPreferences(): Promise<NotificationPreferences | null> 
 
 /**
  * Update notification preferences
+ * Uses a SECURITY DEFINER function to bypass RLS and allow token takeover between users
  */
 export async function updatePreferences(
   preferences: Partial<NotificationPreferences>
@@ -315,18 +319,24 @@ export async function updatePreferences(
       ...preferences,
     };
 
-    const { error } = await supabase
-      .from('push_tokens')
-      .update({ preferences: mergedPrefs })
-      .eq('token', state.token)
-      .eq('user_id', user.id);
+    const platform = getPlatform() as Platform;
+    const deviceInfo = getDeviceInfo();
+
+    // Use RPC to call SECURITY DEFINER function (bypasses RLS)
+    const { data, error } = await supabase.rpc('upsert_push_token', {
+      p_user_id: user.id,
+      p_token: state.token,
+      p_platform: platform,
+      p_device_info: deviceInfo,
+      p_preferences: mergedPrefs,
+    });
 
     if (error) {
       console.error('[PushNotification] Failed to update preferences:', error);
       return false;
     }
 
-    console.log('[PushNotification] Preferences updated');
+    console.log('[PushNotification] Preferences updated:', data);
     return true;
   } catch (error) {
     console.error('[PushNotification] updatePreferences error:', error);

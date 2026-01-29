@@ -8,6 +8,82 @@ const FCM_ENDPOINT = `https://fcm.googleapis.com/v1/projects/${PROJECT_ID}/messa
 const corsHeaders = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' };
 
 // ---------------------------------------------------------------------------
+// Scheduler helpers (ported from scheduler.service.ts)
+// ---------------------------------------------------------------------------
+function calculateNextDate(schedule: any, from: string): string | null {
+  const fromDate = new Date(from + 'T12:00:00');
+  let nextDate: Date;
+
+  switch (schedule.frequency) {
+    case 'daily':
+      nextDate = new Date(fromDate);
+      nextDate.setDate(nextDate.getDate() + schedule.interval);
+      break;
+
+    case 'weekly':
+      nextDate = new Date(fromDate);
+      nextDate.setDate(nextDate.getDate() + (7 * schedule.interval));
+      if (schedule.dayOfWeek !== undefined) {
+        const currentDayOfWeek = nextDate.getDay();
+        const diff = schedule.dayOfWeek - currentDayOfWeek;
+        nextDate.setDate(nextDate.getDate() + diff);
+      }
+      break;
+
+    case 'monthly':
+      nextDate = new Date(fromDate);
+      nextDate.setMonth(nextDate.getMonth() + schedule.interval);
+      if (schedule.dayOfMonth !== undefined) {
+        const daysInMonth = new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0).getDate();
+        const targetDay = Math.min(schedule.dayOfMonth, daysInMonth);
+        nextDate.setDate(targetDay);
+      }
+      break;
+
+    case 'yearly':
+      nextDate = new Date(fromDate);
+      nextDate.setFullYear(nextDate.getFullYear() + schedule.interval);
+      break;
+
+    default:
+      return null;
+  }
+
+  const nextDateStr = nextDate.toISOString().slice(0, 10);
+  if (schedule.endDate && nextDateStr > schedule.endDate) return null;
+  return nextDateStr;
+}
+
+function transactionExistsForDate(transactions: any[], template: any, date: string): boolean {
+  return transactions.some((tx: any) => {
+    if (tx.sourceTemplateId === template.id && tx.date === date) return true;
+    return tx.name === template.name && tx.category === template.category && tx.amount === template.amount && tx.date === date;
+  });
+}
+
+function findNextOccurrence(schedule: any, today: string, transactions: any[], template: any): string | null {
+  const endDate = new Date(today + 'T12:00:00');
+  endDate.setFullYear(endDate.getFullYear() + 1);
+  const endDateStr = endDate.toISOString().slice(0, 10);
+
+  let current = calculateNextDate(schedule, schedule.startDate);
+  const futureDates: string[] = [];
+
+  while (current && current <= endDateStr) {
+    futureDates.push(current);
+    current = calculateNextDate(schedule, current);
+  }
+
+  for (const futureDate of futureDates) {
+    if (futureDate <= today) continue;
+    if (transactionExistsForDate(transactions, template, futureDate)) continue;
+    return futureDate;
+  }
+
+  return null;
+}
+
+// ---------------------------------------------------------------------------
 // i18n
 // ---------------------------------------------------------------------------
 type SupportedLang = 'es' | 'en' | 'pt' | 'fr';
@@ -27,17 +103,17 @@ const TRANSLATIONS: Record<SupportedLang, {
   multipleBody: (total: string) => string;
 }> = {
   es: {
-    singleTitle: (status) => `Transaccion pendiente ${status} para manana`,
+    singleTitle: (status) => `Transaccion ${status} para manana`,
     statusScheduled: 'programada',
     statusPending: 'pendiente',
-    multipleTitle: (count) => `${count} transacciones pendientes para manana`,
+    multipleTitle: (count) => `${count} transacciones para manana`,
     multipleBody: (total) => `Total: $${total}. Toca para ver detalles.`,
   },
   en: {
-    singleTitle: (status) => `${status} pending transaction for tomorrow`,
+    singleTitle: (status) => `${status} transaction for tomorrow`,
     statusScheduled: 'Scheduled',
     statusPending: 'Pending',
-    multipleTitle: (count) => `${count} pending transactions for tomorrow`,
+    multipleTitle: (count) => `${count} transactions for tomorrow`,
     multipleBody: (total) => `Total: $${total}. Tap to see details.`,
   },
   pt: {
@@ -104,6 +180,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+    const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowISO = tomorrow.toISOString().split('T')[0];
 
@@ -114,9 +191,35 @@ serve(async (req) => {
     let sent = 0;
     for (const tk of tokens) {
       const { data: us } = await supabase.from('user_state').select('state').eq('user_id', tk.user_id).single();
-      const upcoming = us?.state?.transactions?.filter((tx: any) =>
+      const allTransactions = us?.state?.transactions || [];
+
+      // 1. Find existing transactions for tomorrow (pending/scheduled)
+      const existingUpcoming = allTransactions.filter((tx: any) =>
         tx.date === tomorrowISO && (tx.status === 'pending' || tx.status === 'scheduled')
-      ) || [];
+      );
+
+      // 2. Find scheduled templates whose next occurrence is tomorrow
+      const templates = allTransactions.filter((tx: any) =>
+        tx.schedule?.enabled && (!tx.schedule.endDate || tx.schedule.endDate >= tomorrowISO)
+      );
+
+      const virtualUpcoming: any[] = [];
+      for (const template of templates) {
+        if (!template.schedule) continue;
+        const nextDate = findNextOccurrence(template.schedule, today, allTransactions, template);
+        if (nextDate === tomorrowISO) {
+          // This template's next occurrence is tomorrow
+          virtualUpcoming.push({
+            ...template,
+            date: tomorrowISO,
+            status: 'scheduled',
+            isVirtual: true,
+          });
+        }
+      }
+
+      // Combine both types of upcoming transactions
+      const upcoming = [...existingUpcoming, ...virtualUpcoming];
       if (upcoming.length === 0) continue;
 
       // Resolve language from device_info

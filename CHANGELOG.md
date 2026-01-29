@@ -8,6 +8,11 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **Push Notifications - Upcoming Transactions**: Edge Function now detects both real pending transactions AND virtual scheduled transactions for tomorrow
+  - Calculates next occurrence for all active schedule templates using scheduler service logic
+  - Notifies users about scheduled/programmed transactions (templates with `schedule.enabled: true`) whose next occurrence is tomorrow
+  - Fixes TypeError in template filtering by adding proper optional chaining for `schedule.endDate` checks
+  - Combines real transactions (status: pending/scheduled) with virtual scheduled transactions in notification
 - **Push Notifications - Settings UI**: Fix time flickering when toggling notification switches
   - Time input now correctly converts from local to UTC before sending to server when enabling daily reminder, daily summary, or quiet hours
   - Prevents visual glitch where time would briefly show incorrect value (e.g., 3pm → 10am) after toggling switch
