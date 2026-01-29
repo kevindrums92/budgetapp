@@ -71,21 +71,39 @@ export interface NotificationPayload {
 }
 
 /**
+ * Convert local time to UTC time
+ * @param localTime Time in HH:mm format (local timezone)
+ * @returns Time in HH:mm format (UTC)
+ */
+function localToUTC(localTime: string): string {
+  const [hours, minutes] = localTime.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+
+  const utcHours = date.getUTCHours();
+  const utcMinutes = date.getUTCMinutes();
+
+  return `${String(utcHours).padStart(2, '0')}:${String(utcMinutes).padStart(2, '0')}`;
+}
+
+/**
  * Default notification preferences
+ * Applied when user first enables push notifications
+ * Times are converted to UTC based on device timezone
  */
 export const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
   scheduled_transactions: true,
   daily_reminder: {
-    enabled: false,
-    time: '20:00',
+    enabled: true,
+    time: localToUTC('21:00'), // 9pm local time
   },
   daily_summary: {
-    enabled: false,
-    time: '20:00',
+    enabled: true,  // Enabled by default
+    time: localToUTC('21:00'), // 9pm local time
   },
   quiet_hours: {
-    enabled: false,
-    start: '23:59',
-    end: '00:00',
+    enabled: true,
+    start: localToUTC('23:00'), // 11pm local time
+    end: localToUTC('06:00'),   // 6am local time
   },
 };
