@@ -8,6 +8,9 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(onboarding): add push notification opt-in screen at step 5 of FirstConfig (native + authenticated users only, auto-skip for web/guest)
+- fix(onboarding): fix multi-user bug where logout + login with different account would skip FirstConfig (localStorage flag is device-scoped, now always checks cloud data first)
+- refactor(onboarding): extract timezone conversion utilities to shared utils for reuse across notification settings
 - fix(push): switch APNs environment to production for TestFlight/App Store builds
 - fix(push): deactivate stale tokens when refreshing, keeping only the latest active token per user
 - chore: update Xcode project version to build 6 / marketing 0.13.0

@@ -183,5 +183,8 @@ export function getSavedSelections() {
  */
 export function markLogout() {
   localStorage.setItem(ONBOARDING_KEYS.LOGOUT, 'true');
+  // Clear progress and selections so they don't carry over to the next user
+  localStorage.removeItem(ONBOARDING_KEYS.PROGRESS);
+  localStorage.removeItem(ONBOARDING_KEYS.SELECTIONS);
   console.log('[Onboarding] Logout marked');
 }

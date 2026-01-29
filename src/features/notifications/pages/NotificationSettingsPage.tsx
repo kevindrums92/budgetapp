@@ -14,24 +14,7 @@ import { Bell, Calendar, Clock, Moon, TrendingUp } from 'lucide-react';
 import PageHeader from '@/shared/components/layout/PageHeader';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import type { NotificationPreferences } from '@/types/notifications';
-
-// Helper: Convert UTC time to local time for display
-function convertUTCToLocal(timeUTC: string): string {
-  const [hours, minutes] = timeUTC.split(':').map(Number);
-  const now = new Date();
-  now.setUTCHours(hours, minutes, 0, 0);
-  return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-}
-
-// Helper: Convert local time to UTC for storage
-function convertLocalToUTC(timeLocal: string): string {
-  const [hours, minutes] = timeLocal.split(':').map(Number);
-  const now = new Date();
-  now.setHours(hours, minutes, 0, 0);
-  const utcHours = now.getUTCHours();
-  const utcMinutes = now.getUTCMinutes();
-  return `${utcHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
-}
+import { convertLocalToUTC, convertUTCToLocal } from '@/shared/utils/timezone';
 
 // Helper: Convert entire local preferences to server format (UTC times)
 function convertLocalPrefsToServer(localPrefs: NotificationPreferences): NotificationPreferences {

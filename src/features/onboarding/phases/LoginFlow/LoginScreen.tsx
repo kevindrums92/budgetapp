@@ -108,18 +108,9 @@ export default function LoginScreen() {
     // Limpiar flag de logout (el usuario se logueó de nuevo)
     localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
 
-    // Verificar directamente en localStorage (más confiable que el estado del contexto)
-    const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
-
-    if (onboardingCompleted) {
-      // Returning user: ir directo a app
-      console.log('[LoginScreen] OAuth success → App (returning user, onboarding completed)');
-      navigate('/', { replace: true });
-      return;
-    }
-
-    // ✅ CRITICAL: Check cloud data to detect returning users who cleared localStorage
-    // If user has cloud data, skip FirstConfig and go directly to app
+    // ✅ ALWAYS check cloud data first to determine if THIS specific user is new or returning.
+    // The localStorage COMPLETED flag is device-scoped (not per-user), so after logout + login
+    // with a different account, the flag would still be true from the previous user.
     try {
       console.log('[LoginScreen] Checking cloud data for returning user detection...');
       const { getCloudState } = await import('@/services/cloudState.service');
@@ -131,22 +122,29 @@ export default function LoginScreen() {
                              (cloudData.trips && cloudData.trips.length > 0);
 
         if (hasCloudData) {
-          console.log('[LoginScreen] OAuth success → App (cloud has data, returning user)');
-          // Mark onboarding as complete to avoid checking again
+          console.log('[LoginScreen] OAuth success → App (returning user, cloud has data)');
           localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
           localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
           navigate('/', { replace: true });
           return;
         }
       }
+
+      // No cloud data → new user, go to FirstConfig
+      console.log('[LoginScreen] OAuth success → First Config (new user, no cloud data)');
+      navigate('/onboarding/config/1', { replace: true });
     } catch (err) {
       console.error('[LoginScreen] Error checking cloud data:', err);
-      // Continue with normal flow if cloud check fails
+      // Fallback: use localStorage flag only if cloud check fails
+      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
+      if (onboardingCompleted) {
+        console.log('[LoginScreen] OAuth success → App (cloud check failed, using local flag)');
+        navigate('/', { replace: true });
+      } else {
+        console.log('[LoginScreen] OAuth success → First Config (cloud check failed, no local flag)');
+        navigate('/onboarding/config/1', { replace: true });
+      }
     }
-
-    // Nueva cuenta: ir a First Config
-    console.log('[LoginScreen] OAuth success → First Config (new user, no cloud data)');
-    navigate('/onboarding/config/1', { replace: true });
   };
 
   /**

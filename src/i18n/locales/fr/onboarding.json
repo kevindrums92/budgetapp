@@ -249,5 +249,19 @@
       "requestNew": "Demandez un nouveau lien de récupération depuis la connexion",
       "backToLogin": "Retour à la connexion"
     }
+  },
+  "pushOnboarding": {
+    "title": "Notifications",
+    "description": "Restez informe de vos finances avec des alertes intelligentes et personnalisees.",
+    "feature1Title": "Transactions programmees",
+    "feature1Desc": "Recevez une alerte avant l'echeance de vos paiements recurrents.",
+    "feature2Title": "Rappel quotidien",
+    "feature2Desc": "Un rappel a 21h pour enregistrer vos depenses du jour.",
+    "feature3Title": "Resume quotidien",
+    "feature3Desc": "Recevez un resume de vos transactions a la fin de la journee.",
+    "enable": "Activer les notifications",
+    "enabling": "Activation...",
+    "skip": "Pas maintenant",
+    "skipNote": "Vous pouvez les activer plus tard depuis Profil > Notifications."
   }
 }
