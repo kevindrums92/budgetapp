@@ -328,15 +328,18 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 ### Onboarding System
 - **Welcome Flow**: 6 pantallas de introducción visual
 - **LoginScreen**: Selección entre modo invitado o cloud sync
-- **First Config Flow**: 5 pantallas de configuración inicial
-  1. Selección de idioma (es/en)
+- **First Config Flow**: 6 pantallas de configuración inicial
+  1. Selección de idioma (es/en/pt/fr)
   2. Selección de tema (light/dark/system)
   3. Selección de moneda (50+ opciones con búsqueda)
   4. Selección de categorías predeterminadas
-  5. Confirmación y comienzo
+  5. **Push notification opt-in** (solo usuarios nativos + autenticados)
+  6. Confirmación y comienzo
 - **OnboardingContext**: Gestión de estado con persistencia
 - **OnboardingGate**: Determinación automática de punto de entrada
 - **Progreso guardado**: Retoma donde el usuario dejó
+- **Multi-user fix**: LoginScreen verifica cloud data SIEMPRE para detectar usuarios nuevos vs returning
+- **Cloud data detection**: Previene que usuarios nuevos salten FirstConfig en dispositivos compartidos
 - Migración automática desde sistema legacy
 
 ### Guest Mode
@@ -345,6 +348,73 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 - Navegación a login para convertir guest a user
 - Seamless transition a modo cloud
 - Guest users completan onboarding sin autenticación
+- Push notifications auto-skip para guest users (solo para usuarios autenticados)
+
+---
+
+## 🔔 Push Notifications
+
+### Plataformas Soportadas
+- **iOS**: APNs (Apple Push Notification service) con Firebase Cloud Messaging
+- **Android**: FCM (Firebase Cloud Messaging)
+- **Web**: No soportado (auto-skip en onboarding)
+
+### Sistema de Notificaciones
+- **Firebase Cloud Messaging**: Backend de notificaciones multiplataforma
+- **Supabase Edge Functions**: Envío de notificaciones desde el backend
+- **Push Tokens Table**: Gestión de tokens FCM por usuario en Supabase
+- **Token Rotation**: Refresh automático de tokens con deactivación de tokens obsoletos
+- **Preference Persistence**: Preferencias sincronizadas en la nube
+
+### Tipos de Notificaciones
+1. **Scheduled Transactions** (Transacciones Programadas)
+   - Notifica sobre transacciones recurrentes próximas a vencer
+   - Detecta tanto transacciones reales pendientes como virtuales de templates
+   - Envío diario a las 9 AM (horario configurable)
+
+2. **Daily Reminder** (Recordatorio Diario)
+   - Recordatorio para registrar gastos del día
+   - Horario configurable (default: 9 PM local)
+   - Conversión automática de timezone local ↔ UTC
+
+3. **Daily Summary** (Resumen Diario)
+   - Resumen de transacciones del día
+   - Horario configurable (default: 9 PM local)
+   - Conversión automática de timezone local ↔ UTC
+
+4. **Quiet Hours** (Horario Silencioso)
+   - Pausa notificaciones durante horario de descanso
+   - Configurable (default: 11 PM - 6 AM local)
+   - Respeta timezone del usuario
+
+### Onboarding de Notificaciones
+- **Pantalla dedicada** en FirstConfig (Step 5 de 6)
+- **Auto-skip para**:
+  - Usuarios en web (plataforma no soportada)
+  - Usuarios en modo guest (no autenticados)
+- **Opt-in contextual**: Explicación de beneficios con 3 cards visuales
+- **Configuración optimizada por defecto**:
+  - Scheduled transactions: enabled
+  - Daily reminder: 9 PM local
+  - Daily summary: 9 PM local
+  - Quiet hours: 11 PM - 6 AM local
+- **Traducido a 4 idiomas** (es, en, pt, fr)
+
+### Configuración de Notificaciones
+- **Página dedicada**: Profile → Notifications
+- **Toggles individuales** por tipo de notificación
+- **Time pickers** para horarios personalizados
+- **Quiet hours configurables** con horario de inicio y fin
+- **Vista local con conversión UTC** transparente
+- **Persistencia en la nube**: Preferencias sincronizadas entre dispositivos
+
+### Características Técnicas
+- **APNs Environment**: Production para TestFlight/App Store
+- **Token Management**: 1 token activo por usuario, deactivación automática de obsoletos
+- **Error Handling**: Gestión de errores de FCM, APNs, y permisos denegados
+- **Timezone Utilities**: `shared/utils/timezone.ts` para conversión local ↔ UTC
+- **Edge Functions**: `send-upcoming-transactions`, `send-daily-reminder`, `send-daily-summary`
+- **Logging Completo**: Debug de token registration, refresh, y envío de notificaciones
 
 ---
 
@@ -580,7 +650,14 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
   - Auth (email, phone, OAuth)
   - Database (PostgreSQL)
   - Storage (backups)
+  - Edge Functions (push notifications)
 - **@supabase/supabase-js** - Supabase client
+
+### Push Notifications
+- **Firebase Cloud Messaging (FCM)** - Backend de notificaciones multiplataforma
+- **@capacitor/firebase-messaging** - Plugin de Capacitor para FCM
+- **APNs** - Apple Push Notification service (iOS)
+- **Firebase Admin SDK** - Envío de notificaciones desde Edge Functions
 
 ### Testing
 - **Vitest** - Unit testing
@@ -610,7 +687,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 ### PWA Support
 - Instalable en todos los dispositivos
 - Offline functionality
-- Push notifications ready (futuro)
+- Push notifications (iOS/Android nativo con FCM)
 
 ---
 
@@ -623,12 +700,12 @@ Ver [ROADMAP.md](ROADMAP.md) para features planeados:
 - Advanced filtering (búsqueda avanzada)
 - Tags/labels para transacciones
 - Attachments (adjuntos en transacciones)
-- Notifications (recordatorios y alertas)
+- Rich notifications con acciones (confirmar transacción desde notificación)
 
 ---
 
 ## 📄 Versión Actual
 
-**Versión**: 0.11.0+ (develop branch)
+**Versión**: 0.13.0+ (develop branch)
 
 Para historial completo de cambios, ver [CHANGELOG.md](../CHANGELOG.md)
