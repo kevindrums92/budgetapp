@@ -10,6 +10,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(app): lock app to portrait orientation only (disable landscape mode) across all platforms (iOS, Android, PWA)
+
 ## [0.13.2] - 2026-01-29
 
 - feat(push): add "disable all notifications" functionality with confirmation modal and complete cleanup (deletes token, clears preferences, resets banner tracking)

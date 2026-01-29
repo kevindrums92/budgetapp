@@ -175,6 +175,10 @@ git checkout develop
 git pull origin develop
 success "De vuelta en develop"
 
+log "Volviendo a ejecutar el deploy a prod para que quede con la version actualizada"
+npm run ios:prod || error "El build de iOS prod falló."
+success "Build # 2 iOS prod exitoso ya estas listo para archive! ✓"
+
 # Resumen final
 echo ""
 echo "════════════════════════════════════════════════════════════"
