@@ -60,7 +60,7 @@ export default function Screen2_Theme() {
 
   const handleSkip = () => {
     // Omitir toda la configuración → ir directo a pantalla final
-    navigate('/onboarding/config/5', { replace: true });
+    navigate('/onboarding/config/6', { replace: true });
   };
 
   return (
@@ -72,6 +72,7 @@ export default function Screen2_Theme() {
       <div className="flex gap-1.5 px-6 pt-3">
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
         <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
         <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
         <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />

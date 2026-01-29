@@ -1,5 +1,6 @@
 {
   "viewAllTransactions": "View all transactions",
+  "viewFullHistory": "View full history",
   "search": "Search...",
   "filter": "Filter by",
   "balanceCard": {
@@ -40,5 +41,11 @@
     "info": "All transactions for the current month will be exported in CSV format",
     "total": "Total transactions:",
     "noTransactions": "No transactions to export this month"
+  },
+  "pushBanner": {
+    "title": "Notifications",
+    "description": "Get alerts when you're approaching your budget limit",
+    "enable": "Enable now",
+    "enabling": "Enabling..."
   }
 }

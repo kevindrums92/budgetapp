@@ -34,5 +34,13 @@
     }
   },
   "saving": "Salvando...",
-  "info": "As notificações são enviadas de acordo com o fuso horário do seu dispositivo."
+  "info": "As notificações são enviadas de acordo com o fuso horário do seu dispositivo.",
+  "disableAll": {
+    "button": "Desativar todas as notificações",
+    "confirmTitle": "Desativar notificações?",
+    "confirmMessage": "Todas as suas configurações serão excluídas e você precisará configurá-las novamente se decidir reativá-las.",
+    "cancel": "Cancelar",
+    "confirm": "Desativar",
+    "disabling": "Desativando..."
+  }
 }

@@ -123,6 +123,7 @@ export default function Screen4_Categories() {
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
       </div>
 
       {/* Header */}

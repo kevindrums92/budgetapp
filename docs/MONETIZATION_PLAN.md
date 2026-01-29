@@ -96,6 +96,9 @@ La versión Lite permite al usuario establecer una disciplina financiera básica
 - ❌ Autenticación biométrica
 - ❌ Cloud sync con cifrado
 
+**Notificaciones**
+- ❌ Push notifications (scheduled, reminders, summaries)
+
 #### ❌ Limitaciones Específicas
 
 | Característica | Límite Lite | Límite Pro |
@@ -172,6 +175,14 @@ La versión Pro está diseñada para el usuario que busca optimizar su tiempo, a
 - ✅ Filtros persistentes sincronizados
 - ✅ Búsqueda avanzada en transacciones
 
+**🔔 Push Notifications Inteligentes**
+- ✅ Notificaciones de transacciones programadas próximas
+- ✅ Recordatorio diario para registrar gastos
+- ✅ Resumen diario de movimientos
+- ✅ Horarios personalizables con timezone automático
+- ✅ Quiet hours configurable
+- ✅ Firebase Cloud Messaging (iOS/Android)
+
 **🌍 Multi-moneda Dinámica (Futuro)**
 - ✅ Billeteras en múltiples divisas
 - ✅ Tipos de cambio actualizados
@@ -213,6 +224,10 @@ La versión Pro está diseñada para el usuario que busca optimizar su tiempo, a
 | **Seguridad** |
 | Biometría nativa | ❌ | ✅ |
 | Cifrado en tránsito | ❌ | ✅ |
+| **Notificaciones** |
+| Push notifications | ❌ | ✅ |
+| Scheduled transaction alerts | ❌ | ✅ |
+| Daily reminders & summaries | ❌ | ✅ |
 | **Exportación** |
 | CSV / JSON | ❌ | ✅ |
 | **Configuración** |
@@ -465,6 +480,7 @@ Necesitamos investigar la mejor alternativa para integrar pagos nativos (Apple I
 | Quick View Cards | `features/stats/components/` | ✅ Funcional |
 | Cloud Sync | `shared/components/providers/CloudSyncGate.tsx` | ✅ Funcional |
 | Autenticación biométrica | `features/profile/` | ✅ Funcional |
+| Push Notifications | `services/pushNotification.service.ts` | ✅ Funcional |
 | Exportación CSV/JSON | `features/backup/` | ✅ Funcional |
 
 #### 🚧 Requieren Modificación para Monetización
@@ -477,6 +493,7 @@ Necesitamos investigar la mejor alternativa para integrar pagos nativos (Apple I
 | Quick View Cards | Agregar blur + paywall para Lite | 🔴 Alta |
 | Cloud Sync | Solo para Pro | 🔴 Alta |
 | Biometría | Solo para Pro | 🔴 Alta |
+| Push Notifications | Solo para Pro | 🔴 Alta |
 
 #### ❌ Faltantes por Implementar
 

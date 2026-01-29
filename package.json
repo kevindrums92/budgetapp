@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.13.0",
+  "version": "0.13.2",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -39,7 +39,9 @@
     "dev:save": "git add . && git commit && git push origin develop",
     "dev:update-from-main": "git checkout develop && git merge main && git push origin develop",
     "diff:main": "git diff main..develop",
-    "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run && npm run test:e2e"
+    "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run && npm run test:e2e",
+    "git:ignore-env": "git update-index --skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements",
+    "git:track-env": "git update-index --no-skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements"
   },
   "dependencies": {
     "@capacitor-firebase/messaging": "^8.0.1",

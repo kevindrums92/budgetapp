@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Plus, X, Calculator, ChevronRight } from "lucide-react";
+import { Plus, X, Calculator, ChevronRight, Bell } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
@@ -10,6 +10,9 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { generateVirtualTransactions, generatePastDueTransactions, materializeTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 import { todayISO } from "@/services/dates.service";
+import { requestPermissions, checkPermissionStatus, updatePreferences } from "@/services/pushNotification.service";
+import { shouldShowBanner, recordDismiss, markAsEnabled } from "@/services/pushBannerTracking.service";
+import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/types/notifications";
 
 export default function HomePage() {
   const { t } = useTranslation('home');
@@ -19,6 +22,8 @@ export default function HomePage() {
   const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
   const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
   const [hideScheduledBannerSession, setHideScheduledBannerSession] = useState(false);
+  const [showPushBanner, setShowPushBanner] = useState(false);
+  const [isEnablingPush, setIsEnablingPush] = useState(false);
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -39,6 +44,7 @@ export default function HomePage() {
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const addTransaction = useBudgetStore((s) => s.addTransaction);
+  const user = useBudgetStore((s) => s.user);
 
   const today = todayISO();
 
@@ -57,6 +63,40 @@ export default function HomePage() {
       hasAutoConfirmedRef.current = true;
     }
   }, [transactions, today, addTransaction]);
+
+  // Check if push notification banner should be shown
+  useEffect(() => {
+    async function checkBannerConditions() {
+      // Only show to authenticated users
+      if (!user.email) {
+        setShowPushBanner(false);
+        return;
+      }
+
+      // Only show if user has several transactions (3+)
+      if (transactions.length < 3) {
+        setShowPushBanner(false);
+        return;
+      }
+
+      // Check if push is already enabled
+      // BUT also check if user manually disabled (in that case, we SHOULD show the banner)
+      const manuallyDisabled = localStorage.getItem('push_notifications_manually_disabled') === 'true';
+      const permissionStatus = await checkPermissionStatus();
+
+      if (permissionStatus === "granted" && !manuallyDisabled) {
+        // Permissions granted AND not manually disabled → already enabled, don't show banner
+        setShowPushBanner(false);
+        return;
+      }
+
+      // Check if banner tracking allows showing
+      const shouldShow = shouldShowBanner();
+      setShowPushBanner(shouldShow);
+    }
+
+    checkBannerConditions();
+  }, [user.email, transactions.length]);
 
   // Generate virtual transactions for the selected month
   const virtualTransactionsForMonth = useMemo<VirtualTransaction[]>(() => {
@@ -123,6 +163,38 @@ export default function HomePage() {
   // Check if scheduled banner should be hidden for current month
   const isScheduledBannerHiddenForMonth = hiddenScheduledMonths.includes(selectedMonth);
 
+  // Handle push banner dismiss
+  const handleDismissPushBanner = () => {
+    recordDismiss();
+    setShowPushBanner(false);
+  };
+
+  // Handle push notification activation
+  const handleEnablePush = async () => {
+    setIsEnablingPush(true);
+    try {
+      const granted = await requestPermissions();
+      if (granted) {
+        // Configure default preferences (daily reminder at 9pm, quiet hours 11pm-6am)
+        await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
+        markAsEnabled(); // Permanently hide banner
+        setShowPushBanner(false);
+        console.log("[HomePage] Push notifications enabled successfully with default preferences");
+      } else {
+        // User denied permission, record as dismiss
+        recordDismiss();
+        setShowPushBanner(false);
+        console.log("[HomePage] Push notifications denied by user");
+      }
+    } catch (error) {
+      console.error("[HomePage] Failed to enable push notifications:", error);
+      recordDismiss();
+      setShowPushBanner(false);
+    } finally {
+      setIsEnablingPush(false);
+    }
+  };
+
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
@@ -161,6 +233,44 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* Push Notification Banner */}
+      {showPushBanner && (
+        <div className="mx-auto max-w-xl px-4 mt-6">
+          <section className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100/50 dark:border-emerald-800/50 rounded-2xl p-4 shadow-sm relative overflow-hidden transition-all duration-300">
+            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-emerald-100/40 dark:from-emerald-800/20 to-transparent" />
+            <div className="flex items-start gap-3 relative z-10">
+              <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-50 dark:border-emerald-800 shrink-0">
+                <Bell size={20} strokeWidth={2} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-500 mb-0.5">
+                  {t('pushBanner.title')}
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight mb-2">
+                  {t('pushBanner.description')}
+                </p>
+                <button
+                  type="button"
+                  onClick={handleEnablePush}
+                  disabled={isEnablingPush}
+                  className="text-xs font-semibold text-emerald-600 dark:text-emerald-500 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {isEnablingPush ? t('pushBanner.enabling') : t('pushBanner.enable')}
+                </button>
+              </div>
+            </div>
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={handleDismissPushBanner}
+              className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-emerald-100/60 dark:hover:bg-emerald-800/40 active:scale-95 transition-all z-10"
+            >
+              <X className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
+            </button>
+          </section>
+        </div>
+      )}
+
       {/* Navigation to History */}
       {hasTransactions && (
         <div className="mx-auto max-w-xl px-4 pt-6 pb-3">
@@ -169,7 +279,7 @@ export default function HomePage() {
             onClick={() => navigate('/history', { state: { resetFilters: true } })}
             className="flex items-center gap-1 py-2 text-sm font-medium text-[#18B7B0] active:scale-95 transition-all"
           >
-            <span>Ver historial completo</span>
+            <span>{t('viewFullHistory')}</span>
             <ChevronRight size={16} />
           </button>
         </div>

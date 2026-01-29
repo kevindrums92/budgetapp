@@ -16,6 +16,7 @@ import {
   addNotificationListener,
 } from '@/services/pushNotification.service';
 import type { NotificationPreferences } from '@/types/notifications';
+import { DEFAULT_NOTIFICATION_PREFERENCES } from '@/types/notifications';
 
 interface UsePushNotificationsResult {
   /** Whether push notifications are available on this platform */
@@ -55,6 +56,17 @@ export function usePushNotifications(): UsePushNotificationsResult {
       }
 
       try {
+        // Check if user manually disabled push notifications
+        const manuallyDisabled = localStorage.getItem('push_notifications_manually_disabled') === 'true';
+
+        if (manuallyDisabled) {
+          // User disabled manually - show as not configured (prompt state)
+          console.log('[usePushNotifications] Manually disabled - showing as prompt');
+          setPermissionStatus('prompt');
+          setIsLoading(false);
+          return;
+        }
+
         // Check permission status
         const status = await checkPermissionStatus();
         setPermissionStatus(status);
@@ -106,9 +118,12 @@ export function usePushNotifications(): UsePushNotificationsResult {
         setPermissionStatus('granted');
         setIsEnabled(true);
 
-        // Load preferences after permission granted
-        const prefs = await getPreferences();
-        setPreferences(prefs);
+        // Apply default preferences when enabling for the first time (or re-enabling)
+        console.log('[usePushNotifications] Applying default notification preferences');
+        await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
+
+        // Update local state with default preferences
+        setPreferences(DEFAULT_NOTIFICATION_PREFERENCES);
       } else {
         setPermissionStatus('denied');
       }

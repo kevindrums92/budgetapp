@@ -1,5 +1,6 @@
 {
   "viewAllTransactions": "Ver todas as transações",
+  "viewFullHistory": "Ver histórico completo",
   "search": "Buscar...",
   "filter": "Filtrar por",
   "balanceCard": {
@@ -40,5 +41,11 @@
     "info": "Todas as transações do mês atual serão exportadas em formato CSV",
     "total": "Total de transações:",
     "noTransactions": "Não há transações para exportar neste mês"
+  },
+  "pushBanner": {
+    "title": "Notificações",
+    "description": "Receba alertas quando você estiver se aproximando do limite do seu orçamento",
+    "enable": "Ativar agora",
+    "enabling": "Ativando..."
   }
 }

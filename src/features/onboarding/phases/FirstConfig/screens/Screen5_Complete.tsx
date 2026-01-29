@@ -1,5 +1,5 @@
 /**
- * Screen4_Complete
+ * Screen6_Complete
  * Pantalla final de First Config: Todo listo
  */
 
@@ -14,7 +14,7 @@ import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
 import { upsertCloudState } from '@/services/cloudState.service';
 import { supabase } from '@/lib/supabaseClient';
 
-export default function Screen4_Complete() {
+export default function Screen6_Complete() {
   const { t } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const { state } = useOnboarding();
@@ -99,6 +99,7 @@ export default function Screen4_Complete() {
     >
       {/* Progress - All complete */}
       <div className="flex gap-1.5 px-6 pt-3">
+        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />

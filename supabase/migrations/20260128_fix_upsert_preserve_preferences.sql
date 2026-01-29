@@ -54,6 +54,13 @@ BEGIN
     RETURNING id INTO v_token_id;
   END IF;
 
+  -- Deactivate any other active tokens for this user (keep only the latest)
+  UPDATE push_tokens
+  SET is_active = false
+  WHERE user_id = p_user_id
+    AND id != v_token_id
+    AND is_active = true;
+
   RETURN v_token_id;
 END;
 $$;

@@ -249,5 +249,19 @@
       "requestNew": "Request a new recovery link from login",
       "backToLogin": "Back to login"
     }
+  },
+  "pushOnboarding": {
+    "title": "Notifications",
+    "description": "Stay on top of your finances with smart, personalized alerts.",
+    "feature1Title": "Scheduled transactions",
+    "feature1Desc": "Get notified before your recurring payments are due.",
+    "feature2Title": "Daily reminder",
+    "feature2Desc": "A 9 PM reminder to log your daily expenses.",
+    "feature3Title": "Daily summary",
+    "feature3Desc": "Receive a summary of your transactions at the end of the day.",
+    "enable": "Enable notifications",
+    "enabling": "Enabling...",
+    "skip": "Not now",
+    "skipNote": "You can enable them later from Profile > Notifications."
   }
 }

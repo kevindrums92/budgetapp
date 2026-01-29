@@ -92,6 +92,9 @@ export async function requestPermissions(): Promise<boolean> {
     console.log('[PushNotification] Permission result:', result.receive);
 
     if (state.permissionGranted) {
+      // Clear manual disable flag when user re-enables
+      localStorage.removeItem('push_notifications_manually_disabled');
+
       await registerAndSaveToken();
       setupListeners();
     }
@@ -503,4 +506,58 @@ export function isPushAvailable(): boolean {
  */
 export function isPushEnabled(): boolean {
   return state.permissionGranted && state.token !== null;
+}
+
+/**
+ * Completely disable push notifications and clean up all data
+ * - Deletes token from Supabase
+ * - Clears local storage (token, preferences, banner tracking)
+ * - Resets service state
+ * Returns true if successful, false otherwise
+ */
+export async function disablePushNotifications(): Promise<boolean> {
+  try {
+    console.log('[PushNotification] Disabling push notifications...');
+
+    // 1. Get current token and user
+    const currentToken = state.token;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // 2. Delete token from Supabase if we have both token and user
+    if (currentToken && user) {
+      const { error } = await supabase
+        .from('push_tokens')
+        .delete()
+        .eq('token', currentToken)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('[PushNotification] Failed to delete token from database:', error);
+        return false;
+      }
+
+      console.log('[PushNotification] Token deleted from database');
+    }
+
+    // 3. Clear local storage
+    localStorage.removeItem('fcm_token');
+    localStorage.removeItem('push_preferences');
+    localStorage.removeItem('budget.pushBannerDismisses'); // Reset banner tracking
+
+    // Set manual disable flag to prevent auto-initialization
+    localStorage.setItem('push_notifications_manually_disabled', 'true');
+
+    // 4. Reset service state
+    state.token = null;
+    state.permissionGranted = false;
+    state.isInitialized = false;
+
+    console.log('[PushNotification] Push notifications disabled successfully');
+    return true;
+  } catch (error) {
+    console.error('[PushNotification] Failed to disable push notifications:', error);
+    return false;
+  }
 }

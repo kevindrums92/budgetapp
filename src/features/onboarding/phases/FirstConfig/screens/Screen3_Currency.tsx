@@ -69,7 +69,7 @@ export default function Screen3_Currency() {
   const handleSkip = () => {
     // Guardar la moneda recomendada como default
     localStorage.setItem(STORAGE_KEY, recommendedCurrency.code);
-    navigate('/onboarding/config/5', { replace: true });
+    navigate('/onboarding/config/6', { replace: true });
   };
 
   const renderCurrencyButton = (currency: CurrencyInfo, highlighted = false) => (
@@ -137,6 +137,7 @@ export default function Screen3_Currency() {
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
         <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
+        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
         <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
         <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
       </div>

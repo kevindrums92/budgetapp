@@ -185,10 +185,70 @@ features/{feature-name}/
 **Purpose**: User profile, authentication, and settings
 
 **Files**:
-- **Pages**: `ProfilePage`
+- **Pages**: `ProfilePage`, `NotificationSettingsPage`
 
 **Routes**:
 - `/profile` → ProfilePage
+- `/settings/notifications` → NotificationSettingsPage
+
+---
+
+### Feature: Notifications
+
+**Purpose**: Push notification preferences and management
+
+**Files**:
+- **Pages**: `NotificationSettingsPage`
+- **Services**: `pushNotification.service.ts`
+- **Types**: `notifications.ts`
+- **Utils**: `timezone.ts` (shared/utils)
+
+**Routes**:
+- `/settings/notifications` → NotificationSettingsPage
+
+**Features**:
+- Push notification permissions (iOS/Android native)
+- Notification preferences: scheduled transactions, daily reminder, daily summary, quiet hours
+- Timezone conversion utilities (local ↔ UTC)
+- FCM token management and refresh
+- Supabase Edge Functions for sending notifications
+
+---
+
+### Feature: Onboarding
+
+**Purpose**: First-time user onboarding and configuration
+
+**Files**:
+- **Pages**: `WelcomePage`, `LoginScreen`, `AuthPage`, `OTPVerificationPage`
+- **Components**: `OnboardingGate`, `OnboardingContext`, `ConfigFlow`
+- **Screens**:
+  - Welcome Flow (6 screens)
+  - Login Flow (LoginScreen, AuthPage)
+  - First Config Flow (6 screens):
+    1. Language selection
+    2. Theme selection
+    3. Currency selection
+    4. Category selection
+    5. **Push notification opt-in** (native + authenticated users only)
+    6. Completion
+- **Utils**: `onboarding.helpers.ts`, `onboarding.constants.ts`
+
+**Routes**:
+- `/onboarding/welcome/:step` → Welcome screens
+- `/onboarding/login` → Login screen
+- `/onboarding/auth` → Email/phone auth
+- `/onboarding/config/:step` → First config screens
+
+**Features**:
+- Welcome flow with 6 intro screens
+- Login with Google OAuth, Email, or Phone
+- Guest mode (local-only)
+- First Config wizard (language, theme, currency, categories, push notifications)
+- Push notification onboarding at step 5 (auto-skip for web/guest users)
+- Progress persistence and resumption
+- Multi-user bug fix: always checks cloud data first to detect new vs returning users
+- Cloud data detection for seamless returning user experience
 
 ---
 
@@ -213,6 +273,12 @@ Components in `src/shared/components/` are reusable across multiple features.
 - **TopHeader**: Global header with logo, cloud status, month selector
 - **BottomBar**: Bottom navigation bar (Home, Budget, Stats, Trips)
 - **PageHeader**: Page header with back button and optional right actions
+
+### Shared Utils (`shared/utils/`)
+
+- **timezone.ts**: Timezone conversion utilities (local ↔ UTC) for notification times
+  - `convertLocalToUTC(timeLocal: string): string` - Convert local time (HH:MM) to UTC
+  - `convertUTCToLocal(timeUTC: string): string` - Convert UTC time to local for display
 
 ### Modals (`shared/components/modals/`)
 
@@ -249,6 +315,11 @@ Services that operate across features:
 - **cloudState.service.ts**: Sync state to Supabase cloud
 - **pendingSync.service.ts**: Queue for offline sync operations
 - **dates.service.ts**: Date formatting and utilities (e.g., `todayISO()`, `formatDateGroupHeader()`)
+- **pushNotification.service.ts**: Push notification management
+  - Permission requests (iOS/Android native)
+  - FCM token registration and refresh
+  - Notification preferences (scheduled transactions, daily reminder, daily summary, quiet hours)
+  - Integration with Supabase push_tokens table
 
 ### State Management (`src/state/`)
 
