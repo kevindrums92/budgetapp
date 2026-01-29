@@ -8,6 +8,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(push): switch APNs environment to production for TestFlight/App Store builds
+- fix(push): deactivate stale tokens when refreshing, keeping only the latest active token per user
+- chore: update Xcode project version to build 6 / marketing 0.13.0
+
 ## [0.13.0] - 2026-01-28
 
 ### Fixed
