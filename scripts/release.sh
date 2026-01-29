@@ -47,21 +47,25 @@ echo ""
 log "Ejecutando validaciones antes del release..."
 echo ""
 
-log "1/4 Ejecutando linter..."
+log "1/5 Ejecutando linter..."
 npm run lint || error "El linter encontró errores. Corrígelos antes de continuar."
 success "Linter pasó ✓"
 
-log "2/4 Ejecutando tests unitarios..."
+log "2/5 Ejecutando tests unitarios..."
 npm run test:run || error "Los tests unitarios fallaron. Corrígelos antes de continuar."
 success "Tests unitarios pasaron ✓"
 
-# log "3/4 Ejecutando tests E2E..."
+# log "3/5 Ejecutando tests E2E..."
 # npm run test:e2e || error "Los tests E2E fallaron. Corrígelos antes de continuar."
 # success "Tests E2E pasaron ✓"
 
-log "4/4 Verificando que el build funciona..."
+log "4/5 Verificando que el build funciona..."
 npm run build || error "El build falló. Corrígelo antes de continuar."
 success "Build exitoso ✓"
+
+log "5/5 Verificando build de iOS para producción..."
+npm run ios:prod || error "El build de iOS prod falló. Corrígelo antes de continuar."
+success "Build iOS prod exitoso ✓"
 
 echo ""
 success "Todas las validaciones pasaron correctamente"
