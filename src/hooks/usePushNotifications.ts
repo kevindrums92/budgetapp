@@ -30,8 +30,8 @@ interface UsePushNotificationsResult {
   isLoading: boolean;
   /** Request push notification permissions */
   requestPermission: () => Promise<boolean>;
-  /** Update notification preferences */
-  updatePrefs: (prefs: Partial<NotificationPreferences>) => Promise<boolean>;
+  /** Update notification preferences (must pass FULL preferences object) */
+  updatePrefs: (prefs: NotificationPreferences) => Promise<boolean>;
   /** Refresh preferences from server */
   refreshPreferences: () => Promise<void>;
 }
@@ -123,13 +123,13 @@ export function usePushNotifications(): UsePushNotificationsResult {
   }, [isAvailable]);
 
   const updatePrefs = useCallback(
-    async (newPrefs: Partial<NotificationPreferences>): Promise<boolean> => {
+    async (newPrefs: NotificationPreferences): Promise<boolean> => {
       try {
         const success = await updatePreferences(newPrefs);
 
         if (success) {
-          // Update local state optimistically
-          setPreferences((prev) => (prev ? { ...prev, ...newPrefs } : null));
+          // Update local state with the full preferences (no merge needed)
+          setPreferences(newPrefs);
         }
 
         return success;

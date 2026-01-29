@@ -33,6 +33,26 @@ function convertLocalToUTC(timeLocal: string): string {
   return `${utcHours.toString().padStart(2, '0')}:${utcMinutes.toString().padStart(2, '0')}`;
 }
 
+// Helper: Convert entire local preferences to server format (UTC times)
+function convertLocalPrefsToServer(localPrefs: NotificationPreferences): NotificationPreferences {
+  return {
+    ...localPrefs,
+    daily_reminder: {
+      ...localPrefs.daily_reminder,
+      time: convertLocalToUTC(localPrefs.daily_reminder.time),
+    },
+    daily_summary: {
+      ...localPrefs.daily_summary,
+      time: convertLocalToUTC(localPrefs.daily_summary.time),
+    },
+    quiet_hours: {
+      ...localPrefs.quiet_hours,
+      start: convertLocalToUTC(localPrefs.quiet_hours.start),
+      end: convertLocalToUTC(localPrefs.quiet_hours.end),
+    },
+  };
+}
+
 export default function NotificationSettingsPage() {
   const { t } = useTranslation('notifications');
   const {
@@ -50,7 +70,8 @@ export default function NotificationSettingsPage() {
   // Sync local state with server preferences (convert UTC to local for display)
   useEffect(() => {
     if (preferences) {
-      setLocalPrefs({
+      console.log('[NotificationSettings] Received from server (UTC):', JSON.stringify(preferences));
+      const localConverted = {
         ...preferences,
         daily_reminder: {
           ...preferences.daily_reminder,
@@ -65,7 +86,9 @@ export default function NotificationSettingsPage() {
           start: convertUTCToLocal(preferences.quiet_hours.start),
           end: convertUTCToLocal(preferences.quiet_hours.end),
         },
-      });
+      };
+      console.log('[NotificationSettings] Converted to local:', JSON.stringify(localConverted));
+      setLocalPrefs(localConverted);
     }
   }, [preferences]);
 
@@ -76,7 +99,10 @@ export default function NotificationSettingsPage() {
     setLocalPrefs(newPrefs);
 
     setIsSaving(true);
-    await updatePrefs({ [key]: value });
+    // Send FULL state with UTC conversion to avoid race conditions
+    const serverPrefs = convertLocalPrefsToServer(newPrefs);
+    console.log('[NotificationSettings] Sending to server:', JSON.stringify(serverPrefs));
+    await updatePrefs(serverPrefs);
     setIsSaving(false);
   };
 
@@ -93,24 +119,9 @@ export default function NotificationSettingsPage() {
     };
     setLocalPrefs(newLocalPrefs);
 
-    // Convert time fields to UTC before sending to server
-    let serverPrefs: any;
-    if (parentKey === 'quiet_hours') {
-      serverPrefs = {
-        enabled,
-        start: convertLocalToUTC(localPrefs.quiet_hours.start),
-        end: convertLocalToUTC(localPrefs.quiet_hours.end),
-      };
-    } else {
-      // daily_reminder or daily_summary
-      serverPrefs = {
-        enabled,
-        time: convertLocalToUTC(localPrefs[parentKey].time),
-      };
-    }
-
     setIsSaving(true);
-    await updatePrefs({ [parentKey]: serverPrefs });
+    // Send FULL state to avoid race conditions
+    await updatePrefs(convertLocalPrefsToServer(newLocalPrefs));
     setIsSaving(false);
   };
 
@@ -127,15 +138,9 @@ export default function NotificationSettingsPage() {
     };
     setLocalPrefs(newLocalPrefs);
 
-    // Convert to UTC before sending to server
-    const timeUTC = convertLocalToUTC(time);
-    const newServerPrefs = {
-      ...localPrefs[parentKey],
-      time: timeUTC,
-    };
-
     setIsSaving(true);
-    await updatePrefs({ [parentKey]: newServerPrefs });
+    // Send FULL state to avoid race conditions
+    await updatePrefs(convertLocalPrefsToServer(newLocalPrefs));
     setIsSaving(false);
   };
 
@@ -147,12 +152,9 @@ export default function NotificationSettingsPage() {
     const newLocalPrefs = { ...localPrefs, quiet_hours: newLocalQuietHours };
     setLocalPrefs(newLocalPrefs);
 
-    // Convert to UTC before sending to server
-    const timeUTC = convertLocalToUTC(time);
-    const newServerQuietHours = { ...localPrefs.quiet_hours, [field]: timeUTC };
-
     setIsSaving(true);
-    await updatePrefs({ quiet_hours: newServerQuietHours });
+    // Send FULL state to avoid race conditions
+    await updatePrefs(convertLocalPrefsToServer(newLocalPrefs));
     setIsSaving(false);
   };
 

@@ -8,6 +8,15 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 ### Fixed
+- **Push Notifications - Preferences Persistence**: Fix critical bug where notification preferences were not persisting after app restart
+  - Created `refresh_push_token` SQL function that updates token metadata WITHOUT touching preferences (used on app restart)
+  - Modified `upsert_push_token` to properly update preferences when user changes settings
+  - Fixed race conditions by sending FULL preference state instead of partial updates (prevents parallel updates from overwriting each other)
+  - All notification time handlers now convert local time to UTC before sending to server
+  - Added comprehensive logging to trace data flow from React → Service → Database
+  - Created production-ready migrations and deployment documentation
+
+### Fixed
 - **Push Notifications - Upcoming Transactions**: Edge Function now detects both real pending transactions AND virtual scheduled transactions for tomorrow
   - Calculates next occurrence for all active schedule templates using scheduler service logic
   - Notifies users about scheduled/programmed transactions (templates with `schedule.enabled: true`) whose next occurrence is tomorrow

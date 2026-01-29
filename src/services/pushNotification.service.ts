@@ -129,6 +129,10 @@ export function getToken(): string | null {
 
 /**
  * Register device and get FCM token
+ * IMPORTANT: Always use isRefresh=true to preserve existing preferences
+ * The refresh_push_token function handles both cases:
+ * - New token: INSERT with defaults
+ * - Existing token: UPDATE preserving preferences
  */
 async function registerAndSaveToken(): Promise<void> {
   try {
@@ -138,7 +142,9 @@ async function registerAndSaveToken(): Promise<void> {
     console.log('[PushNotification] FCM Token obtained');
 
     // Save token to Supabase
-    await saveTokenToBackend(state.token);
+    // Use isRefresh=true to preserve preferences if token already exists
+    // If token is new, refresh_push_token will INSERT with defaults
+    await saveTokenToBackend(state.token, true);
   } catch (error) {
     console.error('[PushNotification] Failed to get token:', error);
   }
@@ -147,8 +153,11 @@ async function registerAndSaveToken(): Promise<void> {
 /**
  * Save FCM token to Supabase
  * Uses a SECURITY DEFINER function to bypass RLS and allow token takeover between users
+ *
+ * @param token - FCM token
+ * @param isRefresh - If true, only updates metadata without touching preferences
  */
-async function saveTokenToBackend(token: string): Promise<void> {
+async function saveTokenToBackend(token: string, isRefresh = false): Promise<void> {
   try {
     const {
       data: { user },
@@ -162,21 +171,38 @@ async function saveTokenToBackend(token: string): Promise<void> {
     const platform = getPlatform() as Platform;
     const deviceInfo = getDeviceInfo();
 
-    // Use RPC to call SECURITY DEFINER function (bypasses RLS)
-    const { data, error } = await supabase.rpc('upsert_push_token', {
-      p_user_id: user.id,
-      p_token: token,
-      p_platform: platform,
-      p_device_info: deviceInfo,
-      p_preferences: DEFAULT_NOTIFICATION_PREFERENCES,
-    });
+    if (isRefresh) {
+      // Token refresh: only update metadata, preserve preferences
+      const { data, error } = await supabase.rpc('refresh_push_token', {
+        p_user_id: user.id,
+        p_token: token,
+        p_platform: platform,
+        p_device_info: deviceInfo,
+      });
 
-    if (error) {
-      console.error('[PushNotification] Failed to save token:', error);
-      return;
+      if (error) {
+        console.error('[PushNotification] Failed to refresh token:', error);
+        return;
+      }
+
+      console.log('[PushNotification] Token refreshed (preferences preserved):', data);
+    } else {
+      // First-time registration: set default preferences
+      const { data, error } = await supabase.rpc('upsert_push_token', {
+        p_user_id: user.id,
+        p_token: token,
+        p_platform: platform,
+        p_device_info: deviceInfo,
+        p_preferences: DEFAULT_NOTIFICATION_PREFERENCES,
+      });
+
+      if (error) {
+        console.error('[PushNotification] Failed to save token:', error);
+        return;
+      }
+
+      console.log('[PushNotification] Token saved to backend:', data);
     }
-
-    console.log('[PushNotification] Token saved to backend:', data);
   } catch (error) {
     console.error('[PushNotification] saveTokenToBackend error:', error);
   }
@@ -206,7 +232,7 @@ function setupListeners(): void {
   FirebaseMessaging.addListener('tokenReceived', (event) => {
     console.log('[PushNotification] Token refreshed');
     state.token = event.token;
-    saveTokenToBackend(event.token);
+    saveTokenToBackend(event.token, true); // isRefresh = true → preserve preferences
     listeners.token.forEach((callback) => callback(event.token));
   }).then((handle) => {
     listeners.cleanup.push(() => handle.remove());
@@ -293,9 +319,12 @@ export async function getPreferences(): Promise<NotificationPreferences | null> 
 /**
  * Update notification preferences
  * Uses a SECURITY DEFINER function to bypass RLS and allow token takeover between users
+ *
+ * IMPORTANT: Caller MUST pass the FULL preference state (all fields), not partial updates.
+ * This avoids race conditions when multiple updates happen in parallel.
  */
 export async function updatePreferences(
-  preferences: Partial<NotificationPreferences>
+  preferences: NotificationPreferences
 ): Promise<boolean> {
   try {
     const {
@@ -312,23 +341,18 @@ export async function updatePreferences(
       return false;
     }
 
-    // Get current preferences and merge
-    const currentPrefs = await getPreferences();
-    const mergedPrefs = {
-      ...currentPrefs,
-      ...preferences,
-    };
-
     const platform = getPlatform() as Platform;
     const deviceInfo = getDeviceInfo();
 
     // Use RPC to call SECURITY DEFINER function (bypasses RLS)
+    // Use the full preferences object passed by the caller (no merge needed)
+    console.log('[PushNotification] Calling upsert_push_token with preferences:', JSON.stringify(preferences));
     const { data, error } = await supabase.rpc('upsert_push_token', {
       p_user_id: user.id,
       p_token: state.token,
       p_platform: platform,
       p_device_info: deviceInfo,
-      p_preferences: mergedPrefs,
+      p_preferences: preferences,
     });
 
     if (error) {
@@ -336,7 +360,7 @@ export async function updatePreferences(
       return false;
     }
 
-    console.log('[PushNotification] Preferences updated:', data);
+    console.log('[PushNotification] Preferences updated successfully:', data);
     return true;
   } catch (error) {
     console.error('[PushNotification] updatePreferences error:', error);
