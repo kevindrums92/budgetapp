@@ -5,7 +5,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.13.0] - 2026-01-28
 
 ### Fixed
 - **Push Notifications - Preferences Persistence**: Fix critical bug where notification preferences were not persisting after app restart
