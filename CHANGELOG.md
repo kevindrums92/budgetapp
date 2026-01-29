@@ -6,7 +6,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.13.1] - 2026-01-29
 
 - feat(push): add "disable all notifications" functionality with confirmation modal and complete cleanup (deletes token, clears preferences, resets banner tracking)
 - fix(push): prevent auto-reactivation after manual disable using `push_notifications_manually_disabled` localStorage flag
