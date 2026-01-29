@@ -60,5 +60,11 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>SmartSpend necesita acceso a Face ID para desbloquear la app de forma segura.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 </dict>
 </plist>

@@ -15,6 +15,7 @@ import esBackup from './locales/es/backup.json';
 import esScheduled from './locales/es/scheduled.json';
 import esHistory from './locales/es/history.json';
 import esLegal from './locales/es/legal.json';
+import esNotifications from './locales/es/notifications.json';
 
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
@@ -29,6 +30,7 @@ import enBackup from './locales/en/backup.json';
 import enScheduled from './locales/en/scheduled.json';
 import enHistory from './locales/en/history.json';
 import enLegal from './locales/en/legal.json';
+import enNotifications from './locales/en/notifications.json';
 
 import ptCommon from './locales/pt/common.json';
 import ptOnboarding from './locales/pt/onboarding.json';
@@ -43,6 +45,7 @@ import ptBackup from './locales/pt/backup.json';
 import ptScheduled from './locales/pt/scheduled.json';
 import ptHistory from './locales/pt/history.json';
 import ptLegal from './locales/pt/legal.json';
+import ptNotifications from './locales/pt/notifications.json';
 
 import frCommon from './locales/fr/common.json';
 import frOnboarding from './locales/fr/onboarding.json';
@@ -57,6 +60,7 @@ import frBackup from './locales/fr/backup.json';
 import frScheduled from './locales/fr/scheduled.json';
 import frHistory from './locales/fr/history.json';
 import frLegal from './locales/fr/legal.json';
+import frNotifications from './locales/fr/notifications.json';
 
 const resources = {
   es: {
@@ -73,6 +77,7 @@ const resources = {
     scheduled: esScheduled,
     history: esHistory,
     legal: esLegal,
+    notifications: esNotifications,
   },
   en: {
     common: enCommon,
@@ -88,6 +93,7 @@ const resources = {
     scheduled: enScheduled,
     history: enHistory,
     legal: enLegal,
+    notifications: enNotifications,
   },
   pt: {
     common: ptCommon,
@@ -103,6 +109,7 @@ const resources = {
     scheduled: ptScheduled,
     history: ptHistory,
     legal: ptLegal,
+    notifications: ptNotifications,
   },
   fr: {
     common: frCommon,
@@ -118,6 +125,7 @@ const resources = {
     scheduled: frScheduled,
     history: frHistory,
     legal: frLegal,
+    notifications: frNotifications,
   },
 };
 
@@ -156,7 +164,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal'],
+    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications'],
     interpolation: {
       escapeValue: false, // React already escapes
     },

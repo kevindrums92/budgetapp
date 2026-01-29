@@ -45,6 +45,7 @@ const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/Languag
 const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSettingsPage"));
 const CurrencySettingsPage = lazy(() => import("@/features/profile/pages/CurrencySettingsPage"));
 const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"));
+const NotificationSettingsPage = lazy(() => import("@/features/notifications/pages/NotificationSettingsPage"));
 
 // Lazy load legal pages
 const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfServicePage"));
@@ -54,6 +55,7 @@ import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
 import BiometricGate from "@/features/biometric/components/BiometricGate";
+import UpcomingTransactionsModal from "@/features/transactions/components/UpcomingTransactionsModal";
 
 // Loading fallback component
 function PageLoader() {
@@ -142,6 +144,7 @@ function AppFrame() {
             <Route path="/settings/theme" element={<ThemeSettingsPage />} />
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export-csv" element={<ExportCSVPage />} />
+            <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
 
             <Route path="/legal/terms" element={<TermsOfServicePage />} />
             <Route path="/legal/privacy" element={<PrivacyPolicyPage />} />
@@ -164,6 +167,7 @@ export default function App() {
           <CloudSyncGate />
           <OnboardingGate />
           <BiometricGate />
+          <UpcomingTransactionsModal />
           <AppFrame />
         </BrowserRouter>
       </CurrencyProvider>

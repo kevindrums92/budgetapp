@@ -50,7 +50,8 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:capgo.app)",
       "WebFetch(domain:capawesome.io)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(supabase migration repair:*)"
     ]
   }
 }

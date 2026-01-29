@@ -4,7 +4,6 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { icons } from "lucide-react";
 import { monthLabel } from "@/services/dates.service";
@@ -38,7 +37,6 @@ export default function TopCategorySheet({
   const { t } = useTranslation("stats");
   const { getLocale } = useLanguage();
   const { formatAmount } = useCurrency();
-  const navigate = useNavigate();
 
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -209,14 +207,9 @@ export default function TopCategorySheet({
               : null;
 
             return (
-              <button
+              <div
                 key={transaction.id}
-                type="button"
-                onClick={() => {
-                  onClose();
-                  navigate(`/transaction/${transaction.id}`);
-                }}
-                className="w-full flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3 active:bg-gray-100 dark:active:bg-gray-700 transition-colors"
+                className="w-full flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-gray-800 p-3"
               >
                 {/* Category Icon */}
                 <div
@@ -248,7 +241,7 @@ export default function TopCategorySheet({
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 whitespace-nowrap">
                   {formatAmount(transaction.amount)}
                 </p>
-              </button>
+              </div>
             );
           })}
         </div>

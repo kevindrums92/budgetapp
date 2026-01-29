@@ -29,7 +29,6 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 - Home: búsqueda, filtros, presupuesto diario
 - Budget: resumen mensual, límites, secciones
 - Stats: gráficas, métricas, días de la semana
-- Trips: lista, detalle, crear/editar viaje
 - Transactions: formularios, lista, programación
 - Categories: lista, grupos, formularios
 - Backup: métodos, exportar/restaurar
@@ -294,28 +293,6 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ---
 
-## ✈️ Planificador de Viajes
-
-### Gestión de Viajes
-- **Crear viajes** con nombre, fechas y presupuesto
-- **Gastos asociados** al viaje con categorías
-- **Tracking de presupuesto** vs gastado en tiempo real
-- **Vista de detalle** con lista de gastos
-- **Editar y eliminar** viajes y gastos
-- DatePicker personalizado (no native input)
-- Secciones dinámicas: "Viaje actual", "Próximos viajes", "Otros viajes"
-
-### UX del Módulo Trips
-- **FAB** aparece solo cuando hay viajes
-- **Empty state** con botón centrado "Crear viaje"
-- **Lista de gastos** clickeable (navegación directa a edición)
-- **Delete button** en header de AddEditTripExpensePage
-- **Confirmación de eliminación** con ConfirmDialog
-- Diseño alineado con CLAUDE.md guidelines
-- Dark mode support completo
-
----
-
 ## 🔐 Autenticación y Cuenta
 
 ### Métodos de Autenticación
@@ -445,7 +422,6 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 - **TopHeader**: Logo + nombre + selector de mes + avatar con sync status
 - **PageHeader**: Componente reutilizable para páginas de detalle
 - **FAB**: Floating Action Button (teal, z-40)
-- Tab "Trips" reemplazado por "Settings"
 
 ### HomePage Redesign
 - **TopHeader**: Logo teal + selector de mes + avatar con dot de sync

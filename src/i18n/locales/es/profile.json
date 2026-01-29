@@ -16,7 +16,9 @@
     "biometricEnabled": "Activa ({{type}})",
     "biometricDisabled": "Desactivada",
     "exportCSV": "Exportar CSV",
-    "exportCSVSubtitle": "Descargar datos en formato CSV"
+    "exportCSVSubtitle": "Descargar datos en formato CSV",
+    "notifications": "Notificaciones",
+    "notificationsSubtitle": "Recordatorios y alertas"
   },
   "biometricLock": {
     "unlockReason": "Desbloquear SmartSpend",

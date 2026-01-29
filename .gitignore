@@ -37,3 +37,17 @@ dist-ssr
 test_output.txt
 
 /docs/roadmap/references/*
+
+# Firebase and APNs credentials (sensitive)
+ios/App/App/GoogleService-Info.plist
+ios/App/App/GoogleService-Info.plist.dev
+ios/App/App/GoogleService-Info.plist.prod
+android/app/google-services.json
+docs/push-notifications/*.json
+docs/push-notifications/*.p8
+docs/push-notifications/*.p12
+docs/push-notifications/*.cer
+docs/push-notifications/*.certSigningRequest
+docs/push-notifications/prod/
+docs/push-notifications/important.txt
+docs/push-notifications/GoogleService-Info.plist

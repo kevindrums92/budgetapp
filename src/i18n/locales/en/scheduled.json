@@ -6,6 +6,36 @@
     "inactive": "Inactive ({{count}})",
     "inactive_zero": "Inactive (0)"
   },
+  "infoBanner": {
+    "message": "To add a schedule, create a normal transaction and check the \"Schedule\" option."
+  },
+  "fab": {
+    "label": "New Transaction",
+    "hint": "Don't forget to enable the Recurring check"
+  },
+  "emptyState": {
+    "title": "No scheduled transactions",
+    "subtitle": "This is a consolidated view of your recurring payments. You currently have no active schedules.",
+    "howItWorks": {
+      "title": "How to create one?",
+      "description": "Schedules are not created from here. You need to go to the New Transaction form and enable the \"Schedule\" switch."
+    },
+    "steps": {
+      "step1": {
+        "title": "Create Transaction",
+        "description": "Go to form"
+      },
+      "step2": {
+        "title": "Enable Recurrence",
+        "description": "Toggle switch"
+      },
+      "step3": {
+        "title": "View here",
+        "description": "Check status"
+      }
+    },
+    "cta": "Record transaction"
+  },
   "emptyActive": {
     "title": "No active schedules",
     "message": "Enable scheduling when creating a transaction"
@@ -55,5 +85,10 @@
     "note": "Already recorded transactions will not be affected.",
     "confirm": "Deactivate",
     "cancel": "Cancel"
+  },
+  "upcomingModal": {
+    "title": "Tomorrow's transactions",
+    "andMore": "and {{count}} more...",
+    "dismiss": "Got it"
   }
 }

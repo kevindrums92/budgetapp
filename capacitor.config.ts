@@ -13,6 +13,12 @@ const config: CapacitorConfig = {
       style: 'DARK',
       backgroundColor: '#0d9488',
     },
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
+    FirebaseMessaging: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
   },
 };
 

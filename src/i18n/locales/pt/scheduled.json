@@ -6,6 +6,36 @@
     "inactive": "Inativas ({{count}})",
     "inactive_zero": "Inativas (0)"
   },
+  "infoBanner": {
+    "message": "Para adicionar uma programação, crie uma transação normal e marque a opção \"Programar\"."
+  },
+  "fab": {
+    "label": "Nova Transação",
+    "hint": "Não esqueça de ativar a opção Recorrente"
+  },
+  "emptyState": {
+    "title": "Sem movimentos programados",
+    "subtitle": "Esta é uma visão consolidada de seus pagamentos recorrentes. Você não tem nenhuma programação ativa no momento.",
+    "howItWorks": {
+      "title": "Como criar uma?",
+      "description": "As programações não são criadas daqui. Você deve ir ao formulário de Nova Transação e ativar o botão \"Programar\"."
+    },
+    "steps": {
+      "step1": {
+        "title": "Criar Despesa",
+        "description": "Ir ao formulário"
+      },
+      "step2": {
+        "title": "Ativar Recorrência",
+        "description": "Ativar botão"
+      },
+      "step3": {
+        "title": "Ver aqui",
+        "description": "Consultar status"
+      }
+    },
+    "cta": "Registrar transação"
+  },
   "emptyActive": {
     "title": "Você não tem programações ativas",
     "message": "Ative a programação ao criar uma transação"
@@ -55,5 +85,10 @@
     "note": "As transações já registradas não serão afetadas.",
     "confirm": "Desativar",
     "cancel": "Cancelar"
+  },
+  "upcomingModal": {
+    "title": "Movimentos de amanhã",
+    "andMore": "e mais {{count}}...",
+    "dismiss": "Entendido"
   }
 }

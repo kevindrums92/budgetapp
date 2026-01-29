@@ -6,6 +6,36 @@
     "inactive": "Inactives ({{count}})",
     "inactive_zero": "Inactives (0)"
   },
+  "infoBanner": {
+    "message": "Pour ajouter une programmation, créez une transaction normale et cochez l'option \"Programmer\"."
+  },
+  "fab": {
+    "label": "Nouvelle Transaction",
+    "hint": "N'oubliez pas d'activer l'option Récurrent"
+  },
+  "emptyState": {
+    "title": "Sans mouvements programmés",
+    "subtitle": "Ceci est une vue consolidée de vos paiements récurrents. Vous n'avez actuellement aucune programmation active.",
+    "howItWorks": {
+      "title": "Comment en créer une ?",
+      "description": "Les programmations ne se créent pas d'ici. Vous devez aller dans le formulaire Nouvelle Transaction et activer le bouton \"Programmer\"."
+    },
+    "steps": {
+      "step1": {
+        "title": "Créer Dépense",
+        "description": "Aller au formulaire"
+      },
+      "step2": {
+        "title": "Activer Récurrence",
+        "description": "Activer le bouton"
+      },
+      "step3": {
+        "title": "Voir ici",
+        "description": "Consulter l'état"
+      }
+    },
+    "cta": "Enregistrer transaction"
+  },
   "emptyActive": {
     "title": "Vous n'avez pas de programmations actives",
     "message": "Activez la programmation lors de la création d'une transaction"
@@ -55,5 +85,10 @@
     "note": "Les transactions déjà enregistrées ne seront pas affectées.",
     "confirm": "Désactiver",
     "cancel": "Annuler"
+  },
+  "upcomingModal": {
+    "title": "Mouvements de demain",
+    "andMore": "et {{count}} de plus...",
+    "dismiss": "Compris"
   }
 }

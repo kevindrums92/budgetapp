@@ -5,7 +5,68 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.13.0] - 2026-01-28
+
+### Fixed
+- **Push Notifications - Preferences Persistence**: Fix critical bug where notification preferences were not persisting after app restart
+  - Created `refresh_push_token` SQL function that updates token metadata WITHOUT touching preferences (used on app restart)
+  - Modified `upsert_push_token` to properly update preferences when user changes settings
+  - Fixed race conditions by sending FULL preference state instead of partial updates (prevents parallel updates from overwriting each other)
+  - All notification time handlers now convert local time to UTC before sending to server
+  - Added comprehensive logging to trace data flow from React → Service → Database
+  - Created production-ready migrations and deployment documentation
+
+### Fixed
+- **Push Notifications - Upcoming Transactions**: Edge Function now detects both real pending transactions AND virtual scheduled transactions for tomorrow
+  - Calculates next occurrence for all active schedule templates using scheduler service logic
+  - Notifies users about scheduled/programmed transactions (templates with `schedule.enabled: true`) whose next occurrence is tomorrow
+  - Fixes TypeError in template filtering by adding proper optional chaining for `schedule.endDate` checks
+  - Combines real transactions (status: pending/scheduled) with virtual scheduled transactions in notification
+- **Push Notifications - Settings UI**: Fix time flickering when toggling notification switches
+  - Time input now correctly converts from local to UTC before sending to server when enabling daily reminder, daily summary, or quiet hours
+  - Prevents visual glitch where time would briefly show incorrect value (e.g., 3pm → 10am) after toggling switch
+  - Ensures consistent UTC ↔ local timezone conversion throughout the settings flow
+- **Push Notifications**: Fix Edge Functions to dynamically use Firebase project ID from Service Account instead of hardcoded dev project
+  - Updated send-daily-reminder, send-daily-summary, and send-upcoming-transactions to read PROJECT_ID from SERVICE_ACCOUNT environment variable
+  - Allows same Edge Function code to work with any Firebase project (dev/prod) just by changing the Service Account secret
+  - Fixes 401 SENDER_ID_MISMATCH errors when switching between Firebase projects
+
+### Added
+- **Push Notifications**: Complete FCM-based notification system with Firebase Cloud Messaging
+  - Three notification types: daily reminder (if no transactions today), upcoming transactions (1 day before), daily summary (if activity today)
+  - Multilingual support (es, en, pt, fr) with localized notification texts based on user language preference
+  - User preferences with configurable times for daily reminder/summary, quiet hours mode, and per-notification-type toggles
+  - Edge Functions on Supabase with cron jobs (every minute for reminders/summaries, daily for upcoming transactions)
+  - Upcoming transactions modal showing tomorrow's scheduled/pending transactions on notification tap
+  - iOS integration with Firebase SDK 12.8.0, push entitlements, and GoogleService-Info.plist
+  - Dark mode support for notification settings page with iOS safe areas
+  - SQL migrations for push_tokens and notification_history tables with RLS policies
+  - UTC timezone conversion for user-configured notification times
+  - Comprehensive documentation in docs/push-notifications/ (SETUP_GUIDE.md, PUSH_NOTIFICATIONS_PLAN.md)
+
+### Fixed
+- **Stats Page**: Charts now sync with selected month instead of showing fixed time ranges
+  - Income vs Expenses chart displays last 6 months ending at selected month
+  - Expense Trend chart displays last 12 months ending at selected month
+  - Removed unwanted navigation from Top Category and Top Day modal transaction items
+
+### Added
+- **History Page**: Added drag-to-dismiss gesture to category filter modal
+  - Drag from header to close modal with smooth animation
+  - Scroll in category list works independently without triggering dismiss
+
+### Added
+- **Scheduled Page Redesign**: Complete visual overhaul with educational empty state and improved UX
+  - Educational empty state with teal theme (#18B7B0) and glow effects
+  - "How it works" banner with 3-step visual guide (Create → Enable Recurrence → View)
+  - Info banner explaining how to create schedules (only visible on active tab)
+  - FAB with contextual hint that appears once per session (sessionStorage)
+  - Redesigned tabs with Clock/XCircle icons (only visible when schedules exist)
+  - FAB and info banner hidden on inactive tab for cleaner UX
+  - Full i18n translations (es, en, fr, pt) for all new content
 
 ## [0.12.0] - 2026-01-27
 
