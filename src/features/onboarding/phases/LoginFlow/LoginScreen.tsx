@@ -130,8 +130,26 @@ export default function LoginScreen() {
         }
       }
 
-      // No cloud data → new user, go to FirstConfig
-      console.log('[LoginScreen] OAuth success → First Config (new user, no cloud data)');
+      // No cloud data → check if user has LOCAL data (guest user connecting account)
+      const { loadState } = await import('@/services/storage.service');
+      const localData = loadState();
+
+      if (localData) {
+        const hasLocalData = (localData.categoryDefinitions && localData.categoryDefinitions.length > 0) ||
+                             (localData.transactions && localData.transactions.length > 0) ||
+                             (localData.trips && localData.trips.length > 0);
+
+        if (hasLocalData) {
+          console.log('[LoginScreen] OAuth success → App (guest user connecting account, has local data)');
+          localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+          localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+          navigate('/', { replace: true });
+          return;
+        }
+      }
+
+      // No cloud data AND no local data → new user, go to FirstConfig
+      console.log('[LoginScreen] OAuth success → First Config (new user, no data)');
       navigate('/onboarding/config/1', { replace: true });
     } catch (err) {
       console.error('[LoginScreen] Error checking cloud data:', err);
