@@ -1,6 +1,6 @@
 /**
  * WelcomeOnboardingFlow
- * Router para las 6 pantallas de Welcome Onboarding
+ * Router para las 7 pantallas de Welcome Onboarding
  */
 
 import { useParams, Navigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import Screen3_BudgetsCalm from './screens/Screen3_BudgetsCalm';
 import Screen4_HabitsAnalysis from './screens/Screen4_HabitsAnalysis';
 import Screen5_AutomatedMovements from './screens/Screen5_AutomatedMovements';
 import Screen6_UnderstandMoney from './screens/Screen6_UnderstandMoney';
+import Screen7_ChoosePlan from './screens/Screen7_ChoosePlan';
 
 const SCREENS = [
   Screen1_Welcome,
@@ -18,6 +19,7 @@ const SCREENS = [
   Screen4_HabitsAnalysis,
   Screen5_AutomatedMovements,
   Screen6_UnderstandMoney,
+  Screen7_ChoosePlan,
 ];
 
 export default function WelcomeOnboardingFlow() {

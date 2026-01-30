@@ -6,8 +6,11 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
-import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
+import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
+import PaywallModal from '@/shared/components/modals/PaywallModal';
 import { authenticateWithBiometrics, checkBiometricAvailability, getBiometryDisplayName } from "@/features/biometric/services/biometric.service";
 
 export default function ProfilePage() {
@@ -16,6 +19,13 @@ export default function ProfilePage() {
   const { currentLanguageData } = useLanguage();
   const { theme } = useTheme();
   const { currencyInfo } = useCurrency();
+  const { isPro, isTrialing, trialEndsAt } = useSubscription();
+
+  // Paywall purchase handler
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setShowPaywall(false),
+    onError: () => setErrorMessage('No se pudo activar el trial. Por favor intenta de nuevo.'),
+  });
 
   // ✅ Read from Zustand store (single source of truth)
   const user = useBudgetStore((s) => s.user);
@@ -29,6 +39,7 @@ export default function ProfilePage() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [biometryType, setBiometryType] = useState<string>('Face ID');
+  const [showPaywall, setShowPaywall] = useState(false);
 
   // Get current theme name for display
   const currentThemeName = useMemo(() => {
@@ -113,6 +124,7 @@ export default function ProfilePage() {
     }
   }
 
+
   // Generate initials for avatar fallback
   const initials = user.name
     ? user.name
@@ -136,6 +148,32 @@ export default function ProfilePage() {
     }
     return { text: t('account.syncStatus.synced').toUpperCase(), color: "bg-teal-50 dark:bg-teal-900/30 text-[#18B7B0]", icon: false };
   }, [cloudMode, cloudStatus, t]);
+
+  // Trial status badge
+  const trialBadge = useMemo(() => {
+    if (!isTrialing || !trialEndsAt) return null;
+
+    const now = new Date();
+    const endsAt = new Date(trialEndsAt);
+    const daysRemaining = Math.ceil((endsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysRemaining <= 0) return null; // Trial expired, don't show
+
+    return {
+      text: t('account.trial.daysRemaining', { count: daysRemaining, defaultValue: `${daysRemaining} días de prueba` }).toUpperCase(),
+      color: "bg-gradient-to-r from-[#18B7B0] to-emerald-500 text-white",
+    };
+  }, [isTrialing, trialEndsAt, t]);
+
+  // Pro badge
+  const proBadge = useMemo(() => {
+    if (!isPro) return null;
+
+    return {
+      text: "PRO",
+      color: "bg-gradient-to-r from-emerald-500 to-teal-500 text-white",
+    };
+  }, [isPro]);
 
   return (
     <div className="min-h-dvh bg-gray-50 dark:bg-gray-950 pb-28 transition-colors">
@@ -177,70 +215,97 @@ export default function ProfilePage() {
                   {user.name || "Usuario"}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 truncate">{user.email}</p>
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${syncBadge.color} text-xs font-bold uppercase tracking-wider`}>
-                  {syncBadge.icon && <RefreshCw size={12} className="animate-spin" />}
-                  {!syncBadge.icon && <RefreshCw size={12} />}
-                  {syncBadge.text}
-                </span>
+                <div className="flex flex-wrap gap-2">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${syncBadge.color} text-xs font-bold uppercase tracking-wider`}>
+                    {syncBadge.icon && <RefreshCw size={12} className="animate-spin" />}
+                    {!syncBadge.icon && <RefreshCw size={12} />}
+                    {syncBadge.text}
+                  </span>
+                  {proBadge && (
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${proBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
+                      <Crown size={12} />
+                      {proBadge.text}
+                    </span>
+                  )}
+                  {trialBadge && (
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${trialBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
+                      <Sparkles size={12} />
+                      {trialBadge.text}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Login banner for guests */}
-      {!isLoggedIn && (
+      {/* Dynamic Subscription Status Card - Hide when Pro */}
+      {!isPro && (
         <div className="px-4 pt-6 pb-4">
-          <button
-            type="button"
-            onClick={() => navigate('/onboarding/login')}
-            className="w-full rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm border border-[#18B7B0] hover:shadow-md transition-all active:scale-[0.98] text-left"
-          >
-            {/* Cloud icon */}
-            <div className="mb-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#18B7B0]/10">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-[#18B7B0]"
-                >
-                  <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
-                </svg>
-              </div>
-            </div>
+          {!isLoggedIn ? (
+            // Guest State: No backup, encourage signup
+            <div className="relative w-full rounded-2xl p-5 shadow-sm overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900">
+              {/* Decorative gradient */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-bl-[6rem] -mr-8 -mt-8" />
 
-            {/* Content */}
-            <div>
-              <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-50">
-                {t('loginBanner.title', 'Protege tus finanzas')}
-              </h3>
-              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                {t('loginBanner.subtitle', 'Inicia sesión para respaldar tus gastos en la nube.')}
-              </p>
-              <div className="flex items-center gap-1 text-sm font-semibold text-[#18B7B0]">
-                <span>{t('loginBanner.action', 'Conectar cuenta')}</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              {/* Icon */}
+              <div className="mb-4 relative z-10">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/20 dark:bg-red-500/30">
+                  <CloudOff size={24} className="text-red-400" />
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10">
+                <h3 className="mb-2 text-lg font-bold text-white">
+                  {t('subscriptionCard.guest.title', 'Sin Respaldo en la Nube')}
+                </h3>
+                <p className="mb-4 text-sm text-gray-300 leading-relaxed">
+                  {t('subscriptionCard.guest.subtitle', 'Tus datos están solo en este dispositivo. Si lo pierdes o se daña, perderás todo tu historial financiero.')}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/onboarding/login')}
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#18B7B0] to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:shadow-xl active:scale-[0.98] transition-all"
                 >
-                  <path d="M5 12h14" />
-                  <path d="m12 5 7 7-7 7" />
-                </svg>
+                  <CloudCheck size={16} />
+                  <span>{t('subscriptionCard.guest.cta', 'Crear Cuenta Gratis')}</span>
+                </button>
               </div>
             </div>
-          </button>
+          ) : (
+            // Free User State: Encourage Pro upgrade with feature highlights
+            <div className="relative w-full rounded-2xl p-5 shadow-sm overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-violet-50 dark:from-emerald-950/30 dark:via-teal-950/30 dark:to-violet-950/30 border border-emerald-200 dark:border-emerald-800">
+              {/* Decorative gradient */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-violet-500/10 rounded-bl-[6rem] -mr-8 -mt-8" />
+
+              {/* Icon */}
+              <div className="mb-4 relative z-10">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-violet-500/20 dark:from-emerald-500/30 dark:to-violet-500/30">
+                  <Sparkles size={24} className="text-emerald-600 dark:text-emerald-400" />
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10">
+                <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-50">
+                  {t('subscriptionCard.free.title', 'Lleva tus Finanzas al Siguiente Nivel')}
+                </h3>
+                <p className="mb-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {t('subscriptionCard.free.subtitle', 'Desbloquea estadísticas avanzadas, categorías y presupuestos ilimitados, filtros poderosos y una experiencia sin anuncios.')}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowPaywall(true)}
+                  className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#18B7B0] to-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:shadow-xl active:scale-[0.98] transition-all"
+                >
+                  <Crown size={16} />
+                  <span>{t('subscriptionCard.free.cta', 'Descubre Pro')}</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -375,6 +440,14 @@ export default function ProfilePage() {
           v{__APP_VERSION__} ({__GIT_HASH__})
         </p>
       </div>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        trigger="upgrade_prompt"
+        onSelectPlan={handleSelectPlan}
+      />
 
       {/* Error modal */}
       {errorMessage && (

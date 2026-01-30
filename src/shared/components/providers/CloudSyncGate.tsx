@@ -85,6 +85,7 @@ export default function CloudSyncGate() {
   const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
   const security = useBudgetStore((s) => s.security);
+  const subscription = useBudgetStore((s) => s.subscription);
 
   const initializedRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
@@ -605,7 +606,7 @@ export default function CloudSyncGate() {
     checkNetworkAndPush();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, security]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, security, subscription]);
 
   const mode = useBudgetStore.getState().cloudMode;
 

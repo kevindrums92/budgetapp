@@ -17,9 +17,11 @@ import {
   type CurrencyInfo,
   type CurrencyRegion,
 } from '@/features/currency';
+import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
+import ProgressDots from '../../../components/ProgressDots';
 
 export default function Screen3_Currency() {
-  const { t, i18n } = useTranslation('onboarding');
+  const { t, i18n } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const { state, setCurrency } = useOnboarding();
 
@@ -69,7 +71,7 @@ export default function Screen3_Currency() {
   const handleSkip = () => {
     // Guardar la moneda recomendada como default
     localStorage.setItem(STORAGE_KEY, recommendedCurrency.code);
-    navigate('/onboarding/config/6', { replace: true });
+    navigate('/onboarding/config/5', { replace: true });
   };
 
   const renderCurrencyButton = (currency: CurrencyInfo, highlighted = false) => (
@@ -128,22 +130,35 @@ export default function Screen3_Currency() {
   };
 
   return (
-    <div
-      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    <FullscreenLayout
+      headerCenter={<ProgressDots total={5} current={3} />}
+      headerRight={
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
+        >
+          {t('currency.skip')}
+        </button>
+      }
+      contentClassName="pb-8 md:pb-12 flex flex-col"
+      ctaButton={
+        <div className="space-y-3">
+          <p className="text-center text-xs text-gray-500 dark:text-gray-400">
+            {t('currency.note')}
+          </p>
+          <button
+            type="button"
+            onClick={handleContinue}
+            className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
+          >
+            {t('currency.continue')}
+          </button>
+        </div>
+      }
     >
-      {/* Progress */}
-      <div className="flex gap-1.5 px-6 pt-3">
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
-      </div>
-
       {/* Header */}
-      <div className="flex flex-col items-center px-6 pt-8 pb-4">
+      <div className="flex flex-col items-center pb-4">
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
           <DollarSign size={32} className="text-white" strokeWidth={2.5} />
         </div>
@@ -158,7 +173,7 @@ export default function Screen3_Currency() {
       </div>
 
       {/* Search */}
-      <div className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-950 px-6 pb-3">
+      <div className="z-10 bg-gray-50 dark:bg-gray-950 -mx-6 px-6 pb-3 pt-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
@@ -172,7 +187,7 @@ export default function Screen3_Currency() {
       </div>
 
       {/* Currency options */}
-      <div className="flex-1 overflow-y-auto px-6 pb-4">
+      <div className="mt-3 flex-1">
         {groupedCurrencies ? (
           <>
             {/* Moneda recomendada */}
@@ -207,32 +222,6 @@ export default function Screen3_Currency() {
           </div>
         )}
       </div>
-
-      {/* Actions */}
-      <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-950 px-6 pb-8 pt-4">
-        {/* Note */}
-        <p className="mb-4 text-center text-xs text-gray-500 dark:text-gray-400">
-          {t('currency.note')}
-        </p>
-
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={handleContinue}
-            className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
-          >
-            {t('currency.continue')}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSkip}
-            className="flex w-full items-center justify-center py-3 text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors hover:text-gray-900 dark:hover:text-gray-200"
-          >
-            {t('currency.skip')}
-          </button>
-        </div>
-      </div>
-    </div>
+    </FullscreenLayout>
   );
 }

@@ -82,11 +82,11 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
   if (showSuccess) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+        <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+          <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
             ✅ Backup Restaurado
           </h3>
-          <p className="mb-4 text-sm text-gray-600">
+          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
             El backup se restauró exitosamente. La página se recargará para aplicar los cambios.
           </p>
           <button
@@ -105,11 +105,11 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
   if (showError) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-          <h3 className="mb-2 text-lg font-semibold text-gray-900">
+        <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+          <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
             ❌ Error al Restaurar
           </h3>
-          <p className="mb-4 text-sm text-gray-600">
+          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
             {showError}
           </p>
           <button
@@ -118,7 +118,7 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
               setShowError(null);
               handleClose();
             }}
-            className="w-full rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            className="w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
           >
             Cerrar
           </button>
@@ -135,20 +135,20 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
       onClick={handleClose}
     >
       <div
-        className={`bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all duration-200 ${
+        className={`bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transform transition-all duration-200 ${
           isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
             ¿Restaurar Backup?
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            className="p-1 text-gray-400 hover:text-gray-600 active:scale-95 transition-all"
+            className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 active:scale-95 transition-all"
           >
             <X size={20} />
           </button>
@@ -158,11 +158,11 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
         <div className="p-4 space-y-4">
           {/* Backup Info */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <Calendar size={16} />
               <span>Creado: {formatDate(backup.meta.createdAt)}</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <FileText size={16} />
               <span>
                 Versión: {backup.meta.appVersion} (Schema v{backup.data.schemaVersion})
@@ -171,38 +171,38 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
           </div>
 
           {/* Stats */}
-          <div className="bg-gray-50 rounded-lg p-3 space-y-1">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-1">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
               Contenido del Backup
             </p>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <span className="text-gray-600">Transacciones:</span>
-                <span className="ml-2 font-semibold text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">Transacciones:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-50">
                   {backup.stats.totalTransactions}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Viajes:</span>
-                <span className="ml-2 font-semibold text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">Viajes:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-50">
                   {backup.stats.totalTrips}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Categorías:</span>
-                <span className="ml-2 font-semibold text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">Categorías:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-50">
                   {backup.stats.totalCategories}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Grupos:</span>
-                <span className="ml-2 font-semibold text-gray-900">
+                <span className="text-gray-600 dark:text-gray-400">Grupos:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-50">
                   {backup.stats.totalCategoryGroups}
                 </span>
               </div>
             </div>
             {backup.stats.dateRange && (
-              <div className="flex items-center gap-2 text-sm text-gray-600 mt-2 pt-2 border-t border-gray-200">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                 <MapPin size={14} />
                 <span>
                   Rango: {backup.stats.dateRange.from} - {backup.stats.dateRange.to}
@@ -212,19 +212,19 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
           </div>
 
           {/* Warning */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-lg p-3">
             <div className="flex gap-2">
-              <AlertTriangle size={18} className="text-amber-600 flex-shrink-0 mt-0.5" />
+              <AlertTriangle size={18} className="text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-semibold text-amber-900 mb-1">Advertencia</p>
-                <p className="text-amber-800">
+                <p className="font-semibold text-amber-900 dark:text-amber-300 mb-1">Advertencia</p>
+                <p className="text-amber-800 dark:text-amber-400">
                   Esto reemplazará tus datos actuales:
                 </p>
-                <ul className="mt-1 space-y-0.5 text-amber-700">
+                <ul className="mt-1 space-y-0.5 text-amber-700 dark:text-amber-400">
                   <li>• Transacciones actuales: {currentState.transactions.length}</li>
                   <li>• Viajes actuales: {currentState.trips?.length ?? 0}</li>
                 </ul>
-                <p className="text-amber-800 mt-2">
+                <p className="text-amber-800 dark:text-amber-400 mt-2">
                   Se creará un backup automático de tus datos actuales antes de restaurar.
                 </p>
               </div>
@@ -233,12 +233,12 @@ export default function BackupPreviewModal({ backup, onClose }: Props) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 p-4 border-t border-gray-200">
+        <div className="flex gap-3 p-4 border-t border-gray-200 dark:border-gray-800">
           <button
             type="button"
             onClick={handleClose}
             disabled={isRestoring}
-            className="flex-1 rounded-xl bg-gray-100 py-3 text-sm font-medium text-gray-700 hover:bg-gray-200 active:scale-95 transition-all disabled:opacity-50"
+            className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95 transition-all disabled:opacity-50"
           >
             Cancelar
           </button>

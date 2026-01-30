@@ -4,7 +4,10 @@ import { Calendar, Repeat, Info, CirclePlus, ToggleRight, Eye, Clock, XCircle, P
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ScheduleListItem from "../components/ScheduleListItem";
 import AddActionSheet from "../components/AddActionSheet";
+import PaywallModal from "@/shared/components/modals/PaywallModal";
 import { useBudgetStore } from "@/state/budget.store";
+import { useSubscription } from "@/hooks/useSubscription";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import type { Transaction } from "@/types/budget.types";
 
 type TabType = "active" | "inactive";
@@ -16,10 +19,16 @@ export default function ScheduledPage() {
   const transactions = useBudgetStore((s) => s.transactions);
   const getCategoryById = useBudgetStore((s) => s.getCategoryById);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
+  const { canUseFeature } = useSubscription();
 
   const [activeTab, setActiveTab] = useState<TabType>("active");
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showFabHint, setShowFabHint] = useState(true);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setShowPaywall(false),
+  });
 
   // Check if hint was already shown in this session
   useEffect(() => {
@@ -63,6 +72,14 @@ export default function ScheduledPage() {
     }
   };
 
+  // Handle FAB click with limit check
+  const handleFabClick = () => {
+    if (!canUseFeature('unlimited_scheduled')) {
+      setShowPaywall(true);
+      return;
+    }
+    setShowActionSheet(true);
+  };
 
   const currentList = activeTab === "active" ? active : inactive;
   const isEmpty = currentList.length === 0;
@@ -202,7 +219,7 @@ export default function ScheduledPage() {
             {/* CTA Button */}
             <button
               type="button"
-              onClick={() => setShowActionSheet(true)}
+              onClick={handleFabClick}
               className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
             >
               {t("emptyState.cta")}
@@ -283,6 +300,14 @@ export default function ScheduledPage() {
       <AddActionSheet
         open={showActionSheet}
         onClose={() => setShowActionSheet(false)}
+      />
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        trigger="scheduled_limit"
+        onSelectPlan={handleSelectPlan}
       />
     </div>
   );

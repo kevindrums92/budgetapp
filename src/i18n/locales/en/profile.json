@@ -55,6 +55,10 @@
       "offline": "Offline",
       "syncing": "Syncing",
       "synced": "Cloud Sync Active"
+    },
+    "trial": {
+      "daysRemaining_one": "{{count}} trial day",
+      "daysRemaining_other": "{{count}} trial days"
     }
   },
   "login": "Log In",
@@ -66,6 +70,23 @@
     "title": "Protect your finances",
     "subtitle": "Sign in to back up your expenses to the cloud.",
     "action": "Connect account"
+  },
+  "subscriptionCard": {
+    "guest": {
+      "title": "No Cloud Backup",
+      "subtitle": "Your data is only on this device. If you lose it or it gets damaged, you'll lose all your financial history.",
+      "cta": "Create Free Account"
+    },
+    "free": {
+      "title": "Take Your Finances to the Next Level",
+      "subtitle": "Unlock advanced statistics, unlimited categories and budgets, powerful filters and an ad-free experience.",
+      "cta": "Discover Pro"
+    },
+    "pro": {
+      "title": "Pro Backup Active",
+      "subtitle": "Cloud backup + advanced statistics + unlimited categories + all premium features.",
+      "status": "Everything is in order"
+    }
   },
   "export": {
     "info": {

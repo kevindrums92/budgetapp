@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/features/theme";
 import { CurrencyProvider } from "@/features/currency";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
+import RevenueCatProvider from "@/shared/components/providers/RevenueCatProvider";
 
 // Eager load core pages (HomePage, PlanPage)
 import HomePage from "@/features/transactions/pages/HomePage";
@@ -163,13 +164,15 @@ export default function App() {
   return (
     <ThemeProvider>
       <CurrencyProvider>
-        <BrowserRouter>
-          <CloudSyncGate />
-          <OnboardingGate />
-          <BiometricGate />
-          <UpcomingTransactionsModal />
-          <AppFrame />
-        </BrowserRouter>
+        <RevenueCatProvider>
+          <BrowserRouter>
+            <CloudSyncGate />
+            <OnboardingGate />
+            <BiometricGate />
+            <UpcomingTransactionsModal />
+            <AppFrame />
+          </BrowserRouter>
+        </RevenueCatProvider>
       </CurrencyProvider>
     </ThemeProvider>
   );

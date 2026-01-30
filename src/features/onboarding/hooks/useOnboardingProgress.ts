@@ -11,7 +11,7 @@ import type { OnboardingPhase } from '../utils/onboarding.types';
 
 export function useOnboardingProgress() {
   const navigate = useNavigate();
-  const { state, updatePhase, updateStep, skipWelcome, skipConfig, completeOnboarding } =
+  const { state, updatePhase, updateStep, completeOnboarding } =
     useOnboarding();
 
   const navigateToPhase = useCallback(
@@ -101,13 +101,15 @@ export function useOnboardingProgress() {
     const { phase } = state;
 
     if (phase === 'welcome') {
-      skipWelcome();
-      navigateToPhase('login');
+      // Skip directly to Choose Plan screen (screen 7)
+      // Don't call skipWelcome() as it changes phase to 'login'
+      navigateToPhase('welcome', 7);
     } else if (phase === 'config') {
-      skipConfig();
-      navigateToPhase('complete');
+      // Skip directly to Complete screen (screen 5)
+      // Don't call skipConfig() as it would mark config as skipped
+      navigateToPhase('config', 5);
     }
-  }, [state, navigateToPhase, skipWelcome, skipConfig]);
+  }, [state, navigateToPhase]);
 
   return {
     navigateToPhase,

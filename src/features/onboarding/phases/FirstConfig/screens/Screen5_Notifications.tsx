@@ -20,7 +20,7 @@ import { DEFAULT_NOTIFICATION_PREFERENCES } from '@/types/notifications';
 const NEXT_STEP = '/onboarding/config/6';
 
 export default function Screen5_Notifications() {
-  const { t } = useTranslation('onboarding');
+  const { t } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const [isRequesting, setIsRequesting] = useState(false);
 

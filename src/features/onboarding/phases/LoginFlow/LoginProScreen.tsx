@@ -1,41 +1,33 @@
 /**
- * LoginScreen
- * Pantalla de autenticación - obligatoria (no skippeable)
- * Contextos:
- * 1. Primera vez: Welcome → Login → Config → App
- * 2. Logout: Login → App (directo)
+ * LoginProScreen
+ * Pantalla de autenticación para activar plan Pro/Trial
+ * Solo muestra Google y Apple (sin guest mode)
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, User, Chrome, Apple, Mail, Loader2 } from 'lucide-react';
+import { Sparkles, Chrome, Apple, Loader2, ShieldCheck } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { isNative } from '@/shared/utils/platform';
 import { getOAuthRedirectUrl } from '@/config/env';
 import { useOnboarding } from '../../OnboardingContext';
 import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
 
-export default function LoginScreen() {
-  const { t } = useTranslation('onboarding');
+export default function LoginProScreen() {
+  const { t } = useTranslation(['onboarding', 'paywall']);
   const navigate = useNavigate();
   const { state, updatePhase, setAuthMethod } = useOnboarding();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [oauthError, setOAuthError] = useState<{ message: string; isRetryable: boolean } | null>(null);
 
-  // Redirect to login-pro if user selected a plan
-  useEffect(() => {
-    if (state.selections.selectedPlan) {
-      console.log('[LoginScreen] Plan detected, redirecting to Pro login:', state.selections.selectedPlan);
-      navigate('/onboarding/login-pro', { replace: true });
-    }
-  }, [state.selections.selectedPlan, navigate]);
+  const selectedPlan = state.selections.selectedPlan || 'monthly';
 
   // Sync context with URL when component mounts
   useEffect(() => {
     if (state.phase !== 'login') {
-      console.log('[LoginScreen] Syncing context phase to login');
+      console.log('[LoginProScreen] Syncing context phase to login');
       updatePhase('login');
     }
   }, [state.phase, updatePhase]);
@@ -48,7 +40,7 @@ export default function LoginScreen() {
       const customEvent = event as CustomEvent<{ error: string; code: number; isRetryable: boolean }>;
       const { error, isRetryable } = customEvent.detail;
 
-      console.log('[LoginScreen] OAuth error received:', { error, isRetryable });
+      console.log('[LoginProScreen] OAuth error received:', { error, isRetryable });
 
       // Stop loading state
       setLoading(false);
@@ -73,16 +65,15 @@ export default function LoginScreen() {
    */
   useEffect(() => {
     const checkSession = async () => {
-      // Si hay flag de logout, ignorar sesión existente (puede estar cerrándose)
-      // El usuario llegó aquí porque hizo logout, no por OAuth callback
+      // Si hay flag de logout, ignorar sesión existente
       if (localStorage.getItem(ONBOARDING_KEYS.LOGOUT) === 'true') {
-        console.log('[LoginScreen] Logout flag detected, ignoring existing session');
+        console.log('[LoginProScreen] Logout flag detected, ignoring existing session');
         return;
       }
 
       const { data } = await supabase.auth.getSession();
       if (data.session) {
-        console.log('[LoginScreen] Session detected on mount, handling OAuth callback');
+        console.log('[LoginProScreen] Session detected on mount, handling OAuth callback');
         handleOAuthCallback();
       }
     };
@@ -93,7 +84,7 @@ export default function LoginScreen() {
     // Listener para cambios de auth state
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('[LoginScreen] Auth event:', event);
+        console.log('[LoginProScreen] Auth event:', event);
 
         if (event === 'SIGNED_IN' && session) {
           handleOAuthCallback();
@@ -109,18 +100,45 @@ export default function LoginScreen() {
 
   /**
    * Maneja el retorno exitoso de OAuth
+   * Activa el trial del plan seleccionado
    */
   const handleOAuthCallback = async () => {
     setAuthMethod('google');
 
-    // Limpiar flag de logout (el usuario se logueó de nuevo)
+    // Limpiar flag de logout
     localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
 
-    // ✅ ALWAYS check cloud data first to determine if THIS specific user is new or returning.
-    // The localStorage COMPLETED flag is device-scoped (not per-user), so after logout + login
-    // with a different account, the flag would still be true from the previous user.
     try {
-      console.log('[LoginScreen] Checking cloud data for returning user detection...');
+      console.log('[LoginProScreen] OAuth success → Activating trial for plan:', selectedPlan);
+
+      // Activar trial con RevenueCat
+      const { purchasePackage, getOfferings } = await import('@/services/revenuecat.service');
+
+      const offerings = await getOfferings();
+      if (!offerings) {
+        throw new Error('No offerings available');
+      }
+
+      // Encontrar el paquete seleccionado
+      const packageToPurchase = offerings.availablePackages.find(
+        (pkg) => pkg.identifier === selectedPlan
+      );
+
+      if (!packageToPurchase) {
+        throw new Error(`Package ${selectedPlan} not found`);
+      }
+
+      // Ejecutar compra (activa trial de 7 días)
+      const purchaseResult = await purchasePackage(packageToPurchase);
+      console.log('[LoginProScreen] Trial activated:', purchaseResult);
+
+      // Sync subscription state with Zustand store
+      const { useBudgetStore } = await import('@/state/budget.store');
+      const syncWithRevenueCat = useBudgetStore.getState().syncWithRevenueCat;
+      await syncWithRevenueCat();
+      console.log('[LoginProScreen] Subscription synced with store');
+
+      // Check cloud data to determine if new or returning user
       const { getCloudState } = await import('@/services/cloudState.service');
       const cloudData = await getCloudState();
 
@@ -130,7 +148,7 @@ export default function LoginScreen() {
                              (cloudData.trips && cloudData.trips.length > 0);
 
         if (hasCloudData) {
-          console.log('[LoginScreen] OAuth success → App (returning user, cloud has data)');
+          console.log('[LoginProScreen] Returning user with cloud data → App');
           localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
           localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
           navigate('/', { replace: true });
@@ -138,7 +156,7 @@ export default function LoginScreen() {
         }
       }
 
-      // No cloud data → check if user has LOCAL data (guest user connecting account)
+      // Check local data (guest user connecting account)
       const { loadState } = await import('@/services/storage.service');
       const localData = loadState();
 
@@ -148,7 +166,7 @@ export default function LoginScreen() {
                              (localData.trips && localData.trips.length > 0);
 
         if (hasLocalData) {
-          console.log('[LoginScreen] OAuth success → App (guest user connecting account, has local data)');
+          console.log('[LoginProScreen] Guest user with local data → App');
           localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
           localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
           navigate('/', { replace: true });
@@ -156,54 +174,21 @@ export default function LoginScreen() {
         }
       }
 
-      // No cloud data AND no local data → new user, go to FirstConfig
-      console.log('[LoginScreen] OAuth success → First Config (new user, no data)');
+      // New user → First Config
+      console.log('[LoginProScreen] New user → First Config');
       navigate('/onboarding/config/1', { replace: true });
     } catch (err) {
-      console.error('[LoginScreen] Error checking cloud data:', err);
-      // Fallback: use localStorage flag only if cloud check fails
+      console.error('[LoginProScreen] Error activating trial:', err);
+
+      // Fallback to normal flow if trial activation fails
       const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
       if (onboardingCompleted) {
-        console.log('[LoginScreen] OAuth success → App (cloud check failed, using local flag)');
+        console.log('[LoginProScreen] Trial activation failed → App (fallback)');
         navigate('/', { replace: true });
       } else {
-        console.log('[LoginScreen] OAuth success → First Config (cloud check failed, no local flag)');
+        console.log('[LoginProScreen] Trial activation failed → First Config (fallback)');
         navigate('/onboarding/config/1', { replace: true });
       }
-    }
-  };
-
-  /**
-   * Maneja la selección de modo invitado
-   */
-  const handleGuestMode = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Guardar método de autenticación
-      setAuthMethod('guest');
-
-      // Limpiar flag de logout (el usuario eligió continuar como invitado)
-      localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
-
-      // Verificar directamente en localStorage (más confiable que el estado del contexto)
-      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
-
-      if (!onboardingCompleted) {
-        // Primera vez: ir a First Config (guest mode, no cloud data to check)
-        console.log('[LoginScreen] Guest mode selected → First Config');
-        navigate('/onboarding/config/1', { replace: true });
-      } else {
-        // Returning user (logout): ir directo a app
-        console.log('[LoginScreen] Guest mode selected → App (returning user)');
-        navigate('/', { replace: true });
-      }
-    } catch (err) {
-      console.error('[LoginScreen] Error en guest mode:', err);
-      setError(t('login.errorGuest'));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -215,11 +200,8 @@ export default function LoginScreen() {
     setError(null);
 
     try {
-      // Native apps use custom URL scheme for OAuth deep linking
-      // The scheme changes per environment (smartspend:// vs smartspend-dev://)
       const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
-
-      console.log('[LoginScreen] OAuth redirect URL:', redirectTo);
+      console.log('[LoginProScreen] OAuth redirect URL:', redirectTo);
 
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -233,21 +215,12 @@ export default function LoginScreen() {
 
       if (authError) throw authError;
 
-      // El OAuth redirige automáticamente
-      // La lógica de siguiente pantalla se maneja en el callback de auth (useEffect listener)
-      console.log('[LoginScreen] Google OAuth initiated');
+      console.log('[LoginProScreen] Google OAuth initiated');
     } catch (err: any) {
-      console.error('[LoginScreen] Error en Google login:', err);
+      console.error('[LoginProScreen] Error en Google login:', err);
       setError(err.message || t('login.errorGoogle'));
       setLoading(false);
     }
-  };
-
-  /**
-   * Navegar a la página de autenticación con email/contraseña
-   */
-  const handleEmailAuth = () => {
-    navigate('/onboarding/auth');
   };
 
   /**
@@ -258,104 +231,102 @@ export default function LoginScreen() {
     setTimeout(() => setError(null), 3000);
   };
 
+  // Get plan display name
+  const getPlanName = () => {
+    switch (selectedPlan) {
+      case 'monthly':
+        return t('paywall:plans.monthly');
+      case 'annual':
+        return t('paywall:plans.annual');
+      case 'lifetime':
+        return t('paywall:plans.lifetime');
+      default:
+        return t('paywall:plans.monthly');
+    }
+  };
+
   return (
     <div
       className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
-      {/* Header con icono de seguridad */}
+      {/* Header con icono de sparkles */}
       <div className="flex flex-col items-center px-6 pt-8 pb-8">
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
-          <Shield size={40} className="text-white" strokeWidth={2.5} />
+        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg">
+          <Sparkles size={40} className="text-white" strokeWidth={2.5} />
         </div>
 
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-          {t('login.title')}
+          Activa tu prueba gratuita
         </h1>
 
         <p className="max-w-md text-center text-base leading-relaxed text-gray-600 dark:text-gray-400">
-          {t('login.subtitle')}
+          Inicia sesión para activar <span className="font-semibold text-emerald-600 dark:text-emerald-400">{getPlanName()}</span> con 7 días de prueba gratuita
         </p>
       </div>
 
-      {/* Features de privacidad - Texto informativo */}
-      <div className="mx-6 mb-8">
-        <div className="flex items-start gap-2">
-          <Shield className="h-4 w-4 shrink-0 text-emerald-600" />
+      {/* Features del trial */}
+      <div className="mx-6 mb-8 space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t('login.privacyNote')}
+            <span className="font-semibold text-gray-900 dark:text-gray-50">7 días gratis</span> - Cancela cuando quieras
+          </p>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="font-semibold text-gray-900 dark:text-gray-50">Sincronización en la nube</span> - Tus datos seguros
+          </p>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="font-semibold text-gray-900 dark:text-gray-50">Acceso completo</span> - Todas las funciones Pro
           </p>
         </div>
       </div>
 
-      {/* Opciones de autenticación - ORDEN SOLICITADO */}
+      {/* Opciones de autenticación - Solo Google y Apple */}
       <div className="flex-1 px-6 pb-8">
         <div className="space-y-3">
-          {/* 1. Botón GRANDE: Explorar como invitado */}
+          {/* Google OAuth - Full width button */}
           <button
             type="button"
-            onClick={handleGuestMode}
+            onClick={handleGoogleLogin}
             disabled={loading}
-            className="flex w-full items-center gap-4 rounded-2xl bg-[#18B7B0] p-4 shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98] disabled:opacity-50"
+            className="flex w-full items-center gap-4 rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20">
-              <User className="h-6 w-6 text-white" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-gray-900 shadow-sm">
+              <Chrome className="h-6 w-6 text-gray-700 dark:text-gray-300" />
             </div>
             <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-white">{t('login.guestTitle')}</p>
-              <p className="mt-0.5 text-xs text-white/80">{t('login.guestDesc')}</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('login.google')}</p>
+              <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Continuar con Google</p>
             </div>
-            {loading && <Loader2 className="h-5 w-5 animate-spin text-white" />}
+            {loading && <Loader2 className="h-5 w-5 animate-spin text-gray-400" />}
           </button>
 
-          {/* 2. Separador */}
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200 dark:border-gray-700" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-gray-50 dark:bg-gray-950 px-2 text-gray-600 dark:text-gray-400">{t('login.divider')}</span>
-            </div>
-          </div>
-
-          {/* 3. Grid 2 columnas: Google y Apple */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Google OAuth */}
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-gray-900 shadow-sm">
-                <Chrome className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.google')}</span>
-              {loading && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
-            </button>
-
-            {/* Apple Sign In - Coming Soon */}
-            <button
-              type="button"
-              onClick={handleAppleComingSoon}
-              disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm opacity-60 transition-all active:scale-[0.98]"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black">
-                <Apple className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.apple')}</span>
-            </button>
-          </div>
-
-          {/* 4. Link simple: Email/Password */}
+          {/* Apple Sign In - Full width button */}
           <button
             type="button"
-            onClick={handleEmailAuth}
-            className="flex w-full items-center justify-center gap-2 py-3 text-sm font-medium text-[#18B7B0] transition-colors hover:text-[#13948e]"
+            onClick={handleAppleComingSoon}
+            disabled={loading}
+            className="flex w-full items-center gap-4 rounded-2xl bg-black p-4 shadow-lg opacity-60 transition-all active:scale-[0.98]"
           >
-            <Mail className="h-4 w-4" />
-            <span>{t('login.emailLink')}</span>
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">
+              <Apple className="h-6 w-6 text-white" />
+            </div>
+            <div className="flex-1 text-left">
+              <p className="text-sm font-semibold text-white">{t('login.apple')}</p>
+              <p className="mt-0.5 text-xs text-white/70">Continuar con Apple</p>
+            </div>
           </button>
         </div>
 
@@ -372,7 +343,7 @@ export default function LoginScreen() {
           <button
             type="button"
             onClick={() => navigate('/legal/terms')}
-            className="font-medium text-[#18B7B0] underline"
+            className="font-medium text-emerald-600 dark:text-emerald-400 underline"
           >
             {t('login.termsService')}
           </button>{' '}
@@ -380,11 +351,22 @@ export default function LoginScreen() {
           <button
             type="button"
             onClick={() => navigate('/legal/privacy')}
-            className="font-medium text-[#18B7B0] underline"
+            className="font-medium text-emerald-600 dark:text-emerald-400 underline"
           >
             {t('login.termsPrivacy')}
           </button>
         </p>
+
+        {/* Back to free option */}
+        <div className="mt-6 text-center">
+          <button
+            type="button"
+            onClick={() => navigate('/onboarding/login')}
+            className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors hover:text-gray-900 dark:hover:text-gray-200"
+          >
+            ← Volver a opciones gratuitas
+          </button>
+        </div>
       </div>
 
       {/* OAuth Error Modal */}
@@ -426,7 +408,7 @@ export default function LoginScreen() {
                     setOAuthError(null);
                     handleGoogleLogin();
                   }}
-                  className="flex-1 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white hover:bg-[#13948e]"
+                  className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
                 >
                   Reintentar
                 </button>

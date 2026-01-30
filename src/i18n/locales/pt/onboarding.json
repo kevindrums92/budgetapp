@@ -79,6 +79,30 @@
       "peakDay": "Dia de pico",
       "peakDayFriday": "Sexta-feira",
       "startNow": "Começar agora"
+    },
+    "screen7": {
+      "title": "Escolha seu plano",
+      "subtitle": "Comece com 7 dias grátis de todas as funcionalidades Pro, ou use o SmartSpend Lite sem limite de tempo",
+      "proTrialBadge": "Teste grátis",
+      "proTrialTitle": "Teste Pro grátis por 7 dias",
+      "proTrialDescription": "Acesso completo a todas as funcionalidades premium. Cancele quando quiser.",
+      "proAdFreeNote": "Experiência 100% livre de anúncios",
+      "liteBadge": "Sempre grátis",
+      "liteTitle": "Continuar com Lite",
+      "liteDescription": "Todas as funcionalidades essenciais para gerenciar suas finanças. Sempre grátis com anúncios.",
+      "liteAdsNote": "Inclui anúncios não intrusivos para manter o serviço gratuito",
+      "features": {
+        "unlimited": "Categorias e orçamentos ilimitados",
+        "cloudSync": "Sincronização na nuvem",
+        "stats": "Estatísticas detalhadas",
+        "notifications": "Notificações push inteligentes"
+      },
+      "liteFeatures": {
+        "basicTracking": "Rastreamento básico ilimitado",
+        "budgets": "Até 2 orçamentos ativos",
+        "categories": "Até 5 categorias personalizadas"
+      },
+      "disclaimer": "Teste sem risco. Cancele antes que termine e não será cobrado."
     }
   },
   "language": {
@@ -188,7 +212,13 @@
       "login": "Fazer login",
       "register": "Criar conta"
     },
-    "forgotPassword": "Esqueceu sua senha?",
+    "forgotPassword": {
+      "link": "Esqueci minha senha",
+      "title": "Recuperar senha",
+      "message": "Digite seu e-mail e enviaremos um código para redefinir sua senha",
+      "send": "Enviar código",
+      "cancel": "Cancelar"
+    },
     "divider": "ou continue com",
     "google": "Continuar com Google",
     "backToGuest": "Voltar e usar como convidado",
@@ -229,13 +259,6 @@
       "otpExpired": "O código expirou. Solicite um novo.",
       "networkError": "Erro de conexão. Verifique sua internet.",
       "generic": "Ocorreu um erro. Tente novamente."
-    },
-    "forgotPassword": {
-      "link": "Esqueci minha senha",
-      "title": "Recuperar senha",
-      "message": "Digite seu e-mail e enviaremos um código para redefinir sua senha",
-      "send": "Enviar código",
-      "cancel": "Cancelar"
     },
     "resetPassword": {
       "title": "Nova senha",

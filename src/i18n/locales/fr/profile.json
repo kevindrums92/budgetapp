@@ -55,6 +55,10 @@
       "offline": "Hors Ligne",
       "syncing": "Synchronisation",
       "synced": "Synchronisation Cloud Active"
+    },
+    "trial": {
+      "daysRemaining_one": "{{count}} jour d'essai",
+      "daysRemaining_other": "{{count}} jours d'essai"
     }
   },
   "login": "Se connecter",
@@ -66,6 +70,23 @@
     "title": "Protégez vos finances",
     "subtitle": "Connectez-vous pour sauvegarder vos dépenses dans le cloud.",
     "action": "Connecter le compte"
+  },
+  "subscriptionCard": {
+    "guest": {
+      "title": "Pas de Sauvegarde Cloud",
+      "subtitle": "Vos données sont uniquement sur cet appareil. Si vous le perdez ou s'il est endommagé, vous perdrez tout votre historique financier.",
+      "cta": "Créer un Compte Gratuit"
+    },
+    "free": {
+      "title": "Améliorez vos Finances au Niveau Supérieur",
+      "subtitle": "Débloquez des statistiques avancées, des catégories et budgets illimités, des filtres puissants et une expérience sans publicité.",
+      "cta": "Découvrir Pro"
+    },
+    "pro": {
+      "title": "Sauvegarde Pro Active",
+      "subtitle": "Sauvegarde cloud + statistiques avancées + catégories illimitées + toutes les fonctionnalités premium.",
+      "status": "Tout est en ordre"
+    }
   },
   "export": {
     "info": {

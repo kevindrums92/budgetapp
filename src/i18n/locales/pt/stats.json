@@ -58,7 +58,8 @@
   "expensesByCategory": {
     "title": "Despesas por Categoria",
     "spent": "gasto",
-    "noData": "Não há despesas este mês"
+    "noData": "Não há despesas este mês",
+    "viewAllPro": "Ver todas as categorias"
   },
   "incomeVsExpenses": {
     "title": "Receitas vs Despesas",
@@ -87,5 +88,10 @@
     "thu": "Qui",
     "fri": "Sex",
     "sat": "Sáb"
+  },
+  "overlay": {
+    "unlockAdvancedStats": "Desbloqueie estatísticas avançadas",
+    "unlockTrends": "Desbloqueie análise de tendências",
+    "viewAllStats": "Ver todas as estatísticas"
   }
 }

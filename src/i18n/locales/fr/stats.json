@@ -58,7 +58,8 @@
   "expensesByCategory": {
     "title": "Dépenses par Catégorie",
     "spent": "dépensé",
-    "noData": "Aucune dépense ce mois-ci"
+    "noData": "Aucune dépense ce mois-ci",
+    "viewAllPro": "Voir toutes les catégories"
   },
   "incomeVsExpenses": {
     "title": "Revenus vs Dépenses",
@@ -87,5 +88,10 @@
     "thu": "Jeu",
     "fri": "Ven",
     "sat": "Sam"
+  },
+  "overlay": {
+    "unlockAdvancedStats": "Débloquez les statistiques avancées",
+    "unlockTrends": "Débloquez l'analyse des tendances",
+    "viewAllStats": "Voir toutes les statistiques"
   }
 }

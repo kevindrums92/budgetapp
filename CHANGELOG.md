@@ -10,6 +10,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(monetization): implement complete subscription system with 7-day trial, pricing tiers (monthly/annual/lifetime), and RevenueCat mock service
+- feat(onboarding): add dual login flow with ChoosePlan screen as final step, differentiating Free (guest/social auth) vs Pro (trial activation) users
+- feat(ui): add PaywallModal, PricingCard, and ProFeatureGate components with i18n support in 4 languages (es, en, fr, pt)
+- feat(profile): add PRO badge in user card, hide subscription banner for Pro users, redesign Free user banner to emphasize Pro features (stats, unlimited, ad-free)
+- feat(hooks): create useSubscription and usePaywallPurchase shared hooks to manage subscription state and trial activation across app
+- fix(sync): add subscription field to CloudSyncGate dependency array to ensure subscription persists to Supabase after trial activation
+- refactor(schema): migrate storage schema to v8 with subscription state support and Zustand store integration
 - feat(app): lock app to portrait orientation only (disable landscape mode) across all platforms (iOS, Android, PWA)
 
 ## [0.13.2] - 2026-01-29

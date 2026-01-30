@@ -64,9 +64,47 @@ export default function HomePage() {
     }
   }, [transactions, today, addTransaction]);
 
+  // Auto-request push permissions on first app load (after onboarding completes)
+  useEffect(() => {
+    async function autoRequestPushPermissions() {
+      const hasAutoRequestedPush = localStorage.getItem('push_auto_requested') === 'true';
+
+      // Only auto-request once per user
+      if (hasAutoRequestedPush) return;
+
+      // Mark as requested before actually requesting (to avoid duplicate requests)
+      localStorage.setItem('push_auto_requested', 'true');
+
+      try {
+        console.log('[HomePage] Auto-requesting push permissions on first app load');
+        const granted = await requestPermissions();
+
+        if (granted) {
+          // Apply default notification preferences
+          await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
+          console.log('[HomePage] Push notifications enabled automatically with default preferences');
+        } else {
+          console.log('[HomePage] User denied push permissions');
+        }
+      } catch (error) {
+        console.error('[HomePage] Failed to auto-request push permissions:', error);
+      }
+    }
+
+    autoRequestPushPermissions();
+  }, []);
+
   // Check if push notification banner should be shown
   useEffect(() => {
     async function checkBannerConditions() {
+      // Only show on PWA/mobile app, NOT on web browser
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                    (navigator as any).standalone === true;
+      if (!isPWA) {
+        setShowPushBanner(false);
+        return;
+      }
+
       // Only show to authenticated users
       if (!user.email) {
         setShowPushBanner(false);

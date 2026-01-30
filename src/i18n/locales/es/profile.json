@@ -55,6 +55,10 @@
       "offline": "Sin Conexión",
       "syncing": "Sincronizando",
       "synced": "Cloud Sync Activo"
+    },
+    "trial": {
+      "daysRemaining_one": "{{count}} día de prueba",
+      "daysRemaining_other": "{{count}} días de prueba"
     }
   },
   "login": "Iniciar sesión",
@@ -66,6 +70,23 @@
     "title": "Protege tus finanzas",
     "subtitle": "Inicia sesión para respaldar tus gastos en la nube.",
     "action": "Conectar cuenta"
+  },
+  "subscriptionCard": {
+    "guest": {
+      "title": "Sin Respaldo en la Nube",
+      "subtitle": "Tus datos están solo en este dispositivo. Si lo pierdes o se daña, perderás todo tu historial financiero.",
+      "cta": "Crear Cuenta Gratis"
+    },
+    "free": {
+      "title": "Lleva tus Finanzas al Siguiente Nivel",
+      "subtitle": "Desbloquea estadísticas avanzadas, categorías y presupuestos ilimitados, filtros poderosos y una experiencia sin anuncios.",
+      "cta": "Descubre Pro"
+    },
+    "pro": {
+      "title": "Respaldo Pro Activo",
+      "subtitle": "Respaldo en la nube + estadísticas avanzadas + categorías ilimitadas + todas las funciones premium.",
+      "status": "Todo está en orden"
+    }
   },
   "export": {
     "info": {

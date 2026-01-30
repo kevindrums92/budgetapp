@@ -28,6 +28,7 @@ export interface OnboardingState {
     currency?: string;
     notifications?: boolean;
     selectedCategories?: string[]; // IDs de categorías por defecto seleccionadas
+    selectedPlan?: 'monthly' | 'annual' | 'lifetime' | null; // Plan seleccionado en Screen7
   };
 
   // Timestamps
@@ -60,6 +61,7 @@ export interface OnboardingContextValue {
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setCurrency: (currency: string) => void;
   setSelectedCategories: (categoryIds: string[]) => void;
+  setSelectedPlan: (plan: 'monthly' | 'annual' | 'lifetime' | null) => void;
   skipWelcome: () => void;
   skipConfig: () => void;
   completeOnboarding: () => void;
