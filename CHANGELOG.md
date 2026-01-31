@@ -10,6 +10,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(monetization): implement Pro feature gating for CSV exports - block all CSV exports (transactions, categories, budgets, trips) for Free users with PaywallModal in ExportCSVPage, TripsPage, and HistoryPage
+- feat(monetization): implement Pro feature gating for automatic backups - block local and cloud automatic backups for Free users, only manual backups available (BackupMethodSelector with lock icons and PRO badges)
+- feat(monetization): implement Pro feature gating for history filters - block Estado, Categoría, and Monto filters for Free users with lock icons and PaywallModal
+- feat(monetization): implement Pro feature gating for scheduled transactions - enforce limit of 3 scheduled transactions for Free users using shouldShowPaywall check in ScheduledPage
+- feat(ui): add Pro avatar styling in TopHeader with golden gradient border, crown badge (top-right), and sync indicator dot (bottom-left)
+- fix(ui): fix badge layout in ProfilePage so SYNCING badge always appears on separate line below PRO/TRIAL badges
 - feat(monetization): implement complete subscription system with 7-day trial, pricing tiers (monthly/annual/lifetime), and RevenueCat mock service
 - feat(onboarding): add dual login flow with ChoosePlan screen as final step, differentiating Free (guest/social auth) vs Pro (trial activation) users
 - feat(ui): add PaywallModal, PricingCard, and ProFeatureGate components with i18n support in 4 languages (es, en, fr, pt)

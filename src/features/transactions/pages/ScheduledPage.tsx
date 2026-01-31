@@ -19,7 +19,7 @@ export default function ScheduledPage() {
   const transactions = useBudgetStore((s) => s.transactions);
   const getCategoryById = useBudgetStore((s) => s.getCategoryById);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
-  const { canUseFeature } = useSubscription();
+  const { shouldShowPaywall } = useSubscription();
 
   const [activeTab, setActiveTab] = useState<TabType>("active");
   const [showActionSheet, setShowActionSheet] = useState(false);
@@ -74,7 +74,7 @@ export default function ScheduledPage() {
 
   // Handle FAB click with limit check
   const handleFabClick = () => {
-    if (!canUseFeature('unlimited_scheduled')) {
+    if (shouldShowPaywall('unlimited_scheduled')) {
       setShowPaywall(true);
       return;
     }
@@ -281,7 +281,7 @@ export default function ScheduledPage() {
             onClick={() => {
               setShowFabHint(false);
               sessionStorage.setItem(FAB_HINT_KEY, "true");
-              setShowActionSheet(true);
+              handleFabClick();
             }}
             className="group relative"
           >

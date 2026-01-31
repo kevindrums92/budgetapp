@@ -11,13 +11,17 @@ import {
   X,
   Check,
   Search,
+  Lock,
 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
+import { useSubscription } from "@/hooks/useSubscription";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/shared/components/modals/DatePicker";
+import PaywallModal from "@/shared/components/modals/PaywallModal";
 import * as icons from "lucide-react";
 
 type FilterType = "all" | "expense" | "income";
@@ -37,12 +41,19 @@ export default function HistoryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { formatAmount } = useCurrency();
+  const { canUseFeature } = useSubscription();
 
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+
+  // Paywall state
+  const [showPaywall, setShowPaywall] = useState(false);
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setShowPaywall(false),
+  });
 
   const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>("this-month");
   const [customStartDate, setCustomStartDate] = useState(todayISO());
@@ -310,6 +321,12 @@ export default function HistoryPage() {
   ]);
 
   const handleExport = async () => {
+    // Check if user can export
+    if (!canUseFeature('export_data')) {
+      setShowPaywall(true);
+      return;
+    }
+
     if (filteredTransactions.length === 0) {
       alert(t("export.noTransactions", { ns: "home" }));
       return;
@@ -438,14 +455,26 @@ export default function HistoryPage() {
           {/* Status */}
           <button
             type="button"
-            onClick={() => setExpandedFilter(expandedFilter === "status" ? null : "status")}
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                setExpandedFilter(expandedFilter === "status" ? null : "status");
+              }
+            }}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              expandedFilter === "status" || filterStatus !== "all"
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : expandedFilter === "status" || filterStatus !== "all"
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            <CheckCircle2 size={14} />
+            {!canUseFeature('history_filters') ? (
+              <Lock size={14} />
+            ) : (
+              <CheckCircle2 size={14} />
+            )}
             {filterStatus === "all" && "Estado"}
             {filterStatus === "paid" && "Pagado"}
             {filterStatus === "pending" && "Pendiente"}
@@ -455,14 +484,26 @@ export default function HistoryPage() {
           {/* Category */}
           <button
             type="button"
-            onClick={handleOpenCategoryModal}
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                handleOpenCategoryModal();
+              }
+            }}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              selectedCategoryIds.length > 0
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : selectedCategoryIds.length > 0
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            <Tag size={14} />
+            {!canUseFeature('history_filters') ? (
+              <Lock size={14} />
+            ) : (
+              <Tag size={14} />
+            )}
             {selectedCategoryIds.length === 0 && "Categoría"}
             {selectedCategoryIds.length === 1 && (categoryDefinitions.find((c) => c.id === selectedCategoryIds[0])?.name || "Categoría")}
             {selectedCategoryIds.length > 1 && `${selectedCategoryIds.length} categorías`}
@@ -471,13 +512,22 @@ export default function HistoryPage() {
           {/* Monto */}
           <button
             type="button"
-            onClick={() => setExpandedFilter(expandedFilter === "amount" ? null : "amount")}
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                setExpandedFilter(expandedFilter === "amount" ? null : "amount");
+              }
+            }}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              expandedFilter === "amount" || minAmount || maxAmount
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : expandedFilter === "amount" || minAmount || maxAmount
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
+            {!canUseFeature('history_filters') && <Lock size={14} />}
             Monto
           </button>
         </div>
@@ -688,10 +738,26 @@ export default function HistoryPage() {
           type="button"
           onClick={handleExport}
           disabled={filteredTransactions.length === 0}
-          className="flex items-center gap-2 text-sm font-medium text-[#18B7B0] hover:text-[#159d97] disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed ${
+            !canUseFeature('export_data')
+              ? 'text-gray-500'
+              : 'text-[#18B7B0] hover:text-[#159d97]'
+          }`}
         >
-          <Download size={16} />
-          {t("results.exportCSV")}
+          {!canUseFeature('export_data') ? (
+            <>
+              <Lock size={16} />
+              {t("results.exportCSV")}
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
+                PRO
+              </span>
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              {t("results.exportCSV")}
+            </>
+          )}
         </button>
       </div>
 
@@ -1032,6 +1098,14 @@ export default function HistoryPage() {
         onClose={() => setShowEndDatePicker(false)}
         value={customEndDate}
         onChange={setCustomEndDate}
+      />
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        trigger="history_filters"
+        onSelectPlan={handleSelectPlan}
       />
     </div>
   );

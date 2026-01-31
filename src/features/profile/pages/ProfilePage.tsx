@@ -215,24 +215,33 @@ export default function ProfilePage() {
                   {user.name || "Usuario"}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 truncate">{user.email}</p>
-                <div className="flex flex-wrap gap-2">
-                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${syncBadge.color} text-xs font-bold uppercase tracking-wider`}>
-                    {syncBadge.icon && <RefreshCw size={12} className="animate-spin" />}
-                    {!syncBadge.icon && <RefreshCw size={12} />}
-                    {syncBadge.text}
-                  </span>
-                  {proBadge && (
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${proBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
-                      <Crown size={12} />
-                      {proBadge.text}
-                    </span>
+                {/* Badges - Two rows */}
+                <div className="flex flex-col gap-2">
+                  {/* First row: PRO + TRIAL */}
+                  {(proBadge || trialBadge) && (
+                    <div className="flex flex-wrap gap-2">
+                      {proBadge && (
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${proBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
+                          <Crown size={12} />
+                          {proBadge.text}
+                        </span>
+                      )}
+                      {trialBadge && (
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${trialBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
+                          <Sparkles size={12} />
+                          {trialBadge.text}
+                        </span>
+                      )}
+                    </div>
                   )}
-                  {trialBadge && (
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${trialBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
-                      <Sparkles size={12} />
-                      {trialBadge.text}
+                  {/* Second row: SYNC status (always visible) */}
+                  <div className="flex">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${syncBadge.color} text-xs font-bold uppercase tracking-wider`}>
+                      {syncBadge.icon && <RefreshCw size={12} className="animate-spin" />}
+                      {!syncBadge.icon && <RefreshCw size={12} />}
+                      {syncBadge.text}
                     </span>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>

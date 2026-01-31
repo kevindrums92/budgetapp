@@ -4,6 +4,7 @@ export type ProFeature =
   | 'unlimited_categories'
   | 'unlimited_budgets'
   | 'unlimited_scheduled'
+  | 'unlimited_backups'
   | 'stats_page'
   | 'export_data'
   | 'history_filters';
@@ -16,6 +17,7 @@ export type PaywallTrigger =
   | 'stats_page'
   | 'history_filters'
   | 'export'
+  | 'backup_features'
   | 'settings'
   | 'upgrade_prompt'; // Para CTAs generales de upgrade
 
@@ -76,4 +78,5 @@ export const BOOLEAN_PRO_FEATURES: ProFeature[] = [
   'stats_page',
   'export_data',
   'history_filters',
+  'unlimited_backups',
 ];
