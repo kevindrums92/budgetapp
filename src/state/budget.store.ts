@@ -181,7 +181,8 @@ type BudgetStore = BudgetState & {
   updateLastAuthTimestamp: () => void;
   getBiometricSettings: () => SecuritySettings;
 
-  // Subscription
+  // Subscription (in-memory only, NOT part of BudgetState persistence)
+  subscription: SubscriptionState | null;
   setSubscription: (sub: SubscriptionState | null) => void;
   startTrial: () => void;
   clearSubscription: () => void;
@@ -202,7 +203,6 @@ const defaultState: BudgetState = {
   trips: [],
   tripExpenses: [],
   security: { biometricEnabled: false },
-  subscription: null,
 };
 
 function uniqSorted(arr: string[]) {
@@ -221,6 +221,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     // ---------- STATE ----------
     ...hydrated,
     budgets: migratedBudgets,
+    subscription: null, // In-memory only, loaded by RevenueCatProvider via subscription.service.ts
 
     cloudMode: "guest",
     cloudStatus: "idle",
@@ -1029,7 +1030,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         lastSchedulerRun: s.lastSchedulerRun,
         excludedFromStats: s.excludedFromStats,
         security: s.security,
-        subscription: s.subscription ?? null,
+        // NOTE: subscription is NOT included in snapshot (managed by RevenueCat + Supabase)
       };
     },
 
@@ -1113,8 +1114,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       // Migrate budgets from cloud data
       const migratedBudgets = migrateBudgets(data.budgets ?? []);
 
-      // guarda como cache local (cloud cache)
-      const normalizedData = { ...data, schemaVersion: 8 as const, budgets: migratedBudgets, subscription: data.subscription ?? null };
+      // guarda como cache local (cloud cache) - subscription is NOT included (managed separately)
+      const normalizedData = { ...data, schemaVersion: 8 as const, budgets: migratedBudgets };
       saveState(normalizedData);
 
       // Sync onboarding flags to localStorage
@@ -1153,23 +1154,16 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         lastSchedulerRun: data.lastSchedulerRun,
         excludedFromStats: data.excludedFromStats ?? [],
         security: data.security ?? { biometricEnabled: false },
-        subscription: data.subscription ?? null,
+        // NOTE: subscription is NOT set here (managed by RevenueCat + subscription.service.ts)
       });
     },
 
     // ===== SUBSCRIPTION =====
     setSubscription: (sub) => {
-      set((state) => {
-        const next: BudgetState = {
-          ...state,
-          schemaVersion: 8,
-          subscription: sub,
-        };
-        console.log('[Store] setSubscription called, saving to localStorage:', sub);
-        saveState(next);
-        console.log('[Store] Saved successfully');
-        return next;
-      });
+      console.log('[Store] setSubscription called (in-memory only):', sub);
+      // NOTE: subscription is in-memory only, NOT persisted to localStorage/cloud
+      // It's managed by RevenueCat SDK + subscription.service.ts fallback strategy
+      set({ subscription: sub });
     },
 
     startTrial: () => {

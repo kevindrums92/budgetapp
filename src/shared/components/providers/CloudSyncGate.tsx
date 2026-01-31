@@ -85,7 +85,7 @@ export default function CloudSyncGate() {
   const budgetOnboardingSeen = useBudgetStore((s) => s.budgetOnboardingSeen);
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
   const security = useBudgetStore((s) => s.security);
-  const subscription = useBudgetStore((s) => s.subscription);
+  // NOTE: subscription is no longer synced to cloud (managed by RevenueCat webhooks)
 
   const initializedRef = useRef(false);
   const debounceRef = useRef<number | null>(null);
@@ -431,11 +431,23 @@ export default function CloudSyncGate() {
           }
         }
 
+        // Subscription is NO LONGER merged here (v2.0)
+        // It's managed separately by RevenueCat SDK + subscription.service.ts
         console.log("[CloudSyncGate] Applying cloud data to local state:", {
           transactions: cloud.transactions.length,
           categories: cloud.categoryDefinitions.length,
         });
         replaceAllData(cloud);
+
+        // Fetch subscription separately from RevenueCat/Supabase
+        try {
+          const { getSubscription } = await import('@/services/subscription.service');
+          const subscription = await getSubscription(session.user.id);
+          useBudgetStore.getState().setSubscription(subscription);
+          console.log("[CloudSyncGate] Subscription loaded:", subscription?.status ?? 'free');
+        } catch (subError) {
+          console.error("[CloudSyncGate] Failed to load subscription:", subError);
+        }
 
         // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
         updateLastAuthTimestamp();
@@ -606,7 +618,7 @@ export default function CloudSyncGate() {
     checkNetworkAndPush();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, security, subscription]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, security]);
 
   const mode = useBudgetStore.getState().cloudMode;
 

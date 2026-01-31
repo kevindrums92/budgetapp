@@ -3,9 +3,10 @@
  * Hook compartido para manejar la compra/activación de trial desde el PaywallModal
  *
  * Encapsula toda la lógica de:
+ * - Asegurar que RevenueCat esté vinculado al usuario (Purchases.logIn)
  * - Obtener offerings de RevenueCat
  * - Ejecutar la compra (activar trial)
- * - Sincronizar con Zustand store
+ * - Sincronizar con subscription.service.ts
  * - Cerrar el modal automáticamente
  * - Manejo de errores
  */
@@ -28,8 +29,26 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
       setIsPurchasing(true);
 
       try {
-        // Import RevenueCat service
         const { purchasePackage, getOfferings } = await import('@/services/revenuecat.service');
+        const { isNative } = await import('@/shared/utils/platform');
+
+        // Link RevenueCat to authenticated user BEFORE purchase
+        if (isNative()) {
+          try {
+            const { supabase } = await import('@/lib/supabaseClient');
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+              const { Purchases } = await import('@revenuecat/purchases-capacitor');
+              await Purchases.logIn({ appUserID: user.id });
+              console.log('[usePaywallPurchase] Linked to user:', user.id);
+            } else {
+              console.warn('[usePaywallPurchase] No authenticated user, purchase may not be associated');
+            }
+          } catch (loginError) {
+            console.warn('[usePaywallPurchase] Failed to link user (continuing anyway):', loginError);
+          }
+        }
 
         // Get offerings
         const offerings = await getOfferings();
@@ -53,10 +72,14 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
         const purchaseResult = await purchasePackage(packageToPurchase);
         console.log('[usePaywallPurchase] Trial activated:', purchaseResult);
 
-        // Sync subscription state with Zustand store
-        const syncWithRevenueCat = useBudgetStore.getState().syncWithRevenueCat;
-        await syncWithRevenueCat();
-        console.log('[usePaywallPurchase] Subscription synced with store');
+        // Fetch subscription using new service (RevenueCat → Supabase → localStorage)
+        const { getSubscription } = await import('@/services/subscription.service');
+        const { supabase } = await import('@/lib/supabaseClient');
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const subscription = await getSubscription(user?.id ?? null);
+        useBudgetStore.getState().setSubscription(subscription);
+        console.log('[usePaywallPurchase] Subscription synced:', subscription?.status);
 
         // Call success callback if provided
         options?.onSuccess?.();

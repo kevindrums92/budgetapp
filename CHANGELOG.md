@@ -10,6 +10,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(monetization): implement production RevenueCat subscription system with hybrid architecture (RevenueCat SDK → Supabase cache → localStorage fallback)
+- feat(backend): add Supabase Edge Function (`revenuecat-webhook`) to process RevenueCat webhook events (INITIAL_PURCHASE, RENEWAL, CANCELLATION, EXPIRATION, etc.)
+- feat(db): create `user_subscriptions` and `revenuecat_events` tables with RLS policies for subscription state management and audit logging
+- feat(services): implement `subscription.service.ts` with 3-tier fallback strategy and automatic localStorage caching for offline support
+- feat(testing): add webhook testing script (`test-webhook.sh`) to simulate RevenueCat events (initial purchase, renewal, cancellation, etc.)
+- feat(ios): configure StoreKit Configuration File (Products.storekit) for local testing with sandbox annual subscription
+- refactor(state): remove subscription from BudgetState persistence (now managed separately via webhooks and subscription service)
+- refactor(sync): update CloudSyncGate to fetch subscription separately after cloud data sync using subscription.service
+- feat(providers): add `Purchases.logIn()` integration in RevenueCatProvider, usePaywallPurchase, and PaywallModal for proper user linking
+- docs: add comprehensive subscription architecture documentation with diagrams, deployment guide, and testing instructions
 - feat(monetization): implement Pro feature gating for CSV exports - block all CSV exports (transactions, categories, budgets, trips) for Free users with PaywallModal in ExportCSVPage, TripsPage, and HistoryPage
 - feat(monetization): implement Pro feature gating for automatic backups - block local and cloud automatic backups for Free users, only manual backups available (BackupMethodSelector with lock icons and PRO badges)
 - feat(monetization): implement Pro feature gating for history filters - block Estado, Categoría, and Monto filters for Free users with lock icons and PaywallModal

@@ -10,6 +10,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
+import { isNative } from '@/shared/utils/platform';
 import PaywallModal from '@/shared/components/modals/PaywallModal';
 import { authenticateWithBiometrics, checkBiometricAvailability, getBiometryDisplayName } from "@/features/biometric/services/biometric.service";
 
@@ -64,6 +65,18 @@ export default function ProfilePage() {
   async function signOut() {
     setLoading(true);
     await supabase.auth.signOut();
+
+    // Log out from RevenueCat (native only)
+    if (isNative()) {
+      try {
+        const { Purchases } = await import('@revenuecat/purchases-capacitor');
+        await Purchases.logOut();
+        console.log('[ProfilePage] RevenueCat logged out');
+      } catch (error) {
+        console.warn('[ProfilePage] Failed to log out from RevenueCat:', error);
+        // Continue with logout even if RevenueCat logout fails (graceful degradation)
+      }
+    }
 
     // Marcar logout para que OnboardingGate redirija a login
     const { markLogout } = await import('@/features/onboarding/utils/onboarding.helpers');

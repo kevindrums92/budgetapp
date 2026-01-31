@@ -25,7 +25,7 @@ export type PaywallTrigger =
 
 export const PRICING_PLANS = {
   monthly: {
-    id: 'smartspend_monthly',
+    id: 'co.smartspend.monthly',
     price: 4.99,
     currency: 'USD',
     period: 'month' as const,
@@ -34,7 +34,7 @@ export const PRICING_PLANS = {
     badge: null,
   },
   annual: {
-    id: 'smartspend_annual',
+    id: 'co.smartspend.annual',
     price: 34.99,
     currency: 'USD',
     period: 'year' as const,
@@ -43,7 +43,7 @@ export const PRICING_PLANS = {
     badge: 'bestValue' as const,
   },
   lifetime: {
-    id: 'smartspend_lifetime',
+    id: 'co.smartspend.lifetime',
     price: 89.99,
     currency: 'USD',
     period: 'lifetime' as const,

@@ -21,6 +21,7 @@ export default function LoginProScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [oauthError, setOAuthError] = useState<{ message: string; isRetryable: boolean } | null>(null);
+  const [revenueCatError, setRevenueCatError] = useState<{ message: string; technicalDetails: string } | null>(null);
 
   const selectedPlan = state.selections.selectedPlan || 'monthly';
 
@@ -111,6 +112,27 @@ export default function LoginProScreen() {
     try {
       console.log('[LoginProScreen] OAuth success → Activating trial for plan:', selectedPlan);
 
+      // Get Supabase session to obtain user ID
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user;
+
+      if (!user) {
+        throw new Error('No user session found after OAuth');
+      }
+
+      // ⚠️ CRITICAL: Link RevenueCat to authenticated user BEFORE purchase
+      // This ensures subscription is tied to user.id for cross-device sync and restore
+      if (isNative()) {
+        try {
+          const { Purchases } = await import('@revenuecat/purchases-capacitor');
+          await Purchases.logIn({ appUserID: user.id });
+          console.log('[LoginProScreen] RevenueCat linked to user:', user.email);
+        } catch (error) {
+          console.warn('[LoginProScreen] Failed to link RevenueCat to user:', error);
+          // Continue with purchase even if logIn fails (graceful degradation)
+        }
+      }
+
       // Activar trial con RevenueCat
       const { purchasePackage, getOfferings } = await import('@/services/revenuecat.service');
 
@@ -119,13 +141,30 @@ export default function LoginProScreen() {
         throw new Error('No offerings available');
       }
 
+      console.log('[LoginProScreen] Available packages:', offerings.availablePackages.map(pkg => ({
+        identifier: pkg.identifier,
+        packageType: pkg.packageType,
+        productId: pkg.product.identifier
+      })));
+
       // Encontrar el paquete seleccionado
+      // Match by identifier OR packageType (RevenueCat might use different identifiers)
       const packageToPurchase = offerings.availablePackages.find(
-        (pkg) => pkg.identifier === selectedPlan
+        (pkg) => pkg.identifier === selectedPlan || pkg.packageType === selectedPlan
       );
 
+      console.log('[LoginProScreen] Selected plan:', selectedPlan);
+      console.log('[LoginProScreen] Package found:', packageToPurchase ? 'YES' : 'NO');
+      if (packageToPurchase) {
+        console.log('[LoginProScreen] Matched package:', {
+          identifier: packageToPurchase.identifier,
+          packageType: packageToPurchase.packageType,
+          productId: packageToPurchase.product.identifier
+        });
+      }
+
       if (!packageToPurchase) {
-        throw new Error(`Package ${selectedPlan} not found`);
+        throw new Error(`Package ${selectedPlan} not found. Available: ${offerings.availablePackages.map(p => p.identifier).join(', ')}`);
       }
 
       // Ejecutar compra (activa trial de 7 días)
@@ -177,18 +216,30 @@ export default function LoginProScreen() {
       // New user → First Config
       console.log('[LoginProScreen] New user → First Config');
       navigate('/onboarding/config/1', { replace: true });
-    } catch (err) {
-      console.error('[LoginProScreen] Error activating trial:', err);
+    } catch (err: any) {
+      console.error('[LoginProScreen] Error activating trial - FULL ERROR:', JSON.stringify(err, null, 2));
+      console.error('[LoginProScreen] Error message:', err?.message);
+      console.error('[LoginProScreen] Error stack:', err?.stack);
+      console.error('[LoginProScreen] Error type:', typeof err);
+      console.error('[LoginProScreen] Error constructor:', err?.constructor?.name);
 
-      // Fallback to normal flow if trial activation fails
-      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
-      if (onboardingCompleted) {
-        console.log('[LoginProScreen] Trial activation failed → App (fallback)');
-        navigate('/', { replace: true });
-      } else {
-        console.log('[LoginProScreen] Trial activation failed → First Config (fallback)');
-        navigate('/onboarding/config/1', { replace: true });
+      // Show user-friendly error modal
+      const errorMessage = err?.message || err?.errorMessage || String(err) || 'Unknown error';
+      let userMessage = 'No pudimos activar tu prueba gratuita de 7 días.';
+
+      // Customize message based on error type
+      if (errorMessage.includes('No offerings available') || errorMessage.includes('configuration')) {
+        userMessage = 'Hubo un problema al conectar con el sistema de suscripciones. Por favor intenta de nuevo.';
+      } else if (errorMessage.includes('Network') || errorMessage.includes('network')) {
+        userMessage = 'No pudimos conectar con el servidor. Verifica tu conexión a internet e intenta de nuevo.';
+      } else if (errorMessage.includes('not found')) {
+        userMessage = 'No pudimos encontrar el plan seleccionado. Por favor intenta de nuevo.';
       }
+
+      setRevenueCatError({
+        message: userMessage,
+        technicalDetails: errorMessage,
+      });
     }
   };
 
@@ -414,6 +465,66 @@ export default function LoginProScreen() {
                 </button>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* RevenueCat Error Modal */}
+      {revenueCatError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50" />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              Error al activar suscripción
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {revenueCatError.message}
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setRevenueCatError(null);
+                  // Fallback to free flow
+                  const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
+                  if (onboardingCompleted) {
+                    navigate('/', { replace: true });
+                  } else {
+                    navigate('/onboarding/config/1', { replace: true });
+                  }
+                }}
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                Continuar sin Pro
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  setRevenueCatError(null);
+                  // Retry OAuth callback (which includes RevenueCat activation)
+                  await handleOAuthCallback();
+                }}
+                className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+              >
+                Reintentar
+              </button>
+            </div>
+
+            {/* Technical details (collapsed) */}
+            <details className="mt-3">
+              <summary className="cursor-pointer text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+                Detalles técnicos
+              </summary>
+              <p className="mt-2 rounded bg-gray-100 dark:bg-gray-800 p-2 text-xs font-mono text-gray-600 dark:text-gray-400 break-all">
+                {revenueCatError.technicalDetails}
+              </p>
+            </details>
           </div>
         </div>
       )}

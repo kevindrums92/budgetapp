@@ -3,12 +3,21 @@
  *
  * Service layer for handling in-app purchases and subscriptions.
  *
- * MOCK MODE: Currently using mock data for local development.
- * To enable real purchases, install @revenuecat/purchases-capacitor
- * and uncomment the real implementation sections.
+ * MODE: Automatically detects platform:
+ * - Web: Uses mock data for development
+ * - iOS/Android: Uses real RevenueCat SDK
  */
 
+import { Capacitor } from '@capacitor/core';
 import { PRICING_PLANS, TRIAL_PERIOD_DAYS } from '@/constants/pricing';
+import { getRevenueCatApiKey } from '@/config/env';
+
+// Conditional import for RevenueCat SDK (only on native platforms)
+let Purchases: any = null;
+
+// Platform detection
+const isWeb = (): boolean => Capacitor.getPlatform() === 'web';
+const FORCE_MOCK = import.meta.env.VITE_FORCE_MOCK_REVENUECAT === 'true';
 
 // ==================== TYPES ====================
 
@@ -66,6 +75,142 @@ export interface PurchaseResult {
   customerInfo: RevenueCatCustomerInfo;
   productIdentifier: string;
   transactionDate: string;
+}
+
+// ==================== ERROR HANDLING ====================
+
+/**
+ * Handle RevenueCat SDK errors with user-friendly messages
+ */
+function handleRevenueCatError(error: any): Error {
+  const message = error?.message || String(error);
+
+  // Purchase cancelled by user - silent fail
+  if (message.includes('PURCHASE_CANCELLED') || message.includes('User cancelled')) {
+    return new Error('Purchase cancelled');
+  }
+
+  // Network errors
+  if (message.includes('NETWORK_ERROR') || message.includes('network')) {
+    return new Error('Network error. Check your connection and try again.');
+  }
+
+  // Purchase not allowed
+  if (message.includes('PURCHASE_NOT_ALLOWED') || message.includes('not allowed')) {
+    return new Error('Purchases not allowed. Check your device settings.');
+  }
+
+  // Store issues
+  if (message.includes('STORE_PROBLEM') || message.includes('store')) {
+    return new Error('Store issue. Please try again later.');
+  }
+
+  // Receipt already in use - trigger restore
+  if (message.includes('RECEIPT_ALREADY_IN_USE')) {
+    return new Error('This purchase is already linked to another account. Try restoring purchases.');
+  }
+
+  // Product not available
+  if (message.includes('PRODUCT_NOT_AVAILABLE')) {
+    return new Error('Product not available for purchase. Please refresh and try again.');
+  }
+
+  // Generic error
+  console.error('[RevenueCat] Unhandled error:', error);
+  return new Error('An error occurred. Please try again.');
+}
+
+// ==================== SDK TYPE MAPPING ====================
+
+/**
+ * Map RevenueCat SDK CustomerInfo to our custom type
+ * Handles differences between SDK types and our internal types
+ */
+function mapCustomerInfoToCustomType(sdkCustomerInfo: any): RevenueCatCustomerInfo {
+  const entitlements: { [key: string]: RevenueCatEntitlement } = {};
+
+  // Map entitlements
+  if (sdkCustomerInfo.entitlements?.active) {
+    Object.entries(sdkCustomerInfo.entitlements.active).forEach(([key, value]: [string, any]) => {
+      entitlements[key] = {
+        identifier: value.identifier || key,
+        isActive: value.isActive ?? true,
+        willRenew: value.willRenew ?? false,
+        periodType: value.periodType || 'normal',
+        latestPurchaseDate: value.latestPurchaseDate || new Date().toISOString(),
+        expirationDate: value.expirationDate || null,
+        unsubscribeDetectedAt: value.unsubscribeDetectedAt || null,
+        billingIssueDetectedAt: value.billingIssueDetectedAt || null,
+        productIdentifier: value.productIdentifier || '',
+      };
+    });
+  }
+
+  return {
+    activeSubscriptions: sdkCustomerInfo.activeSubscriptions || [],
+    allPurchasedProductIdentifiers: sdkCustomerInfo.allPurchasedProductIdentifiers || [],
+    latestExpirationDate: sdkCustomerInfo.latestExpirationDate || null,
+    entitlements,
+    originalAppUserId: sdkCustomerInfo.originalAppUserId || 'unknown',
+  };
+}
+
+/**
+ * Map RevenueCat SDK Offerings to our custom type
+ */
+function mapOfferingsToCustomType(sdkOfferings: any): RevenueCatOffering | null {
+  // Try to get current offering, fallback to default offering from 'all'
+  const current = sdkOfferings?.current || sdkOfferings?.all?.default;
+
+  if (!current) {
+    console.warn('[RevenueCat] No current or default offering found in SDK response');
+    return null;
+  }
+
+  const packages: RevenueCatPackage[] = [];
+
+  if (current.availablePackages) {
+    current.availablePackages.forEach((pkg: any) => {
+      const product = pkg.product || {};
+
+      packages.push({
+        identifier: pkg.identifier || '',
+        packageType: mapPackageType(pkg.packageType),
+        offeringIdentifier: pkg.offeringIdentifier || current.identifier,
+        product: {
+          identifier: product.identifier || '',
+          description: product.description || '',
+          title: product.title || '',
+          price: product.price || 0,
+          priceString: product.priceString || '$0',
+          currencyCode: product.currencyCode || 'USD',
+          introPrice: product.introPrice ? {
+            price: product.introPrice.price || 0,
+            priceString: product.introPrice.priceString || '',
+            period: product.introPrice.period || '',
+            cycles: product.introPrice.cycles || 0,
+          } : undefined,
+        },
+      });
+    });
+  }
+
+  return {
+    identifier: current.identifier || 'default',
+    serverDescription: current.serverDescription || '',
+    availablePackages: packages,
+  };
+}
+
+/**
+ * Map SDK package type to our type
+ */
+function mapPackageType(sdkType: string): 'monthly' | 'annual' | 'lifetime' | 'custom' {
+  const type = String(sdkType).toLowerCase();
+  if (type.includes('month')) return 'monthly';
+  if (type.includes('annual') || type.includes('year')) return 'annual';
+  if (type.includes('lifetime')) return 'lifetime';
+  return 'custom';
 }
 
 // ==================== MOCK DATA ====================
@@ -173,25 +318,51 @@ let isConfigured = false;
 
 /**
  * Configure RevenueCat SDK
- * In production, this initializes the SDK with API keys
+ * Automatically uses real SDK on native platforms, mock on web
  *
- * @param _userId - Optional user ID for anonymous users (prefixed with _ to indicate unused in mock)
+ * @param userId - Optional user ID for anonymous users
  */
-export async function configureRevenueCat(_userId?: string): Promise<void> {
-  console.log('[RevenueCat] Configuring SDK (MOCK MODE)');
+export async function configureRevenueCat(userId?: string): Promise<void> {
+  // Use mock on web or if force flag is set
+  if (isWeb() || FORCE_MOCK) {
+    console.log('[RevenueCat] Configuring SDK (MOCK MODE)');
+    await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
+    isConfigured = true;
+    console.log('[RevenueCat] Mock SDK configured successfully');
+    return;
+  }
 
-  // TODO: Uncomment when ready for production
-  // import Purchases from '@revenuecat/purchases-capacitor';
-  // await Purchases.configure({
-  //   apiKey: Platform.OS === 'ios' ? IOS_API_KEY : ANDROID_API_KEY,
-  //   appUserID: _userId,
-  // });
+  // Real SDK implementation for native platforms
+  try {
+    console.log('[RevenueCat] Configuring SDK (REAL MODE)');
 
-  // Mock implementation
-  await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate API call
-  isConfigured = true;
+    // Dynamic import of RevenueCat SDK (only loads on native)
+    if (!Purchases) {
+      const rcModule = await import('@revenuecat/purchases-capacitor');
+      Purchases = rcModule.Purchases;
+    }
 
-  console.log('[RevenueCat] SDK configured successfully');
+    const apiKey = getRevenueCatApiKey();
+
+    if (!apiKey) {
+      console.warn('[RevenueCat] No API key found. Falling back to mock mode.');
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      isConfigured = true;
+      return;
+    }
+
+    // Configure SDK with API key
+    await Purchases.configure({
+      apiKey,
+      appUserID: userId,
+    });
+
+    isConfigured = true;
+    console.log('[RevenueCat] Real SDK configured successfully');
+  } catch (error) {
+    console.error('[RevenueCat] Failed to configure SDK:', error);
+    throw handleRevenueCatError(error);
+  }
 }
 
 /**
@@ -204,16 +375,24 @@ export async function getOfferings(): Promise<RevenueCatOffering | null> {
     return null;
   }
 
-  console.log('[RevenueCat] Fetching offerings (MOCK MODE)');
+  // Use mock on web or if force flag is set
+  if (isWeb() || FORCE_MOCK) {
+    console.log('[RevenueCat] Fetching offerings (MOCK MODE)');
+    await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate API call
+    return MOCK_OFFERINGS;
+  }
 
-  // TODO: Uncomment when ready for production
-  // import Purchases from '@revenuecat/purchases-capacitor';
-  // const { offerings } = await Purchases.getOfferings();
-  // return offerings.current || null;
-
-  // Mock implementation
-  await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate API call
-  return MOCK_OFFERINGS;
+  // Real SDK implementation for native platforms
+  try {
+    console.log('[RevenueCat] Fetching offerings (REAL MODE)');
+    const result = await Purchases.getOfferings();
+    const mapped = mapOfferingsToCustomType(result);
+    console.log('[RevenueCat] Offerings fetched successfully');
+    return mapped;
+  } catch (error) {
+    console.error('[RevenueCat] Failed to fetch offerings:', error);
+    throw handleRevenueCatError(error);
+  }
 }
 
 /**
@@ -226,16 +405,24 @@ export async function getCustomerInfo(): Promise<RevenueCatCustomerInfo> {
     return MOCK_FREE_USER;
   }
 
-  console.log('[RevenueCat] Fetching customer info (MOCK MODE)');
+  // Use mock on web or if force flag is set
+  if (isWeb() || FORCE_MOCK) {
+    console.log('[RevenueCat] Fetching customer info (MOCK MODE)');
+    await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate API call
+    return mockCustomerInfo;
+  }
 
-  // TODO: Uncomment when ready for production
-  // import Purchases from '@revenuecat/purchases-capacitor';
-  // const { customerInfo } = await Purchases.getCustomerInfo();
-  // return customerInfo;
-
-  // Mock implementation
-  await new Promise((resolve) => setTimeout(resolve, 200)); // Simulate API call
-  return mockCustomerInfo;
+  // Real SDK implementation for native platforms
+  try {
+    console.log('[RevenueCat] Fetching customer info (REAL MODE)');
+    const result = await Purchases.getCustomerInfo();
+    const mapped = mapCustomerInfoToCustomType(result.customerInfo);
+    console.log('[RevenueCat] Customer info fetched successfully');
+    return mapped;
+  } catch (error) {
+    console.error('[RevenueCat] Failed to fetch customer info:', error);
+    throw handleRevenueCatError(error);
+  }
 }
 
 /**
@@ -253,51 +440,87 @@ export async function purchasePackage(
 
   console.log('[RevenueCat] Purchasing package:', packageToPurchase.identifier);
 
-  // TODO: Uncomment when ready for production
-  // import Purchases from '@revenuecat/purchases-capacitor';
-  // const { customerInfo, productIdentifier } = await Purchases.purchasePackage({
-  //   aPackage: packageToPurchase,
-  // });
+  // Use mock on web or if force flag is set
+  if (isWeb() || FORCE_MOCK) {
+    // Mock implementation - Simulate successful purchase with trial
+    await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate purchase flow
 
-  // Mock implementation - Simulate successful purchase with trial
-  await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate purchase flow
+    const now = new Date();
+    const trialEnd = new Date(now);
+    trialEnd.setDate(trialEnd.getDate() + TRIAL_PERIOD_DAYS);
 
-  const now = new Date();
-  const trialEnd = new Date(now);
-  trialEnd.setDate(trialEnd.getDate() + TRIAL_PERIOD_DAYS);
-
-  const mockPurchasedInfo: RevenueCatCustomerInfo = {
-    activeSubscriptions: [packageToPurchase.product.identifier],
-    allPurchasedProductIdentifiers: [packageToPurchase.product.identifier],
-    latestExpirationDate: packageToPurchase.packageType === 'lifetime' ? null : trialEnd.toISOString(),
-    entitlements: {
-      pro: {
-        identifier: 'pro',
-        isActive: true,
-        willRenew: packageToPurchase.packageType !== 'lifetime',
-        periodType: packageToPurchase.product.introPrice ? 'trial' : 'normal',
-        latestPurchaseDate: now.toISOString(),
-        expirationDate: packageToPurchase.packageType === 'lifetime' ? null : trialEnd.toISOString(),
-        unsubscribeDetectedAt: null,
-        billingIssueDetectedAt: null,
-        productIdentifier: packageToPurchase.product.identifier,
+    const mockPurchasedInfo: RevenueCatCustomerInfo = {
+      activeSubscriptions: [packageToPurchase.product.identifier],
+      allPurchasedProductIdentifiers: [packageToPurchase.product.identifier],
+      latestExpirationDate: packageToPurchase.packageType === 'lifetime' ? null : trialEnd.toISOString(),
+      entitlements: {
+        pro: {
+          identifier: 'pro',
+          isActive: true,
+          willRenew: packageToPurchase.packageType !== 'lifetime',
+          periodType: packageToPurchase.product.introPrice ? 'trial' : 'normal',
+          latestPurchaseDate: now.toISOString(),
+          expirationDate: packageToPurchase.packageType === 'lifetime' ? null : trialEnd.toISOString(),
+          unsubscribeDetectedAt: null,
+          billingIssueDetectedAt: null,
+          productIdentifier: packageToPurchase.product.identifier,
+        },
       },
-    },
-    originalAppUserId: 'mock_user_pro',
-  };
+      originalAppUserId: 'mock_user_pro',
+    };
 
-  // Update mock state and persist to localStorage
-  mockCustomerInfo = mockPurchasedInfo;
-  saveMockCustomerInfo(mockCustomerInfo);
+    // Update mock state and persist to localStorage
+    mockCustomerInfo = mockPurchasedInfo;
+    saveMockCustomerInfo(mockCustomerInfo);
 
-  console.log('[RevenueCat] Purchase successful!');
-  console.log('[RevenueCat] Trial ends at:', trialEnd.toISOString());
+    console.log('[RevenueCat] Purchase successful (MOCK)!');
+    console.log('[RevenueCat] Trial ends at:', trialEnd.toISOString());
 
-  return {
-    customerInfo: mockPurchasedInfo,
-    productIdentifier: packageToPurchase.product.identifier,
-    transactionDate: now.toISOString(),
-  };
+    return {
+      customerInfo: mockPurchasedInfo,
+      productIdentifier: packageToPurchase.product.identifier,
+      transactionDate: now.toISOString(),
+    };
+  }
+
+  // Real SDK implementation for native platforms
+  try {
+    console.log('[RevenueCat] Initiating real purchase flow...');
+
+    // Note: packageToPurchase is our custom type, need to pass the original SDK package
+    // For now, we'll use the package identifier to look it up from offerings
+    const offerings = await Purchases.getOfferings();
+    const currentOffering = offerings.current || offerings.all?.default;
+
+    if (!currentOffering) {
+      throw new Error('No offerings available');
+    }
+
+    // Find the package in the offering by identifier
+    const sdkPackage = currentOffering.availablePackages?.find(
+      (pkg: any) => pkg.identifier === packageToPurchase.identifier
+    );
+
+    if (!sdkPackage) {
+      throw new Error(`Package not found: ${packageToPurchase.identifier}`);
+    }
+
+    // Purchase the package
+    const result = await Purchases.purchasePackage({ aPackage: sdkPackage });
+
+    const mapped = mapCustomerInfoToCustomType(result.customerInfo);
+
+    console.log('[RevenueCat] Purchase successful (REAL)!');
+
+    return {
+      customerInfo: mapped,
+      productIdentifier: result.productIdentifier || packageToPurchase.product.identifier,
+      transactionDate: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('[RevenueCat] Purchase failed:', error);
+    throw handleRevenueCatError(error);
+  }
 }
 
 /**
@@ -309,19 +532,25 @@ export async function restorePurchases(): Promise<RevenueCatCustomerInfo> {
     throw new Error('RevenueCat SDK not configured');
   }
 
-  console.log('[RevenueCat] Restoring purchases (MOCK MODE)');
+  // Use mock on web or if force flag is set
+  if (isWeb() || FORCE_MOCK) {
+    console.log('[RevenueCat] Restoring purchases (MOCK MODE)');
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log('[RevenueCat] Purchases restored (MOCK)');
+    return mockCustomerInfo;
+  }
 
-  // TODO: Uncomment when ready for production
-  // import Purchases from '@revenuecat/purchases-capacitor';
-  // const { customerInfo } = await Purchases.restorePurchases();
-  // return customerInfo;
-
-  // Mock implementation - Simulate restore
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // In mock mode, just return current state
-  console.log('[RevenueCat] Purchases restored');
-  return mockCustomerInfo;
+  // Real SDK implementation for native platforms
+  try {
+    console.log('[RevenueCat] Restoring purchases (REAL MODE)');
+    const result = await Purchases.restorePurchases();
+    const mapped = mapCustomerInfoToCustomType(result.customerInfo);
+    console.log('[RevenueCat] Purchases restored successfully');
+    return mapped;
+  } catch (error) {
+    console.error('[RevenueCat] Failed to restore purchases:', error);
+    throw handleRevenueCatError(error);
+  }
 }
 
 /**

@@ -143,9 +143,28 @@ if (fs.existsSync(firebaseSourcePath)) {
   console.warn(`⚠️  Warning: Firebase config not found at ${firebaseSourcePath}`);
 }
 
+// 6. Swap app icon (dev icon has "DEV" banner)
+const iconDir = path.join(__dirname, '../ios/App/App/Assets.xcassets/AppIcon.appiconset');
+const iconDev = path.join(iconDir, 'AppIcon-1024-dev.png');
+if (fs.existsSync(iconDev)) {
+  // Update Contents.json to point to the correct icon
+  const contentsPath = path.join(iconDir, 'Contents.json');
+  const contents = JSON.parse(fs.readFileSync(contentsPath, 'utf8'));
+  const iconFilename = env === 'development' ? 'AppIcon-1024-dev.png' : 'AppIcon-1024.png';
+  contents.images[0].filename = iconFilename;
+  fs.writeFileSync(contentsPath, JSON.stringify(contents, null, 2) + '\n');
+
+  console.log(`✅ Swapped app icon`);
+  console.log(`   - Using: ${iconFilename}`);
+} else {
+  console.warn(`⚠️  Warning: Dev icon not found at ${iconDev}`);
+  console.warn(`   Run the icon generator script to create it.`);
+}
+
 console.log(`\n✨ Configuration complete for ${env.toUpperCase()}\n`);
 console.log(`📱 App will be installed as: "${config.displayName}"`);
 console.log(`🆔 Bundle ID: ${config.appId}`);
 console.log(`🔗 URL Scheme: ${config.urlScheme}://`);
 console.log(`🔔 APNs Environment: ${config.apnsEnvironment}`);
-console.log(`🔥 Firebase: GoogleService-Info.plist.${firebaseSuffix}\n`);
+console.log(`🔥 Firebase: GoogleService-Info.plist.${firebaseSuffix}`);
+console.log(`🎨 Icon: ${env === 'development' ? 'AppIcon-1024-dev.png (with DEV banner)' : 'AppIcon-1024.png (production)'}\n`);

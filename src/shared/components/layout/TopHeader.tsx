@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
-import { User, Bell, Crown } from "lucide-react";
+import { User, Bell } from "lucide-react";
 
 type Props = {
   showMonthSelector?: boolean;
@@ -110,15 +110,11 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
               {/* Avatar with Pro styling or default */}
               {isPro ? (
                 <div className="relative shrink-0">
-                  {/* Pro gradient border wrapper */}
-                  <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-amber-500 to-yellow-600 shadow-md">
+                  {/* Pro gradient border wrapper - Neon tech teal/purple */}
+                  <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-[#18B7B0] via-purple-500 to-[#18B7B0] shadow-md shadow-[#18B7B0]/20">
                     {AvatarContent}
-                    {/* Pro Crown Badge (top-right) */}
-                    <div className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center shadow-sm border-2 border-white dark:border-gray-900">
-                      <Crown size={10} className="text-white" strokeWidth={2.5} />
-                    </div>
-                    {/* Sync indicator dot (bottom-left) */}
-                    <span className={`absolute -bottom-0.5 -left-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
+                    {/* Sync indicator dot (bottom-right) */}
+                    <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
                   </div>
                 </div>
               ) : (

@@ -65,10 +65,31 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
     setIsPurchasing(true);
     try {
       const { restorePurchases } = await import('@/services/revenuecat.service');
+      const { isNative } = await import('@/shared/utils/platform');
       const { useBudgetStore } = await import('@/state/budget.store');
 
+      // Link RevenueCat to user before restoring
+      if (isNative()) {
+        try {
+          const { supabase } = await import('@/lib/supabaseClient');
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { Purchases } = await import('@revenuecat/purchases-capacitor');
+            await Purchases.logIn({ appUserID: user.id });
+          }
+        } catch (loginError) {
+          console.warn('[PaywallModal] Failed to link user for restore:', loginError);
+        }
+      }
+
       await restorePurchases();
-      await useBudgetStore.getState().syncWithRevenueCat();
+
+      // Fetch subscription using new service
+      const { getSubscription } = await import('@/services/subscription.service');
+      const { supabase } = await import('@/lib/supabaseClient');
+      const { data: { user } } = await supabase.auth.getUser();
+      const subscription = await getSubscription(user?.id ?? null);
+      useBudgetStore.getState().setSubscription(subscription);
 
       // If restore was successful and user is now Pro, close modal
       onClose();

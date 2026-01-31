@@ -168,6 +168,7 @@ export type BudgetState = {
   excludedFromStats?: string[]; // Category IDs excluded from all stats calculations
   // Security
   security?: SecuritySettings;       // Biometric authentication settings
-  // Subscription
-  subscription?: SubscriptionState | null; // null = free user
+  // NOTE: Subscription is NO LONGER part of BudgetState (as of v2.0)
+  // Subscription is now stored separately in user_subscriptions table
+  // and managed by RevenueCat webhooks. See subscription.service.ts
 };

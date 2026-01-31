@@ -66,7 +66,6 @@ export function loadState(): BudgetState | null {
           budgets: [],
           trips: [],
           tripExpenses: [],
-          subscription: null,
         };
         saveState(initialState);
         return initialState;
@@ -217,12 +216,12 @@ export function loadState(): BudgetState | null {
       console.log('[Storage] Migrated v6→v7: Added security settings for biometric authentication');
     }
 
-    // Migrate v7 to v8: Add subscription field for monetization
+    // Migrate v7 to v8: Subscription moved out of BudgetState (managed by RevenueCat + Supabase)
     if (parsed.schemaVersion === 7) {
-      parsed.subscription = null;
+      delete parsed.subscription; // Clean up legacy field
       parsed.schemaVersion = 8;
       needsSave = true;
-      console.log('[Storage] Migrated v7→v8: Added subscription field for monetization');
+      console.log('[Storage] Migrated v7→v8: Removed subscription from state (now in separate table)');
     }
 
     // Always repair: Ensure all transactions have sourceTemplateId if they match a template
@@ -318,8 +317,6 @@ export function loadState(): BudgetState | null {
 
     console.log('[Storage] loadState returning:', {
       schemaVersion: result.schemaVersion,
-      subscription: result.subscription,
-      hasSubscription: result.subscription !== null && result.subscription !== undefined
     });
 
     // Persist the migration/fix to localStorage

@@ -1,8 +1,14 @@
 /**
  * RevenueCatProvider
  *
- * Initializes RevenueCat SDK and syncs subscription status with Zustand store.
+ * Initializes RevenueCat SDK and syncs subscription status.
  * Should be mounted at the root level of the app.
+ *
+ * Key responsibilities:
+ * 1. Configure RevenueCat SDK
+ * 2. Link SDK to authenticated user via Purchases.logIn()
+ * 3. Fetch subscription using 3-tier fallback (RevenueCat → Supabase → localStorage)
+ * 4. Update Zustand store with current subscription state
  */
 
 import { useEffect, useState } from 'react';
@@ -10,7 +16,6 @@ import { useBudgetStore } from '@/state/budget.store';
 
 export default function RevenueCatProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
-  const syncWithRevenueCat = useBudgetStore((s) => s.syncWithRevenueCat);
 
   useEffect(() => {
     async function initializeRevenueCat() {
@@ -18,13 +23,38 @@ export default function RevenueCatProvider({ children }: { children: React.React
         console.log('[RevenueCat] Initializing SDK...');
 
         const { configureRevenueCat } = await import('@/services/revenuecat.service');
+        const { isNative } = await import('@/shared/utils/platform');
 
-        // Configure SDK (using anonymous ID for now)
-        // In production with auth, pass userId here
+        // Configure SDK (anonymous mode initially)
         await configureRevenueCat();
 
-        // Sync current subscription status
-        await syncWithRevenueCat();
+        // Link to authenticated user if session exists
+        if (isNative()) {
+          try {
+            const { supabase } = await import('@/lib/supabaseClient');
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+              const { Purchases } = await import('@revenuecat/purchases-capacitor');
+              await Purchases.logIn({ appUserID: user.id });
+              console.log('[RevenueCat] Linked to user:', user.id);
+            }
+          } catch (loginError) {
+            console.warn('[RevenueCat] Failed to link user (non-blocking):', loginError);
+          }
+        }
+
+        // Fetch subscription using new service (RevenueCat → Supabase → localStorage)
+        try {
+          const { getSubscription } = await import('@/services/subscription.service');
+          const { supabase } = await import('@/lib/supabaseClient');
+          const { data: { user } } = await supabase.auth.getUser();
+
+          const subscription = await getSubscription(user?.id ?? null);
+          useBudgetStore.getState().setSubscription(subscription);
+        } catch (subError) {
+          console.warn('[RevenueCat] Failed to fetch subscription (non-blocking):', subError);
+        }
 
         setIsInitialized(true);
         console.log('[RevenueCat] Initialization complete');
@@ -36,7 +66,7 @@ export default function RevenueCatProvider({ children }: { children: React.React
     }
 
     initializeRevenueCat();
-  }, [syncWithRevenueCat]);
+  }, []);
 
   // Don't render children until initialized (prevents race conditions)
   // But also don't block forever - render after 3 seconds max

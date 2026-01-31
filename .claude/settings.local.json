@@ -52,7 +52,12 @@
       "WebFetch(domain:capawesome.io)",
       "WebFetch(domain:www.npmjs.com)",
       "Bash(supabase migration repair:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "WebFetch(domain:docs.revenuecat.com)",
+      "WebFetch(domain:www.revenuecat.com)",
+      "Bash(npx tsc:*)"
     ]
   }
 }
