@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatDateGroupHeaderI18n, todayISO } from "@/services/dates.service";
+import { formatDateGroupHeaderI18n, todayISO, currentMonthKey } from "@/services/dates.service";
 import { useLanguage } from "@/hooks/useLanguage";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
 import type { Transaction, Category } from "@/types/budget.types";
@@ -39,7 +39,7 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
     return categoryDefinitions.find((c) => c.id === id);
   };
 
-  const currentMonth = new Date().toISOString().slice(0, 7);
+  const currentMonth = currentMonthKey();
   const isCurrent = selectedMonth === currentMonth;
   const today = todayISO();
 

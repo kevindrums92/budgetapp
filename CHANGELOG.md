@@ -10,6 +10,7 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(dates): calculate current month using local timezone instead of UTC to prevent incorrect "different month" warning near midnight in non-UTC timezones
 - fix(onboarding): skip welcome screens on subsequent logins using permanent device tracking flag (DEVICE_INITIALIZED set when user first reaches login)
 - fix(auth): clear subscription from both in-memory store and localStorage on logout to prevent next user inheriting previous user's subscription
 - fix(subscription): detect trial period correctly with case-insensitive periodType comparison ('TRIAL' vs 'trial') to show trial badge immediately after purchase

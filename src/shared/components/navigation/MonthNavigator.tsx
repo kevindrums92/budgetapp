@@ -1,5 +1,5 @@
 import { useBudgetStore } from "@/state/budget.store";
-import { monthLabel } from "@/services/dates.service";
+import { monthLabel, currentMonthKey } from "@/services/dates.service";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -26,7 +26,7 @@ export default function MonthNavigator() {
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const setSelectedMonth = useBudgetStore((s) => s.setSelectedMonth);
 
-  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const currentMonth = currentMonthKey(); // YYYY-MM (local timezone)
   const isCurrent = selectedMonth === currentMonth;
 
   return (
