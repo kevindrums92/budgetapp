@@ -111,6 +111,38 @@ function isInQuietHours(preferences: any): boolean {
   return currentTime >= start && currentTime < end;
 }
 
+/**
+ * Calculate "today" in the user's timezone
+ * @param timezone - IANA timezone (e.g., "America/Bogota")
+ * @returns Date string in YYYY-MM-DD format
+ */
+function getTodayInTimezone(timezone?: string): string {
+  const now = new Date();
+
+  // If no timezone provided, fallback to UTC
+  if (!timezone) {
+    return now.toISOString().split('T')[0];
+  }
+
+  try {
+    // Convert to user's timezone using toLocaleString
+    // Format: "M/D/YYYY, HH:MM:SS AM/PM"
+    const dateStr = now.toLocaleString('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+
+    // Parse MM/DD/YYYY to YYYY-MM-DD
+    const [month, day, year] = dateStr.split('/');
+    return `${year}-${month}-${day}`;
+  } catch (e) {
+    console.error(`[send-daily-summary] Invalid timezone "${timezone}", falling back to UTC:`, e);
+    return now.toISOString().split('T')[0];
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
@@ -122,9 +154,8 @@ serve(async (req) => {
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const now = new Date();
     const currentTime = `${now.getUTCHours().toString().padStart(2, '0')}:${now.getUTCMinutes().toString().padStart(2, '0')}`;
-    const todayISO = now.toISOString().split('T')[0];
 
-    console.log(`[send-daily-summary] Current time: ${currentTime} UTC, Today: ${todayISO}`);
+    console.log(`[send-daily-summary] Current time: ${currentTime} UTC`);
 
     // Get all active tokens with daily_summary enabled at this time
     const { data: allTokens } = await supabase.from('push_tokens').select('*').eq('is_active', true);
@@ -146,6 +177,11 @@ serve(async (req) => {
         skipped++;
         continue;
       }
+
+      // Calculate "today" in user's timezone
+      const userTimezone = tk.device_info?.timezone;
+      const todayISO = getTodayInTimezone(userTimezone);
+      console.log(`[send-daily-summary]   User timezone: ${userTimezone || 'UTC (fallback)'}, Today: ${todayISO}`);
 
       const { data: us } = await supabase.from('user_state').select('state').eq('user_id', tk.user_id).single();
       const todayTx = us?.state?.transactions?.filter((tx: any) => tx.date === todayISO) || [];

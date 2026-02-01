@@ -12,6 +12,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(push-notifications): fix timezone mismatch between client and edge functions
+  - Client creates transaction dates using local device time (e.g., Colombia UTC-5)
+  - Edge functions were using UTC to calculate "today", causing mismatch
+  - Added timezone field to device_info (IANA timezone like "America/Bogota")
+  - Added getTodayInTimezone() helper to calculate "today" in user's timezone
+  - Updated send-daily-reminder to use user's timezone for transaction filtering
+  - Updated send-daily-summary to use user's timezone for transaction filtering
+  - Fixes bug where notifications were sent at wrong times or missed transactions
+  - Example: At 10 PM Colombia (22:00 COT = 03:00 UTC next day), edge functions now correctly find transactions for COT date
 - docs(push-notifications): add instructions for changing cron job schedules
   - Added new section "⏰ Cambiar Horarios de Cron Jobs" in PROD_CHECKLIST.md
   - Includes UTC to Colombia (UTC-5) conversion examples
