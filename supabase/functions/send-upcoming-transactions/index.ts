@@ -179,29 +179,45 @@ async function sendFCM(token: string, title: string, body: string, data?: Record
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
+    console.log(`[send-upcoming-transactions] Starting execution at ${new Date().toISOString()}`);
+
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const today = new Date().toISOString().split('T')[0];
     const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowISO = tomorrow.toISOString().split('T')[0];
 
+    console.log(`[send-upcoming-transactions] Today: ${today}, Tomorrow: ${tomorrowISO}`);
+
     // Get all active tokens with scheduled_transactions enabled
     const { data: allTokens } = await supabase.from('push_tokens').select('*').eq('is_active', true);
     const tokens = (allTokens || []).filter(t => t.preferences?.scheduled_transactions === true);
 
+    console.log(`[send-upcoming-transactions] Found ${tokens.length} tokens with scheduled_transactions enabled (out of ${allTokens?.length || 0} active tokens)`);
+
     let sent = 0;
     for (const tk of tokens) {
+      console.log(`[send-upcoming-transactions] Checking user ${tk.user_id} (${tk.platform})...`);
+
       const { data: us } = await supabase.from('user_state').select('state').eq('user_id', tk.user_id).single();
       const allTransactions = us?.state?.transactions || [];
 
-      // 1. Find existing transactions for tomorrow (pending/scheduled)
+      console.log(`[send-upcoming-transactions]   User has ${allTransactions.length} total transactions`);
+
+      // 1. Find existing transactions for tomorrow (pending/scheduled OR any non-template transaction)
+      // A transaction is "existing" if it has a date for tomorrow AND is not a recurring template
       const existingUpcoming = allTransactions.filter((tx: any) =>
-        tx.date === tomorrowISO && (tx.status === 'pending' || tx.status === 'scheduled')
+        tx.date === tomorrowISO &&
+        !tx.schedule?.enabled  // Exclude recurring templates (those are handled separately)
       );
+
+      console.log(`[send-upcoming-transactions]   Found ${existingUpcoming.length} existing transactions for tomorrow`);
 
       // 2. Find scheduled templates whose next occurrence is tomorrow
       const templates = allTransactions.filter((tx: any) =>
         tx.schedule?.enabled && (!tx.schedule.endDate || tx.schedule.endDate >= tomorrowISO)
       );
+
+      console.log(`[send-upcoming-transactions]   Found ${templates.length} active templates`);
 
       const virtualUpcoming: any[] = [];
       for (const template of templates) {
@@ -218,9 +234,16 @@ serve(async (req) => {
         }
       }
 
+      console.log(`[send-upcoming-transactions]   Found ${virtualUpcoming.length} virtual transactions for tomorrow`);
+
       // Combine both types of upcoming transactions
       const upcoming = [...existingUpcoming, ...virtualUpcoming];
-      if (upcoming.length === 0) continue;
+      if (upcoming.length === 0) {
+        console.log(`[send-upcoming-transactions]   No upcoming transactions for this user, skipping`);
+        continue;
+      }
+
+      console.log(`[send-upcoming-transactions]   Sending notification for ${upcoming.length} upcoming transaction(s)`);
 
       // Resolve language from device_info
       const lang = getLang(tk.device_info);
@@ -241,9 +264,24 @@ serve(async (req) => {
 
       const r = await sendFCM(tk.token, title, body, { type, action: 'open_scheduled' });
       await supabase.from('notification_history').insert({ user_id: tk.user_id, token_id: tk.id, notification_type: type, title, body, status: r.success ? 'sent' : 'failed', error_message: r.error });
-      if (r.success) sent++;
-      if (r.error === 'INVALID_TOKEN') await supabase.from('push_tokens').update({ is_active: false }).eq('token', tk.token);
+
+      if (r.success) {
+        sent++;
+        console.log(`[send-upcoming-transactions]   ✅ Notification sent successfully`);
+      } else {
+        console.log(`[send-upcoming-transactions]   ❌ Failed to send: ${r.error}`);
+      }
+
+      if (r.error === 'INVALID_TOKEN') {
+        await supabase.from('push_tokens').update({ is_active: false }).eq('token', tk.token);
+        console.log(`[send-upcoming-transactions]   Token marked as inactive due to INVALID_TOKEN error`);
+      }
     }
+
+    console.log(`[send-upcoming-transactions] Finished. Sent: ${sent}/${tokens.length}`);
     return new Response(JSON.stringify({ sent, checked: tokens.length }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-  } catch (e) { return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: corsHeaders }); }
+  } catch (e) {
+    console.error(`[send-upcoming-transactions] Error: ${String(e)}`);
+    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: corsHeaders });
+  }
 });

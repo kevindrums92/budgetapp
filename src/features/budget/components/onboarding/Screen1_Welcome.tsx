@@ -4,6 +4,7 @@
  */
 
 import { Target, DollarSign, TrendingDown, TrendingUp, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
 
@@ -27,6 +28,8 @@ export default function Screen1_Welcome({
   currentStep,
   totalSteps,
 }: Props) {
+  const { t } = useTranslation('budget');
+
   return (
     <div
       className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950"
@@ -42,7 +45,7 @@ export default function Screen1_Welcome({
             type="button"
             onClick={onBack}
             className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
-            aria-label="Volver"
+            aria-label={t('onboarding.skip', 'Volver')}
           >
             <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
           </button>
@@ -58,7 +61,7 @@ export default function Screen1_Welcome({
             onClick={onSkip}
             className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
           >
-            Omitir
+            {t('onboarding.skip', 'Omitir')}
           </button>
         ) : (
           <div className="h-10 w-10" />
@@ -70,13 +73,13 @@ export default function Screen1_Welcome({
         <div className="mb-8">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-              Organiza tu dinero con Planes
+              {t('onboarding.screen1.title', 'Organiza tu dinero con Planes')}
             </h1>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={50}>
             <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-              Crea límites de gasto y metas de ahorro para controlar tus finanzas de forma inteligente.
+              {t('onboarding.screen1.subtitle', 'Crea límites de gasto y metas de ahorro para controlar tus finanzas de forma inteligente.')}
             </p>
           </SlideAnimation>
         </div>
@@ -100,12 +103,12 @@ export default function Screen1_Welcome({
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900 dark:text-gray-50">
-                    Límites de Gasto
+                    {t('onboarding.screen1.limitsTitle', 'Límites de Gasto')}
                   </h3>
                 </div>
               </div>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 pl-12">
-                Define un tope de gasto para categorías específicas y mantén tus gastos bajo control.
+                {t('onboarding.screen1.limitsDescription', 'Define un tope de gasto para categorías específicas y mantén tus gastos bajo control.')}
               </p>
             </div>
           </SlideAnimation>
@@ -118,12 +121,12 @@ export default function Screen1_Welcome({
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900 dark:text-gray-50">
-                    Metas de Ahorro
+                    {t('onboarding.screen1.goalsTitle', 'Metas de Ahorro')}
                   </h3>
                 </div>
               </div>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 pl-12">
-                Establece objetivos de ahorro y visualiza tu progreso en tiempo real.
+                {t('onboarding.screen1.goalsDescription', 'Establece objetivos de ahorro y visualiza tu progreso en tiempo real.')}
               </p>
             </div>
           </SlideAnimation>
@@ -136,12 +139,12 @@ export default function Screen1_Welcome({
                 </div>
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900 dark:text-gray-50">
-                    Seguimiento Inteligente
+                    {t('onboarding.screen1.trackingTitle', 'Seguimiento Inteligente')}
                   </h3>
                 </div>
               </div>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 pl-12">
-                Alertas automáticas, sugerencias diarias y análisis de resultados completados.
+                {t('onboarding.screen1.trackingDescription', 'Alertas automáticas, sugerencias diarias y análisis de resultados completados.')}
               </p>
             </div>
           </SlideAnimation>
@@ -155,7 +158,7 @@ export default function Screen1_Welcome({
           onClick={onNext}
           className="w-full rounded-2xl bg-gray-900 dark:bg-emerald-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          Continuar
+          {t('onboarding.screen1.continue', 'Continuar')}
         </button>
       </div>
     </div>

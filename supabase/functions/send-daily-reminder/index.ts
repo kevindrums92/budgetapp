@@ -80,16 +80,51 @@ function isInQuietHours(preferences: any): boolean {
   return currentTime >= start && currentTime < end;
 }
 
+/**
+ * Calculate "today" in the user's timezone
+ * @param timezone - IANA timezone (e.g., "America/Bogota")
+ * @returns Date string in YYYY-MM-DD format
+ */
+function getTodayInTimezone(timezone?: string): string {
+  const now = new Date();
+
+  // If no timezone provided, fallback to UTC
+  if (!timezone) {
+    return now.toISOString().split('T')[0];
+  }
+
+  try {
+    // Convert to user's timezone using toLocaleString
+    // Format: "M/D/YYYY, HH:MM:SS AM/PM"
+    const dateStr = now.toLocaleString('en-US', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+
+    // Parse MM/DD/YYYY to YYYY-MM-DD
+    const [month, day, year] = dateStr.split('/');
+    return `${year}-${month}-${day}`;
+  } catch (e) {
+    console.error(`[send-daily-reminder] Invalid timezone "${timezone}", falling back to UTC:`, e);
+    return now.toISOString().split('T')[0];
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
   try {
+    console.log(`[send-daily-reminder] Starting execution at ${new Date().toISOString()}`);
+
     const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
     const now = new Date();
     const currentTime = `${now.getUTCHours().toString().padStart(2, '0')}:${now.getUTCMinutes().toString().padStart(2, '0')}`;
-    const todayISO = now.toISOString().split('T')[0];
+
+    console.log(`[send-daily-reminder] Current time: ${currentTime} UTC`);
 
     // Get all active tokens with daily_reminder enabled at this time
     const { data: allTokens } = await supabase.from('push_tokens').select('*').eq('is_active', true);
@@ -98,23 +133,38 @@ serve(async (req) => {
       t.preferences?.daily_reminder?.time === currentTime
     );
 
+    console.log(`[send-daily-reminder] Found ${tokens.length} tokens with daily_reminder enabled at ${currentTime} (out of ${allTokens?.length || 0} active tokens)`);
+
     let sent = 0;
     let skipped = 0;
 
     for (const tk of tokens) {
+      console.log(`[send-daily-reminder] Checking user ${tk.user_id} (${tk.platform})...`);
+
       if (isInQuietHours(tk.preferences)) {
+        console.log(`[send-daily-reminder]   Skipping: user is in quiet hours`);
         skipped++;
         continue;
       }
+
+      // Calculate "today" in user's timezone
+      const userTimezone = tk.device_info?.timezone;
+      const todayISO = getTodayInTimezone(userTimezone);
+      console.log(`[send-daily-reminder]   User timezone: ${userTimezone || 'UTC (fallback)'}, Today: ${todayISO}`);
 
       const { data: us } = await supabase.from('user_state').select('state').eq('user_id', tk.user_id).single();
       const todayTx = us?.state?.transactions?.filter((tx: any) => tx.date === todayISO) || [];
 
+      console.log(`[send-daily-reminder]   User has ${todayTx.length} transactions today`);
+
       // Only send reminder if user has NO transactions today
       if (todayTx.length > 0) {
+        console.log(`[send-daily-reminder]   Skipping: user already has transactions today`);
         skipped++;
         continue;
       }
+
+      console.log(`[send-daily-reminder]   Sending reminder...`);
 
       // Resolve language from device_info
       const lang = getLang(tk.device_info);
@@ -132,12 +182,23 @@ serve(async (req) => {
         error_message: r.error
       });
 
-      if (r.success) sent++;
-      if (r.error === 'INVALID_TOKEN') await supabase.from('push_tokens').update({ is_active: false }).eq('token', tk.token);
+      if (r.success) {
+        sent++;
+        console.log(`[send-daily-reminder]   ✅ Notification sent successfully`);
+      } else {
+        console.log(`[send-daily-reminder]   ❌ Failed to send: ${r.error}`);
+      }
+
+      if (r.error === 'INVALID_TOKEN') {
+        await supabase.from('push_tokens').update({ is_active: false }).eq('token', tk.token);
+        console.log(`[send-daily-reminder]   Token marked as inactive due to INVALID_TOKEN error`);
+      }
     }
 
+    console.log(`[send-daily-reminder] Finished. Sent: ${sent}, Skipped: ${skipped}, Checked: ${tokens.length}`);
     return new Response(JSON.stringify({ sent, skipped, checked: tokens.length }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (e) {
+    console.error(`[send-daily-reminder] Error: ${String(e)}`);
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: corsHeaders });
   }
 });

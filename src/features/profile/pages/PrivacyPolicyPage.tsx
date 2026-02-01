@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
 
           {/* Last Updated */}
           <p className="mb-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            {t('lastUpdated', 'Última actualización')}: 26 de enero de 2026
+            {t('lastUpdated', 'Última actualización')}: {t('lastUpdatedDate', '1 de febrero de 2026')}
           </p>
 
           {/* Content */}
@@ -52,23 +52,23 @@ export default function PrivacyPolicyPage() {
               </p>
 
               <h3 className="mb-2 mt-4 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                Modo Invitado (Sin Cuenta):
+                {t('privacy.collection.guestMode', 'Modo Invitado (Sin Cuenta):')}
               </h3>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Ninguna información personal</li>
-                <li>Los datos se almacenan localmente en tu dispositivo</li>
-                <li>No se envía información a nuestros servidores</li>
+                <li>{t('privacy.collection.guestItems.noPersonal', 'Ninguna información personal')}</li>
+                <li>{t('privacy.collection.guestItems.localStorage', 'Los datos se almacenan localmente en tu dispositivo')}</li>
+                <li>{t('privacy.collection.guestItems.noServer', 'No se envía información a nuestros servidores')}</li>
               </ul>
 
               <h3 className="mb-2 mt-4 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                Modo Cloud (Con Cuenta):
+                {t('privacy.collection.cloudMode', 'Modo Cloud (Con Cuenta):')}
               </h3>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Email y nombre (proporcionados al registrarte o usar OAuth)</li>
-                <li>Foto de perfil (si usas Google OAuth)</li>
-                <li>Datos financieros: transacciones, categorías, presupuestos, viajes</li>
-                <li>Preferencias de la app: idioma, tema, moneda</li>
-                <li>Metadata de sincronización: última actualización, dispositivo</li>
+                <li>{t('privacy.collection.cloudItems.email', 'Email y nombre (proporcionados al registrarte o usar OAuth)')}</li>
+                <li>{t('privacy.collection.cloudItems.photo', 'Foto de perfil (si usas Google OAuth)')}</li>
+                <li>{t('privacy.collection.cloudItems.financial', 'Datos financieros: transacciones, categorías, presupuestos, viajes')}</li>
+                <li>{t('privacy.collection.cloudItems.preferences', 'Preferencias de la app: idioma, tema, moneda')}</li>
+                <li>{t('privacy.collection.cloudItems.metadata', 'Metadata de sincronización: última actualización, dispositivo')}</li>
               </ul>
             </section>
 
@@ -81,14 +81,14 @@ export default function PrivacyPolicyPage() {
                 {t('privacy.usage.intro', 'Usamos tu información exclusivamente para:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Proporcionar y mejorar nuestros servicios</li>
-                <li>Sincronizar tus datos entre dispositivos (modo cloud)</li>
-                <li>Autenticar tu identidad y mantener tu cuenta segura</li>
-                <li>Responder a tus consultas de soporte</li>
-                <li>Cumplir con obligaciones legales</li>
+                <li>{t('privacy.usage.items.provide', 'Proporcionar y mejorar nuestros servicios')}</li>
+                <li>{t('privacy.usage.items.sync', 'Sincronizar tus datos entre dispositivos (modo cloud)')}</li>
+                <li>{t('privacy.usage.items.auth', 'Autenticar tu identidad y mantener tu cuenta segura')}</li>
+                <li>{t('privacy.usage.items.support', 'Responder a tus consultas de soporte')}</li>
+                <li>{t('privacy.usage.items.legal', 'Cumplir con obligaciones legales')}</li>
               </ul>
               <p className="mt-3 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                ❌ NO vendemos, compartimos ni usamos tus datos para publicidad
+                {t('privacy.usage.noSell', '❌ NO vendemos, compartimos ni usamos tus datos para publicidad')}
               </p>
             </section>
 
@@ -101,11 +101,11 @@ export default function PrivacyPolicyPage() {
                 {t('privacy.storage.content', 'Tus datos están protegidos mediante:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li><strong>Supabase:</strong> Plataforma segura con encriptación en tránsito (HTTPS/TLS)</li>
-                <li><strong>Row Level Security (RLS):</strong> Solo tú puedes acceder a tus datos</li>
-                <li><strong>Autenticación OAuth:</strong> No almacenamos contraseñas en texto plano</li>
-                <li><strong>Backups cifrados:</strong> Los respaldos locales usan SHA-256 checksum</li>
-                <li><strong>Almacenamiento local:</strong> localStorage del navegador (modo invitado)</li>
+                <li><strong>Supabase:</strong> {t('privacy.storage.items.supabase', 'Plataforma segura con encriptación en tránsito (HTTPS/TLS)').replace('Supabase: ', '')}</li>
+                <li><strong>Row Level Security (RLS):</strong> {t('privacy.storage.items.rls', 'Solo tú puedes acceder a tus datos').replace('Row Level Security (RLS): ', '')}</li>
+                <li><strong>OAuth:</strong> {t('privacy.storage.items.oauth', 'No almacenamos contraseñas en texto plano').replace('Autenticación OAuth: ', '')}</li>
+                <li><strong>Backups:</strong> {t('privacy.storage.items.backups', 'Los respaldos locales usan SHA-256 checksum').replace('Backups cifrados: ', '')}</li>
+                <li><strong>Almacenamiento local:</strong> {t('privacy.storage.items.local', 'localStorage del navegador (modo invitado)').replace('Almacenamiento local: ', '')}</li>
               </ul>
             </section>
 
@@ -119,15 +119,21 @@ export default function PrivacyPolicyPage() {
               </p>
               <ul className="ml-4 list-disc space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>
-                  <strong>Supabase:</strong> Almacenamiento de datos y autenticación.
+                  <strong>{t('privacy.thirdParty.supabase', 'Supabase:')}</strong> {t('privacy.thirdParty.supabaseDesc', 'Almacenamiento de datos y autenticación.')}
                   <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer" className="ml-1 text-[#18B7B0] underline">
-                    Ver política de privacidad
+                    {t('privacy.thirdParty.supabaseLink', 'Ver política de privacidad')}
                   </a>
                 </li>
                 <li>
-                  <strong>Google OAuth:</strong> Autenticación opcional con Google.
+                  <strong>{t('privacy.thirdParty.google', 'Google OAuth:')}</strong> {t('privacy.thirdParty.googleDesc', 'Autenticación opcional con Google.')}
                   <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="ml-1 text-[#18B7B0] underline">
-                    Ver política de privacidad
+                    {t('privacy.thirdParty.googleLink', 'Ver política de privacidad')}
+                  </a>
+                </li>
+                <li>
+                  <strong>{t('privacy.thirdParty.revenuecat', 'RevenueCat:')}</strong> {t('privacy.thirdParty.revenuecatDesc', 'Gestión de suscripciones y pagos. RevenueCat procesa información de compra pero no tiene acceso a tus datos financieros personales.')}
+                  <a href="https://www.revenuecat.com/privacy" target="_blank" rel="noopener noreferrer" className="ml-1 text-[#18B7B0] underline">
+                    {t('privacy.thirdParty.revenuecatLink', 'Ver política de privacidad')}
                   </a>
                 </li>
               </ul>
@@ -152,12 +158,12 @@ export default function PrivacyPolicyPage() {
                 {t('privacy.rights.intro', 'Tienes derecho a:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li><strong>Acceder:</strong> Ver todos tus datos almacenados</li>
-                <li><strong>Exportar:</strong> Descargar tus datos en formato JSON o CSV</li>
-                <li><strong>Rectificar:</strong> Editar o corregir tus datos</li>
-                <li><strong>Eliminar:</strong> Borrar tu cuenta y todos tus datos</li>
-                <li><strong>Portabilidad:</strong> Transferir tus datos a otro servicio</li>
-                <li><strong>Oponerte:</strong> Rechazar ciertos usos de tus datos</li>
+                <li>{t('privacy.rights.items.access', 'Acceder: Ver todos tus datos almacenados')}</li>
+                <li>{t('privacy.rights.items.export', 'Exportar: Descargar tus datos en formato JSON o CSV')}</li>
+                <li>{t('privacy.rights.items.rectify', 'Rectificar: Editar o corregir tus datos')}</li>
+                <li>{t('privacy.rights.items.delete', 'Eliminar: Borrar tu cuenta y todos tus datos')}</li>
+                <li>{t('privacy.rights.items.portability', 'Portabilidad: Transferir tus datos a otro servicio')}</li>
+                <li>{t('privacy.rights.items.object', 'Oponerte: Rechazar ciertos usos de tus datos')}</li>
               </ul>
             </section>
 
@@ -200,7 +206,7 @@ export default function PrivacyPolicyPage() {
                 {t('privacy.contact.content', 'Si tienes preguntas sobre esta política de privacidad o deseas ejercer tus derechos, contacta con nosotros:')}
               </p>
               <p className="mt-2 text-sm font-medium text-[#18B7B0]">
-                privacy@smartspend.app
+                support@jotatech.org
               </p>
             </section>
 

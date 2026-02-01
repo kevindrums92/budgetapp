@@ -6,6 +6,7 @@
  *
  * Supported events:
  * - INITIAL_PURCHASE: User started subscription or trial
+ * - NON_RENEWING_PURCHASE: User purchased non-renewable product (e.g., lifetime)
  * - RENEWAL: Subscription renewed at billing date
  * - CANCELLATION: User unsubscribed
  * - EXPIRATION: Subscription expired
@@ -55,17 +56,19 @@ interface RevenueCatWebhookPayload {
     app_id: string;
     event_timestamp_ms: number;
     product_id: string;
-    entitlement_ids: string[];
+    entitlement_id: string | null; // Singular field (some events use this)
+    entitlement_ids: string[] | null; // Plural field (some events use this)
     purchased_at_ms: number;
     expiration_at_ms: number | null;
     period_type: string;
-    currency: string;
-    price: number;
+    currency: string | null;
+    price: number | null;
     store: string;
     environment: string;
-    is_family_share: boolean;
+    is_family_share: boolean | null;
     country_code: string;
-    transaction_id: string;
+    transaction_id: string | null;
+    original_transaction_id: string | null;
     subscriber_attributes?: Record<string, any>;
   };
   api_version: string;
@@ -133,6 +136,7 @@ async function handleInitialPurchase(
   const {
     app_user_id,
     product_id,
+    entitlement_id,
     entitlement_ids,
     purchased_at_ms,
     expiration_at_ms,
@@ -152,12 +156,18 @@ async function handleInitialPurchase(
 
   console.log(`[INITIAL_PURCHASE] User: ${app_user_id}, Product: ${product_id}, Status: ${status}`);
 
+  // Normalize entitlements (handle both singular and plural fields, and null values)
+  const normalizedEntitlements =
+    entitlement_ids ?? // Use plural if available
+    (entitlement_id ? [entitlement_id] : null) ?? // Convert singular to array
+    ['pro']; // Default fallback
+
   // Upsert subscription record
   const subscriptionData: Omit<UserSubscription, 'id'> = {
     user_id: app_user_id,
     product_id,
-    entitlement_ids: entitlement_ids || ['pro'],
-    original_transaction_id: transaction_id,
+    entitlement_ids: normalizedEntitlements,
+    original_transaction_id: transaction_id ?? null,
     status,
     period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
     purchased_at: new Date(purchased_at_ms).toISOString(),
@@ -185,33 +195,56 @@ async function handleInitialPurchase(
 /**
  * Handles RENEWAL events
  * Updates subscription with new expiration date and sets status to active
+ * Uses upsert to handle cases where INITIAL_PURCHASE was missed
  */
 async function handleRenewal(
   event: RevenueCatWebhookPayload['event']
 ): Promise<UserSubscription> {
-  const { app_user_id, product_id, expiration_at_ms, period_type, transaction_id } = event;
+  const {
+    app_user_id,
+    product_id,
+    entitlement_id,
+    entitlement_ids,
+    expiration_at_ms,
+    period_type,
+    transaction_id,
+    purchased_at_ms,
+    environment,
+  } = event;
 
   console.log(`[RENEWAL] User: ${app_user_id}, Product: ${product_id}`);
 
+  // Normalize entitlements (handle both singular and plural fields, and null values)
+  const normalizedEntitlements =
+    entitlement_ids ?? // Use plural if available
+    (entitlement_id ? [entitlement_id] : null) ?? // Convert singular to array
+    ['pro']; // Default fallback
+
+  // Use upsert instead of update to handle missed INITIAL_PURCHASE events
+  const subscriptionData: Omit<UserSubscription, 'id'> = {
+    user_id: app_user_id,
+    product_id,
+    entitlement_ids: normalizedEntitlements,
+    status: 'active',
+    period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
+    expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
+    original_transaction_id: transaction_id ?? null,
+    purchased_at: purchased_at_ms ? new Date(purchased_at_ms).toISOString() : new Date().toISOString(),
+    environment: environment as 'PRODUCTION' | 'SANDBOX',
+    billing_issue_detected_at: null, // Clear billing issues on successful renewal
+    last_event_id: event.id,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('user_subscriptions')
-    .update({
-      product_id,
-      status: 'active',
-      period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
-      expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
-      original_transaction_id: transaction_id,
-      billing_issue_detected_at: null, // Clear billing issues on successful renewal
-      last_event_id: event.id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', app_user_id)
+    .upsert(subscriptionData, { onConflict: 'user_id' })
     .select()
     .single();
 
   if (error) {
     console.error('[RENEWAL] Database error:', error);
-    throw new Error(`Failed to update subscription: ${error.message}`);
+    throw new Error(`Failed to upsert subscription: ${error.message}`);
   }
 
   console.log('[RENEWAL] Subscription renewed:', data.id);
@@ -221,22 +254,49 @@ async function handleRenewal(
 /**
  * Handles CANCELLATION and TRIAL_CANCELLED events
  * Marks subscription as cancelled
+ * Uses upsert to handle cases where INITIAL_PURCHASE was missed
  */
 async function handleCancellation(
   event: RevenueCatWebhookPayload['event']
 ): Promise<UserSubscription> {
-  const { app_user_id } = event;
+  const {
+    app_user_id,
+    product_id,
+    entitlement_id,
+    entitlement_ids,
+    expiration_at_ms,
+    period_type,
+    transaction_id,
+    purchased_at_ms,
+    environment,
+  } = event;
 
   console.log(`[CANCELLATION] User: ${app_user_id}`);
 
+  // Normalize entitlements
+  const normalizedEntitlements =
+    entitlement_ids ??
+    (entitlement_id ? [entitlement_id] : null) ??
+    ['pro'];
+
+  // Use upsert to handle missed INITIAL_PURCHASE
+  const subscriptionData: Omit<UserSubscription, 'id'> = {
+    user_id: app_user_id,
+    product_id: product_id ?? 'unknown',
+    entitlement_ids: normalizedEntitlements,
+    status: 'cancelled',
+    period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
+    expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
+    original_transaction_id: transaction_id ?? null,
+    purchased_at: purchased_at_ms ? new Date(purchased_at_ms).toISOString() : new Date().toISOString(),
+    environment: environment as 'PRODUCTION' | 'SANDBOX',
+    last_event_id: event.id,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('user_subscriptions')
-    .update({
-      status: 'cancelled',
-      last_event_id: event.id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', app_user_id)
+    .upsert(subscriptionData, { onConflict: 'user_id' })
     .select()
     .single();
 
@@ -252,25 +312,51 @@ async function handleCancellation(
 /**
  * Handles EXPIRATION events
  * Marks subscription as expired
+ * Uses upsert to handle cases where INITIAL_PURCHASE was missed
  */
 async function handleExpiration(
   event: RevenueCatWebhookPayload['event']
 ): Promise<UserSubscription> {
-  const { app_user_id, expiration_at_ms } = event;
+  const {
+    app_user_id,
+    product_id,
+    entitlement_id,
+    entitlement_ids,
+    expiration_at_ms,
+    period_type,
+    transaction_id,
+    purchased_at_ms,
+    environment,
+  } = event;
 
   console.log(`[EXPIRATION] User: ${app_user_id}`);
 
+  // Normalize entitlements
+  const normalizedEntitlements =
+    entitlement_ids ??
+    (entitlement_id ? [entitlement_id] : null) ??
+    ['pro'];
+
+  // Use upsert to handle missed INITIAL_PURCHASE
+  const subscriptionData: Omit<UserSubscription, 'id'> = {
+    user_id: app_user_id,
+    product_id: product_id ?? 'unknown',
+    entitlement_ids: normalizedEntitlements,
+    status: 'expired',
+    period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
+    expires_at: expiration_at_ms
+      ? new Date(expiration_at_ms).toISOString()
+      : new Date().toISOString(),
+    original_transaction_id: transaction_id ?? null,
+    purchased_at: purchased_at_ms ? new Date(purchased_at_ms).toISOString() : new Date().toISOString(),
+    environment: environment as 'PRODUCTION' | 'SANDBOX',
+    last_event_id: event.id,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('user_subscriptions')
-    .update({
-      status: 'expired',
-      expires_at: expiration_at_ms
-        ? new Date(expiration_at_ms).toISOString()
-        : new Date().toISOString(),
-      last_event_id: event.id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', app_user_id)
+    .upsert(subscriptionData, { onConflict: 'user_id' })
     .select()
     .single();
 
@@ -286,29 +372,53 @@ async function handleExpiration(
 /**
  * Handles UNCANCELLATION events
  * Restores a cancelled subscription to active/trial status
+ * Uses upsert to handle cases where INITIAL_PURCHASE was missed
  */
 async function handleUncancellation(
   event: RevenueCatWebhookPayload['event']
 ): Promise<UserSubscription> {
-  const { app_user_id, product_id, expiration_at_ms, period_type } = event;
+  const {
+    app_user_id,
+    product_id,
+    entitlement_id,
+    entitlement_ids,
+    expiration_at_ms,
+    period_type,
+    transaction_id,
+    purchased_at_ms,
+    environment,
+  } = event;
 
   console.log(`[UNCANCELLATION] User: ${app_user_id}, Product: ${product_id}`);
 
   const isTrialPeriod = period_type === 'TRIAL';
   const status: UserSubscription['status'] = isTrialPeriod ? 'trial' : 'active';
 
+  // Normalize entitlements
+  const normalizedEntitlements =
+    entitlement_ids ??
+    (entitlement_id ? [entitlement_id] : null) ??
+    ['pro'];
+
+  // Use upsert to handle missed INITIAL_PURCHASE
+  const subscriptionData: Omit<UserSubscription, 'id'> = {
+    user_id: app_user_id,
+    product_id: product_id ?? 'unknown',
+    entitlement_ids: normalizedEntitlements,
+    status,
+    period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
+    expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
+    original_transaction_id: transaction_id ?? null,
+    purchased_at: purchased_at_ms ? new Date(purchased_at_ms).toISOString() : new Date().toISOString(),
+    environment: environment as 'PRODUCTION' | 'SANDBOX',
+    billing_issue_detected_at: null,
+    last_event_id: event.id,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('user_subscriptions')
-    .update({
-      status,
-      product_id,
-      expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
-      period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
-      billing_issue_detected_at: null,
-      last_event_id: event.id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', app_user_id)
+    .upsert(subscriptionData, { onConflict: 'user_id' })
     .select()
     .single();
 
@@ -324,24 +434,49 @@ async function handleUncancellation(
 /**
  * Handles PRODUCT_CHANGE events
  * Updates subscription when user switches plans (e.g., monthly → annual)
+ * Uses upsert to handle cases where INITIAL_PURCHASE was missed
  */
 async function handleProductChange(
   event: RevenueCatWebhookPayload['event']
 ): Promise<UserSubscription> {
-  const { app_user_id, product_id, expiration_at_ms, transaction_id } = event;
+  const {
+    app_user_id,
+    product_id,
+    entitlement_id,
+    entitlement_ids,
+    expiration_at_ms,
+    period_type,
+    transaction_id,
+    purchased_at_ms,
+    environment,
+  } = event;
 
   console.log(`[PRODUCT_CHANGE] User: ${app_user_id}, New Product: ${product_id}`);
 
+  // Normalize entitlements
+  const normalizedEntitlements =
+    entitlement_ids ??
+    (entitlement_id ? [entitlement_id] : null) ??
+    ['pro'];
+
+  // Use upsert to handle missed INITIAL_PURCHASE
+  const subscriptionData: Omit<UserSubscription, 'id'> = {
+    user_id: app_user_id,
+    product_id: product_id ?? 'unknown',
+    entitlement_ids: normalizedEntitlements,
+    status: 'active',
+    period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
+    expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
+    original_transaction_id: transaction_id ?? null,
+    purchased_at: purchased_at_ms ? new Date(purchased_at_ms).toISOString() : new Date().toISOString(),
+    environment: environment as 'PRODUCTION' | 'SANDBOX',
+    last_event_id: event.id,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data, error } = await supabase
     .from('user_subscriptions')
-    .update({
-      product_id,
-      original_transaction_id: transaction_id,
-      expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
-      last_event_id: event.id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', app_user_id)
+    .upsert(subscriptionData, { onConflict: 'user_id' })
     .select()
     .single();
 
@@ -357,22 +492,50 @@ async function handleProductChange(
 /**
  * Handles BILLING_ISSUE events
  * Records billing issue timestamp but keeps subscription active (grace period)
+ * Uses upsert to handle cases where INITIAL_PURCHASE was missed
  */
 async function handleBillingIssue(
   event: RevenueCatWebhookPayload['event']
 ): Promise<void> {
-  const { app_user_id } = event;
+  const {
+    app_user_id,
+    product_id,
+    entitlement_id,
+    entitlement_ids,
+    expiration_at_ms,
+    period_type,
+    transaction_id,
+    purchased_at_ms,
+    environment,
+  } = event;
 
   console.log(`[BILLING_ISSUE] User: ${app_user_id}`);
 
+  // Normalize entitlements
+  const normalizedEntitlements =
+    entitlement_ids ??
+    (entitlement_id ? [entitlement_id] : null) ??
+    ['pro'];
+
+  // Use upsert to handle missed INITIAL_PURCHASE
+  const subscriptionData: Omit<UserSubscription, 'id'> = {
+    user_id: app_user_id,
+    product_id: product_id ?? 'unknown',
+    entitlement_ids: normalizedEntitlements,
+    status: 'active', // Keep active during grace period
+    period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
+    expires_at: expiration_at_ms ? new Date(expiration_at_ms).toISOString() : null,
+    original_transaction_id: transaction_id ?? null,
+    purchased_at: purchased_at_ms ? new Date(purchased_at_ms).toISOString() : new Date().toISOString(),
+    environment: environment as 'PRODUCTION' | 'SANDBOX',
+    billing_issue_detected_at: new Date().toISOString(),
+    last_event_id: event.id,
+    updated_at: new Date().toISOString(),
+  };
+
   const { error } = await supabase
     .from('user_subscriptions')
-    .update({
-      billing_issue_detected_at: new Date().toISOString(),
-      last_event_id: event.id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', app_user_id);
+    .upsert(subscriptionData, { onConflict: 'user_id' });
 
   if (error) {
     console.error('[BILLING_ISSUE] Database error:', error);
@@ -418,6 +581,7 @@ async function handleWebhook(payload: RevenueCatWebhookPayload): Promise<Respons
     switch (eventType) {
       case 'INITIAL_PURCHASE':
       case 'TRIAL_STARTED':
+      case 'NON_RENEWING_PURCHASE': // Lifetime purchases (non-subscription)
         result = await handleInitialPurchase(payload.event);
         break;
 

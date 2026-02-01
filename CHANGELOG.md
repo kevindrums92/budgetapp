@@ -10,7 +10,56 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.14.2] - 2026-02-01
+
+- fix(push-notifications): fix timezone mismatch between client and edge functions
+  - Client creates transaction dates using local device time (e.g., Colombia UTC-5)
+  - Edge functions were using UTC to calculate "today", causing mismatch
+  - Added timezone field to device_info (IANA timezone like "America/Bogota")
+  - Added getTodayInTimezone() helper to calculate "today" in user's timezone
+  - Updated send-daily-reminder to use user's timezone for transaction filtering
+  - Updated send-daily-summary to use user's timezone for transaction filtering
+  - Fixes bug where notifications were sent at wrong times or missed transactions
+  - Example: At 10 PM Colombia (22:00 COT = 03:00 UTC next day), edge functions now correctly find transactions for COT date
+- docs(push-notifications): add instructions for changing cron job schedules
+  - Added new section "⏰ Cambiar Horarios de Cron Jobs" in PROD_CHECKLIST.md
+  - Includes UTC to Colombia (UTC-5) conversion examples
+  - Shows how to use cron.alter_job() to change schedule
+  - Provides quick reference table for common times
+- fix(edge-functions): fix send-upcoming-transactions not detecting transactions without explicit status field
+  - Bug: Transactions generated from templates may not have `status: 'pending'` or `status: 'scheduled'`
+  - Previous filter required explicit status, causing valid upcoming transactions to be skipped
+  - New filter detects any transaction with `date = tomorrow` that is not a recurring template (`!schedule?.enabled`)
+  - Resolves issue where users with valid upcoming transactions were not receiving notifications
+- refactor(env): simplify RevenueCat API key configuration to use only PROD keys
+  - Removed separate DEV/PROD environment variables
+  - Now uses only VITE_REVENUECAT_IOS_API_KEY_PROD and VITE_REVENUECAT_ANDROID_API_KEY_PROD
+  - Updated src/config/env.ts to remove dev/prod key selection logic
+  - For testing with sandbox stores, manually swap keys in .env.local
+  - Reduces configuration complexity and environment variable clutter
+- chore(edge-functions): add verbose logging to all push notification edge functions
+  - Added detailed console.log statements to send-daily-reminder, send-upcoming-transactions, and send-daily-summary
+  - Logs now show: execution start, token counts, per-user checking status, skip reasons, FCM results, and final summary
+  - Improves debugging and monitoring of cron job executions in production
+  - Logs visible in Supabase Dashboard → Edge Functions → Logs tab
+- docs(monetization): update monetization plan to v1.2 with Phase 2 and Phase 3 progress tracking
+  - Phase 2 (RevenueCat Integration): 90% complete - SDK installed, webhook implemented, database schema created
+  - Phase 3 (Access Control): 60% complete - CSV exports, backups, history filters, and scheduled transactions gated
+  - Documented completed work: webhook handlers, 3-tier fallback system, database tables with RLS
+  - Identified pending work: sandbox testing, Google Play configuration, category/budget limits enforcement
+- fix(webhook): refactor all RevenueCat webhook handlers to use upsert pattern instead of update
+  - Prevents PGRST116 errors ("result contains 0 rows") when events arrive out of order
+  - All handlers now use `.upsert(data, { onConflict: 'user_id' })` for idempotency
+  - Handles missed INITIAL_PURCHASE events gracefully by creating records on RENEWAL/EXPIRATION
+  - Updated handlers: handleRenewal, handleCancellation, handleExpiration, handleUncancellation, handleProductChange, handleBillingIssue
+- fix(webhook): update RevenueCat webhook interface to handle nullable fields from real payloads
+  - Updated TypeScript interface: entitlement_ids, currency, price, transaction_id, is_family_share now accept null
+  - Added entitlement_id (singular) field support
+  - Implemented defensive entitlement handling (singular/plural fields with fallback to ['pro'])
+- chore(ios): remove Products.storekit from Xcode project references (kept in repo for local testing only)
 
 ## [0.14.1] - 2026-01-31
 

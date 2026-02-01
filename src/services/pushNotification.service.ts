@@ -544,11 +544,15 @@ export function cleanup(): void {
  * Get device info for token registration
  */
 function getDeviceInfo(): Record<string, unknown> {
+  // Get IANA timezone (e.g., "America/Bogota")
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   return {
     platform: Capacitor.getPlatform(),
     isNative: Capacitor.isNativePlatform(),
     appVersion: import.meta.env.VITE_APP_VERSION || '1.0.0',
     language: localStorage.getItem('app_language') || 'es',
+    timezone,
     registeredAt: new Date().toISOString(),
   };
 }
