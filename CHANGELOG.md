@@ -10,7 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.14.2] - 2026-02-01
 
 - fix(push-notifications): fix timezone mismatch between client and edge functions
   - Client creates transaction dates using local device time (e.g., Colombia UTC-5)
