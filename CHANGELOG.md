@@ -8,10 +8,7 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
-
 ## [unreleased] - {relase date}
-
-## [0.14.0] - 2026-01-31
 
 - fix(tests): update unit tests for schema version 8 migration
   - Updated storage.service.test.ts and budget.store.test.ts to expect schemaVersion 8 instead of 7
