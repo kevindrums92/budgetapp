@@ -12,6 +12,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- docs(monetization): update monetization plan to v1.2 with Phase 2 and Phase 3 progress tracking
+  - Phase 2 (RevenueCat Integration): 90% complete - SDK installed, webhook implemented, database schema created
+  - Phase 3 (Access Control): 60% complete - CSV exports, backups, history filters, and scheduled transactions gated
+  - Documented completed work: webhook handlers, 3-tier fallback system, database tables with RLS
+  - Identified pending work: sandbox testing, Google Play configuration, category/budget limits enforcement
+- fix(webhook): refactor all RevenueCat webhook handlers to use upsert pattern instead of update
+  - Prevents PGRST116 errors ("result contains 0 rows") when events arrive out of order
+  - All handlers now use `.upsert(data, { onConflict: 'user_id' })` for idempotency
+  - Handles missed INITIAL_PURCHASE events gracefully by creating records on RENEWAL/EXPIRATION
+  - Updated handlers: handleRenewal, handleCancellation, handleExpiration, handleUncancellation, handleProductChange, handleBillingIssue
 - fix(webhook): update RevenueCat webhook interface to handle nullable fields from real payloads
   - Updated TypeScript interface: entitlement_ids, currency, price, transaction_id, is_family_share now accept null
   - Added entitlement_id (singular) field support

@@ -26,7 +26,7 @@ export default function TermsOfServicePage() {
 
           {/* Last Updated */}
           <p className="mb-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            {t('lastUpdated', 'Última actualización')}: 26 de enero de 2026
+            {t('lastUpdated', 'Última actualización')}: {t('lastUpdatedDate', '1 de febrero de 2026')}
           </p>
 
           {/* Content */}
@@ -51,12 +51,12 @@ export default function TermsOfServicePage() {
                 {t('terms.service.content', 'SmartSpend ofrece:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Seguimiento de transacciones (ingresos y gastos)</li>
-                <li>Gestión de categorías y presupuestos</li>
-                <li>Visualización de estadísticas financieras</li>
-                <li>Sincronización opcional en la nube</li>
-                <li>Modo invitado con almacenamiento local</li>
-                <li>Respaldo y exportación de datos</li>
+                <li>{t('terms.service.features.transactions', 'Seguimiento de transacciones (ingresos y gastos)')}</li>
+                <li>{t('terms.service.features.categories', 'Gestión de categorías y presupuestos')}</li>
+                <li>{t('terms.service.features.stats', 'Visualización de estadísticas financieras')}</li>
+                <li>{t('terms.service.features.sync', 'Sincronización opcional en la nube')}</li>
+                <li>{t('terms.service.features.guest', 'Modo invitado con almacenamiento local')}</li>
+                <li>{t('terms.service.features.backup', 'Respaldo y exportación de datos')}</li>
               </ul>
             </section>
 
@@ -69,15 +69,25 @@ export default function TermsOfServicePage() {
                 {t('terms.accounts.content', 'Puedes usar SmartSpend en dos modos:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li><strong>Modo Invitado:</strong> Tus datos se almacenan localmente en tu dispositivo. No se requiere cuenta.</li>
-                <li><strong>Modo Cloud:</strong> Al crear una cuenta, tus datos se sincronizan con nuestros servidores usando Supabase. Eres responsable de mantener la confidencialidad de tu cuenta.</li>
+                <li><strong>{t('terms.accounts.guestMode', 'Modo Invitado:')}</strong> {t('terms.accounts.guestDescription', 'Tus datos se almacenan localmente en tu dispositivo. No se requiere cuenta.')}</li>
+                <li><strong>{t('terms.accounts.cloudMode', 'Modo Cloud:')}</strong> {t('terms.accounts.cloudDescription', 'Al crear una cuenta, tus datos se sincronizan con nuestros servidores usando Supabase. Eres responsable de mantener la confidencialidad de tu cuenta.')}</li>
               </ul>
+            </section>
+
+            {/* Subscriptions and Payments */}
+            <section>
+              <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
+                4. {t('terms.subscription.title', 'Suscripciones y Pagos')}
+              </h2>
+              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                {t('terms.subscription.content', 'SmartSpend ofrece una suscripción Pro opcional que desbloquea funciones premium. Los pagos se procesan de forma segura a través de RevenueCat y las tiendas de aplicaciones (App Store, Google Play). Las suscripciones se renuevan automáticamente a menos que las canceles antes de la fecha de renovación. Puedes gestionar tu suscripción desde la configuración de tu cuenta en la tienda de aplicaciones correspondiente.')}
+              </p>
             </section>
 
             {/* Data Ownership */}
             <section>
               <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                4. {t('terms.ownership.title', 'Propiedad de Datos')}
+                5. {t('terms.ownership.title', 'Propiedad de Datos')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                 {t('terms.ownership.content', 'Todos tus datos financieros son de tu propiedad. SmartSpend no comparte, vende ni utiliza tus datos para publicidad. Puedes exportar o eliminar tus datos en cualquier momento desde la configuración de la aplicación.')}
@@ -87,23 +97,23 @@ export default function TermsOfServicePage() {
             {/* Acceptable Use */}
             <section>
               <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                5. {t('terms.use.title', 'Uso Aceptable')}
+                6. {t('terms.use.title', 'Uso Aceptable')}
               </h2>
               <p className="mb-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                 {t('terms.use.content', 'Al usar SmartSpend, aceptas:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                <li>Usar la aplicación solo para fines legales y personales</li>
-                <li>No intentar acceder a datos de otros usuarios</li>
-                <li>No modificar, copiar o distribuir la aplicación sin autorización</li>
-                <li>No usar la aplicación de manera que pueda dañar o interrumpir el servicio</li>
+                <li>{t('terms.use.rules.legal', 'Usar la aplicación solo para fines legales y personales')}</li>
+                <li>{t('terms.use.rules.noAccess', 'No intentar acceder a datos de otros usuarios')}</li>
+                <li>{t('terms.use.rules.noModify', 'No modificar, copiar o distribuir la aplicación sin autorización')}</li>
+                <li>{t('terms.use.rules.noDamage', 'No usar la aplicación de manera que pueda dañar o interrumpir el servicio')}</li>
               </ul>
             </section>
 
             {/* Limitations */}
             <section>
               <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                6. {t('terms.limitations.title', 'Limitación de Responsabilidad')}
+                7. {t('terms.limitations.title', 'Limitación de Responsabilidad')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                 {t('terms.limitations.content', 'SmartSpend se proporciona "tal cual" sin garantías de ningún tipo. No somos responsables de pérdidas financieras, daños o imprecisiones en los datos. Es tu responsabilidad verificar la exactitud de tus registros financieros y realizar respaldos regulares de tus datos.')}
@@ -113,7 +123,7 @@ export default function TermsOfServicePage() {
             {/* Service Availability */}
             <section>
               <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                7. {t('terms.availability.title', 'Disponibilidad del Servicio')}
+                8. {t('terms.availability.title', 'Disponibilidad del Servicio')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                 {t('terms.availability.content', 'Hacemos nuestro mejor esfuerzo para mantener SmartSpend disponible, pero no garantizamos un tiempo de actividad del 100%. Podemos suspender o descontinuar el servicio en cualquier momento con previo aviso.')}
@@ -123,7 +133,7 @@ export default function TermsOfServicePage() {
             {/* Changes to Terms */}
             <section>
               <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                8. {t('terms.changes.title', 'Cambios a los Términos')}
+                9. {t('terms.changes.title', 'Cambios a los Términos')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                 {t('terms.changes.content', 'Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios se publicarán en esta página con una fecha de actualización. Tu uso continuado de SmartSpend después de los cambios constituye tu aceptación de los nuevos términos.')}
@@ -133,13 +143,13 @@ export default function TermsOfServicePage() {
             {/* Contact */}
             <section>
               <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                9. {t('terms.contact.title', 'Contacto')}
+                10. {t('terms.contact.title', 'Contacto')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                 {t('terms.contact.content', 'Si tienes preguntas sobre estos términos, puedes contactarnos a través de:')}
               </p>
               <p className="mt-2 text-sm font-medium text-[#18B7B0]">
-                support@smartspend.app
+                support@jotatech.org
               </p>
             </section>
 

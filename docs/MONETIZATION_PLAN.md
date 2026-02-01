@@ -1,8 +1,8 @@
 # Plan de Monetización - SmartSpend
 
-**Versión**: 1.1
-**Fecha**: 2026-01-30
-**Estado**: Fase 1 Completa ✅
+**Versión**: 1.2
+**Fecha**: 2026-02-01
+**Estado**: Fase 1 ✅ | Fase 2 ✅ 90% | Fase 3 ⚡ 60%
 
 ## Tabla de Contenidos
 
@@ -622,67 +622,105 @@ src/
 
 ---
 
-### Fase 2: Integración de Pagos (Semana 2)
+### Fase 2: Integración de Pagos ✅ CASI COMPLETA (90%) (2026-01-30 a 2026-02-01)
 
 **Objetivo**: Conectar con RevenueCat y stores
 
-- [ ] **Día 1: Investigación (Context7 MCP)**
-  - [ ] Investigar opciones de pago
-  - [ ] Comparar RevenueCat vs alternativas
-  - [ ] Tomar decisión final
+- ✅ **Día 1: Investigación**
+  - ✅ Investigar opciones de pago
+  - ✅ RevenueCat seleccionado como solución óptima
+  - ✅ Decisión documentada
 
-- [ ] **Día 2-3: Configuración de Stores**
-  - [ ] Crear productos en App Store Connect
-  - [ ] Crear productos en Google Play Console
-  - [ ] Configurar trial de 7 días
-  - [ ] Configurar precios PPP
+- ✅ **Día 2-3: Configuración de Stores**
+  - ✅ Crear productos en RevenueCat Dashboard:
+    - `co.smartspend.monthly` - $4.99/mes
+    - `co.smartspend.annual` - $34.99/año
+    - `co.smartspend.lifetime` - $89.99 one-time
+  - ✅ Configurar Products.storekit para testing local iOS
+  - ⏭️ Crear productos en Google Play Console (pendiente)
+  - ⏭️ Configurar trial de 7 días en stores (pendiente)
 
-- [ ] **Día 4: Configuración de RevenueCat**
-  - [ ] Crear cuenta en RevenueCat
-  - [ ] Conectar App Store Connect
-  - [ ] Conectar Google Play Console
-  - [ ] Configurar Entitlement `pro`
+- ✅ **Día 4: Configuración de RevenueCat**
+  - ✅ Crear cuenta en RevenueCat
+  - ✅ Conectar App Store Connect con API key
+  - ✅ Configurar Entitlement `pro`
+  - ✅ Configurar webhook URL para Supabase Edge Function
+  - ✅ API keys configurados (DEV: Test Store, PROD: SmartSpend)
+  - ⏭️ Conectar Google Play Console (pendiente)
 
-- [ ] **Día 5-7: Implementación**
-  - [ ] Instalar `@revenuecat/purchases-capacitor`
-  - [ ] Crear `revenuecat.service.ts`
-  - [ ] Integrar en `App.tsx`
-  - [ ] Testing en sandbox
+- ✅ **Día 5-7: Implementación Backend y SDK**
+  - ✅ Instalar `@revenuecat/purchases-capacitor` (v8.3.2)
+  - ✅ Crear `revenuecat.service.ts` (mock y real SDK)
+  - ✅ Crear `RevenueCatProvider.tsx` con Purchases.configure() y logIn()
+  - ✅ Crear `subscription.service.ts` (3-tier fallback: SDK → Supabase → localStorage)
+  - ✅ Implementar Supabase Edge Function `revenuecat-webhook`:
+    - ✅ Handler para INITIAL_PURCHASE
+    - ✅ Handler para NON_RENEWING_PURCHASE (lifetime)
+    - ✅ Handler para RENEWAL
+    - ✅ Handler para CANCELLATION
+    - ✅ Handler para EXPIRATION
+    - ✅ Handler para UNCANCELLATION
+    - ✅ Handler para PRODUCT_CHANGE
+    - ✅ Handler para BILLING_ISSUE
+    - ✅ Upsert pattern para evitar duplicados
+  - ✅ Crear tablas Supabase:
+    - ✅ `user_subscriptions` (user_id, product_id, status, expires_at, etc.)
+    - ✅ `revenuecat_events` (auditoría de webhooks)
+    - ✅ RLS policies configuradas
+  - ✅ Integrar `Purchases.logIn()` en RevenueCatProvider, usePaywallPurchase, PaywallModal
+  - ✅ Script de testing (`test-webhook.sh`) para simular eventos RevenueCat
+  - ✅ Documentación completa en `docs/subscriptions/`
+  - ⏭️ Testing en sandbox iOS/Android (pendiente)
 
 **Entregables**:
-- ✅ Productos configurados en ambas stores
-- ✅ RevenueCat integrado y funcional
-- ✅ Flujo de compra testeado
+- ✅ Productos configurados en RevenueCat (iOS)
+- ✅ RevenueCat SDK integrado y funcional
+- ✅ Webhook backend completamente implementado
+- ✅ Database schema con RLS policies
+- ✅ Sistema de 3-tier fallback para subscription status
+- ✅ Documentación completa
+- ⏭️ Testing en sandbox iOS/Android (pendiente - 10% restante)
+- ⏭️ Productos configurados en Google Play (pendiente)
 
 ---
 
-### Fase 3: Control de Acceso (Semana 3)
+### Fase 3: Control de Acceso ✅ PARCIALMENTE COMPLETA (60%) (2026-01-31)
 
 **Objetivo**: Implementar límites de la versión Lite
 
-- [ ] **Día 1-2: Categorías**
-  - [ ] Modificar `AddEditCategoryPage.tsx`
-  - [ ] Agregar lógica de límite de 5 categorías custom
-  - [ ] Mostrar PaywallModal al límite
+- ✅ **Día 1-2: Categorías**
+  - ✅ Límite de 10 categorías definido en `pricing.ts`
+  - ✅ Hook `useSubscription` con lógica `canUseFeature('unlimited_categories')`
+  - ⏭️ Modificar `AddEditCategoryPage.tsx` para enforcar límite (pendiente)
+  - ⏭️ Mostrar PaywallModal al límite (pendiente)
 
-- [ ] **Día 3-4: Presupuestos**
-  - [ ] Modificar `BudgetPage.tsx`
-  - [ ] Agregar lógica de límite de 2 presupuestos
-  - [ ] Mostrar PaywallModal al límite
+- ✅ **Día 3-4: Presupuestos**
+  - ✅ Límite de 2 presupuestos definido en `pricing.ts`
+  - ✅ Hook `useSubscription` con lógica `canUseFeature('unlimited_budgets')`
+  - ⏭️ Modificar `BudgetPage.tsx` para enforcar límite (pendiente)
+  - ⏭️ Mostrar PaywallModal al límite (pendiente)
 
-- [ ] **Día 5: Transacciones Programadas**
-  - [ ] Modificar `ScheduledTransactionsPage.tsx`
-  - [ ] Agregar lógica de límite de 3 programadas
+- ✅ **Día 5: Transacciones Programadas**
+  - ✅ Límite de 3 programadas definido en `pricing.ts`
+  - ✅ Implementado `shouldShowPaywall` check en `ScheduledPage.tsx`
+  - ✅ PaywallModal se muestra al intentar crear más de 3
 
-- [ ] **Día 6-7: Página de Stats**
-  - [ ] Crear componente `StatsPaywallOverlay` (blur + CTA)
-  - [ ] Bloquear toda la página de Stats para Lite
-  - [ ] Mostrar contenido real blureado con botón "Desbloquear con Pro"
+- ✅ **Día 6-7: Exportación y Filtros**
+  - ✅ **Exportación CSV**: Bloqueada en `ExportCSVPage`, `TripsPage`, `HistoryPage`
+  - ✅ **Backups automáticos**: Bloqueados en `BackupMethodSelector` (solo manual para Free)
+  - ✅ **Filtros de History**: Estado, Categoría, Monto bloqueados para Free
+  - ✅ Lock icons y PRO badges implementados
+  - ⏭️ Página de Stats completa bloqueada (pendiente)
 
 **Entregables**:
-- ✅ Límites de Lite implementados
-- ✅ Paywalls contextuales funcionando
-- ✅ Stats completamente bloqueada para Lite
+- ✅ Límites definidos en constantes
+- ✅ Hooks de subscription funcionales
+- ✅ CSV exports bloqueados para Lite
+- ✅ Backups automáticos bloqueados para Lite
+- ✅ History filters bloqueados para Lite
+- ✅ Scheduled transactions con límite de 3
+- ⏭️ Categorías y Presupuestos enforcement (pendiente - 40% restante)
+- ⏭️ Stats page completamente bloqueada (pendiente - 40% restante)
 
 ---
 
@@ -809,21 +847,31 @@ src/
 - ✅ Crear Screen6_ChoosePlan.tsx
 - ✅ Actualizar ProfilePage (card 3-state)
 
-### Integración de Pagos
-- [ ] Investigar opciones (Context7)
-- [ ] Configurar productos en stores
-- [ ] Configurar RevenueCat
-- [ ] Instalar SDK
-- [ ] Crear revenuecat.service.ts
+### Integración de Pagos ✅ 90% COMPLETO
+- ✅ Investigar opciones
+- ✅ Configurar productos en RevenueCat (iOS)
+- ✅ Configurar RevenueCat dashboard y webhook
+- ✅ Instalar SDK `@revenuecat/purchases-capacitor`
+- ✅ Crear `revenuecat.service.ts` (mock y real)
+- ✅ Crear `subscription.service.ts` (3-tier fallback)
+- ✅ Implementar Supabase Edge Function webhook
+- ✅ Crear tablas `user_subscriptions` y `revenuecat_events`
+- ✅ Integrar `Purchases.logIn()` en app
+- ✅ Script de testing (`test-webhook.sh`)
+- ⏭️ Testing en sandbox iOS/Android (pendiente)
+- ⏭️ Configurar productos Google Play (pendiente)
 
-### Control de Acceso
-- [ ] Límite de 10 categorías custom
-- [ ] Límite de 2 presupuestos
-- [ ] Límite de 3 programadas
-- [ ] Stats: toda la página bloqueada con blur + CTA
-- [ ] History: solo filtros de tiempo y tipo para Lite
-- [ ] Export CSV/JSON solo Pro
-- [ ] Sistema de anuncios para Lite (AdMob)
+### Control de Acceso ⚡ 60% COMPLETO
+- ✅ Límite de 10 categorías custom (definido)
+- ✅ Límite de 2 presupuestos (definido)
+- ✅ Límite de 3 programadas (implementado y enforced)
+- ✅ Export CSV/JSON solo Pro (implementado)
+- ✅ Backups automáticos solo Pro (implementado)
+- ✅ History: filtros Estado/Categoría/Monto bloqueados para Lite (implementado)
+- ⏭️ Categorías: enforcement del límite (pendiente)
+- ⏭️ Presupuestos: enforcement del límite (pendiente)
+- ⏭️ Stats: toda la página bloqueada con blur + CTA (pendiente)
+- ⏭️ Sistema de anuncios para Lite - AdMob (pendiente)
 
 ### Onboarding ✅ COMPLETO
 - ✅ Crear Screen6_ChoosePlan.tsx
@@ -845,6 +893,18 @@ src/
 
 ## 10. Registro de Cambios
 
+### v1.2 (2026-02-01)
+- ✅ **Fase 2: 90% completa** - RevenueCat integrado con backend completo
+- 🔌 **RevenueCat SDK**: Instalado y configurado `@revenuecat/purchases-capacitor` v8.3.2
+- 🎯 **Productos configurados**: monthly, annual, lifetime en RevenueCat Dashboard
+- 🔗 **Webhook implementado**: Supabase Edge Function maneja todos los eventos (INITIAL_PURCHASE, RENEWAL, CANCELLATION, etc.)
+- 🗄️ **Database schema**: Tablas `user_subscriptions` y `revenuecat_events` con RLS policies
+- 🔄 **3-tier fallback**: RevenueCat SDK → Supabase → localStorage
+- 📝 **Documentación**: Guías completas en `docs/subscriptions/`
+- ⚡ **Fase 3: 60% completa** - Control de acceso parcial implementado
+- 🔒 **Gates implementados**: CSV exports, backups automáticos, history filters, scheduled transactions (límite 3)
+- ⏭️ **Pendiente**: Testing sandbox, enforcement de límites de categorías/presupuestos, Stats page blocking
+
 ### v1.1 (2026-01-30)
 - ✅ **Fase 1 completada** - Infraestructura base implementada
 - 🔄 **Modelo freemium actualizado**: Cloud Sync y Push Notifications movidas a tier gratuito como retention hooks
@@ -859,5 +919,5 @@ src/
 
 ---
 
-**Última actualización**: 2026-01-30
-**Estado**: Fase 1 ✅ Completa | Documento vivo
+**Última actualización**: 2026-02-01
+**Estado**: Fase 1 ✅ | Fase 2 ⚡ 90% | Fase 3 ⚡ 60% | Documento vivo
