@@ -39,6 +39,10 @@ All notable changes to SmartSpend will be documented in this file.
   - Spanish error messages for RevenueCat configuration errors
   - Error state cleanup on successful purchase to prevent stale error messages
   - Clear error when switching between pricing plans
+- docs(auth): add Apple Sign In setup documentation and token renewal script
+  - Added APPLE_SIGN_IN_SETUP.md with complete configuration guide for Apple Developer and Supabase
+  - Added generate-apple-secret.js script for JWT token generation (required every 6 months)
+  - Includes step-by-step instructions for Service ID, Private Key, and Supabase configuration
 
 ## [0.14.2] - 2026-02-01
 
