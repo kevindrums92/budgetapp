@@ -8,7 +8,7 @@ import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
-import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown } from "lucide-react";
+import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown, Chrome, Apple } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
 import { isNative } from '@/shared/utils/platform';
 import PaywallModal from '@/shared/components/modals/PaywallModal';
@@ -198,6 +198,16 @@ export default function ProfilePage() {
     };
   }, [isPro]);
 
+  // Free badge (only show when not Pro and not trialing)
+  const freeBadge = useMemo(() => {
+    if (isPro || isTrialing) return null;
+
+    return {
+      text: "FREE",
+      color: "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
+    };
+  }, [isPro, isTrialing]);
+
   return (
     <div className="min-h-dvh bg-gray-50 dark:bg-gray-950 pb-28 transition-colors">
       {/* User Account Card - Only for logged in users */}
@@ -241,11 +251,24 @@ export default function ProfilePage() {
                 <h2 className="font-bold text-lg text-gray-900 dark:text-gray-50 leading-tight truncate">
                   {user.name || "Usuario"}
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2 truncate">{user.email}</p>
+                <div className="flex items-center gap-1.5 mb-2">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                  {/* Provider icon */}
+                  {user.provider === 'google' && (
+                    <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-white dark:bg-gray-900 shadow-sm">
+                      <Chrome size={12} className="text-gray-700 dark:text-gray-300" />
+                    </div>
+                  )}
+                  {user.provider === 'apple' && (
+                    <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-black">
+                      <Apple size={12} className="text-white" />
+                    </div>
+                  )}
+                </div>
                 {/* Badges - Two rows */}
                 <div className="flex flex-col gap-2">
-                  {/* First row: PRO + TRIAL */}
-                  {(proBadge || trialBadge) && (
+                  {/* First row: PRO + TRIAL + FREE */}
+                  {(proBadge || trialBadge || freeBadge) && (
                     <div className="flex flex-wrap gap-2">
                       {proBadge && (
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${proBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
@@ -257,6 +280,11 @@ export default function ProfilePage() {
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${trialBadge.color} text-xs font-bold uppercase tracking-wider shadow-sm`}>
                           <Sparkles size={12} />
                           {trialBadge.text}
+                        </span>
+                      )}
+                      {freeBadge && (
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${freeBadge.color} text-xs font-bold uppercase tracking-wider`}>
+                          {freeBadge.text}
                         </span>
                       )}
                     </div>

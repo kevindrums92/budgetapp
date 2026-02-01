@@ -211,6 +211,7 @@ export default function CloudSyncGate() {
         email: null,
         name: null,
         avatarUrl: null,
+        provider: null,
       });
 
       setCloudMode("guest");
@@ -227,10 +228,16 @@ export default function CloudSyncGate() {
 
     // ✅ Update user state atomically with cloudMode
     const meta = session.user.user_metadata ?? {};
+    const appMeta = session.user.app_metadata ?? {};
+
+    // Get provider from app_metadata or identities
+    const provider = (appMeta.provider as string) || session.user.identities?.[0]?.provider || null;
+
     setUser({
       email: session.user.email ?? null,
       name: (meta.full_name as string) || (meta.name as string) || null,
       avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || null,
+      provider: provider as 'google' | 'apple' | null,
     });
 
     setCloudMode("cloud");
@@ -577,6 +584,7 @@ export default function CloudSyncGate() {
           email: null,
           name: null,
           avatarUrl: null,
+          provider: null,
         });
 
         setCloudMode("guest");

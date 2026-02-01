@@ -25,6 +25,20 @@ All notable changes to SmartSpend will be documented in this file.
   - Removed references to password reset flow and OTP verification for email/password
 - fix(onboarding): fix missing translation for welcome screen 6 continue button
   - Changed from 'welcome.screen6.continue' to 'welcome.screen6.startNow'
+- feat(subscription): improve subscription management page with detailed plan information and filtering
+  - Added Free plan details section showing ads and limitations
+  - Added Monthly plan upgrade option (was missing from upgrade section)
+  - Implemented proper filtering: Free users see all 3 options, Monthly subscribers see Annual/Lifetime, Annual subscribers see Monthly/Lifetime
+  - Free plan badge added to ProfilePage user card
+- feat(auth): add provider icons (Google/Apple) to ProfilePage user card
+  - Provider detection from OAuth metadata (app_metadata.provider and identities array)
+  - Chrome icon for Google users, Apple icon for Apple users
+  - Added provider field to user state in budget.store
+- fix(paywall): improve error handling and visibility in PaywallModal
+  - Error message now positioned BEFORE pricing cards for immediate visibility
+  - Spanish error messages for RevenueCat configuration errors
+  - Error state cleanup on successful purchase to prevent stale error messages
+  - Clear error when switching between pricing plans
 
 ## [0.14.2] - 2026-02-01
 

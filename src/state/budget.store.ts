@@ -93,6 +93,7 @@ type BudgetStore = BudgetState & {
     email: string | null;
     name: string | null;
     avatarUrl: string | null;
+    provider: 'google' | 'apple' | 'guest' | null;
   };
   setUser: (user: BudgetStore['user']) => void;
 
@@ -277,6 +278,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       email: null,
       name: null,
       avatarUrl: null,
+      provider: null,
     },
     setUser: (user) => set({ user }),
 

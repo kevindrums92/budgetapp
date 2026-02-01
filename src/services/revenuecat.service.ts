@@ -83,41 +83,47 @@ export interface PurchaseResult {
  * Handle RevenueCat SDK errors with user-friendly messages
  */
 function handleRevenueCatError(error: any): Error {
-  const message = error?.message || String(error);
+  const message = error?.message || error?.errorMessage || String(error);
+  const code = error?.code;
+
+  // Configuration error (code 23)
+  if (code === '23' || message.includes('configuration') || message.includes('None of the products registered')) {
+    return new Error('La aplicación está en mantenimiento. Por favor intenta más tarde.');
+  }
 
   // Purchase cancelled by user - silent fail
   if (message.includes('PURCHASE_CANCELLED') || message.includes('User cancelled')) {
-    return new Error('Purchase cancelled');
+    return new Error('Compra cancelada');
   }
 
   // Network errors
   if (message.includes('NETWORK_ERROR') || message.includes('network')) {
-    return new Error('Network error. Check your connection and try again.');
+    return new Error('Error de conexión. Verifica tu internet e intenta de nuevo.');
   }
 
   // Purchase not allowed
   if (message.includes('PURCHASE_NOT_ALLOWED') || message.includes('not allowed')) {
-    return new Error('Purchases not allowed. Check your device settings.');
+    return new Error('Compras no permitidas. Verifica la configuración de tu dispositivo.');
   }
 
   // Store issues
   if (message.includes('STORE_PROBLEM') || message.includes('store')) {
-    return new Error('Store issue. Please try again later.');
+    return new Error('Problema con la tienda. Intenta más tarde.');
   }
 
   // Receipt already in use - trigger restore
   if (message.includes('RECEIPT_ALREADY_IN_USE')) {
-    return new Error('This purchase is already linked to another account. Try restoring purchases.');
+    return new Error('Esta compra ya está vinculada a otra cuenta. Intenta restaurar compras.');
   }
 
   // Product not available
   if (message.includes('PRODUCT_NOT_AVAILABLE')) {
-    return new Error('Product not available for purchase. Please refresh and try again.');
+    return new Error('Producto no disponible. Actualiza e intenta de nuevo.');
   }
 
   // Generic error
   console.error('[RevenueCat] Unhandled error:', error);
-  return new Error('An error occurred. Please try again.');
+  return new Error('Ocurrió un error. Por favor intenta de nuevo.');
 }
 
 // ==================== SDK TYPE MAPPING ====================
