@@ -13,6 +13,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(stats): calculate daily average with transactions up to today only
+  - Fixed daily average calculation to only include transactions up to current date
+  - Separated allMonthExpenses (for category list) from currentMonthExpenses (for stats calculations)
+  - Filter modal now shows all expense categories, not just those with transactions in the month
 - feat(auth): implement Apple Sign In authentication
   - Added handleAppleLogin() in LoginScreen and LoginProScreen
   - Replaced placeholder "coming soon" handler with full OAuth implementation
