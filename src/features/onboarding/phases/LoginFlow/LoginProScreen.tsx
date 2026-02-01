@@ -133,6 +133,63 @@ export default function LoginProScreen() {
         }
       }
 
+      // ✅ CHECK: Verify if user already has an active subscription
+      // This prevents showing purchase flow to users who already bought Pro on another device
+      console.log('[LoginProScreen] Checking for existing subscription...');
+      const { getSubscription } = await import('@/services/subscription.service');
+      const existingSubscription = await getSubscription(user.id);
+
+      if (existingSubscription && (existingSubscription.status === 'active' || existingSubscription.status === 'trialing')) {
+        console.log('[LoginProScreen] User already has active subscription:', existingSubscription);
+
+        // Sync to store
+        const { useBudgetStore } = await import('@/state/budget.store');
+        useBudgetStore.getState().setSubscription(existingSubscription);
+
+        // Navigate based on user data (same logic as after purchase)
+        const { getCloudState } = await import('@/services/cloudState.service');
+        const cloudData = await getCloudState();
+
+        if (cloudData) {
+          const hasCloudData = (cloudData.categoryDefinitions && cloudData.categoryDefinitions.length > 0) ||
+                               (cloudData.transactions && cloudData.transactions.length > 0) ||
+                               (cloudData.trips && cloudData.trips.length > 0);
+
+          if (hasCloudData) {
+            console.log('[LoginProScreen] Existing Pro user with cloud data → App');
+            localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+            localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+            navigate('/', { replace: true });
+            return;
+          }
+        }
+
+        // Check local data
+        const { loadState } = await import('@/services/storage.service');
+        const localData = loadState();
+
+        if (localData) {
+          const hasLocalData = (localData.categoryDefinitions && localData.categoryDefinitions.length > 0) ||
+                               (localData.transactions && localData.transactions.length > 0) ||
+                               (localData.trips && localData.trips.length > 0);
+
+          if (hasLocalData) {
+            console.log('[LoginProScreen] Existing Pro user with local data → App');
+            localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+            localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+            navigate('/', { replace: true });
+            return;
+          }
+        }
+
+        // New Pro user → First Config
+        console.log('[LoginProScreen] Existing Pro user (new device) → First Config');
+        navigate('/onboarding/config/1', { replace: true });
+        return;
+      }
+
+      console.log('[LoginProScreen] No existing subscription found, proceeding with purchase...');
+
       // Activar trial con RevenueCat
       const { purchasePackage, getOfferings } = await import('@/services/revenuecat.service');
 
@@ -171,11 +228,11 @@ export default function LoginProScreen() {
       const purchaseResult = await purchasePackage(packageToPurchase);
       console.log('[LoginProScreen] Trial activated:', purchaseResult);
 
-      // Sync subscription state with Zustand store
+      // Sync subscription state with Zustand store using new subscription service
       const { useBudgetStore } = await import('@/state/budget.store');
-      const syncWithRevenueCat = useBudgetStore.getState().syncWithRevenueCat;
-      await syncWithRevenueCat();
-      console.log('[LoginProScreen] Subscription synced with store');
+      const subscription = await getSubscription(user.id);
+      useBudgetStore.getState().setSubscription(subscription);
+      console.log('[LoginProScreen] Subscription synced with store:', subscription?.status);
 
       // Check cloud data to determine if new or returning user
       const { getCloudState } = await import('@/services/cloudState.service');

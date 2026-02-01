@@ -10,6 +10,7 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(monetization): prevent duplicate purchase attempts for users with existing Pro subscriptions in LoginProScreen (verifies subscription before purchase flow)
 - feat(monetization): implement production RevenueCat subscription system with hybrid architecture (RevenueCat SDK → Supabase cache → localStorage fallback)
 - feat(backend): add Supabase Edge Function (`revenuecat-webhook`) to process RevenueCat webhook events (INITIAL_PURCHASE, RENEWAL, CANCELLATION, EXPIRATION, etc.)
 - feat(db): create `user_subscriptions` and `revenuecat_events` tables with RLS policies for subscription state management and audit logging
