@@ -11,10 +11,7 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
-
 ## [unreleased] - {relase date}
-
-## [0.14.3] - 2026-02-01
 
 - fix(stats): calculate daily average with transactions up to today only
   - Fixed daily average calculation to only include transactions up to current date
