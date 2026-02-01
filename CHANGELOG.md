@@ -12,6 +12,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(webhook): update RevenueCat webhook interface to handle nullable fields from real payloads
+  - Updated TypeScript interface: entitlement_ids, currency, price, transaction_id, is_family_share now accept null
+  - Added entitlement_id (singular) field support
+  - Implemented defensive entitlement handling (singular/plural fields with fallback to ['pro'])
+- chore(ios): remove Products.storekit from Xcode project references (kept in repo for local testing only)
+
 ## [0.14.1] - 2026-01-31
 
 - fix(ios): configure app as iPhone-only to resolve TestFlight validation error for iPad multitasking orientation requirements

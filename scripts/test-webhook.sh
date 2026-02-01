@@ -46,7 +46,10 @@ set -e
 SUPABASE_URL="${SUPABASE_URL:-https://plvuebqjwjcheyxprlmg.supabase.co}"
 
 # El secret que configuraste con: npx supabase secrets set REVENUECAT_WEBHOOK_SECRET=...
-WEBHOOK_SECRET="${WEBHOOK_SECRET:-pVdYvGm3pfJU+DVbF5U3d7mSI30vxItNlt9v7bVO5po=}"
+#WEBHOOK_SECRET="${WEBHOOK_SECRET:-pVdYvGm3pfJU+DVbF5U3d7mSI30vxItNlt9v7bVO5po=}" #DEV
+#WEBHOOK_SECRET="${WEBHOOK_SECRET:-xYZdRTq+omYt2Wph0XYLo5zTC0qZm52dZKvV7iC5Msk=}" #PROD
+WEBHOOK_SECRET="${WEBHOOK_SECRET:-xYZdRTq+omYt2Wph0XYLo5zTC0qZm52dZKvV7iC5Msk=}" #PROD
+
 
 # Producto por defecto (plan mensual)
 DEFAULT_PRODUCT="co.smartspend.monthly"

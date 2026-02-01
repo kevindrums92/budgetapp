@@ -55,17 +55,19 @@ interface RevenueCatWebhookPayload {
     app_id: string;
     event_timestamp_ms: number;
     product_id: string;
-    entitlement_ids: string[];
+    entitlement_id: string | null; // Singular field (some events use this)
+    entitlement_ids: string[] | null; // Plural field (some events use this)
     purchased_at_ms: number;
     expiration_at_ms: number | null;
     period_type: string;
-    currency: string;
-    price: number;
+    currency: string | null;
+    price: number | null;
     store: string;
     environment: string;
-    is_family_share: boolean;
+    is_family_share: boolean | null;
     country_code: string;
-    transaction_id: string;
+    transaction_id: string | null;
+    original_transaction_id: string | null;
     subscriber_attributes?: Record<string, any>;
   };
   api_version: string;
@@ -133,6 +135,7 @@ async function handleInitialPurchase(
   const {
     app_user_id,
     product_id,
+    entitlement_id,
     entitlement_ids,
     purchased_at_ms,
     expiration_at_ms,
@@ -152,12 +155,18 @@ async function handleInitialPurchase(
 
   console.log(`[INITIAL_PURCHASE] User: ${app_user_id}, Product: ${product_id}, Status: ${status}`);
 
+  // Normalize entitlements (handle both singular and plural fields, and null values)
+  const normalizedEntitlements =
+    entitlement_ids ?? // Use plural if available
+    (entitlement_id ? [entitlement_id] : null) ?? // Convert singular to array
+    ['pro']; // Default fallback
+
   // Upsert subscription record
   const subscriptionData: Omit<UserSubscription, 'id'> = {
     user_id: app_user_id,
     product_id,
-    entitlement_ids: entitlement_ids || ['pro'],
-    original_transaction_id: transaction_id,
+    entitlement_ids: normalizedEntitlements,
+    original_transaction_id: transaction_id ?? null,
     status,
     period_type: (period_type?.toLowerCase() as 'trial' | 'normal') || 'normal',
     purchased_at: new Date(purchased_at_ms).toISOString(),
