@@ -22,14 +22,8 @@ export const ENV = {
 
   // RevenueCat configuration
   revenuecat: {
-    ios: {
-      dev: import.meta.env.VITE_REVENUECAT_IOS_API_KEY_DEV || '',
-      prod: import.meta.env.VITE_REVENUECAT_IOS_API_KEY_PROD || '',
-    },
-    android: {
-      dev: import.meta.env.VITE_REVENUECAT_ANDROID_API_KEY_DEV || '',
-      prod: import.meta.env.VITE_REVENUECAT_ANDROID_API_KEY_PROD || '',
-    },
+    iosApiKey: import.meta.env.VITE_REVENUECAT_IOS_API_KEY_PROD || '',
+    androidApiKey: import.meta.env.VITE_REVENUECAT_ANDROID_API_KEY_PROD || '',
   },
 };
 
@@ -47,15 +41,15 @@ export function getOAuthRedirectUrl(): string {
 }
 
 /**
- * Get RevenueCat API key based on platform and environment
+ * Get RevenueCat API key based on platform
  *
  * Returns the correct API key for:
- * - iOS Dev: appl_xxxxxxxxxxxxxxxx (dev)
- * - iOS Prod: appl_xxxxxxxxxxxxxxxx (prod)
- * - Android Dev: goog_xxxxxxxxxxxxxxxx (dev)
- * - Android Prod: goog_xxxxxxxxxxxxxxxx (prod)
+ * - iOS: appl_xxxxxxxxxxxxxxxx
+ * - Android: goog_xxxxxxxxxxxxxxxx
  *
  * Returns empty string for web (uses mock).
+ *
+ * Note: Only production keys are stored. For testing, manually swap the keys in .env.local.
  */
 export function getRevenueCatApiKey(): string {
   const platform = Capacitor.getPlatform();
@@ -65,13 +59,13 @@ export function getRevenueCatApiKey(): string {
     return '';
   }
 
-  // Get API key based on platform and environment
+  // Get API key based on platform
   if (platform === 'ios') {
-    return ENV.isDev ? ENV.revenuecat.ios.dev : ENV.revenuecat.ios.prod;
+    return ENV.revenuecat.iosApiKey;
   }
 
   if (platform === 'android') {
-    return ENV.isDev ? ENV.revenuecat.android.dev : ENV.revenuecat.android.prod;
+    return ENV.revenuecat.androidApiKey;
   }
 
   // Unknown platform
@@ -90,7 +84,7 @@ if (ENV.isDev) {
 
   const rcApiKey = getRevenueCatApiKey();
   if (rcApiKey) {
-    console.log(`💰 RevenueCat: Configured (${Capacitor.getPlatform()} ${ENV.isDev ? 'DEV' : 'PROD'})`);
+    console.log(`💰 RevenueCat: Configured (${Capacitor.getPlatform()})`);
   } else {
     console.log(`💰 RevenueCat: Using mock (web or missing API key)`);
   }

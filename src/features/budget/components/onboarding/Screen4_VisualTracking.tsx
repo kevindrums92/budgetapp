@@ -4,6 +4,7 @@
  */
 
 import { AlertTriangle, Target, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
 
@@ -25,6 +26,8 @@ export default function Screen4_HealthCheck({
   currentStep,
   totalSteps,
 }: Props) {
+  const { t } = useTranslation('budget');
+
   return (
     <div
       className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950"
@@ -40,7 +43,7 @@ export default function Screen4_HealthCheck({
             type="button"
             onClick={onBack}
             className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
-            aria-label="Volver"
+            aria-label={t('onboarding.skip', 'Volver')}
           >
             <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
           </button>
@@ -58,13 +61,13 @@ export default function Screen4_HealthCheck({
         <div className="mb-6">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-              Alertas Inteligentes
+              {t('onboarding.screen4.title', 'Alertas Inteligentes')}
             </h1>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={50}>
             <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-              Recibe notificaciones automáticas sobre el estado de tus planes.
+              {t('onboarding.screen4.subtitle', 'Recibe notificaciones automáticas sobre el estado de tus planes.')}
             </p>
           </SlideAnimation>
         </div>
@@ -74,7 +77,7 @@ export default function Screen4_HealthCheck({
           <SlideAnimation direction="up" delay={100}>
             <div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-3 border border-red-200 dark:border-red-800">
               <p className="text-sm font-medium text-red-700 dark:text-red-400">
-                ⚠️ Tienes 2 límites excedidos
+                {t('onboarding.screen4.limitsExceeded', '⚠️ Tienes 2 límites excedidos')}
               </p>
             </div>
           </SlideAnimation>
@@ -82,7 +85,7 @@ export default function Screen4_HealthCheck({
           <SlideAnimation direction="up" delay={150}>
             <div className="rounded-xl bg-teal-50 dark:bg-teal-950/30 p-3 border border-teal-200 dark:border-teal-800">
               <p className="text-sm font-medium text-teal-700 dark:text-teal-400">
-                🎯 Has completado el 75% de tus metas de ahorro
+                {t('onboarding.screen4.goalsProgress', '🎯 Has completado el 75% de tus metas de ahorro')}
               </p>
             </div>
           </SlideAnimation>
@@ -92,10 +95,8 @@ export default function Screen4_HealthCheck({
           <div className="mb-6 flex gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 p-4">
             <AlertTriangle size={20} className="mt-0.5 shrink-0 text-red-600 dark:text-red-400" strokeWidth={2.5} />
             <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-              <p className="font-medium mb-1">Resumen Automático</p>
-              <p>
-                Visualiza un <strong>resumen del estado</strong> de todos tus planes activos: límites excedidos y progreso de metas.
-              </p>
+              <p className="font-medium mb-1">{t('onboarding.screen4.summaryTitle', 'Resumen Automático')}</p>
+              <p dangerouslySetInnerHTML={{ __html: t('onboarding.screen4.summaryDescription', 'Visualiza un <strong>resumen del estado</strong> de todos tus planes activos: límites excedidos y progreso de metas.') }} />
             </div>
           </div>
         </SlideAnimation>
@@ -104,7 +105,7 @@ export default function Screen4_HealthCheck({
         <SlideAnimation direction="up" delay={250}>
           <div className="mb-4 rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">
-              Métricas Inteligentes
+              {t('onboarding.screen4.metricsTitle', 'Métricas Inteligentes')}
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
@@ -115,7 +116,7 @@ export default function Screen4_HealthCheck({
                   </svg>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Sugerencia Diaria
+                  {t('onboarding.screen4.dailySuggestion', 'Sugerencia Diaria')}
                 </p>
                 <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
                   $ 15.000
@@ -129,7 +130,7 @@ export default function Screen4_HealthCheck({
                   </svg>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  Días restantes
+                  {t('onboarding.screen4.daysRemaining', 'Días restantes')}
                 </p>
                 <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
                   12 días
@@ -143,10 +144,8 @@ export default function Screen4_HealthCheck({
           <div className="mb-4 flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
             <Target size={20} className="mt-0.5 shrink-0 text-[#18B7B0]" strokeWidth={2.5} />
             <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-              <p className="font-medium mb-1">Recomendaciones Personalizadas</p>
-              <p>
-                Recibe <strong>sugerencias diarias</strong> de cuánto gastar o ahorrar para cumplir tus objetivos según los días restantes.
-              </p>
+              <p className="font-medium mb-1">{t('onboarding.screen4.recommendationsTitle', 'Recomendaciones Personalizadas')}</p>
+              <p dangerouslySetInnerHTML={{ __html: t('onboarding.screen4.recommendationsDescription', 'Recibe <strong>sugerencias diarias</strong> de cuánto gastar o ahorrar para cumplir tus objetivos según los días restantes.') }} />
             </div>
           </div>
         </SlideAnimation>
@@ -159,7 +158,7 @@ export default function Screen4_HealthCheck({
           onClick={onNext}
           className="w-full rounded-2xl bg-gray-900 dark:bg-emerald-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          ¡Comenzar!
+          {t('onboarding.screen4.start', '¡Comenzar!')}
         </button>
       </div>
     </div>

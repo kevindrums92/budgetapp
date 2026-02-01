@@ -12,6 +12,27 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- docs(push-notifications): add instructions for changing cron job schedules
+  - Added new section "⏰ Cambiar Horarios de Cron Jobs" in PROD_CHECKLIST.md
+  - Includes UTC to Colombia (UTC-5) conversion examples
+  - Shows how to use cron.alter_job() to change schedule
+  - Provides quick reference table for common times
+- fix(edge-functions): fix send-upcoming-transactions not detecting transactions without explicit status field
+  - Bug: Transactions generated from templates may not have `status: 'pending'` or `status: 'scheduled'`
+  - Previous filter required explicit status, causing valid upcoming transactions to be skipped
+  - New filter detects any transaction with `date = tomorrow` that is not a recurring template (`!schedule?.enabled`)
+  - Resolves issue where users with valid upcoming transactions were not receiving notifications
+- refactor(env): simplify RevenueCat API key configuration to use only PROD keys
+  - Removed separate DEV/PROD environment variables
+  - Now uses only VITE_REVENUECAT_IOS_API_KEY_PROD and VITE_REVENUECAT_ANDROID_API_KEY_PROD
+  - Updated src/config/env.ts to remove dev/prod key selection logic
+  - For testing with sandbox stores, manually swap keys in .env.local
+  - Reduces configuration complexity and environment variable clutter
+- chore(edge-functions): add verbose logging to all push notification edge functions
+  - Added detailed console.log statements to send-daily-reminder, send-upcoming-transactions, and send-daily-summary
+  - Logs now show: execution start, token counts, per-user checking status, skip reasons, FCM results, and final summary
+  - Improves debugging and monitoring of cron job executions in production
+  - Logs visible in Supabase Dashboard → Edge Functions → Logs tab
 - docs(monetization): update monetization plan to v1.2 with Phase 2 and Phase 3 progress tracking
   - Phase 2 (RevenueCat Integration): 90% complete - SDK installed, webhook implemented, database schema created
   - Phase 3 (Access Control): 60% complete - CSV exports, backups, history filters, and scheduled transactions gated

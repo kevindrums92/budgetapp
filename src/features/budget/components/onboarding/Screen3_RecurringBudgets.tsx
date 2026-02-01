@@ -4,6 +4,7 @@
  */
 
 import { Clock, CheckCircle, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import SlideAnimation from '@/features/onboarding/components/SlideAnimation';
 import ProgressDots from '@/features/onboarding/components/ProgressDots';
 
@@ -27,6 +28,8 @@ export default function Screen3_HistoryAndTabs({
   currentStep,
   totalSteps,
 }: Props) {
+  const { t } = useTranslation('budget');
+
   return (
     <div
       className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950"
@@ -42,7 +45,7 @@ export default function Screen3_HistoryAndTabs({
             type="button"
             onClick={onBack}
             className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
-            aria-label="Volver"
+            aria-label={t('onboarding.skip', 'Volver')}
           >
             <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
           </button>
@@ -58,7 +61,7 @@ export default function Screen3_HistoryAndTabs({
             onClick={onSkip}
             className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
           >
-            Omitir
+            {t('onboarding.skip', 'Omitir')}
           </button>
         ) : (
           <div className="h-10 w-10" />
@@ -70,13 +73,13 @@ export default function Screen3_HistoryAndTabs({
         <div className="mb-6">
           <SlideAnimation direction="right" delay={0}>
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-              Revisa tu Historial
+              {t('onboarding.screen3.title', 'Revisa tu Historial')}
             </h1>
           </SlideAnimation>
 
           <SlideAnimation direction="up" delay={50}>
             <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-              Filtra entre tus planes activos y completados para analizar resultados.
+              {t('onboarding.screen3.subtitle', 'Filtra entre tus planes activos y completados para analizar resultados.')}
             </p>
           </SlideAnimation>
         </div>
@@ -89,14 +92,14 @@ export default function Screen3_HistoryAndTabs({
               className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold uppercase tracking-wide transition-all bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900"
             >
               <Clock size={14} strokeWidth={2.5} />
-              Activos
+              {t('onboarding.screen3.activeTab', 'Activos')}
             </button>
             <button
               type="button"
               className="flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold uppercase tracking-wide transition-all bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
             >
               <CheckCircle size={14} strokeWidth={2.5} />
-              Completados
+              {t('onboarding.screen3.completedTab', 'Completados')}
             </button>
           </div>
         </SlideAnimation>
@@ -113,13 +116,13 @@ export default function Screen3_HistoryAndTabs({
               </div>
               <div className="flex-1 min-w-0">
                 <span className="font-semibold text-gray-900 dark:text-gray-50 truncate block">
-                  Fondo de Emergencia
+                  {t('onboarding.screen3.exampleCategory', 'Fondo de Emergencia')}
                 </span>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Meta de ahorro
+                  {t('onboarding.screen3.exampleType', 'Meta de ahorro')}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">
-                  1 dic - 31 dic de 2025
+                  {t('onboarding.screen3.examplePeriod', '1 dic - 31 dic de 2025')}
                 </p>
               </div>
             </div>
@@ -148,7 +151,7 @@ export default function Screen3_HistoryAndTabs({
 
             {/* Status message */}
             <p className="text-xs text-teal-600 dark:text-teal-400">
-              ¡Meta alcanzada! 🎉 · Superaste por $ 50.000
+              {t('onboarding.screen3.exampleStatus', '¡Meta alcanzada! 🎉 · Superaste por $ 50.000')}
             </p>
           </div>
         </SlideAnimation>
@@ -158,10 +161,8 @@ export default function Screen3_HistoryAndTabs({
           <div className="mb-4 flex gap-3 rounded-xl bg-[#18B7B0]/10 p-4">
             <CheckCircle size={20} className="mt-0.5 shrink-0 text-[#18B7B0]" strokeWidth={2.5} />
             <div className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-              <p className="font-medium mb-1">Resultados Detallados</p>
-              <p>
-                Cuando un plan termina, se muestra un <strong>resumen completo</strong>: si cumpliste la meta, respetaste el límite, o cuánto te excediste.
-              </p>
+              <p className="font-medium mb-1">{t('onboarding.screen3.infoTitle', 'Resultados Detallados')}</p>
+              <p dangerouslySetInnerHTML={{ __html: t('onboarding.screen3.infoDescription', 'Cuando un plan termina, se muestra un <strong>resumen completo</strong>: si cumpliste la meta, respetaste el límite, o cuánto te excediste.') }} />
             </div>
           </div>
         </SlideAnimation>
@@ -174,7 +175,7 @@ export default function Screen3_HistoryAndTabs({
           onClick={onNext}
           className="w-full rounded-2xl bg-gray-900 dark:bg-emerald-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
         >
-          Continuar
+          {t('onboarding.screen3.continue', 'Continuar')}
         </button>
       </div>
     </div>

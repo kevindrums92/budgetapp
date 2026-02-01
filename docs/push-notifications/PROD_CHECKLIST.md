@@ -249,6 +249,49 @@ LIMIT 20;
 
 ---
 
+## ⏰ Cambiar Horarios de Cron Jobs
+
+Los cron jobs usan **UTC** como zona horaria. Para Colombia (UTC-5), debes **sumar 5 horas** al horario deseado.
+
+### Cambiar horario de `send-upcoming-transactions`
+
+**Ejemplo: Para que se ejecute a las 11:00 AM COT (Colombia):**
+
+```sql
+-- Ver horario actual
+SELECT jobid, schedule, jobname FROM cron.job WHERE jobname = 'send-upcoming-transactions';
+
+-- Cambiar a 11:00 AM COT = 4:00 PM UTC (16:00)
+SELECT cron.alter_job(
+  job_id := (SELECT jobid FROM cron.job WHERE jobname = 'send-upcoming-transactions'),
+  schedule := '0 16 * * *'  -- Minuto 0, Hora 16 (4:00 PM UTC = 11:00 AM UTC-5)
+);
+
+-- Verificar el cambio
+SELECT jobid, schedule, jobname FROM cron.job WHERE jobname = 'send-upcoming-transactions';
+```
+
+### Formato de Schedule
+
+El formato es: `minuto hora día mes día_de_semana`
+
+**Ejemplos comunes:**
+- `0 16 * * *` = 4:00 PM UTC = 11:00 AM COT
+- `30 15 * * *` = 3:30 PM UTC = 10:30 AM COT
+- `0 14 * * *` = 2:00 PM UTC = 9:00 AM COT
+
+### Conversión rápida UTC ↔ Colombia
+
+| Hora COT (UTC-5) | Hora UTC | Cron Schedule |
+|------------------|----------|---------------|
+| 8:00 AM | 1:00 PM | `0 13 * * *` |
+| 9:00 AM | 2:00 PM | `0 14 * * *` |
+| 10:00 AM | 3:00 PM | `0 15 * * *` |
+| 11:00 AM | 4:00 PM | `0 16 * * *` |
+| 12:00 PM | 5:00 PM | `0 17 * * *` |
+
+---
+
 ## 💰 Costos
 
 - **Firebase FCM:** $0 (gratis ilimitado)
