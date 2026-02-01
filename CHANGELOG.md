@@ -14,6 +14,18 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- chore(ios): bump iOS version to 0.14.3 (build 10)
+- docs(monetization): add comprehensive monetization strategy with ads for free version
+  - Complete market research for 2026 ad networks (AdMob, Meta, AppLovin, Unity Ads, InMobi)
+  - SDK recommendations for Capacitor integration (@capacitor-community/admob)
+  - Ad format analysis (interstitial, rewarded video, banner, native)
+  - Implementation roadmap with 10-week plan (5 sprints)
+  - Rewarded video strategy with feature unlocks (stats, categories, backups, exports)
+  - Revenue projections ($20-500/month depending on MAU)
+  - UX best practices and common mistakes to avoid
+  - Premium subscription plan comparison (Free vs Pro features)
+  - Technical stack and configuration examples
+
 ## [0.14.3] - 2026-02-01
 
 - fix(stats): calculate daily average with transactions up to today only
