@@ -21,7 +21,6 @@ import { useCurrency } from "@/features/currency";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { kebabToPascal } from "@/shared/utils/string.utils";
-import type { Category } from "@/types/budget.types";
 import FilterStatisticsSheet from "../components/FilterStatisticsSheet";
 import ComparisonSheet from "../components/ComparisonSheet";
 import TopDaySheet from "../components/TopDaySheet";
@@ -181,8 +180,18 @@ export default function StatsPage() {
 
   // Quick stats for selected month
   const quickStats = useMemo(() => {
-    const currentMonthExpenses = transactions.filter(
+    // Get today's date for filtering and calculations
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0]; // YYYY-MM-DD format
+
+    // All expenses in the month (for category list in filter modal)
+    const allMonthExpenses = transactions.filter(
       (t) => t.type === "expense" && t.date.slice(0, 7) === selectedMonth
+    );
+
+    // Current expenses (only up to today, for stats calculations)
+    const currentMonthExpenses = transactions.filter(
+      (t) => t.type === "expense" && t.date.slice(0, 7) === selectedMonth && t.date <= todayStr
     );
 
     // Total expenses this month
@@ -201,7 +210,6 @@ export default function StatsPage() {
     );
 
     // Determine current day and if this is the current month
-    const today = new Date();
     const isCurrentMonth = selectedMonth === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
     const currentDay = isCurrentMonth ? today.getDate() : daysInMonth;
     const daysRemaining = daysInMonth - currentDay;
@@ -302,17 +310,15 @@ export default function StatsPage() {
       prevMonthExpenses > 0 ? (monthDiff / prevMonthExpenses) * 100 : 0;
 
     // Categories with expenses this month (for daily average modal)
-    const categoriesWithExpenses = Array.from(
-      new Set(currentMonthExpenses.map((t) => t.category))
-    )
-      .map((categoryId) => {
-        const cat = categoryDefinitions.find((c) => c.id === categoryId);
-        const total = currentMonthExpenses
-          .filter((t) => t.category === categoryId)
+    // Show ALL expense categories, not just those with transactions
+    const categoriesWithExpenses = categoryDefinitions
+      .filter((cat) => cat.type === "expense")
+      .map((cat) => {
+        const total = allMonthExpenses
+          .filter((t) => t.category === cat.id)
           .reduce((sum, t) => sum + t.amount, 0);
-        return cat ? { ...cat, total } : null;
+        return { ...cat, total };
       })
-      .filter((c): c is Category & { total: number } => c !== null)
       .sort((a, b) => b.total - a.total);
 
     return {

@@ -28,7 +28,10 @@ export default function SubscriptionManagementPage() {
   const [restoreMessage, setRestoreMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
+    onSuccess: () => {
+      setShowPaywall(false);
+      setRestoreMessage(null); // Clear any previous errors
+    },
     onError: () => setRestoreMessage({ type: 'error', text: t("subscription.messages.purchaseError") }),
   });
 
@@ -164,6 +167,25 @@ export default function SubscriptionManagementPage() {
             )}
           </div>
 
+          {/* Free plan details */}
+          {currentPlan === 'free' && !isTrialing && (
+            <div className="mb-4 space-y-2">
+              <p className="text-sm font-medium opacity-90">
+                {t("subscription.freePlanIncludes")}:
+              </p>
+              <ul className="text-xs space-y-1.5 opacity-90">
+                <li className="flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-white" />
+                  {t("subscription.freePlanFeature1")}
+                </li>
+                <li className="flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-white" />
+                  {t("subscription.freePlanFeature2")}
+                </li>
+              </ul>
+            </div>
+          )}
+
           {/* Status */}
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 size={18} />
@@ -220,18 +242,44 @@ export default function SubscriptionManagementPage() {
               {t("subscription.upgradePlan")}
             </h3>
             <div className="space-y-3">
+              {/* Monthly Plan - Show if free or annual */}
+              {(currentPlan === 'free' || currentPlan === 'annual') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRestoreMessage(null); // Clear any previous messages
+                    setShowPaywall(true);
+                  }}
+                  className="w-full rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm border border-gray-200 dark:border-gray-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors text-left"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-gray-50">{t("subscription.monthlyPlan")}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatPrice(PRICING_PLANS.monthly.price, PRICING_PLANS.monthly.currency)}{t("subscription.perMonth")}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {t("subscription.flexibleMonthlyBilling")}
+                      </p>
+                    </div>
+                    <ChevronLeft size={20} className="text-gray-400 rotate-180" />
+                  </div>
+                </button>
+              )}
+
               {/* Annual Plan - Show if monthly or free */}
               {(currentPlan === 'free' || currentPlan === 'monthly') && (
                 <button
                   type="button"
-                  onClick={() => setShowPaywall(true)}
+                  onClick={() => {
+                    setRestoreMessage(null); // Clear any previous messages
+                    setShowPaywall(true);
+                  }}
                   className="w-full rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm border border-gray-200 dark:border-gray-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors text-left"
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-gray-900 dark:text-gray-50">{t("subscription.annualPlan")}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">{formatPrice(PRICING_PLANS.annual.price, PRICING_PLANS.annual.currency)}{t("subscription.perYear")}</p>
-                      {currentPlan === 'monthly' && (
+                      {(currentPlan === 'monthly' || currentPlan === 'free') && (
                         <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
                           {t("subscription.savingsPerYear", { amount: annualSavings.toFixed(2) })}
                         </p>
@@ -246,7 +294,10 @@ export default function SubscriptionManagementPage() {
               {!isLifetime && (
                 <button
                   type="button"
-                  onClick={() => setShowPaywall(true)}
+                  onClick={() => {
+                    setRestoreMessage(null); // Clear any previous messages
+                    setShowPaywall(true);
+                  }}
                   className="w-full rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 p-4 shadow-sm border border-emerald-200 dark:border-emerald-800 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors text-left"
                 >
                   <div className="flex items-center justify-between">

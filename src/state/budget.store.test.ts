@@ -1516,12 +1516,14 @@ describe('budget.store', () => {
           email: 'test@example.com',
           name: 'Test User',
           avatarUrl: 'https://example.com/avatar.jpg',
+          provider: 'google',
         });
 
         const user = useBudgetStore.getState().user;
         expect(user.email).toBe('test@example.com');
         expect(user.name).toBe('Test User');
         expect(user.avatarUrl).toBe('https://example.com/avatar.jpg');
+        expect(user.provider).toBe('google');
       });
     });
 

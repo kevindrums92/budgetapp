@@ -11,7 +11,45 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.14.3] - 2026-02-01
+
+- fix(stats): calculate daily average with transactions up to today only
+  - Fixed daily average calculation to only include transactions up to current date
+  - Separated allMonthExpenses (for category list) from currentMonthExpenses (for stats calculations)
+  - Filter modal now shows all expense categories, not just those with transactions in the month
+- feat(auth): implement Apple Sign In authentication
+  - Added handleAppleLogin() in LoginScreen and LoginProScreen
+  - Replaced placeholder "coming soon" handler with full OAuth implementation
+  - Removed opacity-60 from Apple buttons (no longer disabled)
+  - Updated FEATURES.md to document Apple Sign In as available authentication method
+  - Follows same OAuth pattern as Google (provider-agnostic deep link handling)
+- refactor(auth): remove email/password authentication method from login screen
+  - Removed email/password button and navigation from LoginScreen component
+  - Updated FEATURES.md to document only Google OAuth as available authentication method
+  - Removed references to password reset flow and OTP verification for email/password
+- fix(onboarding): fix missing translation for welcome screen 6 continue button
+  - Changed from 'welcome.screen6.continue' to 'welcome.screen6.startNow'
+- feat(subscription): improve subscription management page with detailed plan information and filtering
+  - Added Free plan details section showing ads and limitations
+  - Added Monthly plan upgrade option (was missing from upgrade section)
+  - Implemented proper filtering: Free users see all 3 options, Monthly subscribers see Annual/Lifetime, Annual subscribers see Monthly/Lifetime
+  - Free plan badge added to ProfilePage user card
+- feat(auth): add provider icons (Google/Apple) to ProfilePage user card
+  - Provider detection from OAuth metadata (app_metadata.provider and identities array)
+  - Chrome icon for Google users, Apple icon for Apple users
+  - Added provider field to user state in budget.store
+- fix(paywall): improve error handling and visibility in PaywallModal
+  - Error message now positioned BEFORE pricing cards for immediate visibility
+  - Spanish error messages for RevenueCat configuration errors
+  - Error state cleanup on successful purchase to prevent stale error messages
+  - Clear error when switching between pricing plans
+- docs(auth): add Apple Sign In setup documentation and token renewal script
+  - Added APPLE_SIGN_IN_SETUP.md with complete configuration guide for Apple Developer and Supabase
+  - Added generate-apple-secret.js script for JWT token generation (required every 6 months)
+  - Includes step-by-step instructions for Service ID, Private Key, and Supabase configuration
 
 ## [0.14.2] - 2026-02-01
 

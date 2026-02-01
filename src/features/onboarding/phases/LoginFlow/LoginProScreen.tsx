@@ -342,11 +342,31 @@ export default function LoginProScreen() {
   };
 
   /**
-   * Placeholder para Apple (próximamente)
+   * Maneja el login con Apple OAuth
    */
-  const handleAppleComingSoon = () => {
-    setError(t('login.errorApple'));
-    setTimeout(() => setError(null), 3000);
+  const handleAppleLogin = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
+      console.log('[LoginProScreen] Apple OAuth redirect URL:', redirectTo);
+
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo,
+        },
+      });
+
+      if (authError) throw authError;
+
+      console.log('[LoginProScreen] Apple OAuth initiated');
+    } catch (err: any) {
+      console.error('[LoginProScreen] Error en Apple login:', err);
+      setError(err.message || 'Error al iniciar sesión con Apple');
+      setLoading(false);
+    }
   };
 
   // Get plan display name
@@ -434,9 +454,9 @@ export default function LoginProScreen() {
           {/* Apple Sign In - Full width button */}
           <button
             type="button"
-            onClick={handleAppleComingSoon}
+            onClick={handleAppleLogin}
             disabled={loading}
-            className="flex w-full items-center gap-4 rounded-2xl bg-black p-4 shadow-lg opacity-60 transition-all active:scale-[0.98]"
+            className="flex w-full items-center gap-4 rounded-2xl bg-black p-4 shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10">
               <Apple className="h-6 w-6 text-white" />
@@ -445,6 +465,7 @@ export default function LoginProScreen() {
               <p className="text-sm font-semibold text-white">{t('login.apple')}</p>
               <p className="mt-0.5 text-xs text-white/70">Continuar con Apple</p>
             </div>
+            {loading && <Loader2 className="h-5 w-5 animate-spin text-white" />}
           </button>
         </div>
 

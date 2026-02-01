@@ -85,13 +85,18 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
         options?.onSuccess?.();
       } catch (error) {
         console.error('[usePaywallPurchase] Purchase failed:', error);
+        console.log('[usePaywallPurchase] Error type:', typeof error);
+        console.log('[usePaywallPurchase] Error instanceof Error:', error instanceof Error);
+        console.log('[usePaywallPurchase] Error.message:', (error as any)?.message);
+        console.log('[usePaywallPurchase] Error.errorMessage:', (error as any)?.errorMessage);
 
         // Call error callback if provided
         const errorObj = error instanceof Error ? error : new Error('Unknown error');
         options?.onError?.(errorObj);
 
         // Re-throw to let PaywallModal handle UI state
-        throw error;
+        console.log('[usePaywallPurchase] Re-throwing error for modal to handle');
+        throw errorObj;
       } finally {
         setIsPurchasing(false);
       }

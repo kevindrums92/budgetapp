@@ -26,6 +26,7 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey>('annual');
   const [isVisible, setIsVisible] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -35,6 +36,7 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
       setIsVisible(false);
       document.body.style.overflow = '';
       setIsPurchasing(false); // Reset on close
+      setError(null); // Clear error on close
     }
     return () => {
       document.body.style.overflow = '';
@@ -49,11 +51,21 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
     if (isPurchasing || !onSelectPlan) return;
 
     setIsPurchasing(true);
+    setError(null); // Clear previous errors
     try {
-      await Promise.resolve(onSelectPlan(selectedPlan));
-    } catch (error) {
-      console.error('[PaywallModal] Purchase failed:', error);
-      // Error handling is done by parent component
+      await onSelectPlan(selectedPlan);
+      // If successful, onSuccess callback will close the modal
+    } catch (err: any) {
+      console.error('[PaywallModal] Purchase failed:', err);
+      console.log('[PaywallModal] Error type:', typeof err);
+      console.log('[PaywallModal] Error keys:', Object.keys(err || {}));
+      console.log('[PaywallModal] Error.message:', err?.message);
+      console.log('[PaywallModal] Error.errorMessage:', err?.errorMessage);
+
+      // Show error message in modal
+      const errorMessage = err?.message || err?.errorMessage || 'No se pudo procesar la compra. Intenta de nuevo.';
+      console.log('[PaywallModal] Setting error state:', errorMessage);
+      setError(errorMessage);
     } finally {
       setIsPurchasing(false);
     }
@@ -63,6 +75,7 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
     if (isPurchasing) return;
 
     setIsPurchasing(true);
+    setError(null); // Clear previous errors
     try {
       const { restorePurchases } = await import('@/services/revenuecat.service');
       const { isNative } = await import('@/shared/utils/platform');
@@ -93,9 +106,9 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
 
       // If restore was successful and user is now Pro, close modal
       onClose();
-    } catch (error) {
-      console.error('[PaywallModal] Restore failed:', error);
-      alert('No se encontraron compras previas.');
+    } catch (err: any) {
+      console.error('[PaywallModal] Restore failed:', err);
+      setError('No se encontraron compras previas.');
     } finally {
       setIsPurchasing(false);
     }
@@ -156,22 +169,40 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
           ))}
         </div>
 
+        {/* Error message - Positioned BEFORE pricing cards for visibility */}
+        {error && (
+          <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 mb-4">
+            <p className="text-sm text-red-700 dark:text-red-300 text-center font-medium">
+              {error}
+            </p>
+          </div>
+        )}
+
         {/* Pricing cards */}
         <div className="space-y-3 pb-4">
           <PricingCard
             planKey="annual"
             selected={selectedPlan === 'annual'}
-            onSelect={setSelectedPlan}
+            onSelect={(plan) => {
+              setSelectedPlan(plan);
+              setError(null); // Clear error when changing plans
+            }}
           />
           <PricingCard
             planKey="monthly"
             selected={selectedPlan === 'monthly'}
-            onSelect={setSelectedPlan}
+            onSelect={(plan) => {
+              setSelectedPlan(plan);
+              setError(null); // Clear error when changing plans
+            }}
           />
           <PricingCard
             planKey="lifetime"
             selected={selectedPlan === 'lifetime'}
-            onSelect={setSelectedPlan}
+            onSelect={(plan) => {
+              setSelectedPlan(plan);
+              setError(null); // Clear error when changing plans
+            }}
           />
         </div>
 
