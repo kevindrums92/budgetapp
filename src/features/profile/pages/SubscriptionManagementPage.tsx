@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { PRICING_PLANS } from "@/constants/pricing";
@@ -20,6 +21,7 @@ import PaywallModal from "@/shared/components/modals/PaywallModal";
 
 export default function SubscriptionManagementPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("profile");
   const { isPro, isTrialing, subscription, trialEndsAt } = useSubscription();
   const [showPaywall, setShowPaywall] = useState(false);
   const [restoring, setRestoring] = useState(false);
@@ -27,7 +29,7 @@ export default function SubscriptionManagementPage() {
 
   const { handleSelectPlan } = usePaywallPurchase({
     onSuccess: () => setShowPaywall(false),
-    onError: () => setRestoreMessage({ type: 'error', text: 'No se pudo procesar la compra. Intenta de nuevo.' }),
+    onError: () => setRestoreMessage({ type: 'error', text: t("subscription.messages.purchaseError") }),
   });
 
   // Determine current plan details
@@ -67,7 +69,7 @@ export default function SubscriptionManagementPage() {
   // Handle restore purchases
   async function handleRestorePurchases() {
     if (!isNative()) {
-      setRestoreMessage({ type: 'error', text: 'Restaurar compras solo está disponible en la app móvil.' });
+      setRestoreMessage({ type: 'error', text: t("subscription.messages.onlyMobile") });
       return;
     }
 
@@ -83,7 +85,7 @@ export default function SubscriptionManagementPage() {
 
       const entitlements = customerInfo.entitlements.active['pro'];
       if (entitlements && entitlements.isActive) {
-        setRestoreMessage({ type: 'success', text: '¡Compras restauradas exitosamente!' });
+        setRestoreMessage({ type: 'success', text: t("subscription.messages.purchaseRestored") });
 
         // Refresh subscription from service
         const { data: { user } } = await supabase.auth.getUser();
@@ -92,11 +94,11 @@ export default function SubscriptionManagementPage() {
           await refreshSubscription(user.id);
         }
       } else {
-        setRestoreMessage({ type: 'error', text: 'No se encontraron compras anteriores para restaurar.' });
+        setRestoreMessage({ type: 'error', text: t("subscription.messages.noPurchasesFound") });
       }
     } catch (error) {
       console.error('[SubscriptionManagement] Restore failed:', error);
-      setRestoreMessage({ type: 'error', text: 'Error al restaurar compras. Intenta de nuevo.' });
+      setRestoreMessage({ type: 'error', text: t("subscription.messages.restoreError") });
     } finally {
       setRestoring(false);
     }
@@ -108,7 +110,7 @@ export default function SubscriptionManagementPage() {
       // Open App Store subscriptions management
       window.open("https://apps.apple.com/account/subscriptions", "_blank");
     } else {
-      setRestoreMessage({ type: 'error', text: 'Administrar suscripción solo está disponible en la app móvil.' });
+      setRestoreMessage({ type: 'error', text: t("subscription.messages.manageOnlyMobile") });
     }
   }
 
@@ -130,7 +132,7 @@ export default function SubscriptionManagementPage() {
               <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
             </button>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-              Mi Suscripción
+              {t("subscription.title")}
             </h1>
           </div>
         </div>
@@ -145,19 +147,19 @@ export default function SubscriptionManagementPage() {
         <div className="mb-6 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 shadow-lg text-white">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <p className="text-sm font-medium opacity-90 mb-1">Plan Actual</p>
+              <p className="text-sm font-medium opacity-90 mb-1">{t("subscription.currentPlan")}</p>
               <h2 className="text-3xl font-bold flex items-center gap-2">
-                {currentPlan === 'free' && 'Free'}
-                {currentPlan === 'monthly' && 'Pro Monthly'}
-                {currentPlan === 'annual' && 'Pro Annual'}
-                {currentPlan === 'lifetime' && 'Pro Lifetime'}
+                {currentPlan === 'free' && t("subscription.plans.free")}
+                {currentPlan === 'monthly' && t("subscription.plans.monthly")}
+                {currentPlan === 'annual' && t("subscription.plans.annual")}
+                {currentPlan === 'lifetime' && t("subscription.plans.lifetime")}
                 {isPro && <Crown size={28} />}
               </h2>
             </div>
             {isTrialing && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/20 backdrop-blur-sm text-xs font-bold uppercase tracking-wide">
                 <Sparkles size={14} />
-                Trial
+                {t("subscription.status.trial")}
               </span>
             )}
           </div>
@@ -166,7 +168,7 @@ export default function SubscriptionManagementPage() {
           <div className="flex items-center gap-2 mb-2">
             <CheckCircle2 size={18} />
             <span className="text-sm font-medium">
-              {isActive ? 'Activa' : 'Inactiva'}
+              {isActive ? t("subscription.status.active") : t("subscription.status.inactive")}
             </span>
           </div>
 
@@ -175,7 +177,7 @@ export default function SubscriptionManagementPage() {
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={18} />
               <span className="text-sm">
-                {trialDaysRemaining} {trialDaysRemaining === 1 ? 'día' : 'días'} de prueba restantes
+                {t("subscription.trialDaysRemaining", { count: trialDaysRemaining })}
               </span>
             </div>
           )}
@@ -185,7 +187,7 @@ export default function SubscriptionManagementPage() {
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={18} />
               <span className="text-sm">
-                {isTrialing ? 'Trial termina' : 'Renueva'}: {formatDate(expiresAt)}
+                {isTrialing ? t("subscription.trialEnds") : t("subscription.renews")}: {formatDate(expiresAt)}
               </span>
             </div>
           )}
@@ -195,7 +197,7 @@ export default function SubscriptionManagementPage() {
             <div className="flex items-center gap-2 mb-2">
               <Infinity size={18} />
               <span className="text-sm font-medium">
-                Acceso de por vida
+                {t("subscription.lifetimeAccess")}
               </span>
             </div>
           )}
@@ -205,7 +207,7 @@ export default function SubscriptionManagementPage() {
             <div className="flex items-center gap-2">
               <DollarSign size={18} />
               <span className="text-sm">
-                {formatPrice(planInfo.price, planInfo.currency)} {currentPlan === 'monthly' ? '/mes' : currentPlan === 'annual' ? '/año' : 'pago único'}
+                {formatPrice(planInfo.price, planInfo.currency)} {currentPlan === 'monthly' ? t("subscription.perMonth") : currentPlan === 'annual' ? t("subscription.perYear") : t("subscription.oneTimePayment")}
               </span>
             </div>
           )}
@@ -215,7 +217,7 @@ export default function SubscriptionManagementPage() {
         {!isLifetime && (
           <div className="mb-6">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 px-1">
-              Mejora tu Plan
+              {t("subscription.upgradePlan")}
             </h3>
             <div className="space-y-3">
               {/* Annual Plan - Show if monthly or free */}
@@ -227,11 +229,11 @@ export default function SubscriptionManagementPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-gray-900 dark:text-gray-50">Plan Anual</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatPrice(PRICING_PLANS.annual.price, PRICING_PLANS.annual.currency)}/año</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-50">{t("subscription.annualPlan")}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatPrice(PRICING_PLANS.annual.price, PRICING_PLANS.annual.currency)}{t("subscription.perYear")}</p>
                       {currentPlan === 'monthly' && (
                         <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                          Ahorra ${annualSavings.toFixed(2)} al año
+                          {t("subscription.savingsPerYear", { amount: annualSavings.toFixed(2) })}
                         </p>
                       )}
                     </div>
@@ -250,12 +252,12 @@ export default function SubscriptionManagementPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-gray-900 dark:text-gray-50">Plan Lifetime</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-50">{t("subscription.lifetimePlan")}</p>
                         <Crown size={16} className="text-emerald-600 dark:text-emerald-400" />
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatPrice(PRICING_PLANS.lifetime.price, PRICING_PLANS.lifetime.currency)} pago único</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{formatPrice(PRICING_PLANS.lifetime.price, PRICING_PLANS.lifetime.currency)} {t("subscription.oneTimePayment")}</p>
                       <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                        Acceso ilimitado de por vida
+                        {t("subscription.unlimitedLifetimeAccess")}
                       </p>
                     </div>
                     <ChevronLeft size={20} className="text-emerald-600 dark:text-emerald-400 rotate-180" />
@@ -269,7 +271,7 @@ export default function SubscriptionManagementPage() {
         {/* Actions */}
         <div className="mb-6">
           <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 px-1">
-            Acciones
+            {t("subscription.actions")}
           </h3>
           <div className="space-y-3">
             {/* Restore Purchases */}
@@ -284,10 +286,10 @@ export default function SubscriptionManagementPage() {
                   <RefreshCw size={20} className={`text-gray-600 dark:text-gray-400 ${restoring ? 'animate-spin' : ''}`} />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-50">
-                      Restaurar Compras
+                      {t("subscription.restorePurchases")}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Si cambiaste de dispositivo
+                      {t("subscription.restorePurchasesSubtitle")}
                     </p>
                   </div>
                 </div>
@@ -306,10 +308,10 @@ export default function SubscriptionManagementPage() {
                     <ExternalLink size={20} className="text-gray-600 dark:text-gray-400" />
                     <div>
                       <p className="font-medium text-gray-900 dark:text-gray-50">
-                        Administrar en App Store
+                        {t("subscription.manageInAppStore")}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Cancelar o modificar suscripción
+                        {t("subscription.manageInAppStoreSubtitle")}
                       </p>
                     </div>
                   </div>
@@ -340,8 +342,7 @@ export default function SubscriptionManagementPage() {
         {/* Info */}
         <div className="mt-6 rounded-xl bg-gray-100 dark:bg-gray-900 p-4">
           <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-            <strong>Nota:</strong> Los cambios de suscripción y cancelaciones se gestionan a través de la App Store de Apple.
-            Las cancelaciones entran en efecto al final del período de facturación actual.
+            <strong>{t("subscription.info.note")}</strong> {t("subscription.info.appleManagement")}
           </p>
         </div>
       </div>

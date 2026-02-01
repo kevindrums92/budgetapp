@@ -10,6 +10,27 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(push): implement guest user push notifications with automatic token migration on login
+  - Database migration to make user_id nullable in push_tokens and notification_history tables
+  - Guest users can now enable push notifications without authentication
+  - Automatic token migration when guest users log in (preserves preferences)
+  - New migrate_guest_token_to_user() RPC function in database
+  - Updated RLS policies to support guest token operations (SELECT, INSERT, UPDATE, DELETE)
+  - CloudSyncGate automatically migrates guest tokens on SIGNED_IN event
+  - Onboarding Screen5_Notifications now shows for guest users on native platforms
+  - Complete documentation in docs/push-notifications/GUEST_PUSH_TOKENS.md
+- fix(push): apply DEFAULT_NOTIFICATION_PREFERENCES on first-time push notification registration
+  - Fixed registerAndSaveToken() to accept isRefresh parameter (false for new registrations)
+  - requestPermissions() now correctly uses default preferences for first-time users
+  - Removed redundant updatePreferences() calls from HomePage and Screen5_Notifications
+- fix(push): prevent duplicate token creation from multiple Firebase tokenReceived events
+  - Implemented 1-second debounce on tokenReceived listener to handle multiple events
+  - Only processes final token after Firebase events settle
+  - Prevents race conditions when Firebase fires 2+ events with different tokens
+- fix(push): enable proper token deletion when users disable push notifications
+  - Added DELETE RLS policy for guest tokens in migration
+  - Modified disablePushNotifications() to delete tokens by token value only (no user_id required)
+  - Works for both authenticated users and guests
 - feat(subscription): add subscription management screen with plan details, status, renewal date, restore purchases, and upgrade options accessible from ProfilePage user card
 - fix(subscription): fix trial plan type display by mapping product_id to base plan tier (monthly/annual/lifetime) instead of setting type to 'trial' during trial period
 - fix(dates): calculate current month using local timezone instead of UTC to prevent incorrect "different month" warning near midnight in non-UTC timezones

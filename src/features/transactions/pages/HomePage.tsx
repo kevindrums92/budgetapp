@@ -10,9 +10,8 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { generateVirtualTransactions, generatePastDueTransactions, materializeTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 import { todayISO } from "@/services/dates.service";
-import { requestPermissions, checkPermissionStatus, updatePreferences } from "@/services/pushNotification.service";
+import { requestPermissions, checkPermissionStatus } from "@/services/pushNotification.service";
 import { shouldShowBanner, recordDismiss, markAsEnabled } from "@/services/pushBannerTracking.service";
-import { DEFAULT_NOTIFICATION_PREFERENCES } from "@/types/notifications";
 
 export default function HomePage() {
   const { t } = useTranslation('home');
@@ -77,11 +76,10 @@ export default function HomePage() {
 
       try {
         console.log('[HomePage] Auto-requesting push permissions on first app load');
+        // requestPermissions() automatically applies DEFAULT_NOTIFICATION_PREFERENCES
         const granted = await requestPermissions();
 
         if (granted) {
-          // Apply default notification preferences
-          await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
           console.log('[HomePage] Push notifications enabled automatically with default preferences');
         } else {
           console.log('[HomePage] User denied push permissions');
@@ -211,10 +209,9 @@ export default function HomePage() {
   const handleEnablePush = async () => {
     setIsEnablingPush(true);
     try {
+      // requestPermissions() automatically applies DEFAULT_NOTIFICATION_PREFERENCES
       const granted = await requestPermissions();
       if (granted) {
-        // Configure default preferences (daily reminder at 9pm, quiet hours 11pm-6am)
-        await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
         markAsEnabled(); // Permanently hide banner
         setShowPushBanner(false);
         console.log("[HomePage] Push notifications enabled successfully with default preferences");

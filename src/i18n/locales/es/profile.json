@@ -119,5 +119,51 @@
     "privacy": {
       "title": "Política de Privacidad"
     }
+  },
+  "subscription": {
+    "title": "Mi Suscripción",
+    "currentPlan": "Plan Actual",
+    "plans": {
+      "free": "Gratis",
+      "monthly": "Pro Mensual",
+      "annual": "Pro Anual",
+      "lifetime": "Pro Vitalicio"
+    },
+    "status": {
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "trial": "Prueba"
+    },
+    "trialDaysRemaining_one": "{{count}} día de prueba restante",
+    "trialDaysRemaining_other": "{{count}} días de prueba restantes",
+    "trialEnds": "Trial termina",
+    "renews": "Renueva",
+    "lifetimeAccess": "Acceso de por vida",
+    "perMonth": "/mes",
+    "perYear": "/año",
+    "oneTimePayment": "pago único",
+    "upgradePlan": "Mejora tu Plan",
+    "annualPlan": "Plan Anual",
+    "savingsPerYear": "Ahorra ${{amount}} al año",
+    "lifetimePlan": "Plan Vitalicio",
+    "unlimitedLifetimeAccess": "Acceso ilimitado de por vida",
+    "actions": "Acciones",
+    "restorePurchases": "Restaurar Compras",
+    "restorePurchasesSubtitle": "Si cambiaste de dispositivo",
+    "restoring": "Restaurando...",
+    "manageInAppStore": "Administrar en App Store",
+    "manageInAppStoreSubtitle": "Cancelar o modificar suscripción",
+    "messages": {
+      "purchaseError": "No se pudo procesar la compra. Intenta de nuevo.",
+      "purchaseRestored": "¡Compras restauradas exitosamente!",
+      "noPurchasesFound": "No se encontraron compras anteriores para restaurar.",
+      "restoreError": "Error al restaurar compras. Intenta de nuevo.",
+      "onlyMobile": "Restaurar compras solo está disponible en la app móvil.",
+      "manageOnlyMobile": "Administrar suscripción solo está disponible en la app móvil."
+    },
+    "info": {
+      "note": "Nota:",
+      "appleManagement": "Los cambios de suscripción y cancelaciones se gestionan a través de la App Store de Apple. Las cancelaciones entran en efecto al final del período de facturación actual."
+    }
   }
 }

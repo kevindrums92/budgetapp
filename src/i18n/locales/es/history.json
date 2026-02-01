@@ -1,12 +1,18 @@
 {
   "title": "Historial y Filtros",
   "filters": {
+    "searchPlaceholder": "Buscar por descripción...",
     "dateRange": "Rango de Fecha",
     "thisMonth": "Este Mes",
     "lastMonth": "Mes Pasado",
     "custom": "Personalizado",
+    "customDateTitle": "Rango Personalizado",
+    "startDate": "Fecha Inicio",
+    "endDate": "Fecha Fin",
     "type": "Tipo",
     "allTypes": "Todos",
+    "income": "Ingresos",
+    "expenses": "Gastos",
     "status": "Estado",
     "allStatus": "Todos",
     "paid": "Pagado",
@@ -15,10 +21,16 @@
     "category": "Categoría",
     "selectCategory": "Seleccionar categoría",
     "allCategories": "Todas las categorías",
+    "categories_one": "{{count}} categoría",
+    "categories_other": "{{count}} categorías",
+    "amount": "Monto",
     "amountRange": "Rango de Monto",
     "minimum": "Mínimo",
     "maximum": "Máximo",
-    "noLimit": "Sin límite"
+    "noLimit": "Sin límite",
+    "cancel": "Cancelar",
+    "apply": "Aplicar",
+    "clear": "Limpiar"
   },
   "results": {
     "title": "Resultados ({{count}})",

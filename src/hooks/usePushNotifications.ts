@@ -16,7 +16,6 @@ import {
   addNotificationListener,
 } from '@/services/pushNotification.service';
 import type { NotificationPreferences } from '@/types/notifications';
-import { DEFAULT_NOTIFICATION_PREFERENCES } from '@/types/notifications';
 
 interface UsePushNotificationsResult {
   /** Whether push notifications are available on this platform */
@@ -118,12 +117,9 @@ export function usePushNotifications(): UsePushNotificationsResult {
         setPermissionStatus('granted');
         setIsEnabled(true);
 
-        // Apply default preferences when enabling for the first time (or re-enabling)
-        console.log('[usePushNotifications] Applying default notification preferences');
-        await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
-
-        // Update local state with default preferences
-        setPreferences(DEFAULT_NOTIFICATION_PREFERENCES);
+        // Load preferences from backend (will be DEFAULT_NOTIFICATION_PREFERENCES for first-time)
+        const prefs = await getPreferences();
+        setPreferences(prefs);
       } else {
         setPermissionStatus('denied');
       }

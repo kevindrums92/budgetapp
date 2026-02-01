@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Clock, CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
 import BudgetCard from "@/features/budget/components/BudgetCard";
@@ -9,6 +10,7 @@ import AddEditBudgetModal from "@/features/budget/components/AddEditBudgetModal"
 type BudgetTab = "active" | "completed";
 
 export default function PlanPage() {
+  const { t } = useTranslation("budget");
   const navigate = useNavigate();
   const store = useBudgetStore();
   const budgets = store.budgets;
@@ -127,7 +129,7 @@ export default function PlanPage() {
                 }`}
               >
                 <Clock size={14} strokeWidth={2.5} />
-                Activos
+                {t("page.activeTab")}
               </button>
               <button
                 type="button"
@@ -139,7 +141,7 @@ export default function PlanPage() {
                 }`}
               >
                 <CheckCircle size={14} strokeWidth={2.5} />
-                Completados
+                {t("page.completedTab")}
               </button>
             </div>
           )}
@@ -150,7 +152,7 @@ export default function PlanPage() {
               {healthCheck.exceededLimits > 0 && (
                 <div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-3 border border-red-200 dark:border-red-800">
                   <p className="text-sm font-medium text-red-700 dark:text-red-400">
-                    ⚠️ Tienes {healthCheck.exceededLimits} límite{healthCheck.exceededLimits > 1 ? 's' : ''} excedido{healthCheck.exceededLimits > 1 ? 's' : ''}
+                    ⚠️ {t("page.limitsExceeded", { count: healthCheck.exceededLimits })}
                   </p>
                 </div>
               )}
@@ -158,7 +160,7 @@ export default function PlanPage() {
               {healthCheck.totalGoals > 0 && (
                 <div className="rounded-xl bg-teal-50 dark:bg-teal-950/30 p-3 border border-teal-200 dark:border-teal-800">
                   <p className="text-sm font-medium text-teal-700 dark:text-teal-400">
-                    🎯 Has completado el {healthCheck.goalPercentage}% de tus metas de ahorro
+                    🎯 {t("page.goalsProgress", { percentage: healthCheck.goalPercentage })}
                   </p>
                 </div>
               )}
@@ -169,7 +171,7 @@ export default function PlanPage() {
             activeTab === "completed" ? (
               <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-6 text-center">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  No hay planes completados este mes
+                  {t("page.noCompletedPlans")}
                 </p>
               </div>
             ) : (
@@ -187,17 +189,17 @@ export default function PlanPage() {
 
                 {/* Title */}
                 <h3 className="mb-3 text-xl font-bold text-white">
-                  No tienes ningún plan
+                  {t("page.noPlansTitle")}
                 </h3>
 
                 {/* Description */}
                 <p className="mb-6 text-sm leading-relaxed text-gray-400">
-                  Crea límites de gasto o metas de ahorro para organizar tu dinero
+                  {t("page.noPlansDescription")}
                 </p>
 
                 {/* CTA Text */}
                 <span className="text-sm font-bold uppercase tracking-wide text-[#18B7B0]">
-                  Crear mi primer plan
+                  {t("page.createFirstPlan")}
                 </span>
               </button>
             )

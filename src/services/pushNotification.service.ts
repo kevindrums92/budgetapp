@@ -37,6 +37,9 @@ const listeners: {
   cleanup: [],
 };
 
+// Debounce timer for tokenReceived events (Firebase can fire multiple in quick succession)
+let tokenRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+
 /**
  * Initialize the push notification service
  * Only works on native platforms (iOS/Android)
@@ -95,7 +98,8 @@ export async function requestPermissions(): Promise<boolean> {
       // Clear manual disable flag when user re-enables
       localStorage.removeItem('push_notifications_manually_disabled');
 
-      await registerAndSaveToken();
+      // First-time registration: use isRefresh=false to apply DEFAULT_NOTIFICATION_PREFERENCES
+      await registerAndSaveToken(false);
       setupListeners();
     }
 
@@ -132,12 +136,10 @@ export function getToken(): string | null {
 
 /**
  * Register device and get FCM token
- * IMPORTANT: Always use isRefresh=true to preserve existing preferences
- * The refresh_push_token function handles both cases:
- * - New token: INSERT with defaults
- * - Existing token: UPDATE preserving preferences
+ * @param isRefresh - If true, preserves existing preferences (token refresh).
+ *                    If false, applies DEFAULT_NOTIFICATION_PREFERENCES (first-time registration).
  */
-async function registerAndSaveToken(): Promise<void> {
+async function registerAndSaveToken(isRefresh = true): Promise<void> {
   try {
     const result = await FirebaseMessaging.getToken();
     state.token = result.token;
@@ -145,9 +147,7 @@ async function registerAndSaveToken(): Promise<void> {
     console.log('[PushNotification] FCM Token obtained');
 
     // Save token to Supabase
-    // Use isRefresh=true to preserve preferences if token already exists
-    // If token is new, refresh_push_token will INSERT with defaults
-    await saveTokenToBackend(state.token, true);
+    await saveTokenToBackend(state.token, isRefresh);
   } catch (error) {
     console.error('[PushNotification] Failed to get token:', error);
   }
@@ -156,6 +156,7 @@ async function registerAndSaveToken(): Promise<void> {
 /**
  * Save FCM token to Supabase
  * Uses a SECURITY DEFINER function to bypass RLS and allow token takeover between users
+ * Works for both authenticated users and guest users (user_id = null)
  *
  * @param token - FCM token
  * @param isRefresh - If true, only updates metadata without touching preferences
@@ -166,10 +167,8 @@ async function saveTokenToBackend(token: string, isRefresh = false): Promise<voi
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) {
-      console.log('[PushNotification] No authenticated user, skipping token save');
-      return;
-    }
+    // Get user_id (null for guests)
+    const userId = user?.id ?? null;
 
     const platform = getPlatform() as Platform;
     const deviceInfo = getDeviceInfo();
@@ -177,7 +176,7 @@ async function saveTokenToBackend(token: string, isRefresh = false): Promise<voi
     if (isRefresh) {
       // Token refresh: only update metadata, preserve preferences
       const { data, error } = await supabase.rpc('refresh_push_token', {
-        p_user_id: user.id,
+        p_user_id: userId,
         p_token: token,
         p_platform: platform,
         p_device_info: deviceInfo,
@@ -188,11 +187,15 @@ async function saveTokenToBackend(token: string, isRefresh = false): Promise<voi
         return;
       }
 
-      console.log('[PushNotification] Token refreshed (preferences preserved):', data);
+      if (userId) {
+        console.log('[PushNotification] Token refreshed (authenticated, preferences preserved):', data);
+      } else {
+        console.log('[PushNotification] Token refreshed (guest mode, preferences preserved):', data);
+      }
     } else {
       // First-time registration: set default preferences
       const { data, error } = await supabase.rpc('upsert_push_token', {
-        p_user_id: user.id,
+        p_user_id: userId,
         p_token: token,
         p_platform: platform,
         p_device_info: deviceInfo,
@@ -204,7 +207,11 @@ async function saveTokenToBackend(token: string, isRefresh = false): Promise<voi
         return;
       }
 
-      console.log('[PushNotification] Token saved to backend:', data);
+      if (userId) {
+        console.log('[PushNotification] Token saved (authenticated):', data);
+      } else {
+        console.log('[PushNotification] Token saved (guest mode):', data);
+      }
     }
   } catch (error) {
     console.error('[PushNotification] saveTokenToBackend error:', error);
@@ -232,11 +239,24 @@ function setupListeners(): void {
   });
 
   // Token refreshed
+  // IMPORTANT: Firebase can fire multiple tokenReceived events in quick succession
+  // (e.g., APNS token + FCM token on iOS). We debounce to only process the final token.
   FirebaseMessaging.addListener('tokenReceived', (event) => {
-    console.log('[PushNotification] Token refreshed');
+    console.log('[PushNotification] tokenReceived event:', event.token.slice(-10));
+
+    // Always update state.token to the latest received
     state.token = event.token;
-    saveTokenToBackend(event.token, true); // isRefresh = true → preserve preferences
-    listeners.token.forEach((callback) => callback(event.token));
+
+    // Debounce: clear previous timer and wait for events to settle
+    if (tokenRefreshTimer) clearTimeout(tokenRefreshTimer);
+
+    tokenRefreshTimer = setTimeout(async () => {
+      const finalToken = state.token;
+      if (!finalToken) return;
+      console.log('[PushNotification] Processing final token after debounce:', finalToken.slice(-10));
+      await saveTokenToBackend(finalToken, true); // isRefresh = true → preserve preferences
+      listeners.token.forEach((callback) => callback(finalToken));
+    }, 1000);
   }).then((handle) => {
     listeners.cleanup.push(() => handle.remove());
   });
@@ -283,22 +303,20 @@ function handleNotificationTap(action: NotificationActionPerformedEvent): void {
 
 /**
  * Get notification preferences for current device
+ * Works for both authenticated users and guests (queries by token)
  */
 export async function getPreferences(): Promise<NotificationPreferences | null> {
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user || !state.token) {
+    if (!state.token) {
+      console.log('[PushNotification] No token available, cannot get preferences');
       return null;
     }
 
+    // Query by token (works for both authenticated and guest users)
     const { data, error } = await supabase
       .from('push_tokens')
       .select('preferences')
       .eq('token', state.token)
-      .eq('user_id', user.id)
       .maybeSingle();
 
     if (error) {
@@ -322,6 +340,7 @@ export async function getPreferences(): Promise<NotificationPreferences | null> 
 /**
  * Update notification preferences
  * Uses a SECURITY DEFINER function to bypass RLS and allow token takeover between users
+ * Works for both authenticated users and guests
  *
  * IMPORTANT: Caller MUST pass the FULL preference state (all fields), not partial updates.
  * This avoids race conditions when multiple updates happen in parallel.
@@ -330,19 +349,17 @@ export async function updatePreferences(
   preferences: NotificationPreferences
 ): Promise<boolean> {
   try {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      console.warn('[PushNotification] No user to update preferences');
-      return false;
-    }
-
     if (!state.token) {
       console.warn('[PushNotification] No token to update preferences');
       return false;
     }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // Get user_id (null for guests)
+    const userId = user?.id ?? null;
 
     const platform = getPlatform() as Platform;
     const deviceInfo = getDeviceInfo();
@@ -351,7 +368,7 @@ export async function updatePreferences(
     // Use the full preferences object passed by the caller (no merge needed)
     console.log('[PushNotification] Calling upsert_push_token with preferences:', JSON.stringify(preferences));
     const { data, error } = await supabase.rpc('upsert_push_token', {
-      p_user_id: user.id,
+      p_user_id: userId,
       p_token: state.token,
       p_platform: platform,
       p_device_info: deviceInfo,
@@ -363,10 +380,52 @@ export async function updatePreferences(
       return false;
     }
 
-    console.log('[PushNotification] Preferences updated successfully:', data);
+    if (userId) {
+      console.log('[PushNotification] Preferences updated (authenticated):', data);
+    } else {
+      console.log('[PushNotification] Preferences updated (guest mode):', data);
+    }
     return true;
   } catch (error) {
     console.error('[PushNotification] updatePreferences error:', error);
+    return false;
+  }
+}
+
+/**
+ * Migrate a guest token to an authenticated user when they log in
+ * This preserves the push token and its preferences when transitioning from guest to authenticated
+ */
+export async function migrateGuestTokenToUser(): Promise<boolean> {
+  try {
+    if (!state.token) {
+      console.log('[PushNotification] No token to migrate');
+      return false;
+    }
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      console.log('[PushNotification] No user to migrate token to');
+      return false;
+    }
+
+    const { data, error } = await supabase.rpc('migrate_guest_token_to_user', {
+      p_user_id: user.id,
+      p_token: state.token,
+    });
+
+    if (error) {
+      console.error('[PushNotification] Failed to migrate guest token:', error);
+      return false;
+    }
+
+    console.log('[PushNotification] Guest token migrated to user:', data);
+    return true;
+  } catch (error) {
+    console.error('[PushNotification] migrateGuestTokenToUser error:', error);
     return false;
   }
 }
@@ -519,19 +578,15 @@ export async function disablePushNotifications(): Promise<boolean> {
   try {
     console.log('[PushNotification] Disabling push notifications...');
 
-    // 1. Get current token and user
+    // 1. Get current token
     const currentToken = state.token;
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
-    // 2. Delete token from Supabase if we have both token and user
-    if (currentToken && user) {
+    // 2. Delete token from Supabase (works for both authenticated and guest users)
+    if (currentToken) {
       const { error } = await supabase
         .from('push_tokens')
         .delete()
-        .eq('token', currentToken)
-        .eq('user_id', user.id);
+        .eq('token', currentToken);
 
       if (error) {
         console.error('[PushNotification] Failed to delete token from database:', error);

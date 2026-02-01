@@ -119,5 +119,51 @@
     "privacy": {
       "title": "Privacy Policy"
     }
+  },
+  "subscription": {
+    "title": "My Subscription",
+    "currentPlan": "Current Plan",
+    "plans": {
+      "free": "Free",
+      "monthly": "Pro Monthly",
+      "annual": "Pro Annual",
+      "lifetime": "Pro Lifetime"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "trial": "Trial"
+    },
+    "trialDaysRemaining_one": "{{count}} trial day remaining",
+    "trialDaysRemaining_other": "{{count}} trial days remaining",
+    "trialEnds": "Trial ends",
+    "renews": "Renews",
+    "lifetimeAccess": "Lifetime access",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "oneTimePayment": "one-time payment",
+    "upgradePlan": "Upgrade Your Plan",
+    "annualPlan": "Annual Plan",
+    "savingsPerYear": "Save ${{amount}} per year",
+    "lifetimePlan": "Lifetime Plan",
+    "unlimitedLifetimeAccess": "Unlimited lifetime access",
+    "actions": "Actions",
+    "restorePurchases": "Restore Purchases",
+    "restorePurchasesSubtitle": "If you changed devices",
+    "restoring": "Restoring...",
+    "manageInAppStore": "Manage in App Store",
+    "manageInAppStoreSubtitle": "Cancel or modify subscription",
+    "messages": {
+      "purchaseError": "Unable to process purchase. Please try again.",
+      "purchaseRestored": "Purchases restored successfully!",
+      "noPurchasesFound": "No previous purchases found to restore.",
+      "restoreError": "Error restoring purchases. Please try again.",
+      "onlyMobile": "Restore purchases is only available in the mobile app.",
+      "manageOnlyMobile": "Manage subscription is only available in the mobile app."
+    },
+    "info": {
+      "note": "Note:",
+      "appleManagement": "Subscription changes and cancellations are managed through the Apple App Store. Cancellations take effect at the end of the current billing period."
+    }
   }
 }

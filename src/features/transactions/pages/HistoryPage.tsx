@@ -398,7 +398,7 @@ export default function HistoryPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por descripción..."
+              placeholder={t("filters.searchPlaceholder")}
               className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 pl-10 pr-10 text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20 transition"
             />
             <Search
@@ -431,9 +431,9 @@ export default function HistoryPage() {
             }`}
           >
             <Calendar size={14} />
-            {dateRangePreset === "this-month" && "Este Mes"}
-            {dateRangePreset === "last-month" && "Mes Pasado"}
-            {dateRangePreset === "custom" && "Personalizado"}
+            {dateRangePreset === "this-month" && t("filters.thisMonth")}
+            {dateRangePreset === "last-month" && t("filters.lastMonth")}
+            {dateRangePreset === "custom" && t("filters.custom")}
           </button>
 
           {/* Type */}
@@ -447,9 +447,9 @@ export default function HistoryPage() {
             }`}
           >
             <Filter size={14} />
-            {filterType === "all" && "Tipo"}
-            {filterType === "income" && "Ingresos"}
-            {filterType === "expense" && "Gastos"}
+            {filterType === "all" && t("filters.type")}
+            {filterType === "income" && t("filters.income")}
+            {filterType === "expense" && t("filters.expenses")}
           </button>
 
           {/* Status */}
@@ -475,10 +475,10 @@ export default function HistoryPage() {
             ) : (
               <CheckCircle2 size={14} />
             )}
-            {filterStatus === "all" && "Estado"}
-            {filterStatus === "paid" && "Pagado"}
-            {filterStatus === "pending" && "Pendiente"}
-            {filterStatus === "planned" && "Planeado"}
+            {filterStatus === "all" && t("filters.status")}
+            {filterStatus === "paid" && t("filters.paid")}
+            {filterStatus === "pending" && t("filters.pendingStatus")}
+            {filterStatus === "planned" && t("filters.planned")}
           </button>
 
           {/* Category */}
@@ -504,9 +504,9 @@ export default function HistoryPage() {
             ) : (
               <Tag size={14} />
             )}
-            {selectedCategoryIds.length === 0 && "Categoría"}
-            {selectedCategoryIds.length === 1 && (categoryDefinitions.find((c) => c.id === selectedCategoryIds[0])?.name || "Categoría")}
-            {selectedCategoryIds.length > 1 && `${selectedCategoryIds.length} categorías`}
+            {selectedCategoryIds.length === 0 && t("filters.category")}
+            {selectedCategoryIds.length === 1 && (categoryDefinitions.find((c) => c.id === selectedCategoryIds[0])?.name || t("filters.category"))}
+            {selectedCategoryIds.length > 1 && t("filters.categories", { count: selectedCategoryIds.length })}
           </button>
 
           {/* Monto */}
@@ -528,7 +528,7 @@ export default function HistoryPage() {
             }`}
           >
             {!canUseFeature('history_filters') && <Lock size={14} />}
-            Monto
+            {t("filters.amount")}
           </button>
         </div>
       </div>
@@ -549,7 +549,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Este Mes
+                {t("filters.thisMonth")}
               </button>
               <button
                 type="button"
@@ -563,7 +563,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Mes Pasado
+                {t("filters.lastMonth")}
               </button>
               <button
                 type="button"
@@ -577,7 +577,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Personalizado
+                {t("filters.custom")}
               </button>
             </div>
           </div>
@@ -598,7 +598,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Todos
+                {t("filters.allTypes")}
               </button>
               <button
                 type="button"
@@ -612,7 +612,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Ingresos
+                {t("filters.income")}
               </button>
               <button
                 type="button"
@@ -626,7 +626,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Gastos
+                {t("filters.expenses")}
               </button>
             </div>
           </div>
@@ -647,7 +647,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Todos
+                {t("filters.allStatus")}
               </button>
               <button
                 type="button"
@@ -661,7 +661,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Pagado
+                {t("filters.paid")}
               </button>
               <button
                 type="button"
@@ -675,7 +675,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Pendiente
+                {t("filters.pendingStatus")}
               </button>
               <button
                 type="button"
@@ -689,7 +689,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Planeado
+                {t("filters.planned")}
               </button>
             </div>
           </div>
@@ -700,7 +700,7 @@ export default function HistoryPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Mínimo
+                  {t("filters.minimum")}
                 </label>
                 <input
                   type="text"
@@ -713,14 +713,14 @@ export default function HistoryPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Máximo
+                  {t("filters.maximum")}
                 </label>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={maxAmount}
                   onChange={(e) => setMaxAmount(e.target.value.replace(/[^0-9]/g, ""))}
-                  placeholder="Sin límite"
+                  placeholder={t("filters.noLimit")}
                   className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-2 px-3 text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20"
                 />
               </div>
@@ -885,7 +885,7 @@ export default function HistoryPage() {
                 {/* Start Date */}
                 <div>
                   <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Fecha Inicio
+                    {t("filters.startDate")}
                   </label>
                   <button
                     type="button"
@@ -909,7 +909,7 @@ export default function HistoryPage() {
                 {/* End Date */}
                 <div>
                   <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Fecha Fin
+                    {t("filters.endDate")}
                   </label>
                   <button
                     type="button"
@@ -938,14 +938,14 @@ export default function HistoryPage() {
                   onClick={() => setShowCustomDateModal(false)}
                   className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
-                  Cancelar
+                  {t("filters.cancel")}
                 </button>
                 <button
                   type="button"
                   onClick={handleApplyCustomDates}
                   className="flex-1 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white hover:bg-[#159d97] transition-colors"
                 >
-                  Aplicar
+                  {t("filters.apply")}
                 </button>
               </div>
             </div>
@@ -1069,14 +1069,14 @@ export default function HistoryPage() {
                   disabled={tempSelectedCategoryIds.length === 0}
                   className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Limpiar
+                  {t("filters.clear")}
                 </button>
                 <button
                   type="button"
                   onClick={handleApplyCategories}
                   className="flex-1 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white hover:bg-[#159d97] transition-colors"
                 >
-                  Aplicar ({tempSelectedCategoryIds.length})
+                  {t("filters.apply")} ({tempSelectedCategoryIds.length})
                 </button>
               </div>
             </div>

@@ -194,9 +194,7 @@ export default function AddEditBudgetModal({
       });
 
       if (!budgetId) {
-        setErrorMessage(
-          t("modal.errorDuplicate", { defaultValue: "Ya existe un presupuesto activo para esta categoría en el período seleccionado." })
-        );
+        setErrorMessage(t("modal.errorDuplicate"));
         return;
       }
 
@@ -233,7 +231,7 @@ export default function AddEditBudgetModal({
           {/* Title */}
           <div className="mb-8 mt-6">
             <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
-              Metas de Ahorro
+              {t("goalOnboarding.title")}
             </h1>
           </div>
 
@@ -247,32 +245,30 @@ export default function AddEditBudgetModal({
           {/* Explanation */}
           <div className="mb-6">
             <h4 className="mb-3 text-xl font-bold text-gray-900 dark:text-gray-50">
-              ¿Cómo funcionan las metas?
+              {t("goalOnboarding.howItWorksTitle")}
             </h4>
             <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
-              Las metas de ahorro funcionan como un fondo aparte. Defines cuánto quieres ahorrar y cada vez que apartas dinero, lo registras como un <span className="font-semibold text-teal-600 dark:text-teal-400">gasto</span> en esa categoría. Así sale de tu balance pero se acumula en tu meta.
+              {t("goalOnboarding.howItWorksDescription")}
             </p>
           </div>
 
           {/* Example */}
           <div className="mb-4 rounded-2xl bg-teal-50 dark:bg-teal-950/30 p-5 border border-teal-200 dark:border-teal-800">
             <p className="text-sm font-bold text-teal-700 dark:text-teal-400 mb-3">
-              Ejemplo:
+              {t("goalOnboarding.exampleTitle")}
             </p>
-            <p className="text-sm text-teal-700 dark:text-teal-400 leading-relaxed">
-              Meta: Ahorrar $500.000 para vacaciones<br/>
-              Hoy apartas $50.000 → Lo registras como gasto en "Vacaciones"<br/>
-              Tu progreso: $50.000 ahorrados / $500.000 (10%)
+            <p className="text-sm text-teal-700 dark:text-teal-400 leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
+              {t("goalOnboarding.exampleText")}
             </p>
           </div>
 
           {/* Suggestion */}
           <div className="rounded-2xl bg-blue-50 dark:bg-blue-950/30 p-5 border border-blue-200 dark:border-blue-800">
             <p className="text-sm font-bold text-blue-700 dark:text-blue-400 mb-3">
-              💡 Recomendación
+              {t("goalOnboarding.recommendationTitle")}
             </p>
             <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed">
-              Crea una categoría con el nombre de tu meta (ej: "Vacaciones", "Fondo de Emergencias", "Moto Nueva"). Cada vez que apartes dinero, regístralo como gasto en esa categoría.
+              {t("goalOnboarding.recommendationText")}
             </p>
           </div>
         </div>
@@ -291,7 +287,7 @@ export default function AddEditBudgetModal({
 
               // Create a default savings category automatically
               const newCategoryId = store.addCategory({
-                name: "Meta de Ahorro",
+                name: t("goalOnboarding.defaultCategoryName"),
                 icon: "piggy-bank",
                 color: "#14B8A6", // teal-500
                 type: "expense",
@@ -306,7 +302,7 @@ export default function AddEditBudgetModal({
             }}
             className="w-full rounded-2xl bg-teal-500 py-4 text-base font-bold text-white transition-all active:scale-[0.98]"
           >
-            Crear Categoría de Ahorro
+            {t("goalOnboarding.createCategory")}
           </button>
           <button
             type="button"
@@ -316,7 +312,7 @@ export default function AddEditBudgetModal({
             }}
             className="w-full rounded-2xl bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 py-4 text-base font-bold text-gray-700 dark:text-gray-300 transition-all active:scale-[0.98]"
           >
-            Continuar sin Crear Categoría
+            {t("goalOnboarding.continueWithoutCategory")}
           </button>
         </div>
       </div>
@@ -341,7 +337,7 @@ export default function AddEditBudgetModal({
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-              Crear Plan
+              {t("typeSelector.title")}
             </h3>
             <button
               type="button"
@@ -355,10 +351,10 @@ export default function AddEditBudgetModal({
           {/* Content */}
           <div className="px-6 py-8">
             <h4 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-2 text-center">
-              ¿Qué quieres hacer?
+              {t("typeSelector.question")}
             </h4>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
-              Elige el tipo de plan que deseas crear
+              {t("typeSelector.subtitle")}
             </p>
 
             <div className="space-y-3">
@@ -377,10 +373,10 @@ export default function AddEditBudgetModal({
                   {/* Content */}
                   <div className="flex-1">
                     <h5 className="font-semibold text-gray-900 dark:text-gray-50 mb-1">
-                      Controlar un gasto
+                      {t("typeSelector.controlSpending")}
                     </h5>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Define un límite máximo para una categoría. Te avisaremos si te pasas.
+                      {t("typeSelector.controlSpendingDescription")}
                     </p>
                   </div>
 
@@ -404,10 +400,10 @@ export default function AddEditBudgetModal({
                   {/* Content */}
                   <div className="flex-1">
                     <h5 className="font-semibold text-gray-900 dark:text-gray-50 mb-1">
-                      Ahorrar para una meta
+                      {t("typeSelector.saveForGoal")}
                     </h5>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Crea una meta de ahorro. Irás registrando aportes hasta completarla.
+                      {t("typeSelector.saveForGoalDescription")}
                     </p>
                   </div>
 
@@ -450,7 +446,7 @@ export default function AddEditBudgetModal({
                 </button>
               )}
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {isEdit ? t("modal.titleEdit") : budgetType === "limit" ? "Nuevo Límite" : "Nueva Meta"}
+                {isEdit ? t("modal.titleEdit") : budgetType === "limit" ? t("types.newLimit") : t("types.newGoal")}
               </h3>
             </div>
             <button
@@ -476,14 +472,14 @@ export default function AddEditBudgetModal({
                     <>
                       <ShieldAlert size={14} className="text-red-600 dark:text-red-400" />
                       <span className="text-xs font-medium text-red-700 dark:text-red-400">
-                        Límite de gasto
+                        {t("types.limit")}
                       </span>
                     </>
                   ) : (
                     <>
                       <Target size={14} className="text-teal-600 dark:text-teal-400" />
                       <span className="text-xs font-medium text-teal-700 dark:text-teal-400">
-                        Meta de ahorro
+                        {t("types.goal")}
                       </span>
                     </>
                   )}

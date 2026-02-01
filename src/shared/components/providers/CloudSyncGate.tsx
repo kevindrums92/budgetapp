@@ -18,6 +18,7 @@ import { getNetworkStatus, addNetworkListener } from "@/services/network.service
 import {
   initializePushNotifications,
   deactivateToken,
+  migrateGuestTokenToUser,
   cleanup as cleanupPushNotifications,
 } from "@/services/pushNotification.service";
 
@@ -586,6 +587,14 @@ export default function CloudSyncGate() {
 
       if (event === "SIGNED_IN") {
         console.log("[CloudSyncGate] SIGNED_IN event received, re-initializing...");
+
+        // Migrate any guest push token to the authenticated user
+        migrateGuestTokenToUser().then((migrated) => {
+          if (migrated) {
+            console.log("[CloudSyncGate] Guest push token migrated to authenticated user");
+          }
+        });
+
         initializedRef.current = false;
         initForSession();
       }
