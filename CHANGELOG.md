@@ -13,6 +13,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- refactor(auth): remove email/password authentication method from login screen
+  - Removed email/password button and navigation from LoginScreen component
+  - Updated FEATURES.md to document only Google OAuth as available authentication method
+  - Removed references to password reset flow and OTP verification for email/password
+- fix(onboarding): fix missing translation for welcome screen 6 continue button
+  - Changed from 'welcome.screen6.continue' to 'welcome.screen6.startNow'
+
 ## [0.14.2] - 2026-02-01
 
 - fix(push-notifications): fix timezone mismatch between client and edge functions

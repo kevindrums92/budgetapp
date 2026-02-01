@@ -9,7 +9,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, User, Chrome, Apple, Mail, Loader2 } from 'lucide-react';
+import { Shield, User, Chrome, Apple, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { isNative } from '@/shared/utils/platform';
 import { getOAuthRedirectUrl } from '@/config/env';
@@ -254,13 +254,6 @@ export default function LoginScreen() {
   };
 
   /**
-   * Navegar a la página de autenticación con email/contraseña
-   */
-  const handleEmailAuth = () => {
-    navigate('/onboarding/auth');
-  };
-
-  /**
    * Placeholder para Apple (próximamente)
    */
   const handleAppleComingSoon = () => {
@@ -358,15 +351,6 @@ export default function LoginScreen() {
             </button>
           </div>
 
-          {/* 4. Link simple: Email/Password */}
-          <button
-            type="button"
-            onClick={handleEmailAuth}
-            className="flex w-full items-center justify-center gap-2 py-3 text-sm font-medium text-[#18B7B0] transition-colors hover:text-[#13948e]"
-          >
-            <Mail className="h-4 w-4" />
-            <span>{t('login.emailLink')}</span>
-          </button>
         </div>
 
         {/* Error Message */}
