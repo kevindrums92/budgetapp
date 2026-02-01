@@ -13,6 +13,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(auth): implement Apple Sign In authentication
+  - Added handleAppleLogin() in LoginScreen and LoginProScreen
+  - Replaced placeholder "coming soon" handler with full OAuth implementation
+  - Removed opacity-60 from Apple buttons (no longer disabled)
+  - Updated FEATURES.md to document Apple Sign In as available authentication method
+  - Follows same OAuth pattern as Google (provider-agnostic deep link handling)
 - refactor(auth): remove email/password authentication method from login screen
   - Removed email/password button and navigation from LoginScreen component
   - Updated FEATURES.md to document only Google OAuth as available authentication method

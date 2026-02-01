@@ -254,11 +254,36 @@ export default function LoginScreen() {
   };
 
   /**
-   * Placeholder para Apple (próximamente)
+   * Maneja el login con Apple OAuth
    */
-  const handleAppleComingSoon = () => {
-    setError(t('login.errorApple'));
-    setTimeout(() => setError(null), 3000);
+  const handleAppleLogin = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Native apps use custom URL scheme for OAuth deep linking
+      // The scheme changes per environment (smartspend:// vs smartspend-dev://)
+      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
+
+      console.log('[LoginScreen] Apple OAuth redirect URL:', redirectTo);
+
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo,
+        },
+      });
+
+      if (authError) throw authError;
+
+      // El OAuth redirige automáticamente
+      // La lógica de siguiente pantalla se maneja en el callback de auth (useEffect listener)
+      console.log('[LoginScreen] Apple OAuth initiated');
+    } catch (err: any) {
+      console.error('[LoginScreen] Error en Apple login:', err);
+      setError(err.message || 'Error al iniciar sesión con Apple');
+      setLoading(false);
+    }
   };
 
   return (
@@ -337,12 +362,12 @@ export default function LoginScreen() {
               {loading && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
             </button>
 
-            {/* Apple Sign In - Coming Soon */}
+            {/* Apple Sign In */}
             <button
               type="button"
-              onClick={handleAppleComingSoon}
+              onClick={handleAppleLogin}
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm opacity-60 transition-all active:scale-[0.98]"
+              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
             >
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black">
                 <Apple className="h-5 w-5 text-white" />

@@ -297,6 +297,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ### Métodos de Autenticación
 - **Google OAuth** (Sign in with Google)
+- **Apple Sign In** (Sign in with Apple)
 
 ### Biometric Authentication
 - **Face ID / Touch ID / Fingerprint** para usuarios autenticados
