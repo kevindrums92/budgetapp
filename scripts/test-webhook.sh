@@ -41,7 +41,9 @@ set -e
 # ============================================
 
 # Tu URL de Supabase (sin trailing slash)
-SUPABASE_URL="${SUPABASE_URL:-https://qvzxdwilplizcgybqqsx.supabase.co}"
+#SUPABASE_URL="${SUPABASE_URL:-https://qvzxdwilplizcgybqqsx.supabase.co}" #DEV
+#SUPABASE_URL="${SUPABASE_URL:-https://plvuebqjwjcheyxprlmg.supabase.co}" #PROD
+SUPABASE_URL="${SUPABASE_URL:-https://plvuebqjwjcheyxprlmg.supabase.co}"
 
 # El secret que configuraste con: npx supabase secrets set REVENUECAT_WEBHOOK_SECRET=...
 WEBHOOK_SECRET="${WEBHOOK_SECRET:-pVdYvGm3pfJU+DVbF5U3d7mSI30vxItNlt9v7bVO5po=}"
