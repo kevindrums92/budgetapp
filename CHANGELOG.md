@@ -11,6 +11,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(ios): configure app as iPhone-only to resolve TestFlight validation error for iPad multitasking orientation requirements
+
 ## [0.14.0] - 2026-01-31
 
 - fix(tests): update unit tests for schema version 8 migration
