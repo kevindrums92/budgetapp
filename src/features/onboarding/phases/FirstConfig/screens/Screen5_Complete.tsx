@@ -1,5 +1,5 @@
 /**
- * Screen6_Complete
+ * Screen5_Complete
  * Pantalla final de First Config: Todo listo
  */
 
@@ -13,8 +13,10 @@ import { DEFAULT_CATEGORIES } from '@/constants/categories/default-categories';
 import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
 import { upsertCloudState } from '@/services/cloudState.service';
 import { supabase } from '@/lib/supabaseClient';
+import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
+import ProgressDots from '../../../components/ProgressDots';
 
-export default function Screen6_Complete() {
+export default function Screen5_Complete() {
   const { t } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const { state } = useOnboarding();
@@ -93,22 +95,28 @@ export default function Screen6_Complete() {
   const selectedCategoriesCount = state.selections.selectedCategories?.length || DEFAULT_CATEGORIES.length;
 
   return (
-    <div
-      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
-    >
-      {/* Progress - All complete */}
-      <div className="flex gap-1.5 px-6 pt-3">
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-      </div>
+    <FullscreenLayout
+      headerCenter={<ProgressDots total={5} current={5} />}
+      contentClassName="pb-8 md:pb-12 flex flex-col"
+      ctaButton={
+        <div>
+          <button
+            type="button"
+            onClick={handleComplete}
+            className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-4 font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all active:scale-[0.98]"
+          >
+            <span>{t('complete.start')}</span>
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </button>
 
+          <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+            {t('complete.note')}
+          </p>
+        </div>
+      }
+    >
       {/* Header */}
-      <div className="flex flex-col items-center px-6 pt-12 pb-8">
+      <div className="flex flex-col items-center pb-8">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg">
           <Sparkles size={40} className="text-white" strokeWidth={2.5} />
         </div>
@@ -123,111 +131,93 @@ export default function Screen6_Complete() {
       </div>
 
       {/* Configuration summary */}
-      <div className="flex-1 overflow-y-auto px-6 pb-48">
-        <div className="mb-6 rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
-          <h2 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {t('complete.configTitle')}
-          </h2>
+      <div className="mb-6 rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
+        <h2 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {t('complete.configTitle')}
+        </h2>
 
-          <div className="space-y-3">
-            {/* Language */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                  <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
-                </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.language')}</span>
+        <div className="space-y-3">
+          {/* Language */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
               </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                {state.selections.language === 'es' ? t('complete.languageEs') : t('complete.languageEn')}
-              </span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.language')}</span>
             </div>
-
-            {/* Theme */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                  <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
-                </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.theme')}</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                {state.selections.theme === 'light'
-                  ? t('complete.themeLight')
-                  : state.selections.theme === 'dark'
-                  ? t('complete.themeDark')
-                  : t('complete.themeSystem')}
-              </span>
-            </div>
-
-            {/* Currency */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                  <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
-                </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.currency')}</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                {state.selections.currency || 'COP'}
-              </span>
-            </div>
-
-            {/* Categories */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                  <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
-                </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.categories')}</span>
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                {selectedCategoriesCount} {t('complete.categoriesSelected')}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Features preview */}
-        <div className="space-y-2">
-          <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature1')}</p>
-            <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-              {t('complete.feature1Desc')}
-            </p>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+              {state.selections.language === 'es' ? t('complete.languageEs') : t('complete.languageEn')}
+            </span>
           </div>
 
-          <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature2')}</p>
-            <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-              {t('complete.feature2Desc')}
-            </p>
+          {/* Theme */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.theme')}</span>
+            </div>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+              {state.selections.theme === 'light'
+                ? t('complete.themeLight')
+                : state.selections.theme === 'dark'
+                ? t('complete.themeDark')
+                : t('complete.themeSystem')}
+            </span>
           </div>
 
-          <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature3')}</p>
-            <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-              {t('complete.feature3Desc')}
-            </p>
+          {/* Currency */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.currency')}</span>
+            </div>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+              {state.selections.currency || 'COP'}
+            </span>
+          </div>
+
+          {/* Categories */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                <Check className="h-4 w-4 text-emerald-600" strokeWidth={2.5} />
+              </div>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{t('complete.categories')}</span>
+            </div>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+              {selectedCategoriesCount} {t('complete.categoriesSelected')}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Action */}
-      <div className="fixed inset-x-0 bottom-0 z-30 bg-gray-50 dark:bg-gray-950 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4">
-        <button
-          type="button"
-          onClick={handleComplete}
-          className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-4 font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all active:scale-[0.98]"
-        >
-          <span>{t('complete.start')}</span>
-          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-        </button>
+      {/* Features preview */}
+      <div className="space-y-2 flex-1">
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature1')}</p>
+          <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+            {t('complete.feature1Desc')}
+          </p>
+        </div>
 
-        <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
-          {t('complete.note')}
-        </p>
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature2')}</p>
+          <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+            {t('complete.feature2Desc')}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-white dark:bg-gray-900 p-3.5 shadow-sm">
+          <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('complete.feature3')}</p>
+          <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
+            {t('complete.feature3Desc')}
+          </p>
+        </div>
       </div>
-    </div>
+    </FullscreenLayout>
   );
 }

@@ -58,7 +58,8 @@
   "expensesByCategory": {
     "title": "Gastos por Categoría",
     "spent": "gastado",
-    "noData": "No hay gastos este mes"
+    "noData": "No hay gastos este mes",
+    "viewAllPro": "Ver todas las categorías"
   },
   "incomeVsExpenses": {
     "title": "Ingresos vs Gastos",
@@ -87,5 +88,10 @@
     "thu": "Jue",
     "fri": "Vie",
     "sat": "Sáb"
+  },
+  "overlay": {
+    "unlockAdvancedStats": "Desbloquea estadísticas avanzadas",
+    "unlockTrends": "Desbloquea análisis de tendencias",
+    "viewAllStats": "Ver todas las estadísticas"
   }
 }

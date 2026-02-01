@@ -55,6 +55,10 @@
       "offline": "Offline",
       "syncing": "Syncing",
       "synced": "Cloud Sync Active"
+    },
+    "trial": {
+      "daysRemaining_one": "{{count}} trial day",
+      "daysRemaining_other": "{{count}} trial days"
     }
   },
   "login": "Log In",
@@ -66,6 +70,23 @@
     "title": "Protect your finances",
     "subtitle": "Sign in to back up your expenses to the cloud.",
     "action": "Connect account"
+  },
+  "subscriptionCard": {
+    "guest": {
+      "title": "No Cloud Backup",
+      "subtitle": "Your data is only on this device. If you lose it or it gets damaged, you'll lose all your financial history.",
+      "cta": "Create Free Account"
+    },
+    "free": {
+      "title": "Take Your Finances to the Next Level",
+      "subtitle": "Unlock advanced statistics, unlimited categories and budgets, powerful filters and an ad-free experience.",
+      "cta": "Discover Pro"
+    },
+    "pro": {
+      "title": "Pro Backup Active",
+      "subtitle": "Cloud backup + advanced statistics + unlimited categories + all premium features.",
+      "status": "Everything is in order"
+    }
   },
   "export": {
     "info": {
@@ -97,6 +118,52 @@
     },
     "privacy": {
       "title": "Privacy Policy"
+    }
+  },
+  "subscription": {
+    "title": "My Subscription",
+    "currentPlan": "Current Plan",
+    "plans": {
+      "free": "Free",
+      "monthly": "Pro Monthly",
+      "annual": "Pro Annual",
+      "lifetime": "Pro Lifetime"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "trial": "Trial"
+    },
+    "trialDaysRemaining_one": "{{count}} trial day remaining",
+    "trialDaysRemaining_other": "{{count}} trial days remaining",
+    "trialEnds": "Trial ends",
+    "renews": "Renews",
+    "lifetimeAccess": "Lifetime access",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "oneTimePayment": "one-time payment",
+    "upgradePlan": "Upgrade Your Plan",
+    "annualPlan": "Annual Plan",
+    "savingsPerYear": "Save ${{amount}} per year",
+    "lifetimePlan": "Lifetime Plan",
+    "unlimitedLifetimeAccess": "Unlimited lifetime access",
+    "actions": "Actions",
+    "restorePurchases": "Restore Purchases",
+    "restorePurchasesSubtitle": "If you changed devices",
+    "restoring": "Restoring...",
+    "manageInAppStore": "Manage in App Store",
+    "manageInAppStoreSubtitle": "Cancel or modify subscription",
+    "messages": {
+      "purchaseError": "Unable to process purchase. Please try again.",
+      "purchaseRestored": "Purchases restored successfully!",
+      "noPurchasesFound": "No previous purchases found to restore.",
+      "restoreError": "Error restoring purchases. Please try again.",
+      "onlyMobile": "Restore purchases is only available in the mobile app.",
+      "manageOnlyMobile": "Manage subscription is only available in the mobile app."
+    },
+    "info": {
+      "note": "Note:",
+      "appleManagement": "Subscription changes and cancellations are managed through the Apple App Store. Cancellations take effect at the end of the current billing period."
     }
   }
 }

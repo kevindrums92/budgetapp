@@ -8,8 +8,66 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
 
+## [0.14.0] - 2026-01-31
+
+- fix(tests): update unit tests for schema version 8 migration
+  - Updated storage.service.test.ts and budget.store.test.ts to expect schemaVersion 8 instead of 7
+  - Fixed TransactionList.test.tsx to use local timezone for current month calculation (matches production behavior)
+- fix(lint): rename Infinity import to InfinityIcon to avoid global shadowing in SubscriptionManagementPage
+- feat(push): implement guest user push notifications with automatic token migration on login
+  - Database migration to make user_id nullable in push_tokens and notification_history tables
+  - Guest users can now enable push notifications without authentication
+  - Automatic token migration when guest users log in (preserves preferences)
+  - New migrate_guest_token_to_user() RPC function in database
+  - Updated RLS policies to support guest token operations (SELECT, INSERT, UPDATE, DELETE)
+  - CloudSyncGate automatically migrates guest tokens on SIGNED_IN event
+  - Onboarding Screen5_Notifications now shows for guest users on native platforms
+  - Complete documentation in docs/push-notifications/GUEST_PUSH_TOKENS.md
+- fix(push): apply DEFAULT_NOTIFICATION_PREFERENCES on first-time push notification registration
+  - Fixed registerAndSaveToken() to accept isRefresh parameter (false for new registrations)
+  - requestPermissions() now correctly uses default preferences for first-time users
+  - Removed redundant updatePreferences() calls from HomePage and Screen5_Notifications
+- fix(push): prevent duplicate token creation from multiple Firebase tokenReceived events
+  - Implemented 1-second debounce on tokenReceived listener to handle multiple events
+  - Only processes final token after Firebase events settle
+  - Prevents race conditions when Firebase fires 2+ events with different tokens
+- fix(push): enable proper token deletion when users disable push notifications
+  - Added DELETE RLS policy for guest tokens in migration
+  - Modified disablePushNotifications() to delete tokens by token value only (no user_id required)
+  - Works for both authenticated users and guests
+- feat(subscription): add subscription management screen with plan details, status, renewal date, restore purchases, and upgrade options accessible from ProfilePage user card
+- fix(subscription): fix trial plan type display by mapping product_id to base plan tier (monthly/annual/lifetime) instead of setting type to 'trial' during trial period
+- fix(dates): calculate current month using local timezone instead of UTC to prevent incorrect "different month" warning near midnight in non-UTC timezones
+- fix(onboarding): skip welcome screens on subsequent logins using permanent device tracking flag (DEVICE_INITIALIZED set when user first reaches login)
+- fix(auth): clear subscription from both in-memory store and localStorage on logout to prevent next user inheriting previous user's subscription
+- fix(subscription): detect trial period correctly with case-insensitive periodType comparison ('TRIAL' vs 'trial') to show trial badge immediately after purchase
+- fix(monetization): prevent duplicate purchase attempts for users with existing Pro subscriptions in LoginProScreen (verifies subscription before purchase flow)
+- feat(monetization): implement production RevenueCat subscription system with hybrid architecture (RevenueCat SDK → Supabase cache → localStorage fallback)
+- feat(backend): add Supabase Edge Function (`revenuecat-webhook`) to process RevenueCat webhook events (INITIAL_PURCHASE, RENEWAL, CANCELLATION, EXPIRATION, etc.)
+- feat(db): create `user_subscriptions` and `revenuecat_events` tables with RLS policies for subscription state management and audit logging
+- feat(services): implement `subscription.service.ts` with 3-tier fallback strategy and automatic localStorage caching for offline support
+- feat(testing): add webhook testing script (`test-webhook.sh`) to simulate RevenueCat events (initial purchase, renewal, cancellation, etc.)
+- feat(ios): configure StoreKit Configuration File (Products.storekit) for local testing with sandbox annual subscription
+- refactor(state): remove subscription from BudgetState persistence (now managed separately via webhooks and subscription service)
+- refactor(sync): update CloudSyncGate to fetch subscription separately after cloud data sync using subscription.service
+- feat(providers): add `Purchases.logIn()` integration in RevenueCatProvider, usePaywallPurchase, and PaywallModal for proper user linking
+- docs: add comprehensive subscription architecture documentation with diagrams, deployment guide, and testing instructions
+- feat(monetization): implement Pro feature gating for CSV exports - block all CSV exports (transactions, categories, budgets, trips) for Free users with PaywallModal in ExportCSVPage, TripsPage, and HistoryPage
+- feat(monetization): implement Pro feature gating for automatic backups - block local and cloud automatic backups for Free users, only manual backups available (BackupMethodSelector with lock icons and PRO badges)
+- feat(monetization): implement Pro feature gating for history filters - block Estado, Categoría, and Monto filters for Free users with lock icons and PaywallModal
+- feat(monetization): implement Pro feature gating for scheduled transactions - enforce limit of 3 scheduled transactions for Free users using shouldShowPaywall check in ScheduledPage
+- feat(ui): add Pro avatar styling in TopHeader with golden gradient border, crown badge (top-right), and sync indicator dot (bottom-left)
+- fix(ui): fix badge layout in ProfilePage so SYNCING badge always appears on separate line below PRO/TRIAL badges
+- feat(monetization): implement complete subscription system with 7-day trial, pricing tiers (monthly/annual/lifetime), and RevenueCat mock service
+- feat(onboarding): add dual login flow with ChoosePlan screen as final step, differentiating Free (guest/social auth) vs Pro (trial activation) users
+- feat(ui): add PaywallModal, PricingCard, and ProFeatureGate components with i18n support in 4 languages (es, en, fr, pt)
+- feat(profile): add PRO badge in user card, hide subscription banner for Pro users, redesign Free user banner to emphasize Pro features (stats, unlimited, ad-free)
+- feat(hooks): create useSubscription and usePaywallPurchase shared hooks to manage subscription state and trial activation across app
+- fix(sync): add subscription field to CloudSyncGate dependency array to ensure subscription persists to Supabase after trial activation
+- refactor(schema): migrate storage schema to v8 with subscription state support and Zustand store integration
 - feat(app): lock app to portrait orientation only (disable landscape mode) across all platforms (iOS, Android, PWA)
 
 ## [0.13.2] - 2026-01-29

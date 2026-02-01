@@ -14,10 +14,12 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { icons, PieChart as PieChartIcon, BarChart3, TrendingUp, CheckCircle, AlertCircle, ChevronRight, DollarSign, Calendar, SlidersHorizontal } from "lucide-react";
+import { icons, PieChart as PieChartIcon, BarChart3, TrendingUp, CheckCircle, AlertCircle, ChevronRight, DollarSign, Calendar, SlidersHorizontal/*, Crown*/ } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCurrency } from "@/features/currency";
+import { useSubscription } from "@/hooks/useSubscription";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import type { Category } from "@/types/budget.types";
 import FilterStatisticsSheet from "../components/FilterStatisticsSheet";
@@ -25,6 +27,7 @@ import ComparisonSheet from "../components/ComparisonSheet";
 import TopDaySheet from "../components/TopDaySheet";
 import DailyAverageBreakdownSheet from "../components/DailyAverageBreakdownSheet";
 import TopCategorySheet from "../components/TopCategorySheet";
+import PaywallModal from "@/shared/components/modals/PaywallModal";
 
 // Get last N months ending at a specific month (YYYY-MM)
 function getMonthsEndingAt(count: number, endMonth: string): string[] {
@@ -74,6 +77,7 @@ type TrendData = {
 
 export default function StatsPage() {
   const { t } = useTranslation('stats');
+  // const tPaywall = useTranslation('paywall').t;
   const { getLocale } = useLanguage();
   const { formatAmount } = useCurrency();
   const navigate = useNavigate();
@@ -86,8 +90,15 @@ export default function StatsPage() {
   const [showDailyAverageBreakdownModal, setShowDailyAverageBreakdownModal] = useState(false);
   const [showTopDayModal, setShowTopDayModal] = useState(false);
   const [showTopCategoryModal, setShowTopCategoryModal] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
+  const { isPro } = useSubscription();
+
+  // Paywall purchase handler
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setShowPaywall(false),
+  });
 
   // Donut chart data (expenses by category for selected month)
   const categoryChartData = useMemo<CategoryChartItem[]>(() => {
@@ -242,20 +253,20 @@ export default function StatsPage() {
     // Get all transactions for the top day of week (using filtered stats)
     const topDayTransactions = topDayOfWeekNumber !== null
       ? expensesForStats.filter((t) => {
-          const date = new Date(t.date + "T12:00:00");
-          return date.getDay() === topDayOfWeekNumber;
-        }).sort((a, b) => {
-          // Sort by date descending (most recent first)
-          return b.date.localeCompare(a.date);
-        })
+        const date = new Date(t.date + "T12:00:00");
+        return date.getDay() === topDayOfWeekNumber;
+      }).sort((a, b) => {
+        // Sort by date descending (most recent first)
+        return b.date.localeCompare(a.date);
+      })
       : [];
 
     // Get all transactions for the top category (using filtered stats)
     const topCategoryTransactions = topCategoryId
       ? expensesForStats.filter((t) => t.category === topCategoryId).sort((a, b) => {
-          // Sort by date descending (most recent first)
-          return b.date.localeCompare(a.date);
-        })
+        // Sort by date descending (most recent first)
+        return b.date.localeCompare(a.date);
+      })
       : [];
 
     // Previous month comparison (day-to-day for current month, full month for past months)
@@ -330,387 +341,483 @@ export default function StatsPage() {
   }, [transactions, selectedMonth, categoryDefinitions, t, excludedFromStats]);
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen">
+    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen relative">
       <main className="mx-auto max-w-xl px-4 pb-28">
-      {/* Stats Filter Button */}
-      {quickStats.hasData && (
-        <div className="mt-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {t('quickInsights')}
-          </h3>
-          <button
-            type="button"
-            onClick={() => setShowDailyAverageModal(true)}
-            className="relative flex items-center gap-2 rounded-lg bg-[#18B7B0] px-3 py-2 hover:bg-[#16a39d] transition-colors active:scale-95"
-          >
-            <SlidersHorizontal className="h-4 w-4 text-white" />
-            <span className="text-xs font-medium text-white">
-              {t('statsFilter.customize')}
-            </span>
-            {(excludedFromStats ?? []).length > 0 && (
-              <div className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1.5">
-                <span className="text-[10px] font-bold text-[#18B7B0]">
-                  {(excludedFromStats ?? []).length}
-                </span>
-              </div>
-            )}
-          </button>
-        </div>
-      )}
-
-      {/* Quick Stats */}
-      {quickStats.hasData && (
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {/* Daily Average */}
-          <button
-            type="button"
-            onClick={() => setShowDailyAverageBreakdownModal(true)}
-            className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors active:scale-[0.98] relative"
-          >
-            <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
-              <DollarSign className="h-5 w-5 text-blue-500" />
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.dailyAverage')}</p>
-            <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {formatAmount(quickStats.dailyAverage)}
-            </p>
-          </button>
-
-          {/* Top Category */}
-          {quickStats.topCategory && (
+        {/* Stats Filter Button */}
+        {quickStats.hasData && (
+          <div className="mt-4 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              {t('quickInsights')}
+            </h3>
             <button
               type="button"
-              onClick={() => setShowTopCategoryModal(true)}
-              className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors active:scale-[0.98] relative"
+              onClick={() => isPro ? setShowDailyAverageModal(true) : setShowPaywall(true)}
+              className={`relative flex items-center gap-2 rounded-lg px-3 py-2 transition-colors active:scale-95 ${isPro
+                  ? 'bg-[#18B7B0] hover:bg-[#16a39d]'
+                  : 'bg-gray-300 dark:bg-gray-700'
+                }`}
+            >
+              {isPro ? (
+                <SlidersHorizontal className="h-4 w-4 text-white" />
+              ) : (
+                <icons.Lock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              )}
+              <span className={`text-xs font-medium ${isPro ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                }`}>
+                {t('statsFilter.customize')}
+              </span>
+              {isPro && (excludedFromStats ?? []).length > 0 && (
+                <div className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1.5">
+                  <span className="text-[10px] font-bold text-[#18B7B0]">
+                    {(excludedFromStats ?? []).length}
+                  </span>
+                </div>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Quick Stats */}
+        {quickStats.hasData && (
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {/* Daily Average */}
+            <button
+              type="button"
+              onClick={() => isPro ? setShowDailyAverageBreakdownModal(true) : setShowPaywall(true)}
+              className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
+                } cursor-pointer`}
             >
               <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
-              {(() => {
-                const IconComponent =
-                  icons[
-                    kebabToPascal(quickStats.topCategory.icon) as keyof typeof icons
-                  ];
-                return (
-                  IconComponent && (
-                    <div
-                      className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg"
-                      style={{ backgroundColor: quickStats.topCategory.color + "20" }}
-                    >
-                      <IconComponent
-                        className="h-5 w-5"
-                        style={{ color: quickStats.topCategory.color }}
-                      />
-                    </div>
-                  )
-                );
-              })()}
-              <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topCategory')}</p>
-              <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-50 truncate">
-                {quickStats.topCategory.name}
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
+                <DollarSign className="h-5 w-5 text-blue-500" />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.dailyAverage')}</p>
+                {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
+              </div>
+              <p className={`mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50 ${!isPro ? 'blur-sm select-none' : ''}`}>
+                {formatAmount(quickStats.dailyAverage)}
               </p>
             </button>
-          )}
 
-          {/* Top Day of Week */}
-          {quickStats.topDayName && (
+            {/* Top Category */}
+            {quickStats.topCategory && (
+              <button
+                type="button"
+                onClick={() => isPro ? setShowTopCategoryModal(true) : setShowPaywall(true)}
+                className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
+                  } cursor-pointer`}
+              >
+                <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
+                {(() => {
+                  const IconComponent =
+                    icons[
+                    kebabToPascal(quickStats.topCategory.icon) as keyof typeof icons
+                    ];
+                  return (
+                    IconComponent && (
+                      <div
+                        className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg"
+                        style={{ backgroundColor: quickStats.topCategory.color + "20" }}
+                      >
+                        <IconComponent
+                          className="h-5 w-5"
+                          style={{ color: quickStats.topCategory.color }}
+                        />
+                      </div>
+                    )
+                  );
+                })()}
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topCategory')}</p>
+                  {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
+                </div>
+                <p className={`mt-1 text-sm font-medium text-gray-900 dark:text-gray-50 truncate ${!isPro ? 'blur-sm select-none' : ''}`}>
+                  {quickStats.topCategory.name}
+                </p>
+              </button>
+            )}
+
+            {/* Top Day of Week */}
+            {quickStats.topDayName && (
+              <button
+                type="button"
+                onClick={() => isPro ? setShowTopDayModal(true) : setShowPaywall(true)}
+                className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
+                  } cursor-pointer`}
+              >
+                <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
+                  <Calendar className="h-5 w-5 text-purple-500" />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topDay')}</p>
+                  {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
+                </div>
+                <p className={`mt-1 text-sm font-medium text-gray-900 dark:text-gray-50 ${!isPro ? 'blur-sm select-none' : ''}`}>{quickStats.topDayName}</p>
+              </button>
+            )}
+
+            {/* Month Comparison */}
             <button
               type="button"
-              onClick={() => setShowTopDayModal(true)}
-              className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors active:scale-[0.98] relative"
+              onClick={() => isPro ? setShowComparisonModal(true) : setShowPaywall(true)}
+              className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
+                } cursor-pointer`}
             >
               <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-                <Calendar className="h-5 w-5 text-purple-500" />
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10">
+                <TrendingUp className="h-5 w-5 text-orange-500" />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topDay')}</p>
-              <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-50">{quickStats.topDayName}</p>
-            </button>
-          )}
-
-          {/* Month Comparison */}
-          <button
-            type="button"
-            onClick={() => setShowComparisonModal(true)}
-            className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors active:scale-[0.98] relative"
-          >
-            <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10">
-              <TrendingUp className="h-5 w-5 text-orange-500" />
-            </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.monthComparison')}</p>
-            <div className="mt-1 flex items-center gap-1">
-              {quickStats.monthDiff > 0 ? (
-                <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
-              ) : quickStats.monthDiff < 0 ? (
-                <CheckCircle className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
-              ) : (
-                <icons.Minus className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-              )}
-              <span
-                className={`text-sm font-medium ${
-                  quickStats.monthDiff > 0
-                    ? "text-red-600 dark:text-red-400"
-                    : quickStats.monthDiff < 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}
-              >
-                {quickStats.monthDiff > 0 ? "+" : ""}
-                {quickStats.monthDiffPercent.toFixed(0)}%
-              </span>
-            </div>
-          </button>
-        </div>
-      )}
-
-      {/* Donut Chart Section */}
-      <div className="mt-6">
-        <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-          {t('expensesByCategory.title')}
-        </h3>
-
-        {categoryChartData.length === 0 ? (
-          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-            <PieChartIcon className="mx-auto mb-2 h-12 w-12 opacity-50" />
-            <p>{t('expensesByCategory.noData')}</p>
-          </div>
-        ) : (
-          <>
-            {/* Donut Chart */}
-            <div className="relative">
-              <ResponsiveContainer width="100%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={categoryChartData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    stroke="none"
-                    isAnimationActive={false}
-                  >
-                    {categoryChartData.map((entry, index) => (
-                      <Cell key={index} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-
-              {/* Center label */}
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-                  {formatAmount(totalExpenses)}
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.monthComparison')}</p>
+                {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
+              </div>
+              <div className={`mt-1 flex items-center gap-1 ${!isPro ? 'blur-sm select-none' : ''}`}>
+                {quickStats.monthDiff > 0 ? (
+                  <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
+                ) : quickStats.monthDiff < 0 ? (
+                  <CheckCircle className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
+                ) : (
+                  <icons.Minus className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                )}
+                <span
+                  className={`text-sm font-medium ${quickStats.monthDiff > 0
+                      ? "text-red-600 dark:text-red-400"
+                      : quickStats.monthDiff < 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-gray-600 dark:text-gray-400"
+                    }`}
+                >
+                  {quickStats.monthDiff > 0 ? "+" : ""}
+                  {quickStats.monthDiffPercent.toFixed(0)}%
                 </span>
-                <span className="text-sm text-gray-500 dark:text-gray-400">{t('expensesByCategory.spent')}</span>
               </div>
-            </div>
-
-            {/* Legend */}
-            <div className="mt-4 space-y-2">
-              {categoryChartData.map((item) => {
-                const IconComponent =
-                  icons[kebabToPascal(item.icon) as keyof typeof icons];
-
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => navigate(`/category/${item.id}/month/${selectedMonth}`)}
-                    className="w-full flex items-center justify-between rounded-lg bg-white dark:bg-gray-900 px-3 py-2 shadow-sm active:bg-gray-50 dark:active:bg-gray-800 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="h-3 w-3 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      {IconComponent && (
-                        <IconComponent
-                          className="h-4 w-4"
-                          style={{ color: item.color }}
-                        />
-                      )}
-                      <span className="text-sm text-gray-900 dark:text-gray-50">{item.name}</span>
-                    </div>
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                      {formatAmount(item.value)}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Bar Chart Section */}
-      <div className="mt-8">
-        <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-          {t('incomeVsExpenses.title')}
-        </h3>
-
-        {!hasMonthlyData ? (
-          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-            <BarChart3 className="mx-auto mb-2 h-12 w-12 opacity-50" />
-            <p>{t('incomeVsExpenses.noData')}</p>
+            </button>
           </div>
-        ) : (
-          <>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={monthlyData} barGap={2}>
-                <XAxis
-                  dataKey="label"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: "#9CA3AF" }}
-                />
-                <YAxis hide />
-                <Tooltip
-                  formatter={(value) => formatAmount(Number(value))}
-                  labelFormatter={(label) => String(label)}
-                  contentStyle={{
-                    borderRadius: "8px",
-                    border: "none",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    backgroundColor: "var(--tooltip-bg, white)",
-                  }}
-                />
-                <Bar
-                  dataKey="income"
-                  name={t('incomeVsExpenses.income')}
-                  fill="#10B981"
-                  radius={[4, 4, 0, 0]}
-                  isAnimationActive={false}
-                />
-                <Bar
-                  dataKey="expense"
-                  name={t('incomeVsExpenses.expenses')}
-                  fill="#EF4444"
-                  radius={[4, 4, 0, 0]}
-                  isAnimationActive={false}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+        )}
 
-            {/* Legend */}
-            <div className="mt-4 flex justify-center gap-6">
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-emerald-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">{t('incomeVsExpenses.income')}</span>
+        {/* Donut Chart Section */}
+        <div className="mt-6">
+          <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('expensesByCategory.title')}
+          </h3>
+
+          {categoryChartData.length === 0 ? (
+            <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+              <PieChartIcon className="mx-auto mb-2 h-12 w-12 opacity-50" />
+              <p>{t('expensesByCategory.noData')}</p>
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+              {/* Donut Chart */}
+              <div className="relative">
+                <ResponsiveContainer width="100%" height={250}>
+                  <PieChart>
+                    <Pie
+                      data={categoryChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={2}
+                      stroke="none"
+                      isAnimationActive={false}
+                    >
+                      {categoryChartData.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+
+                {/* Center label */}
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-bold text-gray-900 dark:text-gray-50">
+                    {formatAmount(totalExpenses)}
+                  </span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{t('expensesByCategory.spent')}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full bg-red-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">{t('incomeVsExpenses.expenses')}</span>
+
+              {/* Legend */}
+              <div className="mt-4 relative">
+                <div className="space-y-2 pb-4">
+                  {categoryChartData.slice(0, isPro ? undefined : 6).map((item, index) => {
+                    const IconComponent =
+                      icons[kebabToPascal(item.icon) as keyof typeof icons];
+                    const isBlurred = !isPro && index >= 3; // Blur categories from 4th onwards for Lite users
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => isPro && navigate(`/category/${item.id}/month/${selectedMonth}`)}
+                        className={`w-full flex items-center justify-between rounded-lg bg-white dark:bg-gray-900 px-3 py-2 shadow-sm transition-colors ${isPro ? 'active:bg-gray-50 dark:active:bg-gray-800 cursor-pointer' : 'cursor-default'
+                          } ${isBlurred ? 'blur-sm select-none opacity-60' : ''}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                          />
+                          {IconComponent && (
+                            <IconComponent
+                              className="h-4 w-4"
+                              style={{ color: item.color }}
+                            />
+                          )}
+                          <span className="text-sm text-gray-900 dark:text-gray-50">{item.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                            {formatAmount(item.value)}
+                          </span>
+                          <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600" />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Floating "View all categories" button overlaid on blurred categories */}
+                {!isPro && categoryChartData.length > 3 && (
+                  <div className="absolute left-0 right-0 flex justify-center pointer-events-none" style={{ top: '95%', transform: 'translateY(-50%)' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowPaywall(true)}
+                      className="pointer-events-auto flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 dark:text-gray-200 text-xs font-semibold py-2 px-4 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
+                    >
+                      <icons.Lock size={13} className="text-gray-300" />
+                      <span>{t('expensesByCategory.viewAllPro')}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-          </>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Trend Chart Section */}
-      <div className="mt-8">
-        <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-          {t('expenseTrend.title')}
-        </h3>
+        {/* Bar Chart Section */}
+        <div className="mt-8 relative">
+          <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('incomeVsExpenses.title')}
+          </h3>
 
-        {!hasTrendData ? (
-          <div className="py-12 text-center text-gray-500 dark:text-gray-400">
-            <TrendingUp className="mx-auto mb-2 h-12 w-12 opacity-50" />
-            <p>{t('expenseTrend.noData')}</p>
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={trendData}>
-              <XAxis
-                dataKey="label"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 10, fill: "#6B7280" }}
-                interval={1}
-              />
-              <YAxis hide />
-              <Tooltip
-                formatter={(value) => formatAmount(Number(value))}
-                labelFormatter={(label) => String(label)}
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "none",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="expense"
-                name={t('incomeVsExpenses.expenses')}
-                stroke="#EF4444"
-                strokeWidth={2}
-                dot={{ fill: "#EF4444", strokeWidth: 0, r: 3 }}
-                activeDot={{ r: 5, fill: "#EF4444" }}
-                isAnimationActive={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+          {!hasMonthlyData ? (
+            <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+              <BarChart3 className="mx-auto mb-2 h-12 w-12 opacity-50" />
+              <p>{t('incomeVsExpenses.noData')}</p>
+            </div>
+          ) : (
+            <div className="relative rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+              <div className={!isPro ? 'blur-md pointer-events-none select-none' : ''}>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={monthlyData} barGap={2}>
+                    <XAxis
+                      dataKey="label"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: "#9CA3AF" }}
+                    />
+                    <YAxis hide />
+                    <Tooltip
+                      formatter={(value) => formatAmount(Number(value))}
+                      labelFormatter={(label) => String(label)}
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                        backgroundColor: "var(--tooltip-bg, white)",
+                      }}
+                    />
+                    <Bar
+                      dataKey="income"
+                      name={t('incomeVsExpenses.income')}
+                      fill="#10B981"
+                      radius={[4, 4, 0, 0]}
+                      isAnimationActive={false}
+                    />
+                    <Bar
+                      dataKey="expense"
+                      name={t('incomeVsExpenses.expenses')}
+                      fill="#EF4444"
+                      radius={[4, 4, 0, 0]}
+                      isAnimationActive={false}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
 
-      {/* Filter Statistics Sheet */}
-      <FilterStatisticsSheet
-        open={showDailyAverageModal}
-        onClose={() => setShowDailyAverageModal(false)}
-        categoriesWithExpenses={quickStats.categoriesWithExpenses}
-      />
+                {/* Legend */}
+                <div className="mt-4 flex justify-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-emerald-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('incomeVsExpenses.income')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-red-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t('incomeVsExpenses.expenses')}</span>
+                  </div>
+                </div>
+              </div>
 
-      {/* Comparison Sheet */}
-      <ComparisonSheet
-        open={showComparisonModal}
-        onClose={() => setShowComparisonModal(false)}
-        isCurrentMonth={quickStats.isCurrentMonth}
-        comparisonDay={quickStats.comparisonDay}
-        prevMonth={quickStats.prevMonth}
-        prevMonthExpenses={quickStats.prevMonthExpenses}
-        currentMonthExpensesFiltered={quickStats.currentMonthExpensesFiltered}
-        selectedMonth={selectedMonth}
-        monthDiff={quickStats.monthDiff}
-        monthDiffPercent={quickStats.monthDiffPercent}
-        excludedCategoriesCount={(excludedFromStats ?? []).length}
-      />
+              {/* Overlay for Lite users */}
+              {!isPro && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <p className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
+                      {t('overlay.unlockAdvancedStats')}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowPaywall(true)}
+                      className="mx-auto flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 dark:text-gray-200 text-xs font-semibold py-2 px-4 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
+                    >
+                      <icons.Lock size={13} className="text-gray-300" />
+                      <span>{t('overlay.viewAllStats')}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-      {/* Top Day Sheet */}
-      <TopDaySheet
-        open={showTopDayModal}
-        onClose={() => setShowTopDayModal(false)}
-        topDayName={quickStats.topDayName}
-        topDayTransactions={quickStats.topDayTransactions}
-        selectedMonth={selectedMonth}
-        categoryDefinitions={categoryDefinitions}
-        excludedCategoriesCount={(excludedFromStats ?? []).length}
-      />
+        {/* Trend Chart Section */}
+        <div className="mt-8 relative">
+          <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {t('expenseTrend.title')}
+          </h3>
 
-      {/* Daily Average Breakdown Sheet */}
-      <DailyAverageBreakdownSheet
-        open={showDailyAverageBreakdownModal}
-        onClose={() => setShowDailyAverageBreakdownModal(false)}
-        totalForAverage={quickStats.totalForAverage}
-        currentDay={quickStats.currentDay}
-        isCurrentMonth={quickStats.isCurrentMonth}
-        dailyAverage={quickStats.dailyAverage}
-        daysInMonth={quickStats.daysInMonth}
-        excludedCategoriesCount={(excludedFromStats ?? []).length}
-      />
+          {!hasTrendData ? (
+            <div className="py-12 text-center text-gray-500 dark:text-gray-400">
+              <TrendingUp className="mx-auto mb-2 h-12 w-12 opacity-50" />
+              <p>{t('expenseTrend.noData')}</p>
+            </div>
+          ) : (
+            <div className="relative rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+              <div className={!isPro ? 'blur-md pointer-events-none select-none' : ''}>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={trendData}>
+                    <XAxis
+                      dataKey="label"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 10, fill: "#6B7280" }}
+                      interval={1}
+                    />
+                    <YAxis hide />
+                    <Tooltip
+                      formatter={(value) => formatAmount(Number(value))}
+                      labelFormatter={(label) => String(label)}
+                      contentStyle={{
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="expense"
+                      name={t('incomeVsExpenses.expenses')}
+                      stroke="#EF4444"
+                      strokeWidth={2}
+                      dot={{ fill: "#EF4444", strokeWidth: 0, r: 3 }}
+                      activeDot={{ r: 5, fill: "#EF4444" }}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
 
-      {/* Top Category Sheet */}
-      <TopCategorySheet
-        open={showTopCategoryModal}
-        onClose={() => setShowTopCategoryModal(false)}
-        topCategory={quickStats.topCategory}
-        topCategoryTransactions={quickStats.topCategoryTransactions}
-        selectedMonth={selectedMonth}
-        categoryDefinitions={categoryDefinitions}
-        excludedCategoriesCount={(excludedFromStats ?? []).length}
-      />
+              {/* Overlay for Lite users */}
+              {!isPro && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center px-4">
+                    <p className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
+                      {t('overlay.unlockTrends')}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowPaywall(true)}
+                      className="mx-auto flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 dark:text-gray-200 text-xs font-semibold py-2 px-4 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
+                    >
+                      <icons.Lock size={13} className="text-gray-300" />
+                      <span>{t('overlay.viewAllStats')}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Filter Statistics Sheet */}
+        <FilterStatisticsSheet
+          open={showDailyAverageModal}
+          onClose={() => setShowDailyAverageModal(false)}
+          categoriesWithExpenses={quickStats.categoriesWithExpenses}
+        />
+
+        {/* Comparison Sheet */}
+        <ComparisonSheet
+          open={showComparisonModal}
+          onClose={() => setShowComparisonModal(false)}
+          isCurrentMonth={quickStats.isCurrentMonth}
+          comparisonDay={quickStats.comparisonDay}
+          prevMonth={quickStats.prevMonth}
+          prevMonthExpenses={quickStats.prevMonthExpenses}
+          currentMonthExpensesFiltered={quickStats.currentMonthExpensesFiltered}
+          selectedMonth={selectedMonth}
+          monthDiff={quickStats.monthDiff}
+          monthDiffPercent={quickStats.monthDiffPercent}
+          excludedCategoriesCount={(excludedFromStats ?? []).length}
+        />
+
+        {/* Top Day Sheet */}
+        <TopDaySheet
+          open={showTopDayModal}
+          onClose={() => setShowTopDayModal(false)}
+          topDayName={quickStats.topDayName}
+          topDayTransactions={quickStats.topDayTransactions}
+          selectedMonth={selectedMonth}
+          categoryDefinitions={categoryDefinitions}
+          excludedCategoriesCount={(excludedFromStats ?? []).length}
+        />
+
+        {/* Daily Average Breakdown Sheet */}
+        <DailyAverageBreakdownSheet
+          open={showDailyAverageBreakdownModal}
+          onClose={() => setShowDailyAverageBreakdownModal(false)}
+          totalForAverage={quickStats.totalForAverage}
+          currentDay={quickStats.currentDay}
+          isCurrentMonth={quickStats.isCurrentMonth}
+          dailyAverage={quickStats.dailyAverage}
+          daysInMonth={quickStats.daysInMonth}
+          excludedCategoriesCount={(excludedFromStats ?? []).length}
+        />
+
+        {/* Top Category Sheet */}
+        <TopCategorySheet
+          open={showTopCategoryModal}
+          onClose={() => setShowTopCategoryModal(false)}
+          topCategory={quickStats.topCategory}
+          topCategoryTransactions={quickStats.topCategoryTransactions}
+          selectedMonth={selectedMonth}
+          categoryDefinitions={categoryDefinitions}
+          excludedCategoriesCount={(excludedFromStats ?? []).length}
+        />
       </main>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        trigger="stats_page"
+        onSelectPlan={handleSelectPlan}
+      />
     </div>
   );
 }

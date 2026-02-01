@@ -3,6 +3,8 @@ import { useNavigate, useParams, useSearchParams, useLocation } from "react-rout
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
+import { useSubscription } from "@/hooks/useSubscription";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { MessageSquare, Calendar, Tag, FileText, Repeat, Trash2, CheckCircle, ChevronRight } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -13,6 +15,7 @@ import CategoryPickerDrawer from "@/features/categories/components/CategoryPicke
 import ScheduleConfigDrawer from "@/features/transactions/components/ScheduleConfigDrawer";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
+import PaywallModal from "@/shared/components/modals/PaywallModal";
 import type { TransactionType, TransactionStatus, Schedule } from "@/types/budget.types";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
@@ -44,6 +47,8 @@ export default function AddEditTransactionPage() {
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const transactions = useBudgetStore((s) => s.transactions);
 
+  const { canUseFeature } = useSubscription();
+
   const tx = useMemo(() => {
     if (!isEdit || !params.id) return null;
     return transactions.find((t) => t.id === params.id) ?? null;
@@ -65,6 +70,12 @@ export default function AddEditTransactionPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showTemplateEditModal, setShowTemplateEditModal] = useState(false);
   const [showNoChangesAlert, setShowNoChangesAlert] = useState(false);
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // Paywall purchase handler
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setShowPaywall(false),
+  });
 
   // Check if we're editing a template (scheduled transaction)
   const isTemplate = tx?.schedule?.enabled === true;
@@ -330,6 +341,14 @@ export default function AddEditTransactionPage() {
 
   function performSave() {
     const trimmedNotes = notes.trim();
+
+    // Check scheduled transaction limit for new transactions
+    if (!tx && schedule?.enabled) {
+      if (!canUseFeature('unlimited_scheduled')) {
+        setShowPaywall(true);
+        return;
+      }
+    }
 
     if (tx) {
       // If transaction doesn't have sourceTemplateId, try to find a matching template
@@ -809,6 +828,14 @@ export default function AddEditTransactionPage() {
           </div>
         </div>
       )}
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        trigger="scheduled_limit"
+        onSelectPlan={handleSelectPlan}
+      />
     </div>
   );
 }

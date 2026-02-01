@@ -1,8 +1,8 @@
 # Plan de Monetización - SmartSpend
 
-**Versión**: 1.0
-**Fecha**: 2026-01-28
-**Estado**: Planificación
+**Versión**: 1.1
+**Fecha**: 2026-01-30
+**Estado**: Fase 1 Completa ✅
 
 ## Tabla de Contenidos
 
@@ -28,12 +28,13 @@ Este documento establece el plan completo para la integración de la estrategia 
 4. **Crear un onboarding atractivo** con prueba gratuita de 7 días
 5. **Mantener la arquitectura local-first** como ventaja competitiva
 
-### Filosofía de Monetización
+### Filosofía de Monetización (Modelo Freemium Actualizado)
 
 - **No penalizar el hábito**: La versión gratuita debe ser funcional para crear disciplina financiera
-- **Cobrar por automatización y seguridad**: El valor está en la conveniencia, no en las características básicas
+- **Retention hooks gratuitos**: Cloud backup y push notifications son GRATIS para fomentar engagement
+- **Cobrar por insights y automatización avanzada**: El valor está en estadísticas, categorías ilimitadas y experiencia sin anuncios
 - **Transparencia total**: Sin sorpresas, sin cobros ocultos
-- **Privacidad como diferenciador**: Local-first como característica premium de privacidad
+- **Privacidad como diferenciador**: Local-first como característica base, cloud sync como retention hook gratuito
 
 ---
 
@@ -54,8 +55,8 @@ La versión Lite permite al usuario establecer una disciplina financiera básica
 - ✅ Navegación mensual
 
 **Categorías**
-- ✅ Acceso a las 21 categorías predefinidas
-- ✅ Creación de hasta **3 categorías personalizadas**
+- ✅ Acceso a las categorías predefinidas
+- ✅ Creación de hasta **10 categorías personalizadas**
 - ✅ Selección de iconos de la biblioteca completa (140+)
 - ✅ Colores personalizables
 
@@ -66,20 +67,24 @@ La versión Lite permite al usuario establecer una disciplina financiera básica
 - ✅ Tracking en tiempo real con indicadores visuales
 - ✅ Historial de presupuestos completados
 
+**Historial y Filtros**
+- ✅ Filtro por tiempo: Este Mes, Mes Pasado, Personalizado
+- ✅ Filtro por tipo: Todos, Ingresos, Gastos
+- ❌ Filtro por Estado (Pagado, Pendiente, Planeado)
+- ❌ Filtro por Categoría
+- ❌ Filtro por Moneda
+- ❌ Export CSV
+
 **Estadísticas**
-- ✅ Balance mensual (Ingresos - Gastos)
-- ✅ Gráfico de Dona (Distribución por categoría)
-- ✅ Vista básica del mes actual
-- ❌ Quick View Cards (bloqueadas con blur)
-- ❌ Comparación mensual
-- ❌ Top categoría y top día
-- ❌ Filtrado de categorías en estadísticas
+- ❌ **Toda la página de Stats es Pro**
+- ❌ La pantalla se muestra blureada con invitación a unirse al plan Pro
+- ❌ Quick View Cards, Dona, Balance, Filtros — todo bloqueado
 
 **Transacciones Programadas**
 - ✅ Creación de hasta **3 transacciones recurrentes**
 - ✅ Frecuencias básicas: Semanal, Mensual
+- ✅ Auto-confirmación masiva
 - ❌ Frecuencias avanzadas (Trimestral, Anual, Personalizada)
-- ❌ Auto-confirmación masiva
 
 **Internacionalización**
 - ✅ 4 idiomas (Español, Inglés, Francés, Portugués)
@@ -88,52 +93,49 @@ La versión Lite permite al usuario establecer una disciplina financiera básica
 
 **Almacenamiento**
 - ✅ Datos en localStorage (local-first)
-- ❌ Sincronización en la nube
-- ❌ Backup automático
-- ❌ Acceso multi-dispositivo
+- ✅ **Sincronización en la nube con Supabase** (retention hook)
+- ✅ **Backup automático** (retention hook)
+- ✅ **Acceso multi-dispositivo** (iOS, Android, Web)
 
 **Seguridad**
-- ❌ Autenticación biométrica
-- ❌ Cloud sync con cifrado
+- ✅ Autenticación biométrica
+- ✅ **Cloud sync con cifrado end-to-end**
 
 **Notificaciones**
-- ❌ Push notifications (scheduled, reminders, summaries)
+- ✅ **Push notifications** (scheduled, reminders, summaries) - retention hook
+
+**Publicidad**
+- ⚠️ **Incluye anuncios no intrusivos** para mantener el servicio gratuito
 
 #### ❌ Limitaciones Específicas
 
 | Característica | Límite Lite | Límite Pro |
 |----------------|-------------|------------|
-| Categorías personalizadas | 3 | Ilimitadas |
+| Categorías personalizadas | 10 | Ilimitadas |
 | Presupuestos activos | 2 | Ilimitados |
 | Transacciones programadas | 3 | Ilimitadas |
-| Quick View Cards | Bloqueadas | Desbloqueadas |
-| Cloud Sync | ❌ | ✅ |
-| Biometría | ❌ | ✅ |
+| Página de Stats completa | ❌ Bloqueada | ✅ |
+| Cloud Sync | ✅ Gratis | ✅ |
+| Backup automático | ✅ Gratis | ✅ |
+| Push Notifications | ✅ Gratis | ✅ |
+| Biometría | ✅ | ✅ |
 | Exportación CSV/JSON | ❌ | ✅ |
-| Filtros avanzados en Stats | ❌ | ✅ |
-| Backup automático | ❌ | ✅ |
+| Filtros avanzados en History | ❌ (solo tiempo y tipo) | ✅ Todos |
+| Publicidad | ⚠️ Incluye anuncios | ✅ 100% libre de anuncios |
 
 ---
 
 ### 2.2 SmartSpend Pro (Suscripción)
 
-La versión Pro está diseñada para el usuario que busca optimizar su tiempo, asegurar su información y obtener inteligencia sobre su comportamiento financiero.
+La versión Pro está diseñada para el usuario que busca **inteligencia financiera avanzada**, **automatización ilimitada** y una **experiencia sin interrupciones publicitarias**.
 
-#### ✅ Características Premium
+#### ✅ Características Premium Exclusivas
 
-**☁️ Cloud Sync & Backup Automático**
-- ✅ Sincronización en tiempo real con Supabase
-- ✅ Acceso multi-dispositivo (iOS, Android, Web)
-- ✅ Backup automático en la nube
-- ✅ Recuperación ante pérdida del dispositivo
-- ✅ Historial de versiones de datos
-
-**🔐 Seguridad Biométrica Nativa**
-- ✅ Face ID (iOS)
-- ✅ Touch ID (iOS)
-- ✅ Huella dactilar (Android)
-- ✅ Bloqueo de app con autenticación nativa del OS
-- ✅ Configuración por dispositivo sincronizada
+**🚫 Experiencia 100% Libre de Anuncios**
+- ✅ Sin banners publicitarios
+- ✅ Sin interrupciones de terceros
+- ✅ Interfaz limpia y enfocada
+- ✅ Rendimiento óptimo sin scripts de ads
 
 **📊 Análisis Predictivo y Métricas Inteligentes**
 - ✅ **Quick View Cards** completas:
@@ -175,13 +177,14 @@ La versión Pro está diseñada para el usuario que busca optimizar su tiempo, a
 - ✅ Filtros persistentes sincronizados
 - ✅ Búsqueda avanzada en transacciones
 
-**🔔 Push Notifications Inteligentes**
+**🔔 Push Notifications Inteligentes** (También en Lite)
 - ✅ Notificaciones de transacciones programadas próximas
 - ✅ Recordatorio diario para registrar gastos
 - ✅ Resumen diario de movimientos
 - ✅ Horarios personalizables con timezone automático
 - ✅ Quiet hours configurable
 - ✅ Firebase Cloud Messaging (iOS/Android)
+- 💡 *Esta feature está disponible para todos los usuarios como retention hook*
 
 **🌍 Multi-moneda Dinámica (Futuro)**
 - ✅ Billeteras en múltiples divisas
@@ -199,8 +202,8 @@ La versión Pro está diseñada para el usuario que busca optimizar su tiempo, a
 | Estados y notas | ✅ | ✅ |
 | Búsqueda y filtros básicos | ✅ | ✅ |
 | **Categorías** |
-| Categorías predefinidas (21) | ✅ | ✅ |
-| Categorías personalizadas | 3 máximo | ✅ Ilimitadas |
+| Categorías predefinidas | ✅ | ✅ |
+| Categorías personalizadas | 10 máximo | ✅ Ilimitadas |
 | Grupos de categorías | ❌ | ✅ Ilimitados |
 | **Presupuestos** |
 | Límites de gasto y metas | ✅ | ✅ |
@@ -209,25 +212,28 @@ La versión Pro está diseñada para el usuario que busca optimizar su tiempo, a
 | **Transacciones Programadas** |
 | Recurrencias básicas | 3 máximo | ✅ Ilimitadas |
 | Frecuencias avanzadas | ❌ | ✅ |
-| Auto-confirmación masiva | ❌ | ✅ |
+| Auto-confirmación masiva | ✅ | ✅ |
 | **Estadísticas** |
-| Balance mensual | ✅ | ✅ |
-| Gráfico de Dona | ✅ | ✅ |
-| Quick View Cards | ❌ Bloqueadas | ✅ |
-| Filtros avanzados | ❌ | ✅ |
-| Exclusión de categorías | ❌ | ✅ |
+| Página completa de Stats | ❌ Bloqueada (blur + CTA) | ✅ |
+| **Historial y Filtros** |
+| Filtro por tiempo y tipo | ✅ | ✅ |
+| Filtro por Estado | ❌ | ✅ |
+| Filtro por Categoría | ❌ | ✅ |
+| Filtro por Moneda | ❌ | ✅ |
+| Export CSV | ❌ | ✅ |
 | **Almacenamiento** |
 | Local (localStorage) | ✅ | ✅ |
-| Cloud Sync | ❌ | ✅ |
-| Backup automático | ❌ | ✅ |
-| Multi-dispositivo | ❌ | ✅ |
+| Cloud Sync | ✅ Gratis | ✅ |
+| Backup automático | ✅ Gratis | ✅ |
+| Multi-dispositivo | ✅ Gratis | ✅ |
 | **Seguridad** |
-| Biometría nativa | ❌ | ✅ |
-| Cifrado en tránsito | ❌ | ✅ |
+| Biometría nativa | ✅ | ✅ |
 | **Notificaciones** |
-| Push notifications | ❌ | ✅ |
-| Scheduled transaction alerts | ❌ | ✅ |
-| Daily reminders & summaries | ❌ | ✅ |
+| Push notifications | ✅ Gratis | ✅ |
+| Scheduled transaction alerts | ✅ Gratis | ✅ |
+| Daily reminders & summaries | ✅ Gratis | ✅ |
+| **Publicidad** |
+| Experiencia sin anuncios | ❌ Incluye ads | ✅ 100% ad-free |
 | **Exportación** |
 | CSV / JSON | ❌ | ✅ |
 | **Configuración** |
@@ -288,7 +294,7 @@ export const PRICING_PLANS = {
 export const TRIAL_PERIOD_DAYS = 7;
 
 export const FREE_TIER_LIMITS = {
-  customCategories: 3,
+  totalCategories: 10, // Actualizado: antes era 5
   activeBudgets: 2,
   scheduledTransactions: 3,
 } as const;
@@ -340,11 +346,11 @@ type PaywallTrigger =
   | 'category_limit'
   | 'budget_limit'
   | 'scheduled_limit'
-  | 'quick_view'
-  | 'cloud_sync'
-  | 'biometric'
+  | 'stats_page'
+  | 'history_filters'
   | 'export'
-  | 'settings';
+  | 'settings'
+  | 'upgrade_prompt'; // Para CTAs generales de upgrade
 ```
 
 ### 3.4 Lógica de Control de Acceso
@@ -364,15 +370,12 @@ export interface SubscriptionStatus {
 }
 
 export type ProFeature =
-  | 'cloud_sync'
-  | 'biometric'
   | 'unlimited_categories'
   | 'unlimited_budgets'
   | 'unlimited_scheduled'
-  | 'quick_view_cards'
+  | 'stats_page'
   | 'export_data'
-  | 'advanced_filters'
-  | 'auto_confirm_scheduled';
+  | 'history_filters';
 ```
 
 ---
@@ -487,23 +490,37 @@ Necesitamos investigar la mejor alternativa para integrar pagos nativos (Apple I
 
 | Característica | Acción Requerida | Prioridad |
 |----------------|------------------|-----------|
-| Categorías personalizadas | Agregar límite de 3 para Lite | 🔴 Alta |
+| Categorías personalizadas | Agregar límite de 10 para Lite | 🔴 Alta |
 | Presupuestos activos | Agregar límite de 2 para Lite | 🔴 Alta |
 | Transacciones programadas | Agregar límite de 3 para Lite | 🔴 Alta |
-| Quick View Cards | Agregar blur + paywall para Lite | 🔴 Alta |
-| Cloud Sync | Solo para Pro | 🔴 Alta |
-| Biometría | Solo para Pro | 🔴 Alta |
-| Push Notifications | Solo para Pro | 🔴 Alta |
+| Página de Stats completa | Bloquear con blur + CTA para Lite | 🔴 Alta |
+| Exportación CSV/JSON | Bloquear para Lite | 🔴 Alta |
+| Filtros avanzados History | Bloquear para Lite | 🔴 Alta |
+| Sistema de Ads | Integrar AdMob para Lite | 🟡 Media |
+
+#### ✅ Completados (Fase 1)
+
+| Característica | Ubicación | Estado |
+|----------------|-----------|--------|
+| PaywallModal | `shared/components/modals/PaywallModal.tsx` | ✅ Completo |
+| PricingCard | `shared/components/modals/PricingCard.tsx` | ✅ Completo |
+| useSubscription hook | `shared/hooks/useSubscription.ts` | ✅ Completo |
+| ProFeatureGate | `shared/components/gates/ProFeatureGate.tsx` | ✅ Completo |
+| Screen6_ChoosePlan | `features/onboarding/phases/WelcomeOnboarding/screens/Screen6_ChoosePlan.tsx` | ✅ Completo |
+| ProfilePage 3-state card | `features/profile/pages/ProfilePage.tsx` | ✅ Completo |
+| pricing.ts | `constants/pricing.ts` | ✅ Completo |
+| pricing-regional.ts | `constants/pricing-regional.ts` | ✅ Completo |
+| i18n paywall (4 idiomas) | `i18n/locales/*/paywall.json` | ✅ Completo |
+| Migration v7→v8 | `services/storage.service.ts` | ✅ Completo |
 
 #### ❌ Faltantes por Implementar
 
 | Característica | Descripción | Prioridad |
 |----------------|-------------|-----------|
-| PaywallModal | Modal de paywall con pricing | 🔴 Alta |
-| useSubscription hook | Hook de estado de suscripción | 🔴 Alta |
-| ProFeatureGate | Componente de control de acceso | 🔴 Alta |
-| RevenueCat integration | Servicio de pagos | 🔴 Alta |
-| Screen6_ChoosePlan | Pantalla de elección de plan | 🔴 Alta |
+| RevenueCat integration | Servicio de pagos nativos | 🔴 Alta |
+| Límites enforcement | Bloquear features al límite | 🔴 Alta |
+| Stats page blocking | Blur + CTA para Lite | 🔴 Alta |
+| AdMob integration | Anuncios no intrusivos | 🟡 Media |
 
 ### 6.2 Cambios Necesarios en el Schema
 
@@ -570,33 +587,38 @@ src/
 
 ## 7. Hoja de Ruta de Implementación
 
-### Fase 1: Fundamentos (Semana 1)
+### Fase 1: Fundamentos ✅ COMPLETADA (2026-01-28 a 2026-01-30)
 
 **Objetivo**: Establecer la infraestructura de monetización
 
-- [ ] **Día 1-2: Definición y Configuración**
-  - [ ] Crear `constants/pricing.ts`
-  - [ ] Crear `constants/pricing-regional.ts`
-  - [ ] Actualizar `budget.types.ts` con campo `subscription`
-  - [ ] Crear migration v7→v8
-  - [ ] Crear namespace `paywall.json` en i18n (4 idiomas)
+- ✅ **Día 1-2: Definición y Configuración**
+  - ✅ Crear `constants/pricing.ts`
+  - ✅ Crear `constants/pricing-regional.ts`
+  - ✅ Actualizar `budget.types.ts` con campo `subscription`
+  - ✅ Crear migration v7→v8
+  - ✅ Crear namespace `paywall.json` en i18n (4 idiomas)
 
-- [ ] **Día 3-4: Hooks y Estado**
-  - [ ] Crear `useSubscription.ts` hook
-  - [ ] Actualizar `budget.store.ts` con subscription state
-  - [ ] Crear tests para subscription state
+- ✅ **Día 3-4: Hooks y Estado**
+  - ✅ Crear `useSubscription.ts` hook
+  - ✅ Actualizar `budget.store.ts` con subscription state
+  - ⏭️ Tests para subscription state (diferido a Fase 6)
 
-- [ ] **Día 5-7: Componentes de UI**
-  - [ ] Crear `PricingCard.tsx`
-  - [ ] Crear `PaywallModal.tsx`
-  - [ ] Crear `ProFeatureGate.tsx`
-  - [ ] Integrar traducciones en los 4 idiomas
+- ✅ **Día 5-7: Componentes de UI**
+  - ✅ Crear `PricingCard.tsx`
+  - ✅ Crear `PaywallModal.tsx` (6 beneficios)
+  - ✅ Crear `ProFeatureGate.tsx`
+  - ✅ Integrar traducciones en los 4 idiomas
+  - ✅ **Extra**: Screen6_ChoosePlan.tsx (onboarding)
+  - ✅ **Extra**: ProfilePage 3-state card (Guest/Free/Pro)
+  - ✅ **Extra**: Ads disclosure y ad-free messaging
 
 **Entregables**:
 - ✅ Infraestructura de pricing definida
 - ✅ Estado de suscripción en Zustand
 - ✅ Componentes de UI del paywall
 - ✅ i18n completo para paywall
+- ✅ Onboarding con selección de plan integrado
+- ✅ ProfilePage con card dinámico de suscripción
 
 ---
 
@@ -640,7 +662,7 @@ src/
 
 - [ ] **Día 1-2: Categorías**
   - [ ] Modificar `AddEditCategoryPage.tsx`
-  - [ ] Agregar lógica de límite de 3 categorías
+  - [ ] Agregar lógica de límite de 5 categorías custom
   - [ ] Mostrar PaywallModal al límite
 
 - [ ] **Día 3-4: Presupuestos**
@@ -652,15 +674,15 @@ src/
   - [ ] Modificar `ScheduledTransactionsPage.tsx`
   - [ ] Agregar lógica de límite de 3 programadas
 
-- [ ] **Día 6-7: Quick View Cards**
-  - [ ] Modificar `QuickViewCards.tsx`
-  - [ ] Agregar blur overlay con Lock icon
-  - [ ] Mostrar PaywallModal al click
+- [ ] **Día 6-7: Página de Stats**
+  - [ ] Crear componente `StatsPaywallOverlay` (blur + CTA)
+  - [ ] Bloquear toda la página de Stats para Lite
+  - [ ] Mostrar contenido real blureado con botón "Desbloquear con Pro"
 
 **Entregables**:
 - ✅ Límites de Lite implementados
 - ✅ Paywalls contextuales funcionando
-- ✅ UX de "bloqueado" clara
+- ✅ Stats completamente bloqueada para Lite
 
 ---
 
@@ -697,23 +719,21 @@ src/
 
 **Objetivo**: Bloquear características premium
 
-- [ ] **Día 1: Cloud Sync**
-  - [ ] Modificar `CloudSyncGate.tsx`
-  - [ ] Solo permitir para Pro
+- [ ] **Día 1: Sistema de Anuncios**
+  - [ ] Integrar AdMob SDK
+  - [ ] Configurar banner ads no intrusivos para Lite
+  - [ ] Testear en sandbox
 
-- [ ] **Día 2: Biometría**
-  - [ ] Modificar toggle en ProfilePage
-  - [ ] Solo permitir para Pro
-
-- [ ] **Día 3: Exportación**
+- [ ] **Día 2: Exportación**
   - [ ] Modificar `BackupPage.tsx`
   - [ ] Deshabilitar Export para Lite
+  - [ ] Mostrar ProFeatureGate
 
-- [ ] **Día 4: Filtros Avanzados**
-  - [ ] Modificar StatsPage
-  - [ ] Solo permitir para Pro
+- [ ] **Día 3: Filtros Avanzados en History**
+  - [ ] Modificar HistoryPage (bloquear filtros Estado, Categoría, Moneda para Lite)
+  - [ ] Mostrar paywall al tocar filtro bloqueado
 
-- [ ] **Día 5-7: Testing Integral**
+- [ ] **Día 4-7: Testing Integral**
   - [ ] Suite de tests E2E para monetización
   - [ ] Documentar casos de prueba
 
@@ -771,21 +791,23 @@ src/
 ## 9. Checklist de Implementación
 
 ```markdown
-### Infraestructura
-- [ ] Crear constants/pricing.ts
-- [ ] Crear constants/pricing-regional.ts
-- [ ] Actualizar budget.types.ts
-- [ ] Crear migration v7→v8
-- [ ] Crear i18n/paywall.json (4 idiomas)
+### Infraestructura ✅ COMPLETO
+- ✅ Crear constants/pricing.ts
+- ✅ Crear constants/pricing-regional.ts
+- ✅ Actualizar budget.types.ts
+- ✅ Crear migration v7→v8
+- ✅ Crear i18n/paywall.json (4 idiomas)
 
-### Hooks y Estado
-- [ ] Crear useSubscription.ts
-- [ ] Actualizar budget.store.ts
+### Hooks y Estado ✅ COMPLETO
+- ✅ Crear useSubscription.ts
+- ✅ Actualizar budget.store.ts
 
-### Componentes UI
-- [ ] Crear PricingCard.tsx
-- [ ] Crear PaywallModal.tsx
-- [ ] Crear ProFeatureGate.tsx
+### Componentes UI ✅ COMPLETO
+- ✅ Crear PricingCard.tsx
+- ✅ Crear PaywallModal.tsx (6 beneficios)
+- ✅ Crear ProFeatureGate.tsx
+- ✅ Crear Screen6_ChoosePlan.tsx
+- ✅ Actualizar ProfilePage (card 3-state)
 
 ### Integración de Pagos
 - [ ] Investigar opciones (Context7)
@@ -795,14 +817,17 @@ src/
 - [ ] Crear revenuecat.service.ts
 
 ### Control de Acceso
-- [ ] Límite de 3 categorías
+- [ ] Límite de 10 categorías custom
 - [ ] Límite de 2 presupuestos
 - [ ] Límite de 3 programadas
-- [ ] Blur en Quick View Cards
+- [ ] Stats: toda la página bloqueada con blur + CTA
+- [ ] History: solo filtros de tiempo y tipo para Lite
+- [ ] Export CSV/JSON solo Pro
+- [ ] Sistema de anuncios para Lite (AdMob)
 
-### Onboarding
-- [ ] Crear Screen6_ChoosePlan.tsx
-- [ ] Integrar en WelcomePage
+### Onboarding ✅ COMPLETO
+- ✅ Crear Screen6_ChoosePlan.tsx
+- ✅ Integrar en WelcomePage
 - [ ] Trial badge en ProfilePage
 
 ### Testing
@@ -818,5 +843,21 @@ src/
 
 ---
 
-**Última actualización**: 2026-01-28
-**Estado**: Documento vivo - Actualizar conforme avanza la implementación
+## 10. Registro de Cambios
+
+### v1.1 (2026-01-30)
+- ✅ **Fase 1 completada** - Infraestructura base implementada
+- 🔄 **Modelo freemium actualizado**: Cloud Sync y Push Notifications movidas a tier gratuito como retention hooks
+- 🆕 **Ad-free messaging**: Pro es 100% libre de anuncios
+- 🆕 **Ads disclosure**: Lite incluye anuncios no intrusivos
+- 📊 **Límite de categorías**: Actualizado de 5 a 10 para Lite
+- 🎨 **UI completa**: PaywallModal con 6 beneficios, ProfilePage 3-state, Screen6_ChoosePlan
+- 🌍 **i18n**: 4 idiomas completos (es, en, pt, fr)
+
+### v1.0 (2026-01-28)
+- 📝 Plan inicial de monetización
+
+---
+
+**Última actualización**: 2026-01-30
+**Estado**: Fase 1 ✅ Completa | Documento vivo

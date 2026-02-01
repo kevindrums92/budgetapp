@@ -407,7 +407,9 @@ describe('TransactionList', () => {
 
   describe('Month Warning Banner', () => {
     it('should not show banner when viewing current month', () => {
-      const currentMonth = new Date().toISOString().slice(0, 7);
+      // Use local timezone (not UTC) to match currentMonthKey() behavior
+      const d = new Date();
+      const currentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: currentMonth,

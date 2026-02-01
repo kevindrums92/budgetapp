@@ -1,12 +1,18 @@
 {
   "title": "History and Filters",
   "filters": {
+    "searchPlaceholder": "Search by description...",
     "dateRange": "Date Range",
     "thisMonth": "This Month",
     "lastMonth": "Last Month",
     "custom": "Custom",
+    "customDateTitle": "Custom Range",
+    "startDate": "Start Date",
+    "endDate": "End Date",
     "type": "Type",
     "allTypes": "All",
+    "income": "Income",
+    "expenses": "Expenses",
     "status": "Status",
     "allStatus": "All",
     "paid": "Paid",
@@ -15,10 +21,16 @@
     "category": "Category",
     "selectCategory": "Select category",
     "allCategories": "All categories",
+    "categories_one": "{{count}} category",
+    "categories_other": "{{count}} categories",
+    "amount": "Amount",
     "amountRange": "Amount Range",
     "minimum": "Minimum",
     "maximum": "Maximum",
-    "noLimit": "No limit"
+    "noLimit": "No limit",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "clear": "Clear"
   },
   "results": {
     "title": "Results ({{count}})",

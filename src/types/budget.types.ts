@@ -130,10 +130,24 @@ export type SecuritySettings = {
   lastAuthTimestamp?: number;
 };
 
+// ==================== SUBSCRIPTION ====================
+
+export type SubscriptionPlanStatus = 'free' | 'trialing' | 'active' | 'expired' | 'cancelled';
+
+export type SubscriptionPlanType = 'free' | 'trial' | 'monthly' | 'annual' | 'lifetime';
+
+export type SubscriptionState = {
+  status: SubscriptionPlanStatus;
+  type: SubscriptionPlanType;
+  trialEndsAt: string | null;    // ISO 8601
+  expiresAt: string | null;      // ISO 8601
+  lastChecked: string;           // ISO 8601
+};
+
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
@@ -154,4 +168,7 @@ export type BudgetState = {
   excludedFromStats?: string[]; // Category IDs excluded from all stats calculations
   // Security
   security?: SecuritySettings;       // Biometric authentication settings
+  // NOTE: Subscription is NO LONGER part of BudgetState (as of v2.0)
+  // Subscription is now stored separately in user_subscriptions table
+  // and managed by RevenueCat webhooks. See subscription.service.ts
 };

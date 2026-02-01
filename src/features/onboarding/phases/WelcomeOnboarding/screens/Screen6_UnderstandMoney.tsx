@@ -4,25 +4,49 @@
  * Dashboard de insights financieros con donut chart
  */
 
-import { PieChart, TrendingUp, Calendar, Award } from 'lucide-react';
+import { PieChart, TrendingUp, Calendar, Award, ChevronLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import OnboardingLayout from '../../../components/OnboardingLayout';
+import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
+import ProgressDots from '../../../components/ProgressDots';
 import SlideAnimation from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen6_UnderstandMoney() {
-  const { t } = useTranslation('onboarding');
+  const { t } = useTranslation(['onboarding', 'common']);
   const { handleNext, handleBack, handleSkip } = useOnboardingProgress();
 
   return (
-    <OnboardingLayout
-      showBackButton
-      onBack={handleBack}
-      showSkip
-      onSkip={handleSkip}
-      showProgress
-      currentStep={6}
-      totalSteps={6}
+    <FullscreenLayout
+      headerLeft={
+        <button
+          type="button"
+          onClick={handleBack}
+          className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
+          aria-label="Volver"
+        >
+          <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
+        </button>
+      }
+      headerCenter={<ProgressDots total={7} current={6} />}
+      headerRight={
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
+        >
+          {t('common:buttons.skip')}
+        </button>
+      }
+      ctaButton={
+        <button
+          type="button"
+          onClick={handleNext}
+          className="w-full rounded-2xl bg-gradient-to-r from-[#18B7B0] to-[#0F8580] py-4 text-base font-bold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
+        >
+          {t('welcome.screen6.continue')}
+        </button>
+      }
+      contentClassName="pb-8"
     >
       {/* Header */}
       <div className="mb-6">
@@ -164,21 +188,6 @@ export default function Screen6_UnderstandMoney() {
         </SlideAnimation>
       </div>
 
-      {/* CTA Button - Fixed Bottom */}
-      <div
-        className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8"
-        style={{
-          paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
-        }}
-      >
-        <button
-          type="button"
-          onClick={handleNext}
-          className="w-full rounded-2xl bg-gradient-to-r from-[#18B7B0] to-[#0F8580] py-4 text-base font-bold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
-        >
-          {t('welcome.screen6.startNow')}
-        </button>
-      </div>
-    </OnboardingLayout>
+    </FullscreenLayout>
   );
 }

@@ -13,6 +13,8 @@ import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
 import * as icons from 'lucide-react';
 import { useOnboarding } from '../../../OnboardingContext';
 import { useBudgetStore } from '@/state/budget.store';
+import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
+import ProgressDots from '../../../components/ProgressDots';
 
 // Helper para convertir kebab-case a PascalCase
 function kebabToPascal(str: string): string {
@@ -112,22 +114,21 @@ export default function Screen4_Categories() {
   };
 
   return (
-    <div
-      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    <FullscreenLayout
+      headerCenter={<ProgressDots total={5} current={4} />}
+      contentClassName="pb-8 md:pb-12 flex flex-col"
+      ctaButton={
+        <button
+          type="button"
+          onClick={handleContinue}
+          className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
+        >
+          {t('categories.continue')}
+        </button>
+      }
     >
-      {/* Progress */}
-      <div className="flex gap-1.5 px-6 pt-3">
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-[#18B7B0]" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
-        <div className="h-1 flex-1 rounded-full bg-gray-200 dark:bg-gray-700" />
-      </div>
-
       {/* Header */}
-      <div className="flex flex-col items-center px-6 pt-12 pb-6">
+      <div className="flex flex-col items-center pb-6">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
           <FolderKanban size={40} className="text-white" strokeWidth={2.5} />
         </div>
@@ -142,7 +143,7 @@ export default function Screen4_Categories() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 px-6 pb-4">
+      <div className="flex gap-2 pb-4">
         <button
           type="button"
           onClick={() => setActiveTab('expense')}
@@ -168,64 +169,62 @@ export default function Screen4_Categories() {
       </div>
 
       {/* Categories list */}
-      <div className="flex-1 overflow-y-auto px-6 pb-40">
-        <div className="space-y-4">
-          {categoriesByGroup.map(({ group, categories }) => (
-            <div key={group.id}>
-              {/* Group header */}
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                {group.name}
-              </h3>
+      <div className="space-y-4 flex-1">
+        {categoriesByGroup.map(({ group, categories }) => (
+          <div key={group.id}>
+            {/* Group header */}
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              {group.name}
+            </h3>
 
-              {/* Categories in this group */}
-              <div className="space-y-2">
-                {categories.map((category) => {
-                  const catId = `default-${DEFAULT_CATEGORIES.indexOf(category)}`;
-                  const isSelected = selectedIds.has(catId);
-                  const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons] as any;
-                  const categoryName = getCategoryDisplayName(category.name, t);
+            {/* Categories in this group */}
+            <div className="space-y-2">
+              {categories.map((category) => {
+                const catId = `default-${DEFAULT_CATEGORIES.indexOf(category)}`;
+                const isSelected = selectedIds.has(catId);
+                const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons] as any;
+                const categoryName = getCategoryDisplayName(category.name, t);
 
-                  return (
-                    <button
-                      key={catId}
-                      type="button"
-                      onClick={() => toggleCategory(catId)}
-                      className={`flex w-full items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] ${
-                        !isSelected ? 'opacity-50' : ''
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                          style={{ backgroundColor: category.color + '20' }}
-                        >
-                          {IconComponent && (
-                            <IconComponent className="h-5 w-5" style={{ color: category.color }} />
-                          )}
-                        </div>
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                          {categoryName}
-                        </span>
-                      </div>
-
+                return (
+                  <button
+                    key={catId}
+                    type="button"
+                    onClick={() => toggleCategory(catId)}
+                    className={`flex w-full items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] ${
+                      !isSelected ? 'opacity-50' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
                       <div
-                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
-                          isSelected
-                            ? 'bg-emerald-500'
-                            : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+                        style={{ backgroundColor: category.color + '20' }}
                       >
-                        {isSelected && (
-                          <Check className="h-5 w-5 text-white" strokeWidth={3} />
+                        {IconComponent && (
+                          <IconComponent className="h-5 w-5" style={{ color: category.color }} />
                         )}
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                        {categoryName}
+                      </span>
+                    </div>
+
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
+                        isSelected
+                          ? 'bg-emerald-500'
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    >
+                      {isSelected && (
+                        <Check className="h-5 w-5 text-white" strokeWidth={3} />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
 
         {/* Disclaimer */}
         <div className="mt-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4">
@@ -234,17 +233,6 @@ export default function Screen4_Categories() {
           </p>
         </div>
       </div>
-
-      {/* Actions */}
-      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-900 px-6 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <button
-          type="button"
-          onClick={handleContinue}
-          className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
-        >
-          {t('categories.continue')}
-        </button>
-      </div>
-    </div>
+    </FullscreenLayout>
   );
 }

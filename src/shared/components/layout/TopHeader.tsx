@@ -1,8 +1,9 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
+import { useSubscription } from "@/hooks/useSubscription";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
-import { User } from "lucide-react";
+import { User, Bell } from "lucide-react";
 
 type Props = {
   showMonthSelector?: boolean;
@@ -17,7 +18,10 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   const cloudMode = useBudgetStore((s) => s.cloudMode);
   const cloudStatus = useBudgetStore((s) => s.cloudStatus);
 
-  const Avatar = useMemo(() => {
+  // ✅ Check Pro status
+  const { isPro } = useSubscription();
+
+  const AvatarContent = useMemo(() => {
     if (user.avatarUrl) {
       return (
         <img
@@ -87,12 +91,39 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
             )}
           </div>
 
-          {/* Right: Avatar with Sync Dot - only show in default mode */}
+          {/* Right: Notification Bell + Avatar - only show in default mode */}
           {!isProfilePage && (
-            <div className="relative flex items-center justify-center">
-              {Avatar}
-              {/* Sync indicator dot */}
-              <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
+            <div className="flex items-center gap-3">
+              {/* Notification Bell Icon */}
+              <button
+                type="button"
+                onClick={() => {
+                  // TODO: Implement notifications functionality
+                  console.log('[TopHeader] Notifications clicked - TODO');
+                }}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
+                aria-label="Notificaciones"
+              >
+                <Bell size={20} className="text-gray-600 dark:text-gray-400" />
+              </button>
+
+              {/* Avatar with Pro styling or default */}
+              {isPro ? (
+                <div className="relative shrink-0">
+                  {/* Pro gradient border wrapper - Neon tech teal/purple */}
+                  <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-[#18B7B0] via-purple-500 to-[#18B7B0] shadow-md shadow-[#18B7B0]/20">
+                    {AvatarContent}
+                    {/* Sync indicator dot (bottom-right) */}
+                    <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
+                  </div>
+                </div>
+              ) : (
+                <div className="relative flex items-center justify-center">
+                  {AvatarContent}
+                  {/* Sync indicator dot */}
+                  <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
+                </div>
+              )}
             </div>
           )}
         </div>

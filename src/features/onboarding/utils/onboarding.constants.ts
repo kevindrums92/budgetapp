@@ -10,6 +10,7 @@ export const ONBOARDING_KEYS = {
   SELECTIONS: 'budget.onboarding.selections.v2', // JSON - selecciones del usuario
   TIMESTAMP: 'budget.onboarding.timestamp.v2', // Number - cuándo se completó
   LOGOUT: 'budget.onboarding.logout.v2', // Boolean - usuario hizo logout explícito
+  DEVICE_INITIALIZED: 'budget.device.initialized', // Boolean - PERMANENTE: true cuando FirstConfig se completa por primera vez (NUNCA se borra)
 } as const;
 
 // Legacy key (deprecar después de migración)
@@ -23,13 +24,14 @@ export const WELCOME_SCREENS = {
   4: 'Análisis de Hábitos',
   5: 'Automatización de Movimientos',
   6: 'Entiende tu Plata',
+  7: 'Elige tu Plan',
 } as const;
 
 // Total screens per phase
 export const PHASE_SCREEN_COUNTS = {
-  welcome: 6,
+  welcome: 7,
   login: 1,
-  config: 2, // ConfigIntro + LanguageSelect (expandible a 5)
+  config: 5, // Language → Theme → Currency → Categories → Complete
 } as const;
 
 // Animation durations (ms)

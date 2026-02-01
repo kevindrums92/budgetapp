@@ -1,0 +1,106 @@
+/**
+ * usePaywallPurchase
+ * Hook compartido para manejar la compra/activación de trial desde el PaywallModal
+ *
+ * Encapsula toda la lógica de:
+ * - Asegurar que RevenueCat esté vinculado al usuario (Purchases.logIn)
+ * - Obtener offerings de RevenueCat
+ * - Ejecutar la compra (activar trial)
+ * - Sincronizar con subscription.service.ts
+ * - Cerrar el modal automáticamente
+ * - Manejo de errores
+ */
+
+import { useState, useCallback } from 'react';
+import { useBudgetStore } from '@/state/budget.store';
+import type { RevenueCatPackage } from '@/services/revenuecat.service';
+
+type UsePaywallPurchaseOptions = {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+};
+
+export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
+  const [isPurchasing, setIsPurchasing] = useState(false);
+
+  const handleSelectPlan = useCallback(
+    async (planId: string) => {
+      console.log('[usePaywallPurchase] User selected plan:', planId);
+      setIsPurchasing(true);
+
+      try {
+        const { purchasePackage, getOfferings } = await import('@/services/revenuecat.service');
+        const { isNative } = await import('@/shared/utils/platform');
+
+        // Link RevenueCat to authenticated user BEFORE purchase
+        if (isNative()) {
+          try {
+            const { supabase } = await import('@/lib/supabaseClient');
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+              const { Purchases } = await import('@revenuecat/purchases-capacitor');
+              await Purchases.logIn({ appUserID: user.id });
+              console.log('[usePaywallPurchase] Linked to user:', user.id);
+            } else {
+              console.warn('[usePaywallPurchase] No authenticated user, purchase may not be associated');
+            }
+          } catch (loginError) {
+            console.warn('[usePaywallPurchase] Failed to link user (continuing anyway):', loginError);
+          }
+        }
+
+        // Get offerings
+        const offerings = await getOfferings();
+
+        if (!offerings) {
+          throw new Error('No offerings available');
+        }
+
+        console.log('[usePaywallPurchase] Offerings loaded:', offerings);
+
+        // Find the selected package
+        const packageToPurchase = offerings.availablePackages.find(
+          (pkg: RevenueCatPackage) => pkg.identifier === planId
+        );
+
+        if (!packageToPurchase) {
+          throw new Error(`Package ${planId} not found`);
+        }
+
+        // Execute purchase (activates 7-day trial)
+        const purchaseResult = await purchasePackage(packageToPurchase);
+        console.log('[usePaywallPurchase] Trial activated:', purchaseResult);
+
+        // Fetch subscription using new service (RevenueCat → Supabase → localStorage)
+        const { getSubscription } = await import('@/services/subscription.service');
+        const { supabase } = await import('@/lib/supabaseClient');
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const subscription = await getSubscription(user?.id ?? null);
+        useBudgetStore.getState().setSubscription(subscription);
+        console.log('[usePaywallPurchase] Subscription synced:', subscription?.status);
+
+        // Call success callback if provided
+        options?.onSuccess?.();
+      } catch (error) {
+        console.error('[usePaywallPurchase] Purchase failed:', error);
+
+        // Call error callback if provided
+        const errorObj = error instanceof Error ? error : new Error('Unknown error');
+        options?.onError?.(errorObj);
+
+        // Re-throw to let PaywallModal handle UI state
+        throw error;
+      } finally {
+        setIsPurchasing(false);
+      }
+    },
+    [options]
+  );
+
+  return {
+    handleSelectPlan,
+    isPurchasing,
+  };
+}

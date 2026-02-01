@@ -1,0 +1,126 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "28F3643F",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "89.99",
+      "familyShareable" : false,
+      "internalID" : "26E4AB6F",
+      "localizations" : [
+        {
+          "description" : "Pago único. Úsalo para siempre.\nPago único. Úsalo para siempre.\nPago único. Úsalo para siempre.",
+          "displayName" : "SmartSpend Pro de por vida",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "co.smartspend.lifetime",
+      "referenceName" : "Lifetime",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "3E801287",
+      "localizations" : [
+
+      ],
+      "name" : "SmartSpend pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "8613751A",
+          "introductoryOffer" : {
+            "internalID" : "A0F466C6",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Suscripción mensual con 7 días de prueba gratis.",
+              "displayName" : "SmartSpend Pro Mensual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "co.smartspend.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly",
+          "subscriptionGroupID" : "3E801287",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "34.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "9D64621C",
+          "introductoryOffer" : {
+            "internalID" : "0A981E3F",
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Suscripción anual. ¡Ahorra 41%! 7 días gratis.",
+              "displayName" : "SmartSpend Pro Anual",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "co.smartspend.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Yearly",
+          "subscriptionGroupID" : "3E801287",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

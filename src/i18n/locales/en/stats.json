@@ -58,7 +58,8 @@
   "expensesByCategory": {
     "title": "Expenses by Category",
     "spent": "spent",
-    "noData": "No expenses this month"
+    "noData": "No expenses this month",
+    "viewAllPro": "View all categories"
   },
   "incomeVsExpenses": {
     "title": "Income vs Expenses",
@@ -87,5 +88,10 @@
     "thu": "Thu",
     "fri": "Fri",
     "sat": "Sat"
+  },
+  "overlay": {
+    "unlockAdvancedStats": "Unlock advanced statistics",
+    "unlockTrends": "Unlock trend analysis",
+    "viewAllStats": "View all statistics"
   }
 }

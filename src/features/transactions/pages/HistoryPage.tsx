@@ -11,13 +11,17 @@ import {
   X,
   Check,
   Search,
+  Lock,
 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
+import { useSubscription } from "@/hooks/useSubscription";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/shared/components/modals/DatePicker";
+import PaywallModal from "@/shared/components/modals/PaywallModal";
 import * as icons from "lucide-react";
 
 type FilterType = "all" | "expense" | "income";
@@ -37,12 +41,19 @@ export default function HistoryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { formatAmount } = useCurrency();
+  const { canUseFeature } = useSubscription();
 
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+
+  // Paywall state
+  const [showPaywall, setShowPaywall] = useState(false);
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setShowPaywall(false),
+  });
 
   const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>("this-month");
   const [customStartDate, setCustomStartDate] = useState(todayISO());
@@ -310,6 +321,12 @@ export default function HistoryPage() {
   ]);
 
   const handleExport = async () => {
+    // Check if user can export
+    if (!canUseFeature('export_data')) {
+      setShowPaywall(true);
+      return;
+    }
+
     if (filteredTransactions.length === 0) {
       alert(t("export.noTransactions", { ns: "home" }));
       return;
@@ -381,7 +398,7 @@ export default function HistoryPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por descripción..."
+              placeholder={t("filters.searchPlaceholder")}
               className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl py-2.5 pl-10 pr-10 text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20 transition"
             />
             <Search
@@ -414,9 +431,9 @@ export default function HistoryPage() {
             }`}
           >
             <Calendar size={14} />
-            {dateRangePreset === "this-month" && "Este Mes"}
-            {dateRangePreset === "last-month" && "Mes Pasado"}
-            {dateRangePreset === "custom" && "Personalizado"}
+            {dateRangePreset === "this-month" && t("filters.thisMonth")}
+            {dateRangePreset === "last-month" && t("filters.lastMonth")}
+            {dateRangePreset === "custom" && t("filters.custom")}
           </button>
 
           {/* Type */}
@@ -430,55 +447,88 @@ export default function HistoryPage() {
             }`}
           >
             <Filter size={14} />
-            {filterType === "all" && "Tipo"}
-            {filterType === "income" && "Ingresos"}
-            {filterType === "expense" && "Gastos"}
+            {filterType === "all" && t("filters.type")}
+            {filterType === "income" && t("filters.income")}
+            {filterType === "expense" && t("filters.expenses")}
           </button>
 
           {/* Status */}
           <button
             type="button"
-            onClick={() => setExpandedFilter(expandedFilter === "status" ? null : "status")}
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                setExpandedFilter(expandedFilter === "status" ? null : "status");
+              }
+            }}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              expandedFilter === "status" || filterStatus !== "all"
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : expandedFilter === "status" || filterStatus !== "all"
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            <CheckCircle2 size={14} />
-            {filterStatus === "all" && "Estado"}
-            {filterStatus === "paid" && "Pagado"}
-            {filterStatus === "pending" && "Pendiente"}
-            {filterStatus === "planned" && "Planeado"}
+            {!canUseFeature('history_filters') ? (
+              <Lock size={14} />
+            ) : (
+              <CheckCircle2 size={14} />
+            )}
+            {filterStatus === "all" && t("filters.status")}
+            {filterStatus === "paid" && t("filters.paid")}
+            {filterStatus === "pending" && t("filters.pendingStatus")}
+            {filterStatus === "planned" && t("filters.planned")}
           </button>
 
           {/* Category */}
           <button
             type="button"
-            onClick={handleOpenCategoryModal}
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                handleOpenCategoryModal();
+              }
+            }}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              selectedCategoryIds.length > 0
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : selectedCategoryIds.length > 0
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            <Tag size={14} />
-            {selectedCategoryIds.length === 0 && "Categoría"}
-            {selectedCategoryIds.length === 1 && (categoryDefinitions.find((c) => c.id === selectedCategoryIds[0])?.name || "Categoría")}
-            {selectedCategoryIds.length > 1 && `${selectedCategoryIds.length} categorías`}
+            {!canUseFeature('history_filters') ? (
+              <Lock size={14} />
+            ) : (
+              <Tag size={14} />
+            )}
+            {selectedCategoryIds.length === 0 && t("filters.category")}
+            {selectedCategoryIds.length === 1 && (categoryDefinitions.find((c) => c.id === selectedCategoryIds[0])?.name || t("filters.category"))}
+            {selectedCategoryIds.length > 1 && t("filters.categories", { count: selectedCategoryIds.length })}
           </button>
 
           {/* Monto */}
           <button
             type="button"
-            onClick={() => setExpandedFilter(expandedFilter === "amount" ? null : "amount")}
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                setExpandedFilter(expandedFilter === "amount" ? null : "amount");
+              }
+            }}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              expandedFilter === "amount" || minAmount || maxAmount
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : expandedFilter === "amount" || minAmount || maxAmount
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            Monto
+            {!canUseFeature('history_filters') && <Lock size={14} />}
+            {t("filters.amount")}
           </button>
         </div>
       </div>
@@ -499,7 +549,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Este Mes
+                {t("filters.thisMonth")}
               </button>
               <button
                 type="button"
@@ -513,7 +563,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Mes Pasado
+                {t("filters.lastMonth")}
               </button>
               <button
                 type="button"
@@ -527,7 +577,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Personalizado
+                {t("filters.custom")}
               </button>
             </div>
           </div>
@@ -548,7 +598,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Todos
+                {t("filters.allTypes")}
               </button>
               <button
                 type="button"
@@ -562,7 +612,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Ingresos
+                {t("filters.income")}
               </button>
               <button
                 type="button"
@@ -576,7 +626,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Gastos
+                {t("filters.expenses")}
               </button>
             </div>
           </div>
@@ -597,7 +647,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Todos
+                {t("filters.allStatus")}
               </button>
               <button
                 type="button"
@@ -611,7 +661,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Pagado
+                {t("filters.paid")}
               </button>
               <button
                 type="button"
@@ -625,7 +675,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Pendiente
+                {t("filters.pendingStatus")}
               </button>
               <button
                 type="button"
@@ -639,7 +689,7 @@ export default function HistoryPage() {
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                 }`}
               >
-                Planeado
+                {t("filters.planned")}
               </button>
             </div>
           </div>
@@ -650,7 +700,7 @@ export default function HistoryPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Mínimo
+                  {t("filters.minimum")}
                 </label>
                 <input
                   type="text"
@@ -663,14 +713,14 @@ export default function HistoryPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                  Máximo
+                  {t("filters.maximum")}
                 </label>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={maxAmount}
                   onChange={(e) => setMaxAmount(e.target.value.replace(/[^0-9]/g, ""))}
-                  placeholder="Sin límite"
+                  placeholder={t("filters.noLimit")}
                   className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-2 px-3 text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20"
                 />
               </div>
@@ -688,10 +738,26 @@ export default function HistoryPage() {
           type="button"
           onClick={handleExport}
           disabled={filteredTransactions.length === 0}
-          className="flex items-center gap-2 text-sm font-medium text-[#18B7B0] hover:text-[#159d97] disabled:opacity-40 disabled:cursor-not-allowed transition"
+          className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed ${
+            !canUseFeature('export_data')
+              ? 'text-gray-500'
+              : 'text-[#18B7B0] hover:text-[#159d97]'
+          }`}
         >
-          <Download size={16} />
-          {t("results.exportCSV")}
+          {!canUseFeature('export_data') ? (
+            <>
+              <Lock size={16} />
+              {t("results.exportCSV")}
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
+                PRO
+              </span>
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              {t("results.exportCSV")}
+            </>
+          )}
         </button>
       </div>
 
@@ -819,7 +885,7 @@ export default function HistoryPage() {
                 {/* Start Date */}
                 <div>
                   <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Fecha Inicio
+                    {t("filters.startDate")}
                   </label>
                   <button
                     type="button"
@@ -843,7 +909,7 @@ export default function HistoryPage() {
                 {/* End Date */}
                 <div>
                   <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                    Fecha Fin
+                    {t("filters.endDate")}
                   </label>
                   <button
                     type="button"
@@ -872,14 +938,14 @@ export default function HistoryPage() {
                   onClick={() => setShowCustomDateModal(false)}
                   className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
-                  Cancelar
+                  {t("filters.cancel")}
                 </button>
                 <button
                   type="button"
                   onClick={handleApplyCustomDates}
                   className="flex-1 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white hover:bg-[#159d97] transition-colors"
                 >
-                  Aplicar
+                  {t("filters.apply")}
                 </button>
               </div>
             </div>
@@ -1003,14 +1069,14 @@ export default function HistoryPage() {
                   disabled={tempSelectedCategoryIds.length === 0}
                   className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  Limpiar
+                  {t("filters.clear")}
                 </button>
                 <button
                   type="button"
                   onClick={handleApplyCategories}
                   className="flex-1 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white hover:bg-[#159d97] transition-colors"
                 >
-                  Aplicar ({tempSelectedCategoryIds.length})
+                  {t("filters.apply")} ({tempSelectedCategoryIds.length})
                 </button>
               </div>
             </div>
@@ -1032,6 +1098,14 @@ export default function HistoryPage() {
         onClose={() => setShowEndDatePicker(false)}
         value={customEndDate}
         onChange={setCustomEndDate}
+      />
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        open={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        trigger="history_filters"
+        onSelectPlan={handleSelectPlan}
       />
     </div>
   );

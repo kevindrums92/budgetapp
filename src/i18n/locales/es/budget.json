@@ -4,7 +4,16 @@
     "activeBudgets": "Presupuestos activos",
     "remaining": "Quedan {{amount}} ({{percentage}}%)",
     "exceeded": "Excedido por {{amount}} ({{percentage}}%)",
-    "noActiveBudgets": "Sin presupuestos activos este período"
+    "noActiveBudgets": "Sin presupuestos activos este período",
+    "activeTab": "Activos",
+    "completedTab": "Completados",
+    "noPlansTitle": "No tienes ningún plan",
+    "noPlansDescription": "Crea límites de gasto o metas de ahorro para organizar tu dinero",
+    "createFirstPlan": "Crear mi primer plan",
+    "noCompletedPlans": "No hay planes completados este mes",
+    "limitsExceeded_one": "Tienes {{count}} límite excedido",
+    "limitsExceeded_other": "Tienes {{count}} límites excedidos",
+    "goalsProgress": "Has completado el {{percentage}}% de tus metas de ahorro"
   },
   "summary": {
     "budgeted": "Presupuestado",
@@ -15,12 +24,41 @@
     "description": "Define un monto máximo para gastos como Restaurantes o Transporte.",
     "cta": "Comenzar ahora"
   },
+  "types": {
+    "limit": "Límite de gasto",
+    "goal": "Meta de ahorro",
+    "newLimit": "Nuevo Límite",
+    "newGoal": "Nueva Meta"
+  },
+  "typeSelector": {
+    "title": "Crear Plan",
+    "question": "¿Qué quieres hacer?",
+    "subtitle": "Elige el tipo de plan que deseas crear",
+    "controlSpending": "Controlar un gasto",
+    "controlSpendingDescription": "Define un límite máximo para una categoría. Te avisaremos si te pasas.",
+    "saveForGoal": "Ahorrar para una meta",
+    "saveForGoalDescription": "Crea una meta de ahorro. Irás registrando aportes hasta completarla."
+  },
+  "goalOnboarding": {
+    "title": "Metas de Ahorro",
+    "howItWorksTitle": "¿Cómo funcionan las metas?",
+    "howItWorksDescription": "Las metas de ahorro funcionan como un fondo aparte. Defines cuánto quieres ahorrar y cada vez que apartas dinero, lo registras como un gasto en esa categoría. Así sale de tu balance pero se acumula en tu meta.",
+    "exampleTitle": "Ejemplo:",
+    "exampleText": "Meta: Ahorrar $500.000 para vacaciones\nHoy apartas $50.000 → Lo registras como gasto en \"Vacaciones\"\nTu progreso: $50.000 ahorrados / $500.000 (10%)",
+    "recommendationTitle": "💡 Recomendación",
+    "recommendationText": "Crea una categoría con el nombre de tu meta (ej: \"Vacaciones\", \"Fondo de Emergencias\", \"Moto Nueva\"). Cada vez que apartes dinero, regístralo como gasto en esa categoría.",
+    "createCategory": "Crear Categoría de Ahorro",
+    "continueWithoutCategory": "Continuar sin Crear Categoría",
+    "defaultCategoryName": "Meta de Ahorro"
+  },
   "modal": {
     "titleNew": "Nuevo Presupuesto",
     "titleEdit": "Editar Presupuesto",
     "category": "Categoría",
     "selectCategory": "Seleccionar categoría",
     "amount": "Presupuesto",
+    "limitMaxAmount": "Límite máximo",
+    "goalTargetAmount": "Meta a alcanzar",
     "period": "Período",
     "selectPeriod": "Seleccionar período",
     "recurring": "Recurrente",
@@ -29,7 +67,8 @@
     "delete": "Eliminar",
     "deleteConfirmTitle": "¿Eliminar presupuesto?",
     "deleteConfirmMessage": "¿Seguro que deseas eliminar este presupuesto?",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "errorDuplicate": "Ya existe un presupuesto activo para esta categoría en el período seleccionado."
   },
   "periodPicker": {
     "title": "Seleccionar Período",

@@ -24,6 +24,24 @@ export default function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
   const [oauthError, setOAuthError] = useState<{ message: string; isRetryable: boolean } | null>(null);
 
+  // ✅ CRITICAL: Mark device as initialized when user reaches login screen
+  // This permanent flag ensures WelcomeOnboarding is only shown on first device use
+  useEffect(() => {
+    const isAlreadyInitialized = localStorage.getItem(ONBOARDING_KEYS.DEVICE_INITIALIZED) === 'true';
+    if (!isAlreadyInitialized) {
+      localStorage.setItem(ONBOARDING_KEYS.DEVICE_INITIALIZED, 'true');
+      console.log('[LoginScreen] Device marked as initialized (first time reaching login)');
+    }
+  }, []);
+
+  // Redirect to login-pro if user selected a plan
+  useEffect(() => {
+    if (state.selections.selectedPlan) {
+      console.log('[LoginScreen] Plan detected, redirecting to Pro login:', state.selections.selectedPlan);
+      navigate('/onboarding/login-pro', { replace: true });
+    }
+  }, [state.selections.selectedPlan, navigate]);
+
   // Sync context with URL when component mounts
   useEffect(() => {
     if (state.phase !== 'login') {

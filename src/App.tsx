@@ -11,6 +11,7 @@ import { ThemeProvider } from "@/features/theme";
 import { CurrencyProvider } from "@/features/currency";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
+import RevenueCatProvider from "@/shared/components/providers/RevenueCatProvider";
 
 // Eager load core pages (HomePage, PlanPage)
 import HomePage from "@/features/transactions/pages/HomePage";
@@ -46,6 +47,7 @@ const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSetti
 const CurrencySettingsPage = lazy(() => import("@/features/profile/pages/CurrencySettingsPage"));
 const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"));
 const NotificationSettingsPage = lazy(() => import("@/features/notifications/pages/NotificationSettingsPage"));
+const SubscriptionManagementPage = lazy(() => import("@/features/profile/pages/SubscriptionManagementPage"));
 
 // Lazy load legal pages
 const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfServicePage"));
@@ -84,6 +86,7 @@ function AppFrame() {
     location.pathname.startsWith("/categories") ||
     location.pathname.startsWith("/settings/") ||
     location.pathname.startsWith("/legal/") ||
+    location.pathname.startsWith("/profile/subscription") ||
     location.pathname.startsWith("/onboarding");
 
   const showMonthSelector = useMemo(() => {
@@ -138,6 +141,7 @@ function AppFrame() {
             <Route path="/category-group/:id/edit" element={<AddEditCategoryGroupPage />} />
 
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/subscription" element={<SubscriptionManagementPage />} />
             <Route path="/backup" element={<BackupPage />} />
 
             <Route path="/settings/language" element={<LanguageSettingsPage />} />
@@ -163,13 +167,15 @@ export default function App() {
   return (
     <ThemeProvider>
       <CurrencyProvider>
-        <BrowserRouter>
-          <CloudSyncGate />
-          <OnboardingGate />
-          <BiometricGate />
-          <UpcomingTransactionsModal />
-          <AppFrame />
-        </BrowserRouter>
+        <RevenueCatProvider>
+          <BrowserRouter>
+            <CloudSyncGate />
+            <OnboardingGate />
+            <BiometricGate />
+            <UpcomingTransactionsModal />
+            <AppFrame />
+          </BrowserRouter>
+        </RevenueCatProvider>
       </CurrencyProvider>
     </ThemeProvider>
   );

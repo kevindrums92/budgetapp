@@ -153,7 +153,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(7); // Should migrate all the way to v7
+        expect(loaded?.schemaVersion).toBe(8); // Should migrate all the way to v8
         expect(loaded?.categoryDefinitions).toBeDefined();
         expect(Array.isArray(loaded?.categoryDefinitions)).toBe(true);
         expect(loaded!.categoryDefinitions.length).toBeGreaterThan(0);
@@ -215,7 +215,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
         expect(loaded?.categoryDefinitions).toBeDefined();
       });
 
@@ -287,7 +287,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v2State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
         expect(loaded?.categoryGroups).toBeDefined();
         expect(Array.isArray(loaded?.categoryGroups)).toBe(true);
         expect(loaded!.categoryGroups.length).toBeGreaterThan(0);
@@ -330,7 +330,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v3State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
         expect(loaded?.transactions[0].isRecurring).toBe(false);
         expect(loaded?.transactions[1].isRecurring).toBe(false);
       });
@@ -496,7 +496,7 @@ describe('storage.service', () => {
         const persisted = localStorage.getItem('budget_app_v1');
         const parsed = JSON.parse(persisted!);
 
-        expect(parsed.schemaVersion).toBe(7);
+        expect(parsed.schemaVersion).toBe(8);
         expect(parsed.categoryDefinitions).toBeDefined();
         expect(parsed.categoryGroups).toBeDefined();
       });
@@ -520,7 +520,7 @@ describe('storage.service', () => {
         const loaded = loadState();
 
         expect(loaded).not.toBeNull();
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
 
         // Restore original
         localStorage.setItem = originalSetItem;
@@ -595,7 +595,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v4State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
 
         // Should have 2 templates (Netflix + Spotify) + 1 groceries + 2 deduplicated Netflix (now without schedule)
         expect(loaded?.transactions.length).toBe(5);
@@ -678,7 +678,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v4State));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
 
         // Template should NOT have sourceTemplateId
         const template = loaded?.transactions.find(tx => tx.id === 'template-rent');
@@ -792,7 +792,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v4RealData));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
 
         // Count recurring templates
         const recurringTransactions = v4RealData.transactions.filter(tx => tx.isRecurring);
@@ -879,7 +879,7 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v5DataNeedingRepair));
         const loaded = loadState();
 
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
 
         // The February "Caña brava" should now have sourceTemplateId (repaired!)
         const febCanaBrava = loaded?.transactions.find(tx => tx.id === '7d01cd96-6315-4849-9fab-ba928ff25c82');
@@ -960,8 +960,8 @@ describe('storage.service', () => {
         localStorage.setItem('budget_app_v1', JSON.stringify(v1State));
         const loaded = loadState();
 
-        // Should be at v7
-        expect(loaded?.schemaVersion).toBe(7);
+        // Should be at v8
+        expect(loaded?.schemaVersion).toBe(8);
 
         // v1→v2: categoryDefinitions exist
         expect(loaded?.categoryDefinitions).toBeDefined();
@@ -979,7 +979,7 @@ describe('storage.service', () => {
         expect(loaded?.transactions[0].isRecurring).toBe(false);
 
         // v4→v5→v6→v7: migrations complete (isRecurring without schedule stays as is)
-        expect(loaded?.schemaVersion).toBe(7);
+        expect(loaded?.schemaVersion).toBe(8);
       });
     });
   });

@@ -172,6 +172,17 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     console.log('[Onboarding] Categories selected:', categoryIds.length);
   }, []);
 
+  const setSelectedPlan = useCallback((plan: 'monthly' | 'annual' | 'lifetime' | null) => {
+    setState((prev) => ({
+      ...prev,
+      selections: {
+        ...prev.selections,
+        selectedPlan: plan,
+      },
+    }));
+    console.log('[Onboarding] Plan selected:', plan);
+  }, []);
+
   const skipWelcome = useCallback(() => {
     setState((prev) => ({
       ...prev,
@@ -228,6 +239,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     setTheme,
     setCurrency,
     setSelectedCategories,
+    setSelectedPlan,
     skipWelcome,
     skipConfig,
     completeOnboarding,

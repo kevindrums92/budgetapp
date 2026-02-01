@@ -58,7 +58,7 @@ export function loadState(): BudgetState | null {
       const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
       if (onboardingCompleted) {
         const initialState: BudgetState = {
-          schemaVersion: 7,
+          schemaVersion: 8,
           transactions: [],
           categories: [],
           categoryDefinitions: createDefaultCategories(),
@@ -216,6 +216,14 @@ export function loadState(): BudgetState | null {
       console.log('[Storage] Migrated v6→v7: Added security settings for biometric authentication');
     }
 
+    // Migrate v7 to v8: Subscription moved out of BudgetState (managed by RevenueCat + Supabase)
+    if (parsed.schemaVersion === 7) {
+      delete parsed.subscription; // Clean up legacy field
+      parsed.schemaVersion = 8;
+      needsSave = true;
+      console.log('[Storage] Migrated v7→v8: Removed subscription from state (now in separate table)');
+    }
+
     // Always repair: Ensure all transactions have sourceTemplateId if they match a template
     // This fixes transactions that were confirmed before sourceTemplateId was added
     if (parsed.schemaVersion >= 5) {
@@ -306,6 +314,10 @@ export function loadState(): BudgetState | null {
     }
 
     const result = parsed as BudgetState;
+
+    console.log('[Storage] loadState returning:', {
+      schemaVersion: result.schemaVersion,
+    });
 
     // Persist the migration/fix to localStorage
     if (needsSave) {

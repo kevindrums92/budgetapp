@@ -1,8 +1,9 @@
 /**
  * Screen5_Notifications
  * Pantalla 5 de First Config: Activar notificaciones push
- * Solo se muestra en plataformas nativas con sesión autenticada.
- * En web o modo invitado, auto-skip al siguiente paso.
+ * Solo se muestra en plataformas nativas (iOS/Android).
+ * En web, auto-skip al siguiente paso.
+ * Ahora soporta push notifications para usuarios invitados (guest mode).
  */
 
 import { Bell, Calendar, Clock, BarChart3 } from 'lucide-react';
@@ -10,45 +11,27 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { isNative } from '@/shared/utils/platform';
-import {
-  requestPermissions,
-  updatePreferences,
-} from '@/services/pushNotification.service';
-import { supabase } from '@/lib/supabaseClient';
-import { DEFAULT_NOTIFICATION_PREFERENCES } from '@/types/notifications';
+import { requestPermissions } from '@/services/pushNotification.service';
 
 const NEXT_STEP = '/onboarding/config/6';
 
 export default function Screen5_Notifications() {
-  const { t } = useTranslation('onboarding');
+  const { t } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const [isRequesting, setIsRequesting] = useState(false);
 
-  // Auto-skip for web or guest users
+  // Auto-skip only for web (not for native guest users)
   useEffect(() => {
-    let cancelled = false;
-    async function checkEligibility() {
-      if (!isNative()) {
-        navigate(NEXT_STEP, { replace: true });
-        return;
-      }
-      const { data } = await supabase.auth.getSession();
-      if (!cancelled && !data.session) {
-        navigate(NEXT_STEP, { replace: true });
-      }
+    if (!isNative()) {
+      navigate(NEXT_STEP, { replace: true });
     }
-    checkEligibility();
-    return () => { cancelled = true; };
   }, [navigate]);
 
   const handleEnable = async () => {
     setIsRequesting(true);
     try {
-      const granted = await requestPermissions();
-      if (granted) {
-        // Apply default notification preferences (daily reminder + summary at 9pm, quiet hours 11pm-6am)
-        await updatePreferences(DEFAULT_NOTIFICATION_PREFERENCES);
-      }
+      // requestPermissions() now automatically applies DEFAULT_NOTIFICATION_PREFERENCES
+      await requestPermissions();
     } catch (err) {
       console.error('[PushOnboarding] Error:', err);
     } finally {

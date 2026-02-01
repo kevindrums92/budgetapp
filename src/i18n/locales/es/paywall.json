@@ -1,0 +1,55 @@
+{
+  "title": "Desbloquea SmartSpend Pro",
+  "subtitle": {
+    "generic": "Lleva tus finanzas al siguiente nivel",
+    "onboarding": "Comienza con 7 dias gratis de todas las funciones",
+    "category_limit": "Has alcanzado el limite de categorias personalizadas",
+    "budget_limit": "Has alcanzado el limite de presupuestos activos",
+    "scheduled_limit": "Has alcanzado el limite de transacciones programadas",
+    "stats_page": "Accede a estadisticas detalladas de tus finanzas",
+    "stats_trends": "Desbloquea tendencias y analisis historico",
+    "cloud_sync": "Sincroniza tus datos en la nube de forma segura",
+    "push_notifications": "Recibe alertas inteligentes de tus finanzas",
+    "history_filters": "Filtra tu historial por estado, categoria y mas",
+    "export": "Exporta tus datos en CSV o JSON",
+    "settings": "Personaliza tu experiencia al maximo",
+    "upgrade_prompt": "Desbloquea estadisticas avanzadas, categorias ilimitadas y mas"
+  },
+  "benefits": {
+    "unlimitedCategories": "Categorias y presupuestos ilimitados",
+    "stats": "Estadisticas detalladas y proyecciones",
+    "historyFilters": "Filtros avanzados de historial",
+    "export": "Exportacion de datos CSV y JSON",
+    "scheduled": "Transacciones programadas ilimitadas",
+    "adFree": "Experiencia 100% libre de anuncios"
+  },
+  "plans": {
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "lifetime": "De por vida",
+    "perMonth": "/mes",
+    "perYear": "/año",
+    "oneTime": "Pago unico"
+  },
+  "badges": {
+    "bestValue": "Mejor Valor"
+  },
+  "savings": "Ahorra {{percent}}%",
+  "equivalentMonthly": "equivale a ${{price}}/mes",
+  "cta": {
+    "startTrial": "Iniciar prueba gratuita de 7 dias",
+    "subscribe": "Suscribirme",
+    "restore": "Restaurar compras"
+  },
+  "trial": {
+    "badge": "Prueba gratuita",
+    "daysRemaining_one": "{{count}} dia restante de prueba",
+    "daysRemaining_other": "{{count}} dias restantes de prueba",
+    "expired": "Tu prueba ha expirado"
+  },
+  "gate": {
+    "locked": "Funcion Pro",
+    "unlock": "Desbloquear",
+    "limitReached": "Limite alcanzado ({{current}}/{{max}})"
+  }
+}

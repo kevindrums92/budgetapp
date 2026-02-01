@@ -1,27 +1,43 @@
 /**
  * Screen1_Welcome
- * Pantalla 1: Bienvenido a SmartSpend
+ * Pantala 1: Bienvenido a SmartSpend
  * Primera impresión - Logo, título y features principales
  */
 
 import { WifiOff, Shield, TrendingUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import OnboardingLayout from '../../../components/OnboardingLayout';
+import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
+import ProgressDots from '../../../components/ProgressDots';
 import FeatureCard from '../../../components/FeatureCard';
 import SlideAnimation, { StaggeredAnimation } from '../../../components/SlideAnimation';
 import { useOnboardingProgress } from '../../../hooks/useOnboardingProgress';
 
 export default function Screen1_Welcome() {
-  const { t } = useTranslation('onboarding');
+  const { t } = useTranslation(['onboarding', 'common']);
   const { handleNext, handleSkip } = useOnboardingProgress();
 
   return (
-    <OnboardingLayout
-      showSkip
-      onSkip={handleSkip}
-      showProgress
-      currentStep={1}
-      totalSteps={6}
+    <FullscreenLayout
+      headerCenter={<ProgressDots total={7} current={1} />}
+      headerRight={
+        <button
+          type="button"
+          onClick={handleSkip}
+          className="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors hover:text-gray-700 dark:hover:text-gray-200"
+        >
+          {t('common:buttons.skip')}
+        </button>
+      }
+      ctaButton={
+        <button
+          type="button"
+          onClick={handleNext}
+          className="w-full rounded-2xl bg-gradient-to-r from-[#18B7B0] to-[#0F8580] py-4 text-base font-bold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
+        >
+          {t('welcome.screen1.start')}
+        </button>
+      }
+      contentClassName="pb-8"
     >
       {/* Hero Section */}
       <div className="mb-8 text-center">
@@ -86,22 +102,6 @@ export default function Screen1_Welcome() {
           />
         </StaggeredAnimation>
       </div>
-
-      {/* CTA Button - Fixed Bottom */}
-      <div
-        className="absolute inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent dark:from-gray-950 dark:via-gray-950 px-6 pt-8"
-        style={{
-          paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
-        }}
-      >
-        <button
-          type="button"
-          onClick={handleNext}
-          className="w-full rounded-2xl bg-gradient-to-r from-[#18B7B0] to-[#0F8580] py-4 text-base font-bold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
-        >
-          {t('welcome.screen1.start')}
-        </button>
-      </div>
-    </OnboardingLayout>
+    </FullscreenLayout>
   );
 }

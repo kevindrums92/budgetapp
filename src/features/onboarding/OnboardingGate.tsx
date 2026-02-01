@@ -4,20 +4,24 @@
  * Similar al WelcomeGate anterior pero con el nuevo sistema
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { determineStartScreen, migrateFromLegacyWelcome, getSavedProgress } from './utils/onboarding.helpers';
 
 export default function OnboardingGate() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const checkOnboarding = async () => {
+      setIsChecking(true);
+
       // Permitir rutas auxiliares durante el onboarding (ej: crear categoría)
       const searchParams = new URLSearchParams(location.search);
       if (searchParams.get('returnTo') === 'onboarding') {
         console.log('[OnboardingGate] Allowing auxiliary route during onboarding:', location.pathname);
+        setIsChecking(false);
         return;
       }
 
@@ -35,6 +39,8 @@ export default function OnboardingGate() {
         if (!location.pathname.startsWith('/onboarding/welcome')) {
           console.log('[OnboardingGate] Redirecting to welcome/1');
           navigate('/onboarding/welcome/1', { replace: true });
+        } else {
+          setIsChecking(false);
         }
       }
       // CASO 2: Continuar desde progreso guardado
@@ -61,6 +67,7 @@ export default function OnboardingGate() {
           }
         } else {
           console.log('[OnboardingGate] Already in onboarding, letting Flow components handle navigation');
+          setIsChecking(false);
         }
       }
       // CASO 3: Debe ir a login directo (returning user)
@@ -75,6 +82,8 @@ export default function OnboardingGate() {
         if (!isAuthRoute) {
           console.log('[OnboardingGate] Redirecting to login');
           navigate('/onboarding/login', { replace: true });
+        } else {
+          setIsChecking(false);
         }
       }
       // CASO 4: Debe ir a app
@@ -93,6 +102,8 @@ export default function OnboardingGate() {
         if (location.pathname.startsWith('/onboarding') && !isPasswordResetRoute && !isConfigRoute && !isLoginRoute) {
           console.log('[OnboardingGate] Redirecting to app');
           navigate('/', { replace: true });
+        } else {
+          setIsChecking(false);
         }
       }
     };
@@ -100,6 +111,20 @@ export default function OnboardingGate() {
     checkOnboarding();
   }, [navigate, location.pathname, location.search]);
 
-  // Este componente no renderiza nada, solo maneja la lógica de redirección
+  // Mostrar loading mientras se está verificando para evitar flashes de contenido
+  if (isChecking) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="flex flex-col items-center gap-4">
+          {/* Spinner */}
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-emerald-500 dark:border-gray-800 dark:border-t-emerald-400" />
+          {/* Optional: Loading text */}
+          <p className="text-sm text-gray-500 dark:text-gray-400">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No renderiza nada cuando ya está en la ruta correcta
   return null;
 }

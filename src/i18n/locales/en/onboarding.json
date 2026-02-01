@@ -79,6 +79,30 @@
       "peakDay": "Peak day",
       "peakDayFriday": "Friday",
       "startNow": "Start now"
+    },
+    "screen7": {
+      "title": "Choose your plan",
+      "subtitle": "Start with 7 free days of all Pro features, or use SmartSpend Lite without time limits",
+      "proTrialBadge": "Free trial",
+      "proTrialTitle": "Try Pro free for 7 days",
+      "proTrialDescription": "Full access to all premium features. Cancel anytime.",
+      "proAdFreeNote": "100% ad-free experience",
+      "liteBadge": "Always free",
+      "liteTitle": "Continue with Lite",
+      "liteDescription": "All essential features to manage your finances. Always free with ads.",
+      "liteAdsNote": "Includes non-intrusive ads to keep the service free",
+      "features": {
+        "unlimited": "Unlimited categories and budgets",
+        "cloudSync": "Cloud synchronization",
+        "stats": "Detailed statistics",
+        "notifications": "Smart push notifications"
+      },
+      "liteFeatures": {
+        "basicTracking": "Unlimited basic tracking",
+        "budgets": "Up to 2 active budgets",
+        "categories": "Up to 5 custom categories"
+      },
+      "disclaimer": "Risk-free trial. Cancel before it ends and you won't be charged."
     }
   },
   "language": {
@@ -188,7 +212,13 @@
       "login": "Sign in",
       "register": "Create account"
     },
-    "forgotPassword": "Forgot your password?",
+    "forgotPassword": {
+      "link": "Forgot password",
+      "title": "Recover password",
+      "message": "Enter your email and we'll send you a code to reset your password",
+      "send": "Send code",
+      "cancel": "Cancel"
+    },
     "divider": "or continue with",
     "google": "Continue with Google",
     "backToGuest": "Go back and use as guest",
@@ -229,13 +259,6 @@
       "otpExpired": "The code has expired. Request a new one.",
       "networkError": "Connection error. Check your internet.",
       "generic": "An error occurred. Please try again."
-    },
-    "forgotPassword": {
-      "link": "Forgot password",
-      "title": "Recover password",
-      "message": "Enter your email and we'll send you a code to reset your password",
-      "send": "Send code",
-      "cancel": "Cancel"
     },
     "resetPassword": {
       "title": "New password",

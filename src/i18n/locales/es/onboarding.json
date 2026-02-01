@@ -79,6 +79,30 @@
       "peakDay": "Día pico",
       "peakDayFriday": "Viernes",
       "startNow": "Comenzar ahora"
+    },
+    "screen7": {
+      "title": "Elige tu plan",
+      "subtitle": "Comienza con 7 días gratis de todas las funciones Pro, o usa SmartSpend Lite sin límites de tiempo",
+      "proTrialBadge": "Prueba gratis",
+      "proTrialTitle": "Prueba Pro gratis por 7 días",
+      "proTrialDescription": "Acceso completo a todas las funciones premium. Cancela cuando quieras.",
+      "proAdFreeNote": "Experiencia 100% libre de anuncios",
+      "liteBadge": "Gratis siempre",
+      "liteTitle": "Continuar con Lite",
+      "liteDescription": "Todas las funciones esenciales para gestionar tus finanzas. Siempre gratis con anuncios.",
+      "liteAdsNote": "Incluye anuncios no intrusivos para mantener el servicio gratuito",
+      "features": {
+        "unlimited": "Categorías y presupuestos ilimitados",
+        "cloudSync": "Sincronización en la nube",
+        "stats": "Estadísticas detalladas",
+        "notifications": "Notificaciones push inteligentes"
+      },
+      "liteFeatures": {
+        "basicTracking": "Seguimiento básico ilimitado",
+        "budgets": "Hasta 2 presupuestos activos",
+        "categories": "Hasta 5 categorías personalizadas"
+      },
+      "disclaimer": "Prueba sin compromiso. Cancela antes de que termine y no se te cobrará nada."
     }
   },
   "language": {
@@ -188,7 +212,13 @@
       "login": "Iniciar sesión",
       "register": "Crear cuenta"
     },
-    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "forgotPassword": {
+      "link": "Olvidé mi contraseña",
+      "title": "Recuperar contraseña",
+      "message": "Ingresa tu email y te enviaremos un código para restablecer tu contraseña",
+      "send": "Enviar código",
+      "cancel": "Cancelar"
+    },
     "divider": "o continúa con",
     "google": "Continuar con Google",
     "backToGuest": "Volver y usar como invitado",
@@ -229,13 +259,6 @@
       "otpExpired": "El código ha expirado. Solicita uno nuevo.",
       "networkError": "Error de conexión. Verifica tu internet.",
       "generic": "Ha ocurrido un error. Intenta de nuevo."
-    },
-    "forgotPassword": {
-      "link": "Olvidé mi contraseña",
-      "title": "Recuperar contraseña",
-      "message": "Ingresa tu email y te enviaremos un código para restablecer tu contraseña",
-      "send": "Enviar código",
-      "cancel": "Cancelar"
     },
     "resetPassword": {
       "title": "Nueva contraseña",

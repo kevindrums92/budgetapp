@@ -55,6 +55,10 @@
       "offline": "Sem Conexão",
       "syncing": "Sincronizando",
       "synced": "Sincronização em Nuvem Ativa"
+    },
+    "trial": {
+      "daysRemaining_one": "{{count}} dia de teste",
+      "daysRemaining_other": "{{count}} dias de teste"
     }
   },
   "login": "Fazer login",
@@ -66,6 +70,23 @@
     "title": "Proteja suas finanças",
     "subtitle": "Faça login para fazer backup de suas despesas na nuvem.",
     "action": "Conectar conta"
+  },
+  "subscriptionCard": {
+    "guest": {
+      "title": "Sem Backup na Nuvem",
+      "subtitle": "Seus dados estão apenas neste dispositivo. Se você perdê-lo ou ele for danificado, você perderá todo o seu histórico financeiro.",
+      "cta": "Criar Conta Grátis"
+    },
+    "free": {
+      "title": "Leve suas Finanças ao Próximo Nível",
+      "subtitle": "Desbloqueie estatísticas avançadas, categorias e orçamentos ilimitados, filtros poderosos e uma experiência sem anúncios.",
+      "cta": "Descobrir Pro"
+    },
+    "pro": {
+      "title": "Backup Pro Ativo",
+      "subtitle": "Backup na nuvem + estatísticas avançadas + categorias ilimitadas + todos os recursos premium.",
+      "status": "Tudo está em ordem"
+    }
   },
   "export": {
     "info": {

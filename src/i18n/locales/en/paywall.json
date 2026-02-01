@@ -1,0 +1,55 @@
+{
+  "title": "Unlock SmartSpend Pro",
+  "subtitle": {
+    "generic": "Take your finances to the next level",
+    "onboarding": "Start with 7 free days of all features",
+    "category_limit": "You've reached the custom categories limit",
+    "budget_limit": "You've reached the active budgets limit",
+    "scheduled_limit": "You've reached the scheduled transactions limit",
+    "stats_page": "Access detailed financial statistics",
+    "stats_trends": "Unlock trends and historical analysis",
+    "cloud_sync": "Securely sync your data to the cloud",
+    "push_notifications": "Get smart financial alerts",
+    "history_filters": "Filter your history by status, category and more",
+    "export": "Export your data as CSV or JSON",
+    "settings": "Fully customize your experience",
+    "upgrade_prompt": "Unlock advanced statistics, unlimited categories and more"
+  },
+  "benefits": {
+    "unlimitedCategories": "Unlimited categories and budgets",
+    "stats": "Detailed statistics and projections",
+    "historyFilters": "Advanced history filters",
+    "export": "CSV and JSON data export",
+    "scheduled": "Unlimited scheduled transactions",
+    "adFree": "100% ad-free experience"
+  },
+  "plans": {
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "lifetime": "Lifetime",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "oneTime": "One-time payment"
+  },
+  "badges": {
+    "bestValue": "Best Value"
+  },
+  "savings": "Save {{percent}}%",
+  "equivalentMonthly": "equals ${{price}}/month",
+  "cta": {
+    "startTrial": "Start 7-day free trial",
+    "subscribe": "Subscribe",
+    "restore": "Restore purchases"
+  },
+  "trial": {
+    "badge": "Free trial",
+    "daysRemaining_one": "{{count}} trial day remaining",
+    "daysRemaining_other": "{{count}} trial days remaining",
+    "expired": "Your trial has expired"
+  },
+  "gate": {
+    "locked": "Pro Feature",
+    "unlock": "Unlock",
+    "limitReached": "Limit reached ({{current}}/{{max}})"
+  }
+}

@@ -79,6 +79,30 @@
       "peakDay": "Jour de pic",
       "peakDayFriday": "Vendredi",
       "startNow": "Commencer maintenant"
+    },
+    "screen7": {
+      "title": "Choisissez votre plan",
+      "subtitle": "Commencez avec 7 jours gratuits de toutes les fonctionnalités Pro, ou utilisez SmartSpend Lite sans limite de temps",
+      "proTrialBadge": "Essai gratuit",
+      "proTrialTitle": "Essayez Pro gratuitement pendant 7 jours",
+      "proTrialDescription": "Accès complet à toutes les fonctionnalités premium. Annulez quand vous voulez.",
+      "proAdFreeNote": "Expérience 100% sans publicité",
+      "liteBadge": "Toujours gratuit",
+      "liteTitle": "Continuer avec Lite",
+      "liteDescription": "Toutes les fonctionnalités essentielles pour gérer vos finances. Toujours gratuit avec publicités.",
+      "liteAdsNote": "Inclut des publicités non intrusives pour maintenir le service gratuit",
+      "features": {
+        "unlimited": "Catégories et budgets illimités",
+        "cloudSync": "Synchronisation cloud",
+        "stats": "Statistiques détaillées",
+        "notifications": "Notifications push intelligentes"
+      },
+      "liteFeatures": {
+        "basicTracking": "Suivi de base illimité",
+        "budgets": "Jusqu'à 2 budgets actifs",
+        "categories": "Jusqu'à 5 catégories personnalisées"
+      },
+      "disclaimer": "Essai sans risque. Annulez avant la fin et vous ne serez pas facturé."
     }
   },
   "language": {
@@ -188,7 +212,13 @@
       "login": "Se connecter",
       "register": "Créer un compte"
     },
-    "forgotPassword": "Mot de passe oublié ?",
+    "forgotPassword": {
+      "link": "J'ai oublié mon mot de passe",
+      "title": "Récupérer le mot de passe",
+      "message": "Entrez votre e-mail et nous vous enverrons un code pour réinitialiser votre mot de passe",
+      "send": "Envoyer le code",
+      "cancel": "Annuler"
+    },
     "divider": "ou continuez avec",
     "google": "Continuer avec Google",
     "backToGuest": "Retour et utiliser en tant qu'invité",
@@ -229,13 +259,6 @@
       "otpExpired": "Le code a expiré. Demandez-en un nouveau.",
       "networkError": "Erreur de connexion. Vérifiez votre internet.",
       "generic": "Une erreur s'est produite. Réessayez."
-    },
-    "forgotPassword": {
-      "link": "J'ai oublié mon mot de passe",
-      "title": "Récupérer le mot de passe",
-      "message": "Entrez votre e-mail et nous vous enverrons un code pour réinitialiser votre mot de passe",
-      "send": "Envoyer le code",
-      "cancel": "Annuler"
     },
     "resetPassword": {
       "title": "Nouveau mot de passe",
