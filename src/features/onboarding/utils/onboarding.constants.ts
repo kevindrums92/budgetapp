@@ -10,6 +10,7 @@ export const ONBOARDING_KEYS = {
   SELECTIONS: 'budget.onboarding.selections.v2', // JSON - selecciones del usuario
   TIMESTAMP: 'budget.onboarding.timestamp.v2', // Number - cuándo se completó
   LOGOUT: 'budget.onboarding.logout.v2', // Boolean - usuario hizo logout explícito
+  DEVICE_INITIALIZED: 'budget.device.initialized', // Boolean - PERMANENTE: true cuando FirstConfig se completa por primera vez (NUNCA se borra)
 } as const;
 
 // Legacy key (deprecar después de migración)

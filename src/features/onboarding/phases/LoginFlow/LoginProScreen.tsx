@@ -25,6 +25,16 @@ export default function LoginProScreen() {
 
   const selectedPlan = state.selections.selectedPlan || 'monthly';
 
+  // ✅ CRITICAL: Mark device as initialized when user reaches login screen
+  // This permanent flag ensures WelcomeOnboarding is only shown on first device use
+  useEffect(() => {
+    const isAlreadyInitialized = localStorage.getItem(ONBOARDING_KEYS.DEVICE_INITIALIZED) === 'true';
+    if (!isAlreadyInitialized) {
+      localStorage.setItem(ONBOARDING_KEYS.DEVICE_INITIALIZED, 'true');
+      console.log('[LoginProScreen] Device marked as initialized (first time reaching login)');
+    }
+  }, []);
+
   // Sync context with URL when component mounts
   useEffect(() => {
     if (state.phase !== 'login') {

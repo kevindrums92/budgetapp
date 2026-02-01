@@ -10,6 +10,9 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(onboarding): skip welcome screens on subsequent logins using permanent device tracking flag (DEVICE_INITIALIZED set when user first reaches login)
+- fix(auth): clear subscription from both in-memory store and localStorage on logout to prevent next user inheriting previous user's subscription
+- fix(subscription): detect trial period correctly with case-insensitive periodType comparison ('TRIAL' vs 'trial') to show trial badge immediately after purchase
 - fix(monetization): prevent duplicate purchase attempts for users with existing Pro subscriptions in LoginProScreen (verifies subscription before purchase flow)
 - feat(monetization): implement production RevenueCat subscription system with hybrid architecture (RevenueCat SDK → Supabase cache → localStorage fallback)
 - feat(backend): add Supabase Edge Function (`revenuecat-webhook`) to process RevenueCat webhook events (INITIAL_PURCHASE, RENEWAL, CANCELLATION, EXPIRATION, etc.)

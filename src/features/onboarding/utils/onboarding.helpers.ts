@@ -121,7 +121,18 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
     return 'continue'; // El Gate NO debe redirigir, dejar que continue
   }
 
-  console.log('[determineStartScreen] → ONBOARDING (primera vez, sin progreso)');
+  // ✅ CHECK: Verify if user has already gone through FirstConfig before
+  // device_initialized is a PERMANENT flag that is set ONLY when user completes FirstConfig
+  // This flag is NEVER cleared (not even on logout), so it persists across sessions
+  // If true → user has already used the app on this device before → skip Welcome
+  const deviceInitialized = localStorage.getItem(ONBOARDING_KEYS.DEVICE_INITIALIZED) === 'true';
+
+  if (deviceInitialized) {
+    console.log('[determineStartScreen] → LOGIN (device already initialized, skipping Welcome)');
+    return 'login';
+  }
+
+  console.log('[determineStartScreen] → ONBOARDING (primera vez en este dispositivo)');
   return 'onboarding'; // Welcome → Login → Config
 }
 

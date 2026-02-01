@@ -183,7 +183,8 @@ async function fetchFromRevenueCat(): Promise<SubscriptionState | null> {
     }
 
     // Determine status
-    const isTrialing = entitlements.periodType === 'trial';
+    // RevenueCat periodType is uppercase: 'TRIAL', 'INTRO', 'NORMAL'
+    const isTrialing = entitlements.periodType?.toUpperCase() === 'TRIAL';
     let status: SubscriptionState['status'] = 'active';
 
     if (isTrialing) {

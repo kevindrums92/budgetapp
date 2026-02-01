@@ -35,6 +35,7 @@ export default function ProfilePage() {
   const security = useBudgetStore((s) => s.security);
   const toggleBiometricAuth = useBudgetStore((s) => s.toggleBiometricAuth);
   const updateLastAuthTimestamp = useBudgetStore((s) => s.updateLastAuthTimestamp);
+  const clearSubscription = useBudgetStore((s) => s.clearSubscription);
 
   const [loading, setLoading] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -77,6 +78,15 @@ export default function ProfilePage() {
         // Continue with logout even if RevenueCat logout fails (graceful degradation)
       }
     }
+
+    // ✅ CRITICAL: Clear subscription from in-memory store AND localStorage
+    // Without this, the next user would inherit the previous user's subscription state
+    clearSubscription();
+    console.log('[ProfilePage] Subscription cleared from store');
+
+    // Clear subscription from localStorage cache
+    const { clearSubscriptionCache } = await import('@/services/subscription.service');
+    clearSubscriptionCache();
 
     // Marcar logout para que OnboardingGate redirija a login
     const { markLogout } = await import('@/features/onboarding/utils/onboarding.helpers');
