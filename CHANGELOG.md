@@ -10,6 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix(tests): update unit tests for schema version 8 migration
+  - Updated storage.service.test.ts and budget.store.test.ts to expect schemaVersion 8 instead of 7
+  - Fixed TransactionList.test.tsx to use local timezone for current month calculation (matches production behavior)
+- fix(lint): rename Infinity import to InfinityIcon to avoid global shadowing in SubscriptionManagementPage
 - feat(push): implement guest user push notifications with automatic token migration on login
   - Database migration to make user_id nullable in push_tokens and notification_history tables
   - Guest users can now enable push notifications without authentication

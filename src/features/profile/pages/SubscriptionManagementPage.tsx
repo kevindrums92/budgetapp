@@ -14,7 +14,7 @@ import {
   ExternalLink,
   CheckCircle2,
   Sparkles,
-  Infinity
+  Infinity as InfinityIcon
 } from "lucide-react";
 import { isNative } from "@/shared/utils/platform";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
@@ -195,7 +195,7 @@ export default function SubscriptionManagementPage() {
           {/* Lifetime badge */}
           {currentPlan === 'lifetime' && (
             <div className="flex items-center gap-2 mb-2">
-              <Infinity size={18} />
+              <InfinityIcon size={18} />
               <span className="text-sm font-medium">
                 {t("subscription.lifetimeAccess")}
               </span>
