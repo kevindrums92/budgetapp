@@ -203,7 +203,11 @@ export default function ProfilePage() {
       {/* User Account Card - Only for logged in users */}
       {isLoggedIn && (
         <div className="px-4 pt-6 pb-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden hover:border-teal-200 dark:hover:border-teal-700 transition">
+          <button
+            type="button"
+            onClick={() => navigate('/profile/subscription')}
+            className="w-full bg-white dark:bg-gray-900 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden hover:border-teal-200 dark:hover:border-teal-700 transition active:scale-[0.99] text-left"
+          >
             {/* Decorative element */}
             <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 dark:bg-teal-900/30 rounded-bl-[4rem] -mr-4 -mt-4 transition-transform hover:scale-110" />
 
@@ -267,8 +271,13 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+
+              {/* Chevron indicator */}
+              <div className="shrink-0">
+                <ChevronRight size={20} className="text-gray-400 dark:text-gray-600" />
+              </div>
             </div>
-          </div>
+          </button>
         </div>
       )}
 

@@ -10,6 +10,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- feat(subscription): add subscription management screen with plan details, status, renewal date, restore purchases, and upgrade options accessible from ProfilePage user card
+- fix(subscription): fix trial plan type display by mapping product_id to base plan tier (monthly/annual/lifetime) instead of setting type to 'trial' during trial period
 - fix(dates): calculate current month using local timezone instead of UTC to prevent incorrect "different month" warning near midnight in non-UTC timezones
 - fix(onboarding): skip welcome screens on subsequent logins using permanent device tracking flag (DEVICE_INITIALIZED set when user first reaches login)
 - fix(auth): clear subscription from both in-memory store and localStorage on logout to prevent next user inheriting previous user's subscription

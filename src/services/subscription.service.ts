@@ -101,12 +101,13 @@ function mapDatabaseRowToSubscriptionState(
   row: UserSubscriptionRow
 ): SubscriptionState {
   // Determine subscription type from product_id
+  // Type represents the plan tier (monthly/annual/lifetime), NOT the trial status
   let type: SubscriptionState['type'] = 'free';
 
   if (row.product_id === PRICING_PLANS.monthly.id) {
-    type = row.status === 'trial' ? 'trial' : 'monthly';
+    type = 'monthly';
   } else if (row.product_id === PRICING_PLANS.annual.id) {
-    type = row.status === 'trial' ? 'trial' : 'annual';
+    type = 'annual';
   } else if (row.product_id === PRICING_PLANS.lifetime.id) {
     type = 'lifetime';
   }
@@ -173,6 +174,7 @@ async function fetchFromRevenueCat(): Promise<SubscriptionState | null> {
     }
 
     // Determine type from product ID
+    // Type represents the plan tier (monthly/annual/lifetime), NOT the trial status
     let type: SubscriptionState['type'] = 'free';
     if (entitlements.productIdentifier === PRICING_PLANS.monthly.id) {
       type = 'monthly';
@@ -190,7 +192,7 @@ async function fetchFromRevenueCat(): Promise<SubscriptionState | null> {
     if (isTrialing) {
       if (entitlements.expirationDate && new Date(entitlements.expirationDate) > new Date()) {
         status = 'trialing';
-        type = 'trial';
+        // Keep the base plan type (monthly/annual/lifetime), don't override to 'trial'
       } else {
         status = 'expired';
       }
