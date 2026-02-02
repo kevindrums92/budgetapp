@@ -18,6 +18,7 @@ import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 import type { TransactionType, TransactionStatus, Schedule } from "@/types/budget.types";
 import { kebabToPascal } from "@/shared/utils/string.utils";
+import { trackAction, maybeShowInterstitial } from "@/services/ads.service";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
 
@@ -47,7 +48,7 @@ export default function AddEditTransactionPage() {
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const transactions = useBudgetStore((s) => s.transactions);
 
-  const { canUseFeature } = useSubscription();
+  const { canUseFeature, isPro } = useSubscription();
 
   const tx = useMemo(() => {
     if (!isEdit || !params.id) return null;
@@ -260,7 +261,7 @@ export default function AddEditTransactionPage() {
   }
 
   // Create just this one transaction from the template
-  function handleSaveOnlyThisOne() {
+  async function handleSaveOnlyThisOne() {
     if (!canSave || !tx) return;
 
     const trimmedNotes = notes.trim();
@@ -284,11 +285,18 @@ export default function AddEditTransactionPage() {
 
     setShowTemplateEditModal(false);
     clearFormDraft();
+
+    // Track action and maybe show ad (only for free users)
+    if (!isPro) {
+      trackAction();
+      await maybeShowInterstitial('after_transaction_create');
+    }
+
     goBack();
   }
 
   // End current template and create a new one with updated values
-  function handleSaveThisAndFuture() {
+  async function handleSaveThisAndFuture() {
     if (!canSave || !tx) return;
 
     const trimmedNotes = notes.trim();
@@ -336,10 +344,17 @@ export default function AddEditTransactionPage() {
 
     setShowTemplateEditModal(false);
     clearFormDraft();
+
+    // Track action and maybe show ad (only for free users)
+    if (!isPro) {
+      trackAction();
+      await maybeShowInterstitial('after_transaction_edit');
+    }
+
     goBack();
   }
 
-  function performSave() {
+  async function performSave() {
     const trimmedNotes = notes.trim();
 
     // Check scheduled transaction limit for new transactions
@@ -349,6 +364,8 @@ export default function AddEditTransactionPage() {
         return;
       }
     }
+
+    const isEditing = Boolean(tx);
 
     if (tx) {
       // If transaction doesn't have sourceTemplateId, try to find a matching template
@@ -391,6 +408,14 @@ export default function AddEditTransactionPage() {
       });
     }
     clearFormDraft(); // Clear draft when user saves
+
+    // Track action and maybe show ad (only for free users)
+    if (!isPro) {
+      trackAction();
+      const placement = isEditing ? 'after_transaction_edit' : 'after_transaction_create';
+      await maybeShowInterstitial(placement);
+    }
+
     goBack();
   }
 

@@ -56,6 +56,27 @@ All notable changes to SmartSpend will be documented in this file.
   - UX best practices and common mistakes to avoid
   - Premium subscription plan comparison (Free vs Pro features)
   - Technical stack and configuration examples
+- feat(ads): implement interstitial ad monetization for free users
+  - Installed @capacitor-community/admob SDK v8.0.0
+  - Created comprehensive ad types and configuration (src/types/ads.types.ts)
+  - Implemented ads.service.ts with intelligent frequency control
+    - Maximum 1 ad every 3 minutes (prevents ad fatigue)
+    - Maximum 5 ads per session (respects user experience)
+    - 2-minute initial delay after app launch
+    - Action-based tracking (shows ad every 3 user actions)
+    - Session management with localStorage persistence
+    - Session auto-reset after 24 hours
+  - Configured AdMob in AndroidManifest.xml and Info.plist (iOS)
+    - Added AdMob App IDs for both platforms (using test IDs for development)
+    - Added NSUserTrackingUsageDescription for iOS App Tracking Transparency (ATT)
+  - Integrated interstitial ads in transaction flow
+    - Shows after creating transaction (after_transaction_create placement)
+    - Shows after editing transaction (after_transaction_edit placement)
+    - Only shows for free users (Pro users see no ads)
+  - Created AdMobProvider for SDK initialization on app startup
+    - Preloads first interstitial ad for better UX
+    - Checks and resets session if expired (after 24h)
+  - Ad service includes support for rewarded videos and banner ads (not yet integrated)
 
 ## [0.14.3] - 2026-02-01
 

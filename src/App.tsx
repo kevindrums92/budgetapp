@@ -54,6 +54,7 @@ const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfSe
 const PrivacyPolicyPage = lazy(() => import("@/features/profile/pages/PrivacyPolicyPage"));
 
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
+import AdMobProvider from "@/shared/components/providers/AdMobProvider";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
 import BiometricGate from "@/features/biometric/components/BiometricGate";
@@ -168,13 +169,15 @@ export default function App() {
     <ThemeProvider>
       <CurrencyProvider>
         <RevenueCatProvider>
-          <BrowserRouter>
-            <CloudSyncGate />
-            <OnboardingGate />
-            <BiometricGate />
-            <UpcomingTransactionsModal />
-            <AppFrame />
-          </BrowserRouter>
+          <AdMobProvider>
+            <BrowserRouter>
+              <CloudSyncGate />
+              <OnboardingGate />
+              <BiometricGate />
+              <UpcomingTransactionsModal />
+              <AppFrame />
+            </BrowserRouter>
+          </AdMobProvider>
         </RevenueCatProvider>
       </CurrencyProvider>
     </ThemeProvider>

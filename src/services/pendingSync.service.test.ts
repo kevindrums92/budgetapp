@@ -245,6 +245,8 @@ describe('pendingSync.service', () => {
             color: '#FF5733',
             type: 'expense',
             groupId: 'group-1',
+            isDefault: false,
+            createdAt: Date.now(),
           },
         ],
       };
@@ -262,9 +264,11 @@ describe('pendingSync.service', () => {
           {
             id: 'trip-1',
             name: 'Vacation',
+            destination: 'Beach',
             startDate: '2024-01-01',
             endDate: '2024-01-07',
             budget: 10000,
+            status: 'active',
             createdAt: Date.now(),
           },
         ],
@@ -282,11 +286,16 @@ describe('pendingSync.service', () => {
         budgets: [
           {
             id: 'budget-1',
-            name: 'Monthly Budget',
+            categoryId: 'cat-1',
             amount: 50000,
-            period: 'monthly',
-            startDate: '2024-01-01',
-            categoryIds: [],
+            type: 'limit',
+            period: {
+              type: 'month',
+              startDate: '2024-01-01',
+              endDate: '2024-01-31',
+            },
+            isRecurring: false,
+            status: 'active',
             createdAt: Date.now(),
           },
         ],

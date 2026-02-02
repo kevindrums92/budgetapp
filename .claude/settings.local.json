@@ -60,7 +60,8 @@
       "Bash(npx tsc:*)",
       "Bash(git restore:*)",
       "Bash(deno check:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(npm run build:dev:*)"
     ]
   }
 }
