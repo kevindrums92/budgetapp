@@ -57,5 +57,9 @@
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-1664291794679786~7314308108</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>SmartSpend utiliza tu información de seguimiento para mostrarte anuncios personalizados y mejorar tu experiencia.</string>
 </dict>
 </plist>
