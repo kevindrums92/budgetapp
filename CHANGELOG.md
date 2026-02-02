@@ -20,6 +20,12 @@ All notable changes to SmartSpend will be documented in this file.
   - App now correctly pulls cloud data when local state is empty but cloud has data
   - Prevents data loss when user has cloud data but localStorage was cleared
   - Only pushes pending snapshots if they contain actual data (transactions/categories/trips/budgets)
+- test(sync): add comprehensive unit tests for data loss prevention and offline UX
+  - pendingSync service tests (20 tests) for empty snapshot detection - MOST CRITICAL
+  - ProfilePage tests (12 tests) for offline UX (status indicators, session cards)
+  - All 514 tests passing, 0 failures
+  - Validates core logic that prevents empty state from overwriting cloud data
+  - Prevents regressions in critical offline and sync functionality
 - fix(offline): show user info in ProfilePage when offline with active session
   - CloudSyncGate now extracts user data from stored Supabase session when offline
   - ProfilePage displays user account card with "OFFLINE" badge instead of "Sesión Expirada"

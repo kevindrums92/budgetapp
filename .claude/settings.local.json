@@ -59,7 +59,8 @@
       "WebFetch(domain:www.revenuecat.com)",
       "Bash(npx tsc:*)",
       "Bash(git restore:*)",
-      "Bash(deno check:*)"
+      "Bash(deno check:*)",
+      "Bash(test:*)"
     ]
   }
 }
