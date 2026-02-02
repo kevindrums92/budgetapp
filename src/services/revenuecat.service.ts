@@ -613,64 +613,6 @@ export function getSubscriptionType(
 
 // ==================== MOCK HELPERS (FOR TESTING) ====================
 
-/**
- * Mock helper: Reset to free user
- * Only available in mock mode for testing
- */
-export function __mockResetToFreeUser(): void {
-  console.log('[RevenueCat] MOCK: Resetting to free user');
-  mockCustomerInfo = MOCK_FREE_USER;
-  saveMockCustomerInfo(mockCustomerInfo);
-}
-
-/**
- * Mock helper: Simulate trial expiration
- * Only available in mock mode for testing
- */
-export function __mockExpireTrial(): void {
-  console.log('[RevenueCat] MOCK: Expiring trial');
-  const expired = new Date();
-  expired.setDate(expired.getDate() - 1); // Yesterday
-
-  if (mockCustomerInfo.entitlements.pro) {
-    mockCustomerInfo = {
-      ...mockCustomerInfo,
-      activeSubscriptions: [],
-      latestExpirationDate: expired.toISOString(),
-      entitlements: {
-        pro: {
-          ...mockCustomerInfo.entitlements.pro,
-          isActive: false,
-          expirationDate: expired.toISOString(),
-        },
-      },
-    };
-    saveMockCustomerInfo(mockCustomerInfo);
-  }
-}
-
-/**
- * Mock helper: Simulate converting trial to paid
- * Only available in mock mode for testing
- */
-export function __mockConvertTrialToPaid(type: 'monthly' | 'annual' | 'lifetime'): void {
-  console.log('[RevenueCat] MOCK: Converting trial to paid:', type);
-
-  if (mockCustomerInfo.entitlements.pro) {
-    const futureDate = new Date();
-    futureDate.setFullYear(futureDate.getFullYear() + 1);
-
-    mockCustomerInfo = {
-      ...mockCustomerInfo,
-      entitlements: {
-        pro: {
-          ...mockCustomerInfo.entitlements.pro,
-          periodType: 'normal',
-          expirationDate: type === 'lifetime' ? null : futureDate.toISOString(),
-          productIdentifier: PRICING_PLANS[type].id,
-        },
-      },
-    };
-    saveMockCustomerInfo(mockCustomerInfo);
-  }
-}
+// REMOVED: Mock helper functions for production security
+// __mockResetToFreeUser, __mockExpireTrial, __mockConvertTrialToPaid
+// These functions were only for testing and pose a security risk in production

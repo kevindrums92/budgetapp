@@ -25,19 +25,19 @@ const DEFAULT_FREQUENCY_CONFIG: AdFrequencyConfig = {
 
 /**
  * AdMob configuration (iOS and Android)
- * Using test IDs for development
+ * Production Ad Unit IDs
  */
 const AD_CONFIG: Record<'ios' | 'android', AdConfig> = {
   ios: {
-    appId: 'ca-app-pub-1664291794679786~7314308108', // Test App ID
-    interstitialAdUnitId: 'ca-app-pub-1664291794679786/7310438677', // Test Interstitial
-    rewardedAdUnitId: 'ca-app-pub-1664291794679786/4381023000', // Test Rewarded
+    appId: 'ca-app-pub-1664291794679786~7314308108',
+    interstitialAdUnitId: 'ca-app-pub-1664291794679786/7310438677',
+    rewardedAdUnitId: 'ca-app-pub-1664291794679786/4381023000',
     useTestAds: false,
   },
   android: {
-    appId: 'ca-app-pub-1664291794679786~3525498108', // Test App ID
-    interstitialAdUnitId: 'ca-app-pub-1664291794679786/3166405455', // Test Interstitial
-    rewardedAdUnitId: 'ca-app-pub-1664291794679786/1853323788', // Test Rewarded
+    appId: 'ca-app-pub-1664291794679786~3525498108',
+    interstitialAdUnitId: 'ca-app-pub-1664291794679786/3166405455',
+    rewardedAdUnitId: 'ca-app-pub-1664291794679786/1853323788',
     useTestAds: false,
   },
 };
@@ -280,14 +280,13 @@ export async function showRewardedVideo(): Promise<AdMobRewardItem | null> {
 export async function showBanner(): Promise<void> {
   try {
     const options: BannerAdOptions = {
-      adId: 'ca-app-pub-3940256099942544/2934735716', // Test banner ID
+      adId: 'ca-app-pub-1664291794679786/4688144765', // Production Banner ID
       adSize: BannerAdSize.ADAPTIVE_BANNER,
       position: BannerAdPosition.BOTTOM_CENTER,
       margin: 0,
     };
 
     await AdMob.showBanner(options);
-    console.log('[AdMob] Banner ad shown');
   } catch (error) {
     console.error('[AdMob] Failed to show banner:', error);
   }
