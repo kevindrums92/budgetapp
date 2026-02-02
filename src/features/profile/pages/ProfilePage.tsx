@@ -172,6 +172,20 @@ export default function ProfilePage() {
     return { text: t('account.syncStatus.synced').toUpperCase(), color: "bg-teal-50 dark:bg-teal-900/30 text-[#18B7B0]", icon: false };
   }, [cloudMode, cloudStatus, t]);
 
+  // Sync indicator dot (matches TopHeader logic)
+  const syncDot = useMemo(() => {
+    if (cloudMode === "guest") {
+      return "bg-gray-400";
+    }
+    if (!navigator.onLine || cloudStatus === "offline") {
+      return "bg-gray-400";
+    }
+    if (cloudStatus === "syncing") {
+      return "bg-[#18B7B0]";
+    }
+    return "bg-green-500"; // ok
+  }, [cloudMode, cloudStatus]);
+
   // Trial status badge
   const trialBadge = useMemo(() => {
     if (!isTrialing || !trialEndsAt) return null;
@@ -242,8 +256,8 @@ export default function ProfilePage() {
                     )}
                   </div>
                 )}
-                {/* Status dot - green when synced */}
-                <div className="absolute bottom-0 right-0 w-5 h-5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+                {/* Status dot - changes color based on sync status */}
+                <div className={`absolute bottom-0 right-0 w-5 h-5 ${syncDot} border-2 border-white dark:border-gray-900 rounded-full`} />
               </div>
 
               {/* User info */}
@@ -306,6 +320,41 @@ export default function ProfilePage() {
               </div>
             </div>
           </button>
+        </div>
+      )}
+
+      {/* Session Inconsistency Card - Show when Pro but not logged in (and not offline) */}
+      {isPro && !isLoggedIn && cloudStatus !== "offline" && (
+        <div className="px-4 pt-6 pb-4">
+          <div className="relative w-full rounded-2xl p-5 shadow-sm overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-amber-950/30 dark:via-orange-950/30 dark:to-red-950/30 border border-amber-200 dark:border-amber-800">
+            {/* Decorative gradient */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/10 to-red-500/10 rounded-bl-[6rem] -mr-8 -mt-8" />
+
+            {/* Icon */}
+            <div className="mb-4 relative z-10">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/20 dark:bg-amber-500/30">
+                <Shield size={24} className="text-amber-600 dark:text-amber-400" />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="relative z-10">
+              <h3 className="mb-2 text-lg font-bold text-gray-900 dark:text-gray-50">
+                Sesión Expirada
+              </h3>
+              <p className="mb-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                Tu sesión ha expirado pero conservas tu suscripción. Inicia sesión nuevamente para sincronizar tus datos.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate('/onboarding/login')}
+                className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg hover:shadow-xl active:scale-[0.98] transition-all"
+              >
+                <CloudCheck size={16} />
+                <span>Reconectar Cuenta</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

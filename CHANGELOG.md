@@ -14,6 +14,31 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sync): CRITICAL - prevent empty local state from overwriting cloud data**
+  - Fixed issue where empty localStorage (only schemaVersion) was detected as "pending changes"
+  - Empty pending snapshots are now cleared instead of being pushed to cloud
+  - App now correctly pulls cloud data when local state is empty but cloud has data
+  - Prevents data loss when user has cloud data but localStorage was cleared
+  - Only pushes pending snapshots if they contain actual data (transactions/categories/trips/budgets)
+- fix(offline): show user info in ProfilePage when offline with active session
+  - CloudSyncGate now extracts user data from stored Supabase session when offline
+  - ProfilePage displays user account card with "OFFLINE" badge instead of "Sesión Expirada"
+  - User info (email, name, avatar, provider) now loads correctly in airplane mode
+  - "Sesión Expirada" card only shows when session truly expired (online but no session)
+  - Avatar status indicator now changes color based on connection state (gray=offline, teal=syncing, green=synced)
+- fix(offline): prevent app hanging on startup when offline
+  - CloudSyncGate now checks network status before calling Supabase
+  - Detects existing Supabase session in localStorage when offline
+  - App enters offline mode immediately without freezing
+  - Preserves cloud mode for users with stored session
+- fix(profile): show reconnect prompt when session expires but subscription is cached
+  - Added "Sesión Expirada" card for isPro + !isLoggedIn state
+  - Prevents UI state where no login/logout buttons are visible
+  - User can reconnect account to sync RevenueCat subscription
+- fix(sync): add comprehensive debug logging to CloudSyncGate data pull flow
+  - Added logs for network status check, sync lock acquisition, pending snapshot check
+  - Added logs before/after getCloudState() call to trace data loading
+  - Helps diagnose why cloud data might not load despite active session
 - chore(ios): bump iOS version to 0.14.3 (build 10)
 - docs(monetization): add comprehensive monetization strategy with ads for free version
   - Complete market research for 2026 ad networks (AdMob, Meta, AppLovin, Unity Ads, InMobi)
