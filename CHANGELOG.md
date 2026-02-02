@@ -12,7 +12,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.14.4] - 2026-02-01
 
 - **fix(sync): CRITICAL - prevent empty local state from overwriting cloud data**
   - Fixed issue where empty localStorage (only schemaVersion) was detected as "pending changes"
