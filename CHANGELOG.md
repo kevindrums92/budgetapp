@@ -12,7 +12,74 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.14.4] - 2026-02-01
+
+- **fix(sync): CRITICAL - prevent empty local state from overwriting cloud data**
+  - Fixed issue where empty localStorage (only schemaVersion) was detected as "pending changes"
+  - Empty pending snapshots are now cleared instead of being pushed to cloud
+  - App now correctly pulls cloud data when local state is empty but cloud has data
+  - Prevents data loss when user has cloud data but localStorage was cleared
+  - Only pushes pending snapshots if they contain actual data (transactions/categories/trips/budgets)
+- test(sync): add comprehensive unit tests for data loss prevention and offline UX
+  - pendingSync service tests (20 tests) for empty snapshot detection - MOST CRITICAL
+  - ProfilePage tests (12 tests) for offline UX (status indicators, session cards)
+  - All 514 tests passing, 0 failures
+  - Validates core logic that prevents empty state from overwriting cloud data
+  - Prevents regressions in critical offline and sync functionality
+- fix(offline): show user info in ProfilePage when offline with active session
+  - CloudSyncGate now extracts user data from stored Supabase session when offline
+  - ProfilePage displays user account card with "OFFLINE" badge instead of "Sesión Expirada"
+  - User info (email, name, avatar, provider) now loads correctly in airplane mode
+  - "Sesión Expirada" card only shows when session truly expired (online but no session)
+  - Avatar status indicator now changes color based on connection state (gray=offline, teal=syncing, green=synced)
+- fix(offline): prevent app hanging on startup when offline
+  - CloudSyncGate now checks network status before calling Supabase
+  - Detects existing Supabase session in localStorage when offline
+  - App enters offline mode immediately without freezing
+  - Preserves cloud mode for users with stored session
+- fix(profile): show reconnect prompt when session expires but subscription is cached
+  - Added "Sesión Expirada" card for isPro + !isLoggedIn state
+  - Prevents UI state where no login/logout buttons are visible
+  - User can reconnect account to sync RevenueCat subscription
+- fix(sync): add comprehensive debug logging to CloudSyncGate data pull flow
+  - Added logs for network status check, sync lock acquisition, pending snapshot check
+  - Added logs before/after getCloudState() call to trace data loading
+  - Helps diagnose why cloud data might not load despite active session
+- chore(ios): bump iOS version to 0.14.3 (build 10)
+- docs(monetization): add comprehensive monetization strategy with ads for free version
+  - Complete market research for 2026 ad networks (AdMob, Meta, AppLovin, Unity Ads, InMobi)
+  - SDK recommendations for Capacitor integration (@capacitor-community/admob)
+  - Ad format analysis (interstitial, rewarded video, banner, native)
+  - Implementation roadmap with 10-week plan (5 sprints)
+  - Rewarded video strategy with feature unlocks (stats, categories, backups, exports)
+  - Revenue projections ($20-500/month depending on MAU)
+  - UX best practices and common mistakes to avoid
+  - Premium subscription plan comparison (Free vs Pro features)
+  - Technical stack and configuration examples
+- feat(ads): implement interstitial ad monetization for free users
+  - Installed @capacitor-community/admob SDK v8.0.0
+  - Created comprehensive ad types and configuration (src/types/ads.types.ts)
+  - Implemented ads.service.ts with intelligent frequency control
+    - Maximum 1 ad every 3 minutes (prevents ad fatigue)
+    - Maximum 5 ads per session (respects user experience)
+    - 2-minute initial delay after app launch
+    - Action-based tracking (shows ad every 3 user actions)
+    - Session management with localStorage persistence
+    - Session auto-reset after 24 hours
+  - Configured AdMob in AndroidManifest.xml and Info.plist (iOS)
+    - Added AdMob App IDs for both platforms (using test IDs for development)
+    - Added NSUserTrackingUsageDescription for iOS App Tracking Transparency (ATT)
+  - Integrated interstitial ads in transaction flow
+    - Shows after creating transaction (after_transaction_create placement)
+    - Shows after editing transaction (after_transaction_edit placement)
+    - Only shows for free users (Pro users see no ads)
+  - Created AdMobProvider for SDK initialization on app startup
+    - Preloads first interstitial ad for better UX
+    - Checks and resets session if expired (after 24h)
+  - Ad service includes support for rewarded videos and banner ads (not yet integrated)
 
 ## [0.14.3] - 2026-02-01
 

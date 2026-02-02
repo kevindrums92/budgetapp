@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.14.3",
+  "version": "0.14.4",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -44,6 +44,7 @@
     "git:track-env": "git update-index --no-skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^8.0.0",
     "@capacitor-firebase/messaging": "^8.0.1",
     "@capacitor/android": "^8.0.1",
     "@capacitor/app": "^8.0.0",

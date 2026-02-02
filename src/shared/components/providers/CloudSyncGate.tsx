@@ -132,6 +132,73 @@ export default function CloudSyncGate() {
 
   async function initForSession() {
     console.log("[CloudSyncGate] initForSession() called");
+
+    // ⚠️ CRITICAL: Check network status BEFORE attempting any Supabase calls
+    // This prevents hanging when app starts offline
+    const isOnline = await getNetworkStatus();
+    if (!isOnline) {
+      logger.info("CloudSync", "App started offline, checking for existing session");
+
+      // ✅ Check if there's a Supabase session stored in localStorage
+      // Supabase stores session in localStorage with key: sb-<project-ref>-auth-token
+      const supabaseKeys = Object.keys(localStorage).filter(key =>
+        key.includes('sb-') && key.includes('-auth-token')
+      );
+
+      let storedSessionData: any = null;
+      const hasStoredSession = supabaseKeys.length > 0 &&
+        supabaseKeys.some(key => {
+          try {
+            const item = localStorage.getItem(key);
+            if (item) {
+              const parsed = JSON.parse(item);
+              if (parsed) {
+                storedSessionData = parsed;
+                return true;
+              }
+            }
+            return false;
+          } catch {
+            return false;
+          }
+        });
+
+      logger.info("CloudSync", `Has stored Supabase session: ${hasStoredSession}`);
+
+      // If there's a stored session, stay in cloud mode (offline)
+      // Otherwise, use guest mode
+      if (hasStoredSession && storedSessionData) {
+        setCloudMode("cloud");
+
+        // ✅ Extract user data from stored session to show in ProfilePage when offline
+        const session = storedSessionData;
+        const sessionUser = session.currentSession?.user || session.user;
+        if (sessionUser) {
+          const meta = sessionUser.user_metadata ?? {};
+          const appMeta = sessionUser.app_metadata ?? {};
+          const provider = (appMeta.provider as string) || sessionUser.identities?.[0]?.provider || null;
+
+          setUser({
+            email: sessionUser.email ?? null,
+            name: (meta.full_name as string) || (meta.name as string) || null,
+            avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || null,
+            provider: provider as 'google' | 'apple' | null,
+          });
+          logger.info("CloudSync", `Offline mode: cloud (loaded user: ${sessionUser.email})`);
+        } else {
+          logger.info("CloudSync", "Offline mode: cloud (has session, will sync when online)");
+        }
+      } else {
+        setCloudMode("guest");
+        logger.info("CloudSync", "Offline mode: guest (no session)");
+      }
+
+      setCloudStatus("offline");
+      initializedRef.current = true;
+      useBudgetStore.getState().setCloudSyncReady();
+      return;
+    }
+
     const { data } = await supabase.auth.getSession();
     const session = data.session;
     console.log("[CloudSyncGate] Session:", session ? `User ${session.user.id}` : "null");
@@ -233,6 +300,7 @@ export default function CloudSyncGate() {
     // Get provider from app_metadata or identities
     const provider = (appMeta.provider as string) || session.user.identities?.[0]?.provider || null;
 
+    console.log("[CloudSyncGate] Setting user data and cloud mode for:", session.user.email);
     setUser({
       email: session.user.email ?? null,
       name: (meta.full_name as string) || (meta.name as string) || null,
@@ -241,20 +309,28 @@ export default function CloudSyncGate() {
     });
 
     setCloudMode("cloud");
+    console.log("[CloudSyncGate] Cloud mode set, starting sync process");
 
     // Si inicia offline: marcamos offline y guardamos snapshot como pendiente
-    if (!(await getNetworkStatus())) {
+    const networkStatus = await getNetworkStatus();
+    console.log("[CloudSyncGate] Network status check:", { isOnline: networkStatus });
+    if (!networkStatus) {
+      console.log("[CloudSyncGate] Offline detected, returning early");
       setCloudStatus("offline");
       setPendingSnapshot(getSnapshot());
       initializedRef.current = true;
+      useBudgetStore.getState().setCloudSyncReady();
       return;
     }
 
     // ⚠️ Acquire sync lock to prevent race conditions from multiple tabs
-    if (!acquireSyncLock()) {
+    const lockAcquired = acquireSyncLock();
+    console.log("[CloudSyncGate] Sync lock acquisition:", { lockAcquired });
+    if (!lockAcquired) {
       logger.warn("CloudSync", "Could not acquire sync lock, another sync in progress");
       setCloudStatus("ok");
       initializedRef.current = true;
+      useBudgetStore.getState().setCloudSyncReady();
       return;
     }
 
@@ -263,19 +339,37 @@ export default function CloudSyncGate() {
 
       // ✅ 1) Si hay cambios pendientes locales, PUSH primero y NO hacer PULL
       const pending = getPendingSnapshot();
+      console.log("[CloudSyncGate] Checking for pending snapshot:", { hasPending: !!pending });
       if (pending) {
-        logger.info("CloudSync", "Found pending snapshot, pushing first:", {
-          transactions: pending.transactions.length,
-          trips: pending.trips.length,
-        });
-        await pushSnapshot(pending);
-        initializedRef.current = true;
-        return;
+        // ⚠️ CRITICAL: Check if pending snapshot has actual data
+        // Don't push if it's just an empty state (only schemaVersion, no transactions/categories)
+        const hasActualData =
+          (pending.transactions && pending.transactions.length > 0) ||
+          (pending.categoryDefinitions && pending.categoryDefinitions.length > 0) ||
+          (pending.trips && pending.trips.length > 0) ||
+          (pending.budgets && pending.budgets.length > 0);
+
+        if (!hasActualData) {
+          logger.warn("CloudSync", "Pending snapshot is empty, clearing it and pulling from cloud instead");
+          console.log("[CloudSyncGate] Pending snapshot is empty:", { pending });
+          clearPendingSnapshot();
+          // Continue to pull from cloud (don't return)
+        } else {
+          logger.info("CloudSync", "Found pending snapshot with data, pushing first:", {
+            transactions: pending.transactions.length,
+            trips: pending.trips.length,
+          });
+          await pushSnapshot(pending);
+          initializedRef.current = true;
+          return;
+        }
       }
 
       // ✅ 2) No hay pendientes: flujo normal (pull)
       logger.info("CloudSync", "No pending changes, pulling from cloud...");
+      console.log("[CloudSyncGate] About to call getCloudState()");
       const cloud = await getCloudState();
+      console.log("[CloudSyncGate] getCloudState() returned:", { hasCloud: !!cloud, cloudData: cloud ? { transactions: cloud.transactions?.length, categories: cloud.categoryDefinitions?.length } : null });
 
       if (cloud) {
         logger.info("CloudSync", "Cloud data found:", {

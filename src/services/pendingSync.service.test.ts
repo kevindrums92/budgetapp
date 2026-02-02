@@ -188,4 +188,160 @@ describe('pendingSync.service', () => {
       expect(hasPendingSnapshot()).toBe(false);
     });
   });
+
+  describe('Empty snapshot validation (Critical for data loss prevention)', () => {
+    const emptySnapshot: BudgetState = {
+      schemaVersion: 8,
+      transactions: [],
+      categories: [],
+      categoryDefinitions: [],
+      categoryGroups: [],
+      budgets: [],
+      trips: [],
+      tripExpenses: [],
+    };
+
+    it('should store and retrieve empty snapshot', () => {
+      setPendingSnapshot(emptySnapshot);
+
+      const result = getPendingSnapshot();
+      expect(result).toBeTruthy();
+      expect(result?.transactions).toHaveLength(0);
+      expect(result?.categoryDefinitions).toHaveLength(0);
+      expect(result?.trips).toHaveLength(0);
+      expect(result?.budgets).toHaveLength(0);
+    });
+
+    it('should detect snapshot with only transactions as having data', () => {
+      const snapshotWithTransactions: BudgetState = {
+        ...emptySnapshot,
+        transactions: [
+          {
+            id: '1',
+            type: 'expense',
+            name: 'Test',
+            category: 'food',
+            amount: 1000,
+            date: '2024-01-01',
+            createdAt: Date.now(),
+          },
+        ],
+      };
+
+      setPendingSnapshot(snapshotWithTransactions);
+
+      const result = getPendingSnapshot();
+      expect(result?.transactions.length).toBeGreaterThan(0);
+    });
+
+    it('should detect snapshot with only categories as having data', () => {
+      const snapshotWithCategories: BudgetState = {
+        ...emptySnapshot,
+        categoryDefinitions: [
+          {
+            id: 'cat-1',
+            name: 'Food',
+            icon: 'utensils',
+            color: '#FF5733',
+            type: 'expense',
+            groupId: 'group-1',
+            isDefault: false,
+            createdAt: Date.now(),
+          },
+        ],
+      };
+
+      setPendingSnapshot(snapshotWithCategories);
+
+      const result = getPendingSnapshot();
+      expect(result?.categoryDefinitions.length).toBeGreaterThan(0);
+    });
+
+    it('should detect snapshot with only trips as having data', () => {
+      const snapshotWithTrips: BudgetState = {
+        ...emptySnapshot,
+        trips: [
+          {
+            id: 'trip-1',
+            name: 'Vacation',
+            destination: 'Beach',
+            startDate: '2024-01-01',
+            endDate: '2024-01-07',
+            budget: 10000,
+            status: 'active',
+            createdAt: Date.now(),
+          },
+        ],
+      };
+
+      setPendingSnapshot(snapshotWithTrips);
+
+      const result = getPendingSnapshot();
+      expect(result?.trips.length).toBeGreaterThan(0);
+    });
+
+    it('should detect snapshot with only budgets as having data', () => {
+      const snapshotWithBudgets: BudgetState = {
+        ...emptySnapshot,
+        budgets: [
+          {
+            id: 'budget-1',
+            categoryId: 'cat-1',
+            amount: 50000,
+            type: 'limit',
+            period: {
+              type: 'month',
+              startDate: '2024-01-01',
+              endDate: '2024-01-31',
+            },
+            isRecurring: false,
+            status: 'active',
+            createdAt: Date.now(),
+          },
+        ],
+      };
+
+      setPendingSnapshot(snapshotWithBudgets);
+
+      const result = getPendingSnapshot();
+      expect(result?.budgets.length).toBeGreaterThan(0);
+    });
+
+    it('should distinguish between truly empty snapshot and snapshot with data', () => {
+      // First: truly empty
+      setPendingSnapshot(emptySnapshot);
+      let result = getPendingSnapshot();
+      const hasData1 =
+        (result?.transactions && result.transactions.length > 0) ||
+        (result?.categoryDefinitions && result.categoryDefinitions.length > 0) ||
+        (result?.trips && result.trips.length > 0) ||
+        (result?.budgets && result.budgets.length > 0);
+      expect(hasData1).toBe(false);
+
+      // Second: with data
+      const snapshotWithData: BudgetState = {
+        ...emptySnapshot,
+        transactions: [
+          {
+            id: '1',
+            type: 'expense',
+            name: 'Test',
+            category: 'food',
+            amount: 1000,
+            date: '2024-01-01',
+            createdAt: Date.now(),
+          },
+        ],
+      };
+
+      setPendingSnapshot(snapshotWithData);
+      result = getPendingSnapshot();
+      const hasData2 =
+        (result?.transactions && result.transactions.length > 0) ||
+        (result?.categoryDefinitions && result.categoryDefinitions.length > 0) ||
+        (result?.trips && result.trips.length > 0) ||
+        (result?.budgets && result.budgets.length > 0);
+      expect(hasData2).toBe(true);
+    });
+  });
 });
