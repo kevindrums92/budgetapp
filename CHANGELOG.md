@@ -16,6 +16,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(transactions): add toggle to filter scheduled/virtual transactions on home page**
+  - New "Proyección(N)" chip toggle next to "Ver historial completo" with Eye/EyeOff icons
+  - Shows count of scheduled transactions in current month
+  - Active (teal): showing all transactions including scheduled
+  - Inactive (gray): hiding scheduled transactions, showing only real ones
+  - Preference persisted in localStorage (key: budget.homeViewFilter)
+  - ScheduledBanner automatically hidden when filter is active
+  - "Ver historial completo" button now always visible regardless of month
+
 ## [0.14.5] - 2026-02-02
 
 - **fix(production): prepare app for App Store submission**

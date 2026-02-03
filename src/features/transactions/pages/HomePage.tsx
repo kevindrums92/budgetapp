@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Plus, X, Calculator, ChevronRight, Bell } from "lucide-react";
+import { Plus, X, Calculator, ChevronRight, Bell, Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
@@ -23,6 +23,9 @@ export default function HomePage() {
   const [hideScheduledBannerSession, setHideScheduledBannerSession] = useState(false);
   const [showPushBanner, setShowPushBanner] = useState(false);
   const [isEnablingPush, setIsEnablingPush] = useState(false);
+  const [showVirtual, setShowVirtual] = useState(() => {
+    return localStorage.getItem("budget.homeViewFilter") !== "real";
+  });
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -140,11 +143,6 @@ export default function HomePage() {
     // Filter to only show virtuals in the selected month
     return allVirtual.filter((vt) => vt.date.slice(0, 7) === selectedMonth);
   }, [transactions, today, selectedMonth]);
-
-  // Check if there are transactions in current month
-  const hasTransactions = useMemo(() => {
-    return transactions.some((t) => t.date.slice(0, 7) === selectedMonth);
-  }, [transactions, selectedMonth]);
 
   // Calculate daily budget based on current balance
   const dailyBudgetInfo = useMemo(() => {
@@ -306,23 +304,40 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Navigation to History */}
-      {hasTransactions && (
-        <div className="mx-auto max-w-xl px-4 pt-6 pb-3">
+      {/* Navigation to History + View Filter */}
+      <div className="mx-auto max-w-xl px-4 pt-6 pb-3 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => navigate('/history', { state: { resetFilters: true } })}
+          className="flex items-center gap-1 py-2 text-sm font-medium text-[#18B7B0] active:scale-95 transition-all"
+        >
+          <span>{t('viewFullHistory')}</span>
+          <ChevronRight size={16} />
+        </button>
+        {virtualTransactionsForMonth.length > 0 && (
           <button
             type="button"
-            onClick={() => navigate('/history', { state: { resetFilters: true } })}
-            className="flex items-center gap-1 py-2 text-sm font-medium text-[#18B7B0] active:scale-95 transition-all"
+            onClick={() => {
+              const next = !showVirtual;
+              setShowVirtual(next);
+              localStorage.setItem("budget.homeViewFilter", next ? "all" : "real");
+            }}
+            className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all active:scale-95 ${
+              showVirtual
+                ? "bg-[#18B7B0]/20 text-[#18B7B0]"
+                : "bg-gray-200 dark:bg-gray-800 text-gray-400"
+            }`}
           >
-            <span>{t('viewFullHistory')}</span>
-            <ChevronRight size={16} />
+            {showVirtual ? <Eye size={14} /> : <EyeOff size={14} />}
+            {t('viewFilter.scheduled', { count: virtualTransactionsForMonth.length })}
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <main className="pb-28 pt-4">
-        {/* Scheduled transactions banner */}
-        {!hideScheduledBannerSession &&
+        {/* Scheduled transactions banner (hidden when filtering to real only) */}
+        {showVirtual &&
+          !hideScheduledBannerSession &&
           !isScheduledBannerHiddenForMonth &&
           virtualTransactionsForMonth.length > 0 && (
           <ScheduledBanner
@@ -334,7 +349,7 @@ export default function HomePage() {
           />
         )}
 
-        <TransactionList />
+        <TransactionList showVirtual={showVirtual} />
       </main>
 
       {/* FAB para agregar transacción */}

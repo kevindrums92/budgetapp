@@ -42,6 +42,9 @@
     "total": "Total de transacciones:",
     "noTransactions": "No hay transacciones para exportar en este mes"
   },
+  "viewFilter": {
+    "scheduled": "Proyección({{count}})"
+  },
   "pushBanner": {
     "title": "Notificaciones",
     "description": "Recibe alertas cuando te acerques al límite de tu presupuesto",
