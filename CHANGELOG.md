@@ -16,6 +16,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **docs(ai): add ADR and implementation plan for AI Batch Entry feature**
+  - ADR-001: Architecture Decision Record documenting tech stack selection (Gemini 2.5 Flash, GPT-4o Mini Transcribe, Capacitor plugins)
+  - PLAN: Phased implementation checklist with 7 phases covering backend, frontend, testing and rollout
+  - Includes cost projections, system prompts, TypeScript types, and sequence diagrams
+
 - **feat(history): display filtered transactions balance in results header**
   - Shows calculated balance (income - expense) of filtered transactions
   - Balance displayed in right column, vertically centered with title and export button
