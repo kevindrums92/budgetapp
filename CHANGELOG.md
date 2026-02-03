@@ -13,7 +13,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.14.5] - 2026-02-02
 
 - **fix(production): prepare app for App Store submission**
   - Removed 3 mock subscription functions from revenuecat.service.ts (__mockResetToFreeUser, __mockExpireTrial, __mockConvertTrialToPaid)
