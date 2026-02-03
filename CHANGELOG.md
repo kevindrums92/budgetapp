@@ -13,7 +13,17 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.14.5] - 2026-02-02
+
+- **fix(production): prepare app for App Store submission**
+  - Removed 3 mock subscription functions from revenuecat.service.ts (__mockResetToFreeUser, __mockExpireTrial, __mockConvertTrialToPaid)
+  - These functions posed a security risk in production builds as they allowed subscription manipulation from DevTools
+  - Updated ads.service.ts comments to clarify Production Ad Unit IDs (removed misleading "Test" references)
+  - Replaced Google test banner ID with production ID (ca-app-pub-1664291794679786/4688144765)
+  - App is now ready for App Store review with all test/development code removed
 
 ## [0.14.4] - 2026-02-01
 

@@ -76,7 +76,9 @@ src/
 │       └── default-category-groups.ts
 │
 ├── types/                        # Shared TypeScript types
-│   └── budget.types.ts           # Core type definitions
+│   ├── budget.types.ts           # Core type definitions
+│   ├── ads.types.ts              # Ad monetization types
+│   └── notifications.ts          # Push notification types
 │
 ├── lib/                          # Third-party lib configuration
 │   └── supabaseClient.ts         # Supabase client setup
@@ -264,6 +266,66 @@ features/{feature-name}/
 
 ---
 
+### Feature: Theme
+
+**Purpose**: Theme management (light/dark/system)
+
+**Files**:
+- **Components**: `ThemeProvider`
+- **Hooks**: `useTheme`
+- **Pages**: `ThemeSettingsPage`
+
+**Routes**:
+- `/settings/theme` → ThemeSettingsPage
+
+**Features**:
+- Three theme modes: light, dark, system
+- Anti-flicker script in index.html
+- Persistence in localStorage
+- Dark mode support across all components
+
+---
+
+### Feature: Currency
+
+**Purpose**: Multi-currency support (50+ currencies)
+
+**Files**:
+- **Components**: `CurrencyProvider`, `CurrencySelector`
+- **Hooks**: `useCurrency`
+- **Pages**: `CurrencySettingsPage`
+- **Utils**: `currency.utils.ts`
+
+**Routes**:
+- `/settings/currency` → CurrencySettingsPage
+
+**Features**:
+- 50+ currencies organized by region
+- Auto-detection based on timezone/locale
+- Search by name or code
+- Format amounts with `formatAmount()`
+- Persistence in localStorage
+
+---
+
+### Feature: Biometric
+
+**Purpose**: Biometric authentication (Face ID/Touch ID/Fingerprint)
+
+**Files**:
+- **Components**: `BiometricGate`
+- **Services**: `biometric.service.ts`
+
+**Features**:
+- Face ID / Touch ID / Fingerprint support
+- Lock screen overlay
+- Authentication triggers (cold start, app resume after 5min)
+- Only for authenticated users on native platforms
+- Cloud sync of biometric preference
+- iOS Face ID usage description in Info.plist
+
+---
+
 ## Shared Components
 
 Components in `src/shared/components/` are reusable across multiple features.
@@ -301,7 +363,10 @@ Components in `src/shared/components/` are reusable across multiple features.
 ### Providers (`shared/components/providers/`)
 
 - **CloudSyncGate**: Wrapper for automatic cloud sync
-- **WelcomeGate**: First-time user onboarding
+- **RevenueCatProvider**: Subscription management and Pro status
+- **AdMobProvider**: Ad monetization initialization (free users only)
+- **OnboardingGate**: First-time user onboarding
+- **BiometricGate**: Biometric authentication for app lock
 
 ---
 
@@ -312,9 +377,28 @@ Components in `src/shared/components/` are reusable across multiple features.
 Services that operate across features:
 
 - **storage.service.ts**: Persist and load state from `localStorage`
+  - Schema versioning: v1 → v8 with automatic migrations
+  - v1→v2: String categories to objects
+  - v2→v3: Category groups addition
+  - v3→v4: isRecurring field
+  - v4→v5: Scheduled transactions (sourceTemplateId)
+  - v5→v6: Budget system
+  - v6→v7: Biometric security settings
+  - v7→v8: Subscription moved to RevenueCat (removed from BudgetState)
 - **cloudState.service.ts**: Sync state to Supabase cloud
+  - Data loss prevention with empty snapshot detection
+  - Sync lock to prevent race conditions
+  - Offline-first architecture with pending sync queue
 - **pendingSync.service.ts**: Queue for offline sync operations
+  - Critical for data loss prevention (20 tests)
+  - Validates empty snapshots vs snapshots with data
 - **dates.service.ts**: Date formatting and utilities (e.g., `todayISO()`, `formatDateGroupHeader()`)
+- **ads.service.ts**: AdMob ad monetization (free users only)
+  - Interstitial ad frequency control (max 1 ad/3min, max 5/session)
+  - Session management with localStorage persistence
+  - Action-based tracking system
+  - Platform detection (iOS/Android)
+  - Ad preloading strategy
 - **pushNotification.service.ts**: Push notification management
   - Permission requests (iOS/Android native)
   - FCM token registration and refresh
@@ -332,8 +416,13 @@ The app uses **Zustand** for global state management.
 - Categories: `categoryDefinitions`, `addCategory()`, `updateCategory()`, `deleteCategory()`
 - Category Groups: `categoryGroups`, `addCategoryGroup()`, `updateCategoryGroup()`, `deleteCategoryGroup()`
 - Trips: `trips`, `tripExpenses`
+- Budgets: `budgets`, `addBudget()`, `updateBudget()`, `deleteBudget()`, `renewExpiredBudgets()`
 - UI: `selectedMonth`, `setSelectedMonth()`
-- Budget: `budgetLimits`, `budgetOnboardingSeen`
+- Cloud Sync: `cloudMode`, `cloudStatus`, `user`, `lastSyncAt`
+- Settings: `excludedFromStats`, `budgetOnboardingSeen`
+- Security: `biometricEnabled`
+
+**Schema Version**: v8
 
 **Persistence**: Automatically synced to `localStorage` on every mutation via `saveState()`.
 
@@ -557,4 +646,27 @@ For questions about the architecture or how to implement a new feature, refer to
 
 ---
 
-**Last updated**: 2026-01-19
+**Last updated**: 2026-02-02
+
+## Recent Updates (v0.14.4)
+
+**Date**: 2026-02-02
+
+**Changes**:
+- Added RevenueCat integration for Pro subscription management
+- Implemented AdMob ad monetization for free users
+  - Intelligent frequency control with session management
+  - Platform-specific configuration (iOS/Android)
+  - Action-based tracking system
+- Enhanced cloud sync with data loss prevention
+  - Empty snapshot detection (20 critical tests)
+  - Improved offline UX (12 tests)
+- Schema migration v7→v8: Subscription moved to RevenueCat
+- Added biometric authentication feature (Face ID/Touch ID/Fingerprint)
+- Updated 514 total tests passing
+
+**Benefits**:
+- Monetization strategy for free tier users
+- Robust data integrity and loss prevention
+- Better offline experience with session handling
+- Cross-platform subscription management

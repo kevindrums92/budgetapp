@@ -408,6 +408,67 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ---
 
+## 💰 Monetización y Suscripciones
+
+### RevenueCat Integration
+- **Gestión de suscripciones Pro** con RevenueCat SDK
+- **Planes disponibles**:
+  - Free: Funcionalidad completa con anuncios
+  - Pro Monthly: Sin anuncios, soporte premium
+  - Pro Yearly: Sin anuncios, mejor precio anual
+- **Feature gating**: Sistema de permisos por suscripción
+- **Subscription status**: Sincronización automática del estado Pro
+- **Trial period**: Período de prueba para nuevos usuarios
+- **Cross-platform**: Suscripciones compartidas entre iOS y Android
+- **RevenueCatProvider**: Context API para gestión de suscripción
+- **useSubscription hook**: Hook personalizado con:
+  - `isPro`: Estado de suscripción actual
+  - `isTrialing`: Indica si está en período de prueba
+  - `canUseFeature()`: Verificación de acceso a features
+  - `shouldShowPaywall()`: Determina si mostrar paywall
+
+### Sistema de Anuncios (AdMob)
+- **Solo usuarios free**: Pro users nunca ven anuncios
+- **Interstitial ads**: Anuncios de pantalla completa entre acciones
+- **Plataformas soportadas**: iOS y Android (no web)
+
+### Características del Sistema de Ads
+- **Control de frecuencia inteligente**:
+  - Máximo 1 anuncio cada 3 minutos
+  - Máximo 5 anuncios por sesión
+  - Delay inicial de 2 minutos después de abrir la app
+  - Sistema basado en acciones (muestra ad cada 3 acciones)
+- **Session management** con persistencia en localStorage
+- **Reset automático** de sesión después de 24 horas
+- **Placement types**:
+  - `after_transaction_create`: Después de crear transacción
+  - `after_transaction_edit`: Después de editar transacción
+- **AdMobProvider**: Inicialización automática del SDK en app startup
+- **Preload strategy**: Carga del siguiente ad en background
+- **Platform detection**: Auto-detección de iOS/Android
+
+### Configuración de AdMob
+- **Production Ad Unit IDs** configurados para ambas plataformas
+- **iOS Configuration**:
+  - App ID en Info.plist (GADApplicationIdentifier)
+  - NSUserTrackingUsageDescription para ATT compliance
+- **Android Configuration**:
+  - App ID en AndroidManifest.xml
+  - Permisos de internet configurados
+- **Test mode**: Sistema de test devices para desarrollo
+- **Error handling**: Gestión de errores de carga y display
+
+### Tracking y Métricas
+- **Action tracking**: Contador de acciones del usuario
+- **Session stats**: Estadísticas de sesión disponibles
+  - Ads mostrados en sesión actual
+  - Tiempo desde último ad
+  - Tiempo desde inicio de sesión
+- **Console logging**: Debug completo de operaciones de ads
+- **Ad types**: Soporte para Interstitial, Rewarded, y Banner ads
+
+---
+
 ## 💾 Backup y Sincronización
 
 ### Tres Métodos de Backup
@@ -426,14 +487,24 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 - **Autenticación con Supabase Auth**
 - **Sincronización automática** con la nube
 - **Offline-first**: Cambios pendientes se sincronizan al reconectar
-- **Cloud status indicator**: Verde (sync), Teal (syncing), Gris (offline/guest)
-- **Protección anti-pérdida de datos**:
-  - Block push si snapshot está vacío
-  - Verificación de datos locales antes de push
+- **Cloud status indicator**: Verde (synced), Teal (syncing), Gris (offline/guest)
+- **Protección anti-pérdida de datos** (crítico):
+  - Block push si snapshot está vacío (previene borrado accidental)
+  - Verificación robusta de datos locales antes de push
+  - Detección de snapshots vacíos vs snapshots con datos
+  - Validación de transacciones, categorías, viajes y presupuestos
   - Sync lock para prevenir race conditions
   - Logging comprehensivo de operaciones críticas
-- **Subscriptions**: Auth state, pendingSync, excludedFromStats, budgets
-- Sincronización de: transacciones, categorías, grupos, viajes, presupuestos, preferencias
+  - 20 tests dedicados a prevención de pérdida de datos
+- **Offline UX mejorado**:
+  - Manejo inteligente de sesión expirada vs offline
+  - No muestra "Sesión Expirada" cuando usuario está offline
+  - Preserva datos de usuario en modo offline
+  - Indicadores visuales claros (dot de estado en avatar)
+  - Badge dinámico de sync status
+  - 12 tests dedicados a UX offline
+- **Subscriptions**: Auth state, pendingSync, excludedFromStats, budgets, notifications
+- **Sincronización de**: transacciones, categorías, grupos, viajes, presupuestos, preferencias, configuración de notificaciones
 
 ### Export/Import
 - **Exportación manual** a JSON
@@ -524,20 +595,24 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 ## 🧪 Testing y Calidad
 
 ### Unit Tests
-- **368 tests pasando** (2 skipped)
+- **514 tests pasando** en todas las suites
 - **Zustand Store**: 79 tests (98.65% statements, 84.48% branches)
-- **Services**: 127 tests
-  - pendingSync.service: 14 tests
+- **Services**: 147 tests
+  - pendingSync.service: 20 tests (data loss prevention - CRÍTICO)
   - recurringTransactions.service: 22 tests
   - cloudState.service: 19 tests
-  - storage.service: 26 tests (migrations v1→v4)
+  - storage.service: 26 tests (migrations v1→v7)
   - backup.service: 41 tests
   - dates.service: 26 tests
-- **Components**: 141 tests
+- **Components**: 153 tests
   - ConfirmDialog: 23 tests
   - DatePicker: 44 tests
   - TransactionList: 30 tests
   - CategoryPickerDrawer: 44 tests
+  - ProfilePage: 12 tests (offline UX)
+- **Critical Test Suites**:
+  - 20 tests para prevención de pérdida de datos (pendingSync)
+  - 12 tests para UX offline y manejo de sesión expirada (ProfilePage)
 
 ### E2E Tests (Playwright)
 - **transaction-attributes.spec.ts**: Estados, notas, campos opcionales
@@ -586,7 +661,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ### Storage Service
 - **localStorage** como storage principal
-- **Schema versioning**: v1 → v7 con migrations automáticas
+- **Schema versioning**: v1 → v8 con migrations automáticas
 - **Data integrity**: Validación y deduplicación
 - **Error handling**: Quota exceeded, corrupted state
 - **Migration paths**:
@@ -596,6 +671,7 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
   - v4→v5: Scheduled transactions (sourceTemplateId)
   - v5→v6: Budget system
   - v6→v7: Biometric security settings
+  - v7→v8: Subscription moved to RevenueCat (removed from BudgetState)
 
 ### Cloud State Service
 - **Supabase integration** para cloud sync
@@ -649,6 +725,12 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 - **APNs** - Apple Push Notification service (iOS)
 - **Firebase Admin SDK** - Envío de notificaciones desde Edge Functions
 
+### Monetization & Ads
+- **RevenueCat** - Subscription management platform
+- **@revenuecat/purchases-capacitor** - RevenueCat SDK para Capacitor
+- **Google AdMob** - Ad monetization platform
+- **@capacitor-community/admob** - AdMob SDK para Capacitor (v8.0.0)
+
 ### Testing
 - **Vitest** - Unit testing
 - **@testing-library/react** - React testing utilities
@@ -696,6 +778,6 @@ Ver [ROADMAP.md](ROADMAP.md) para features planeados:
 
 ## 📄 Versión Actual
 
-**Versión**: 0.13.0+ (develop branch)
+**Versión**: 0.14.4 (latest release)
 
 Para historial completo de cambios, ver [CHANGELOG.md](../CHANGELOG.md)
