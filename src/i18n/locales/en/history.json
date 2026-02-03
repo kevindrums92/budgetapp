@@ -35,6 +35,7 @@
   "results": {
     "title": "Results ({{count}})",
     "exportCSV": "Export CSV",
+    "balanceOfSelection": "Total",
     "noResults": "No transactions found with applied filters"
   }
 }

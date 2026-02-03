@@ -320,6 +320,22 @@ export default function HistoryPage() {
     previousMonth,
   ]);
 
+  // Calculate balance from filtered transactions
+  const filteredBalance = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+
+    filteredTransactions.forEach((t) => {
+      if (t.type === "income") {
+        income += t.amount;
+      } else {
+        expense += t.amount;
+      }
+    });
+
+    return income - expense;
+  }, [filteredTransactions]);
+
   const handleExport = async () => {
     // Check if user can export
     if (!canUseFeature('export_data')) {
@@ -730,35 +746,51 @@ export default function HistoryPage() {
       </div>
 
       {/* Results Header */}
-      <div className="mx-auto w-full max-w-xl px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-          {t("results.title", { count: filteredTransactions.length })}
-        </h2>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={filteredTransactions.length === 0}
-          className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed ${
-            !canUseFeature('export_data')
-              ? 'text-gray-500'
-              : 'text-[#18B7B0] hover:text-[#159d97]'
-          }`}
-        >
-          {!canUseFeature('export_data') ? (
-            <>
-              <Lock size={16} />
-              {t("results.exportCSV")}
-              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
-                PRO
-              </span>
-            </>
-          ) : (
-            <>
-              <Download size={16} />
-              {t("results.exportCSV")}
-            </>
-          )}
-        </button>
+      <div className="mx-auto w-full max-w-xl px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="flex items-center justify-between">
+          {/* Left Column */}
+          <div>
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              {t("results.title", { count: filteredTransactions.length })}
+            </h2>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={filteredTransactions.length === 0}
+              className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed ${
+                !canUseFeature('export_data')
+                  ? 'text-gray-500'
+                  : 'text-[#18B7B0] hover:text-[#159d97]'
+              }`}
+            >
+              {!canUseFeature('export_data') ? (
+                <>
+                  <Lock size={16} />
+                  {t("results.exportCSV")}
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
+                    PRO
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Download size={16} />
+                  {t("results.exportCSV")}
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Right Column - Balance */}
+          <div className="text-right">
+            <p className={`text-sm font-bold whitespace-nowrap ${
+              filteredBalance >= 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-gray-900 dark:text-gray-50"
+            }`}>
+              {filteredBalance >= 0 ? "+" : "-"} {formatAmount(Math.abs(filteredBalance))}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Transactions List */}

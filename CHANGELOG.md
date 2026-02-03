@@ -16,6 +16,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(history): display filtered transactions balance in results header**
+  - Shows calculated balance (income - expense) of filtered transactions
+  - Balance displayed in right column, vertically centered with title and export button
+  - Green color for positive balance, gray for negative balance
+  - Helps users quickly see the net result of their filtered transaction set
 - **feat(ui): make BalanceCard income/expense mini-cards clickable to filter transactions**
   - Click on "Ingresos" card filters transaction list to show only income
   - Click on "Gastos" card filters transaction list to show only expenses
