@@ -16,6 +16,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(ui): make BalanceCard income/expense mini-cards clickable to filter transactions**
+  - Click on "Ingresos" card filters transaction list to show only income
+  - Click on "Gastos" card filters transaction list to show only expenses
+  - Click again on active filter deselects and shows all transactions
+  - Active filter indicated with brighter background (bg-white/20) and ring highlight
+  - Improves discoverability and provides quick access to filtered views
+- **refactor(stats): remove unnecessary scroll from ComparisonSheet modal**
+  - Removed maxHeight constraint and overflow-y-auto from content area
+  - Modal now adjusts to content height naturally without scrolling
+  - Content fits within viewport without requiring user to scroll (only 3 cards)
 - **feat(transactions): add toggle to filter scheduled/virtual transactions on home page**
   - New "Proyección(N)" chip toggle next to "Ver historial completo" with Eye/EyeOff icons
   - Shows count of scheduled transactions in current month

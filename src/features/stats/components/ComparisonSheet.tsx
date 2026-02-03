@@ -159,9 +159,8 @@ export default function ComparisonSheet({
 
       {/* Sheet */}
       <div
-        className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
+        className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
         style={{
-          maxHeight: `${SHEET_HEIGHT}px`,
           transform: `translateY(${sheetTranslate}px)`,
           transition: isDragging
             ? "none"
@@ -209,8 +208,8 @@ export default function ComparisonSheet({
         </div>
         </div>
 
-        {/* Content - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-6 space-y-3 min-h-0">
+        {/* Content */}
+        <div className="px-6 space-y-3">
           {/* Previous Month */}
           <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-3">
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -268,7 +267,7 @@ export default function ComparisonSheet({
 
         {/* Close Button */}
         <div
-          className="px-6 pt-4 bg-white dark:bg-gray-900"
+          className="px-6 pt-4 pb-6 bg-white dark:bg-gray-900"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}
         >
           <button

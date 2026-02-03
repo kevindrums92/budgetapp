@@ -4,7 +4,14 @@ import { TrendingUp, TrendingDown } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 
-export default function BalanceCard() {
+type FilterType = "all" | "income" | "expense";
+
+type Props = {
+  activeFilter: FilterType;
+  onFilterChange: (filter: FilterType) => void;
+};
+
+export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
   const { t } = useTranslation('home');
   const { formatAmount } = useCurrency();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
@@ -48,30 +55,46 @@ export default function BalanceCard() {
             {/* Income / Expense Grid */}
             <div className="grid grid-cols-2 gap-4">
               {/* Income Card */}
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/5">
+              <button
+                type="button"
+                onClick={() => onFilterChange(activeFilter === "income" ? "all" : "income")}
+                className={`rounded-xl p-3 flex items-center gap-3 border transition-all active:scale-95 ${
+                  activeFilter === "income"
+                    ? "bg-white/20 border-white/30 ring-2 ring-white/40"
+                    : "bg-white/10 border-white/5 hover:bg-white/15"
+                } backdrop-blur-md`}
+              >
                 <div className="w-8 h-8 rounded-lg bg-teal-400/20 flex items-center justify-center text-teal-200">
                   <TrendingUp size={16} />
                 </div>
-                <div>
+                <div className="text-left">
                   <p className="text-[10px] text-teal-200 uppercase tracking-wider font-semibold opacity-80">
                     {t('balanceCard.income')}
                   </p>
                   <p className="text-sm font-bold text-white">+{formatAmount(totals.income)}</p>
                 </div>
-              </div>
+              </button>
 
               {/* Expense Card */}
-              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center gap-3 border border-white/5">
+              <button
+                type="button"
+                onClick={() => onFilterChange(activeFilter === "expense" ? "all" : "expense")}
+                className={`rounded-xl p-3 flex items-center gap-3 border transition-all active:scale-95 ${
+                  activeFilter === "expense"
+                    ? "bg-white/20 border-white/30 ring-2 ring-white/40"
+                    : "bg-white/10 border-white/5 hover:bg-white/15"
+                } backdrop-blur-md`}
+              >
                 <div className="w-8 h-8 rounded-lg bg-rose-400/20 flex items-center justify-center text-rose-200">
                   <TrendingDown size={16} />
                 </div>
-                <div>
+                <div className="text-left">
                   <p className="text-[10px] text-rose-200 uppercase tracking-wider font-semibold opacity-80">
                     {t('balanceCard.expenses')}
                   </p>
                   <p className="text-sm font-bold text-white">-{formatAmount(totals.expense)}</p>
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </section>

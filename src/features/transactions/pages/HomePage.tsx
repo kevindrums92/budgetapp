@@ -26,6 +26,7 @@ export default function HomePage() {
   const [showVirtual, setShowVirtual] = useState(() => {
     return localStorage.getItem("budget.homeViewFilter") !== "real";
   });
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
 
   // Check if daily budget banner is permanently hidden
   const isDailyBudgetPermanentlyHidden = useMemo(() => {
@@ -231,7 +232,7 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
-      <BalanceCard />
+      <BalanceCard activeFilter={filterType} onFilterChange={setFilterType} />
 
       {/* Daily Budget Banner */}
       {dailyBudgetInfo &&
@@ -349,7 +350,7 @@ export default function HomePage() {
           />
         )}
 
-        <TransactionList showVirtual={showVirtual} />
+        <TransactionList showVirtual={showVirtual} filterType={filterType} />
       </main>
 
       {/* FAB para agregar transacción */}
