@@ -6,7 +6,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, WifiOff } from "lucide-react";
-import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
 import { useBudgetStore } from "@/state/budget.store";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 import type { Category } from "@/types/budget.types";
@@ -138,7 +138,6 @@ const DRAG_THRESHOLD = 0.3;
 
 export default function BatchEntrySheet({ open, onClose, initialInputType }: Props) {
   const { t } = useTranslation("batch");
-  const { isOnline } = useNetworkStatus();
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
 
@@ -147,6 +146,9 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Network state
+  const [isOnline, setIsOnline] = useState(true);
 
   // Flow state
   const [flowState, setFlowState] = useState<FlowState>("select-type");
@@ -200,6 +202,19 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
       isAuthenticated().then(setIsAuthed);
     }
   }, [open]);
+
+  // Track network status
+  useEffect(() => {
+    // Get initial status
+    getNetworkStatus().then(setIsOnline);
+
+    // Listen for changes
+    const removeListener = addNetworkListener((online) => {
+      setIsOnline(online);
+    });
+
+    return removeListener;
+  }, []);
 
   // Handle initialInputType - skip to capturing if provided
   useEffect(() => {

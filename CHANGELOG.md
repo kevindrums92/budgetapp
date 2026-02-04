@@ -50,6 +50,11 @@ All notable changes to SmartSpend will be documented in this file.
   - Fixed JavaScript date overflow issue by setting day 1 before changing month
   - Previously would skip February and show March 31 for Jan 31 recurring transactions
 
+- **refactor(batch-entry): eliminate duplicate code, use existing utility services**
+  - Remove custom `getLocalDate()` function, use shared `todayISO()` from dates.service
+  - Remove `useNetworkStatus` hook, use `getNetworkStatus()` and `addNetworkListener()` directly from network.service
+  - Align with existing CloudSyncGate pattern for network status handling
+  - Reduces code duplication and improves maintainability
 - **feat(batch-entry): implement AI-powered batch transaction entry system**
   - Add complete batch entry flow with voice, image (receipt scan), and text input modes
   - Integrate Gemini 2.5 Flash and GPT-4o Mini via Supabase Edge Function for AI parsing

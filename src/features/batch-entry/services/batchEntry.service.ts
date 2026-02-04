@@ -4,6 +4,7 @@
  */
 
 import { supabase } from "@/lib/supabaseClient";
+import { todayISO } from "@/services/dates.service";
 import type {
   BatchEntryRequest,
   BatchEntryResponse,
@@ -16,18 +17,6 @@ const API_TIMEOUT_MS = 60000; // 60 seconds
 const EDGE_FUNCTION_NAME = "parse-batch";
 
 /**
- * Get the user's local date in YYYY-MM-DD format
- * This ensures the AI uses the correct date regardless of server timezone
- */
-function getLocalDate(): string {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-/**
  * Parse batch input using AI
  * Sends text, image, or audio to the Edge Function for processing
  */
@@ -35,7 +24,7 @@ export async function parseBatch(request: BatchEntryRequest): Promise<BatchEntry
   // Add local date to request if not provided
   const requestWithDate: BatchEntryRequest = {
     ...request,
-    localDate: request.localDate || getLocalDate(),
+    localDate: request.localDate || todayISO(),
   };
 
   console.log("[batchEntry] Calling parse-batch with input type:", request.inputType, "localDate:", requestWithDate.localDate);
