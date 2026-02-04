@@ -23,7 +23,7 @@
     "preview": "vite preview",
     "start": "node server.js",
     "heroku-postbuild": "npm run build",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",

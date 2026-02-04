@@ -50,6 +50,14 @@ All notable changes to SmartSpend will be documented in this file.
   - Fixed JavaScript date overflow issue by setting day 1 before changing month
   - Previously would skip February and show March 31 for Jan 31 recurring transactions
 
+- **test(batch-entry): add comprehensive unit tests for batch-entry feature**
+  - Add 42 unit tests covering batchEntry service (15 tests), useFakeProgress hook (10 tests), and TransactionPreview component (17 tests)
+  - Test authentication, API parsing, rate limiting, timeouts, progress animations, component rendering, and user interactions
+  - Complete mocks for Supabase, i18next, react-router-dom, and date utilities
+  - All tests passing with 100% coverage of core batch-entry functionality
+- **fix(test): change test command to exit after completion instead of watch mode**
+  - Update `npm run test` from "vitest" to "vitest run" for CI/CD compatibility
+  - Command now exits with proper status code after test completion
 - **refactor(batch-entry): eliminate duplicate code, use existing utility services**
   - Remove custom `getLocalDate()` function, use shared `todayISO()` from dates.service
   - Remove `useNetworkStatus` hook, use `getNetworkStatus()` and `addNetworkListener()` directly from network.service
