@@ -51,6 +51,16 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>SmartSpend necesita acceso a Face ID para desbloquear la app de forma segura.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SmartSpend necesita acceso a la cámara para escanear recibos y notas de gastos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SmartSpend necesita acceso a tu galería para seleccionar fotos de recibos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>SmartSpend necesita guardar fotos en tu galería.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>SmartSpend necesita acceso al reconocimiento de voz para transcribir tus notas de voz.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SmartSpend necesita acceso al micrófono para dictar tus transacciones por voz.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
