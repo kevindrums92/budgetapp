@@ -111,6 +111,38 @@ function useNetworkStatus() {
 }
 ```
 
+**Currency Formatting** (`src/features/currency`):
+
+**CRITICAL**: The app supports multiple currencies (COP, USD, GTQ, etc). NEVER hardcode currency symbols or use `formatCOP()`.
+
+```typescript
+import { useCurrency } from "@/features/currency";
+
+// ✅ CORRECT - Use useCurrency hook
+const { formatAmount, currencyInfo } = useCurrency();
+
+// For displaying formatted amounts (includes symbol):
+<span>{formatAmount(amount)}</span>  // Renders "$ 1.500.000" or "Q 1.500.000"
+
+// For displaying just the symbol (e.g., in inputs):
+<span>{currencyInfo.symbol}</span>   // Renders "$" or "Q"
+
+// ❌ WRONG - Never use formatCOP (hardcoded to COP)
+import { formatCOP } from "@/shared/utils/currency.utils";
+formatCOP(amount); // Always shows "$ X.XXX" regardless of user's currency
+
+// ❌ WRONG - Never hardcode currency symbols
+<span>$</span>  // Won't adapt to user's currency
+<span>$ {formatCOP(amount)}</span>  // Double symbol bug: "Q $ 1.500.000"
+```
+
+**useCurrency API**:
+- `formatAmount(value: number): string` - Full formatted currency (e.g., "$ 1.500.000", "Q 100")
+- `currencyInfo.symbol: string` - Currency symbol (e.g., "$", "Q", "€")
+- `currencyInfo.code: string` - ISO code (e.g., "COP", "GTQ", "USD")
+- `currency: string` - Current currency code
+- `setCurrency(code: string): void` - Change currency
+
 **Why**: Using shared utilities ensures:
 - Consistent behavior across the app
 - Easier maintenance (single source of truth)
@@ -1345,6 +1377,9 @@ useEffect(() => {
 ❌ Wrong shadow (using shadow-lg instead of shadow-sm on cards)
 ✅ Follow documented shadow specs: shadow-sm for cards, shadow-xl for modals
 
+❌ Hardcoded currency symbols (`$`) or using `formatCOP()`
+✅ Use `useCurrency()` hook: `formatAmount()` for display, `currencyInfo.symbol` for inputs
+
 ### Testing Checklist
 
 Before committing UI changes:
@@ -1360,6 +1395,7 @@ Before committing UI changes:
 - [ ] Z-index follows documented hierarchy
 - [ ] Border radius matches patterns (xl, 2xl, t-3xl)
 - [ ] Colors match palette (emerald for income, gray-900 for expense)
+- [ ] Currency uses `useCurrency()` hook (no hardcoded `$` or `formatCOP`)
 - [ ] Safe area insets for bottom elements
 - [ ] Shadows match documented specs
 - [ ] Icons use `size=` prop, not className for size

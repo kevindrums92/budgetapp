@@ -3,7 +3,7 @@
  * Free-form text input for natural language transaction entry
  */
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
@@ -20,6 +20,36 @@ const MAX_LENGTH = 500;
 export default function TextInputArea({ onSubmit, onCancel, isProcessing }: Props) {
   const { t } = useTranslation("batch");
   const [text, setText] = useState("");
+
+  // Touch tracking for iOS keyboard dismiss fix
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handleButtonTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  }, []);
+
+  const createTouchEndHandler = useCallback(
+    (action: () => void) => (e: React.TouchEvent) => {
+      if (!touchStartRef.current) return;
+
+      const touch = e.changedTouches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+
+      // Only trigger if it was a tap (not a scroll gesture)
+      if (deltaX < 10 && deltaY < 10) {
+        e.preventDefault(); // Prevent click from also firing
+        e.stopPropagation(); // Prevent event from bubbling to backdrop
+        action();
+      }
+
+      touchStartRef.current = null;
+    },
+    []
+  );
 
   // Dismiss keyboard on scroll/touch outside
   useKeyboardDismiss();
@@ -89,6 +119,8 @@ export default function TextInputArea({ onSubmit, onCancel, isProcessing }: Prop
         <button
           type="button"
           onClick={onCancel}
+          onTouchStart={handleButtonTouchStart}
+          onTouchEnd={createTouchEndHandler(onCancel)}
           disabled={isProcessing}
           className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all active:scale-[0.98] disabled:opacity-50"
         >
@@ -97,6 +129,8 @@ export default function TextInputArea({ onSubmit, onCancel, isProcessing }: Prop
         <button
           type="button"
           onClick={handleSubmit}
+          onTouchStart={handleButtonTouchStart}
+          onTouchEnd={createTouchEndHandler(handleSubmit)}
           disabled={!canSubmit}
           className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 py-3 text-sm font-medium text-white transition-all active:scale-[0.98] disabled:bg-gray-300 dark:disabled:bg-gray-700"
         >

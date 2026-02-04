@@ -46,7 +46,9 @@
     "capturedReceipt": "Recibo capturado"
   },
   "review": {
-    "title": "Revisión",
+    "title": "Revisión Inteligente",
+    "totalBatch": "Total del lote",
+    "confirmCategories": "Confirma las categorías antes de guardar.",
     "reviewInstructions": "Revisa y completa la información de {{count}} transacciones",
     "reviewInstructions_one": "Revisa y completa la información de {{count}} transacción",
     "transactionsFound": "{{count}} transacciones encontradas",

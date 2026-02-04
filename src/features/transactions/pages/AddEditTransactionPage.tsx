@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -73,6 +73,9 @@ export default function AddEditTransactionPage() {
   const [showNoChangesAlert, setShowNoChangesAlert] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
 
+  // Ref for amount input to autofocus on new transactions
+  const amountInputRef = useRef<HTMLInputElement>(null);
+
   // Paywall purchase handler
   const { handleSelectPlan } = usePaywallPurchase({
     onSuccess: () => setShowPaywall(false),
@@ -129,6 +132,14 @@ export default function AddEditTransactionPage() {
     }
 
     setInitialized(true);
+
+    // Auto-focus amount input for new transactions
+    if (!tx) {
+      // Small delay to ensure the DOM is ready and keyboard opens
+      setTimeout(() => {
+        amountInputRef.current?.focus();
+      }, 100);
+    }
   }, [initialized, tx, searchParams]);
 
   // Check for draft/new category when returning from category creation
@@ -480,6 +491,7 @@ export default function AddEditTransactionPage() {
           <div className="flex items-center justify-center px-4">
             <span className={`${amountFontSize} font-semibold tracking-tight ${type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"}`}>{currencyInfo.symbol}</span>
             <input
+              ref={amountInputRef}
               type="text"
               inputMode="decimal"
               value={displayAmount}

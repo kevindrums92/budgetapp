@@ -53,9 +53,19 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
-// Mock formatCOP
-vi.mock("@/shared/utils/currency.utils", () => ({
-  formatCOP: (amount: number) => amount.toLocaleString("es-CO"),
+// Mock useCurrency hook
+vi.mock("@/features/currency", () => ({
+  useCurrency: () => ({
+    formatAmount: (amount: number) => `$ ${amount.toLocaleString("es-CO")}`,
+    currencyInfo: {
+      symbol: "$",
+      code: "COP",
+      locale: "es-CO",
+      decimals: 0,
+    },
+    currency: "COP",
+    setCurrency: vi.fn(),
+  }),
 }));
 
 describe("TransactionPreview", () => {
@@ -124,7 +134,7 @@ describe("TransactionPreview", () => {
     expect(mockHandlers.onCancel).toHaveBeenCalled();
   });
 
-  it("should render review instructions with transaction count", () => {
+  it("should render smart card header with title and total", () => {
     render(
       <TransactionPreview
         drafts={mockDrafts}
@@ -136,9 +146,11 @@ describe("TransactionPreview", () => {
       />
     );
 
-    expect(
-      screen.getByText("Revisa y completa la información de 2 transacciones")
-    ).toBeInTheDocument();
+    // Check for title and total batch label
+    expect(screen.getByText("review.title")).toBeInTheDocument();
+    expect(screen.getByText("review.totalBatch")).toBeInTheDocument();
+    // Net total: 2,000,000 - 50,000 = 1,950,000
+    expect(screen.getByText("$ 1.950.000")).toBeInTheDocument();
   });
 
   it("should display total income and expense correctly", () => {

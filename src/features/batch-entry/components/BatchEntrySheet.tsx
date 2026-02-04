@@ -698,8 +698,10 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className={`absolute bg-white dark:bg-gray-900 shadow-2xl ${
-          isFullScreen ? "inset-0 flex flex-col" : "inset-x-0 bottom-0 rounded-t-3xl"
+        className={`absolute shadow-2xl ${
+          isFullScreen
+            ? "inset-0 flex flex-col bg-gray-100 dark:bg-gray-950"
+            : "inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900"
         }`}
         style={{
           transform: isFullScreen
@@ -727,20 +729,22 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
 
         {/* Content */}
         <div
-          className={`px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] bg-white dark:bg-gray-900 ${
-            isFullScreen ? "flex flex-1 flex-col overflow-hidden" : ""
+          className={`px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] ${
+            isFullScreen ? "flex flex-1 flex-col overflow-hidden bg-gray-100 dark:bg-gray-950" : "bg-white dark:bg-gray-900"
           }`}
         >
-          {/* Title */}
-          <div className={`mb-4 flex shrink-0 items-center justify-center gap-2 ${isFullScreen ? "pt-4" : ""}`}>
-            <Sparkles className="h-5 w-5 text-violet-500" />
-            <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {getTitle()}
-            </h3>
-          </div>
+          {/* Title - hidden in fullscreen preview mode (title is in the card) */}
+          {!isFullScreen && (
+            <div className="mb-4 flex shrink-0 items-center justify-center gap-2">
+              <Sparkles className="h-5 w-5 text-violet-500" />
+              <h3 className="text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {getTitle()}
+              </h3>
+            </div>
+          )}
 
           {/* Dynamic content */}
-          <div className={isFullScreen ? "flex flex-1 flex-col overflow-hidden bg-white dark:bg-gray-900" : ""}>
+          <div className={isFullScreen ? "flex flex-1 flex-col overflow-hidden" : ""}>
             {renderContent()}
           </div>
         </div>

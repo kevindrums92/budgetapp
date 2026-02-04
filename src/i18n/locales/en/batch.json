@@ -46,7 +46,9 @@
     "capturedReceipt": "Captured receipt"
   },
   "review": {
-    "title": "Review",
+    "title": "Smart Review",
+    "totalBatch": "Batch total",
+    "confirmCategories": "Confirm categories before saving.",
     "reviewInstructions": "Review and complete the details of {{count}} transactions",
     "reviewInstructions_one": "Review and complete the details of {{count}} transaction",
     "transactionsFound": "{{count}} transactions found",

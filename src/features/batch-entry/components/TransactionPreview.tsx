@@ -4,8 +4,8 @@
  */
 
 import { useTranslation } from "react-i18next";
-import { RotateCcw, Loader2 } from "lucide-react";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { RotateCcw, Loader2, Info, Receipt, Sparkles } from "lucide-react";
+import { useCurrency } from "@/features/currency";
 import type { TransactionDraft } from "../types/batch-entry.types";
 import TransactionDraftCard from "./TransactionDraftCard";
 
@@ -29,6 +29,7 @@ export default function TransactionPreview({
   isFullScreen = false,
 }: Props) {
   const { t } = useTranslation("batch");
+  const { formatAmount } = useCurrency();
 
   // Calculate totals
   const totalIncome = drafts
@@ -38,6 +39,14 @@ export default function TransactionPreview({
   const totalExpense = drafts
     .filter((d) => d.type === "expense")
     .reduce((sum, d) => sum + d.amount, 0);
+
+  // Net total for display (positive = income, negative = expense)
+  const netTotal = totalIncome - totalExpense;
+
+  // Count transactions by type
+  const incomeCount = drafts.filter((d) => d.type === "income").length;
+  const expenseCount = drafts.filter((d) => d.type === "expense").length;
+  const hasBothTypes = incomeCount > 0 && expenseCount > 0;
 
   const hasReviewItems = drafts.some((d) => d.needsReview);
 
@@ -66,24 +75,50 @@ export default function TransactionPreview({
   }
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden bg-white dark:bg-gray-900">
-      {/* Compact header with count and total */}
-      <div className="mb-3 shrink-0">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t("review.reviewInstructions", { count: drafts.length })}
-          </p>
-          <div className="flex items-center gap-3">
-            {totalIncome > 0 && (
+    <div className="flex flex-1 flex-col overflow-hidden bg-gray-100 dark:bg-gray-950">
+      {/* Smart Card Header */}
+      <div className="shrink-0 pb-4">
+        {/* Title - matching PageHeader height (h-10 icon container) */}
+        <div className="flex items-center gap-3 pb-4">
+          <div className="flex h-10 w-10 items-center justify-center">
+            <Sparkles size={20} className="text-violet-500" />
+          </div>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t("review.title")}</h1>
+        </div>
+
+        {/* Floating Card */}
+        <div className="bg-white dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-2xl p-4 shadow-sm dark:shadow-black/20">
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">
+                {t("review.totalBatch")}
+              </span>
+              <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {formatAmount(Math.abs(netTotal))}
+              </span>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center border border-gray-200 dark:border-gray-700">
+              <Receipt size={18} className="text-gray-500 dark:text-gray-400" />
+            </div>
+          </div>
+
+          {/* Breakdown row - show when there are both types */}
+          {hasBothTypes && (
+            <div className="flex items-center gap-4 mt-2 mb-1">
               <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                +{formatCOP(totalIncome)}
+                +{formatAmount(totalIncome)} <span className="text-xs font-normal text-gray-400">({incomeCount})</span>
               </span>
-            )}
-            {totalExpense > 0 && (
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                -{formatCOP(totalExpense)}
+                -{formatAmount(totalExpense)} <span className="text-xs font-normal text-gray-400">({expenseCount})</span>
               </span>
-            )}
+            </div>
+          )}
+
+          <div className="h-px w-full bg-gray-200 dark:bg-gray-700/50 my-3" />
+
+          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <Info size={12} className="shrink-0" />
+            <span>{t("review.confirmCategories")}</span>
           </div>
         </div>
       </div>

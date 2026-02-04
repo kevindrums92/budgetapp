@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import * as icons from "lucide-react";
 import { Trash2, AlertCircle, ChevronDown } from "lucide-react";
-import { formatCOP } from "@/shared/utils/currency.utils";
+import { useCurrency } from "@/features/currency";
 import { useBudgetStore } from "@/state/budget.store";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
 import type { TransactionDraft } from "../types/batch-entry.types";
@@ -28,6 +28,7 @@ function kebabToPascal(str: string): string {
 
 export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Props) {
   const { t, i18n } = useTranslation("batch");
+  const { currencyInfo, formatAmount } = useCurrency();
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [isEditingAmount, setIsEditingAmount] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -197,7 +198,7 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
         <div className="shrink-0">
           {isEditingAmount ? (
             <div className="flex items-center">
-              <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">$</span>
+              <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">{currencyInfo.symbol}</span>
               <input
                 ref={amountInputRef}
                 type="text"
@@ -231,7 +232,7 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
                     : "text-gray-900 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-gray-700"
               }`}
             >
-              {isIncome ? "+" : "-"}{hasValidAmount ? formatCOP(draft.amount) : "$0"}
+              {isIncome ? "+" : "-"}{hasValidAmount ? formatAmount(draft.amount) : `${currencyInfo.symbol}0`}
             </button>
           )}
         </div>

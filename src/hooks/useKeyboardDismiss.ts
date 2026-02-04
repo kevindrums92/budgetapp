@@ -33,7 +33,10 @@ export function useKeyboardDismiss() {
           activeElement instanceof HTMLInputElement ||
           activeElement instanceof HTMLTextAreaElement
         ) {
-          activeElement.blur();
+          // Delay blur to not interfere with touch events
+          requestAnimationFrame(() => {
+            (activeElement as HTMLElement).blur();
+          });
         }
       }
     };
@@ -68,7 +71,11 @@ export function useKeyboardDismiss() {
         activeElement instanceof HTMLTextAreaElement
       ) {
         if (!activeElement.contains(target) && activeElement !== target) {
-          activeElement.blur();
+          // Delay blur to allow touch/click event to complete first
+          // This prevents iOS from "stealing" the tap when dismissing keyboard
+          requestAnimationFrame(() => {
+            (activeElement as HTMLElement).blur();
+          });
         }
       }
     };
