@@ -16,6 +16,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(perf): replace console.log with environment-aware logger utility**
+  - Replaced all console.log/warn/error calls in useSubscription.ts and usePaywallPurchase.ts with logger utility
+  - Logger only executes in development (import.meta.env.DEV), eliminated in production builds
+  - Fixes performance issue where thousands of debug logs were being generated in production
+  - canUseFeature() was being called on every render, causing excessive console output
+  - Production console now clean, improving performance and user experience
+
 - **feat(history): add transaction counts and smart sorting to category selector**
   - Category selector now displays transaction count next to each category name (e.g., "Mercado (45)")
   - Categories automatically sorted by transaction count (highest to lowest) based on current filters

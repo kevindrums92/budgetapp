@@ -14,6 +14,7 @@
 import { useState, useCallback } from 'react';
 import { useBudgetStore } from '@/state/budget.store';
 import type { RevenueCatPackage } from '@/services/revenuecat.service';
+import { logger } from '@/shared/utils/logger';
 
 type UsePaywallPurchaseOptions = {
   onSuccess?: () => void;
@@ -25,7 +26,7 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
 
   const handleSelectPlan = useCallback(
     async (planId: string) => {
-      console.log('[usePaywallPurchase] User selected plan:', planId);
+      logger.debug('usePaywallPurchase', 'User selected plan:', planId);
       setIsPurchasing(true);
 
       try {
@@ -41,12 +42,12 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
             if (user) {
               const { Purchases } = await import('@revenuecat/purchases-capacitor');
               await Purchases.logIn({ appUserID: user.id });
-              console.log('[usePaywallPurchase] Linked to user:', user.id);
+              logger.debug('usePaywallPurchase', 'Linked to user:', user.id);
             } else {
-              console.warn('[usePaywallPurchase] No authenticated user, purchase may not be associated');
+              logger.warn('usePaywallPurchase', 'No authenticated user, purchase may not be associated');
             }
           } catch (loginError) {
-            console.warn('[usePaywallPurchase] Failed to link user (continuing anyway):', loginError);
+            logger.warn('usePaywallPurchase', 'Failed to link user (continuing anyway):', loginError);
           }
         }
 
@@ -57,7 +58,7 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
           throw new Error('No offerings available');
         }
 
-        console.log('[usePaywallPurchase] Offerings loaded:', offerings);
+        logger.debug('usePaywallPurchase', 'Offerings loaded:', offerings);
 
         // Find the selected package
         const packageToPurchase = offerings.availablePackages.find(
@@ -70,7 +71,7 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
 
         // Execute purchase (activates 7-day trial)
         const purchaseResult = await purchasePackage(packageToPurchase);
-        console.log('[usePaywallPurchase] Trial activated:', purchaseResult);
+        logger.debug('usePaywallPurchase', 'Trial activated:', purchaseResult);
 
         // Fetch subscription using new service (RevenueCat → Supabase → localStorage)
         const { getSubscription } = await import('@/services/subscription.service');
@@ -79,23 +80,23 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
 
         const subscription = await getSubscription(user?.id ?? null);
         useBudgetStore.getState().setSubscription(subscription);
-        console.log('[usePaywallPurchase] Subscription synced:', subscription?.status);
+        logger.debug('usePaywallPurchase', 'Subscription synced:', subscription?.status);
 
         // Call success callback if provided
         options?.onSuccess?.();
       } catch (error) {
-        console.error('[usePaywallPurchase] Purchase failed:', error);
-        console.log('[usePaywallPurchase] Error type:', typeof error);
-        console.log('[usePaywallPurchase] Error instanceof Error:', error instanceof Error);
-        console.log('[usePaywallPurchase] Error.message:', (error as any)?.message);
-        console.log('[usePaywallPurchase] Error.errorMessage:', (error as any)?.errorMessage);
+        logger.error('usePaywallPurchase', 'Purchase failed:', error);
+        logger.debug('usePaywallPurchase', 'Error type:', typeof error);
+        logger.debug('usePaywallPurchase', 'Error instanceof Error:', error instanceof Error);
+        logger.debug('usePaywallPurchase', 'Error.message:', (error as any)?.message);
+        logger.debug('usePaywallPurchase', 'Error.errorMessage:', (error as any)?.errorMessage);
 
         // Call error callback if provided
         const errorObj = error instanceof Error ? error : new Error('Unknown error');
         options?.onError?.(errorObj);
 
         // Re-throw to let PaywallModal handle UI state
-        console.log('[usePaywallPurchase] Re-throwing error for modal to handle');
+        logger.debug('usePaywallPurchase', 'Re-throwing error for modal to handle');
         throw errorObj;
       } finally {
         setIsPurchasing(false);
