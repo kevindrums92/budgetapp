@@ -338,6 +338,95 @@ export default function HistoryPage() {
     previousMonth,
   ]);
 
+  // Transactions filtered WITHOUT category filter (for category counts)
+  const transactionsWithoutCategoryFilter = useMemo(() => {
+    let result = [...transactions];
+
+    // Date range filter
+    if (dateRangePreset === "this-month") {
+      result = result.filter((t) => t.date.slice(0, 7) === currentMonth);
+    } else if (dateRangePreset === "last-month") {
+      result = result.filter((t) => t.date.slice(0, 7) === previousMonth);
+    } else if (dateRangePreset === "custom") {
+      result = result.filter((t) => t.date >= customStartDate && t.date <= customEndDate);
+    }
+
+    // Search filter (by name/description)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((t) => t.name.toLowerCase().includes(query));
+    }
+
+    // Type filter
+    if (filterType === "expense") {
+      result = result.filter((t) => t.type === "expense");
+    } else if (filterType === "income") {
+      result = result.filter((t) => t.type === "income");
+    }
+
+    // Status filter
+    if (filterStatus === "paid") {
+      result = result.filter((t) => t.status === "paid" || !t.status);
+    } else if (filterStatus === "pending") {
+      result = result.filter((t) => t.status === "pending");
+    } else if (filterStatus === "planned") {
+      result = result.filter((t) => t.status === "planned");
+    }
+
+    // Recurring filter
+    if (filterRecurring === "recurring") {
+      result = result.filter((t) =>
+        (t.schedule?.enabled === true) || (t.sourceTemplateId !== undefined)
+      );
+    } else if (filterRecurring === "non-recurring") {
+      result = result.filter((t) =>
+        !t.schedule?.enabled && !t.sourceTemplateId
+      );
+    }
+
+    // Amount range filter
+    const min = minAmount ? parseFloat(minAmount) : 0;
+    const max = maxAmount ? parseFloat(maxAmount) : Infinity;
+    result = result.filter((t) => t.amount >= min && t.amount <= max);
+
+    return result;
+  }, [
+    transactions,
+    dateRangePreset,
+    customStartDate,
+    customEndDate,
+    searchQuery,
+    filterType,
+    filterStatus,
+    filterRecurring,
+    minAmount,
+    maxAmount,
+    currentMonth,
+    previousMonth,
+  ]);
+
+  // Count transactions per category (based on filters without category filter)
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    transactionsWithoutCategoryFilter.forEach((t) => {
+      counts[t.category] = (counts[t.category] || 0) + 1;
+    });
+
+    return counts;
+  }, [transactionsWithoutCategoryFilter]);
+
+  // Sort and filter categories by count
+  const sortedAndFilteredCategories = useMemo(() => {
+    return [...categoryDefinitions]
+      .filter((cat) => (categoryCounts[cat.id] || 0) > 0) // Only categories with transactions
+      .sort((a, b) => {
+        const countDiff = (categoryCounts[b.id] || 0) - (categoryCounts[a.id] || 0);
+        if (countDiff !== 0) return countDiff; // Sort by count (descending)
+        return a.name.localeCompare(b.name); // Alphabetical if tie
+      });
+  }, [categoryDefinitions, categoryCounts]);
+
   // Calculate balance from filtered transactions
   const filteredBalance = useMemo(() => {
     let income = 0;
@@ -453,7 +542,7 @@ export default function HistoryPage() {
 
         {/* Filter Pills */}
         <div className="relative">
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+          <div className="flex flex-wrap gap-2 mb-4">
             {/* Date Range */}
             <button
             type="button"
@@ -1143,7 +1232,7 @@ export default function HistoryPage() {
             {/* Categories List (Scrollable) - No drag events here */}
             <div className="flex-1 overflow-y-auto px-4 min-h-0">
               <div className="space-y-2 pb-4">
-                {categoryDefinitions.map((category) => {
+                {sortedAndFilteredCategories.map((category) => {
                   const IconComponent = icons[
                     kebabToPascal(category.icon) as keyof typeof icons
                   ] as any;
@@ -1166,9 +1255,12 @@ export default function HistoryPage() {
                         )}
                       </div>
 
-                      {/* Category Name */}
+                      {/* Category Name + Count */}
                       <span className="flex-1 text-left font-medium text-gray-900 dark:text-gray-50">
-                        {category.name}
+                        {category.name}{" "}
+                        <span className="text-gray-500 dark:text-gray-400">
+                          ({categoryCounts[category.id] || 0})
+                        </span>
                       </span>
 
                       {/* Checkbox */}

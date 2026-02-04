@@ -16,6 +16,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(history): add transaction counts and smart sorting to category selector**
+  - Category selector now displays transaction count next to each category name (e.g., "Mercado (45)")
+  - Categories automatically sorted by transaction count (highest to lowest) based on current filters
+  - Only shows categories with at least 1 transaction in the filtered result set
+  - Counts calculated from all active filters except category filter itself
+  - Alphabetical sorting as tiebreaker when counts are equal
+  - Provides better context and discoverability when filtering by category
+
+- **refactor(history): improve filter chips layout with multi-line display**
+  - Filter chips now wrap to multiple lines instead of horizontal scroll
+  - All filter options visible on screen without scrolling
+  - Removed overflow-x-auto in favor of flex-wrap for better mobile UX
+  - Maintains spacing and responsive behavior across screen sizes
+
 - **feat(history): add recurring transactions filter**
   - New filter chip to show/hide recurring transactions in history page
   - Three options: All, Recurring only (templates + generated), Non-recurring
