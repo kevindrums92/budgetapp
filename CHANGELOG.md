@@ -16,6 +16,14 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(history): add recurring transactions filter**
+  - New filter chip to show/hide recurring transactions in history page
+  - Three options: All, Recurring only (templates + generated), Non-recurring
+  - Detects transactions with `schedule.enabled` or `sourceTemplateId`
+  - PRO feature with paywall integration and lock icon for free users
+  - Fully translated in 4 languages (es, en, fr, pt)
+  - Persistent in localStorage with filter state restoration
+
 - **fix(recurring): handle end-of-month dates correctly in monthly schedules**
   - Transactions on day 31 now correctly appear on last day of shorter months (e.g., Jan 31 → Feb 28/29)
   - Fixed JavaScript date overflow issue by setting day 1 before changing month

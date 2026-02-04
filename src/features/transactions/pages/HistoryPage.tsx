@@ -12,6 +12,7 @@ import {
   Check,
   Search,
   Lock,
+  Repeat,
 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
@@ -26,6 +27,7 @@ import * as icons from "lucide-react";
 
 type FilterType = "all" | "expense" | "income";
 type FilterStatus = "all" | "paid" | "pending" | "planned";
+type FilterRecurring = "all" | "recurring" | "non-recurring";
 type DateRangePreset = "this-month" | "last-month" | "custom";
 
 // Helper para convertir kebab-case a PascalCase
@@ -61,6 +63,7 @@ export default function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const [filterRecurring, setFilterRecurring] = useState<FilterRecurring>("all");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [tempSelectedCategoryIds, setTempSelectedCategoryIds] = useState<string[]>([]);
   const [minAmount, setMinAmount] = useState("");
@@ -195,6 +198,7 @@ export default function HistoryPage() {
           if (filters.searchQuery) setSearchQuery(filters.searchQuery);
           if (filters.filterType) setFilterType(filters.filterType);
           if (filters.filterStatus) setFilterStatus(filters.filterStatus);
+          if (filters.filterRecurring) setFilterRecurring(filters.filterRecurring);
           if (filters.selectedCategoryIds) setSelectedCategoryIds(filters.selectedCategoryIds);
           if (filters.minAmount) setMinAmount(filters.minAmount);
           if (filters.maxAmount) setMaxAmount(filters.maxAmount);
@@ -221,6 +225,7 @@ export default function HistoryPage() {
         searchQuery,
         filterType,
         filterStatus,
+        filterRecurring,
         selectedCategoryIds,
         minAmount,
         maxAmount,
@@ -237,6 +242,7 @@ export default function HistoryPage() {
     searchQuery,
     filterType,
     filterStatus,
+    filterRecurring,
     selectedCategoryIds,
     minAmount,
     maxAmount,
@@ -291,6 +297,17 @@ export default function HistoryPage() {
       result = result.filter((t) => t.status === "planned");
     }
 
+    // Recurring filter
+    if (filterRecurring === "recurring") {
+      result = result.filter((t) =>
+        (t.schedule?.enabled === true) || (t.sourceTemplateId !== undefined)
+      );
+    } else if (filterRecurring === "non-recurring") {
+      result = result.filter((t) =>
+        !t.schedule?.enabled && !t.sourceTemplateId
+      );
+    }
+
     // Category filter (multiple selection)
     if (selectedCategoryIds.length > 0) {
       result = result.filter((t) => selectedCategoryIds.includes(t.category));
@@ -313,6 +330,7 @@ export default function HistoryPage() {
     searchQuery,
     filterType,
     filterStatus,
+    filterRecurring,
     selectedCategoryIds,
     minAmount,
     maxAmount,
@@ -546,6 +564,34 @@ export default function HistoryPage() {
             {!canUseFeature('history_filters') && <Lock size={14} />}
             {t("filters.amount")}
           </button>
+
+          {/* Recurrentes */}
+          <button
+            type="button"
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                setExpandedFilter(expandedFilter === "recurring" ? null : "recurring");
+              }
+            }}
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : expandedFilter === "recurring" || filterRecurring !== "all"
+                ? "bg-[#18B7B0] text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {!canUseFeature('history_filters') ? (
+              <Lock size={14} />
+            ) : (
+              <Repeat size={14} />
+            )}
+            {filterRecurring === "all" && t("filters.recurring")}
+            {filterRecurring === "recurring" && t("filters.recurringOnly")}
+            {filterRecurring === "non-recurring" && t("filters.nonRecurring")}
+          </button>
         </div>
       </div>
 
@@ -740,6 +786,55 @@ export default function HistoryPage() {
                   className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg py-2 px-3 text-sm text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:border-[#18B7B0] focus:ring-2 focus:ring-[#18B7B0]/20"
                 />
               </div>
+            </div>
+          </div>
+        )}
+
+        {expandedFilter === "recurring" && (
+          <div className="mb-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterRecurring("all");
+                  setExpandedFilter(null);
+                }}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  filterRecurring === "all"
+                    ? "bg-[#18B7B0] text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {t("filters.allRecurring")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterRecurring("recurring");
+                  setExpandedFilter(null);
+                }}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  filterRecurring === "recurring"
+                    ? "bg-[#18B7B0] text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {t("filters.recurringOnly")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterRecurring("non-recurring");
+                  setExpandedFilter(null);
+                }}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  filterRecurring === "non-recurring"
+                    ? "bg-[#18B7B0] text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {t("filters.nonRecurring")}
+              </button>
             </div>
           </div>
         )}

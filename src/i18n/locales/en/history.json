@@ -28,6 +28,10 @@
     "minimum": "Minimum",
     "maximum": "Maximum",
     "noLimit": "No limit",
+    "recurring": "Recurring",
+    "allRecurring": "All",
+    "recurringOnly": "Recurring only",
+    "nonRecurring": "Non-recurring",
     "cancel": "Cancel",
     "apply": "Apply",
     "clear": "Clear"
