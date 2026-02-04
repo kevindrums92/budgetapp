@@ -104,6 +104,10 @@ export function calculateNextDate(
 
     case "monthly":
       nextDate = new Date(fromDate);
+
+      // Set to day 1 first to avoid overflow when changing month
+      // (e.g., Jan 31 + 1 month would overflow to Mar 3 without this)
+      nextDate.setDate(1);
       nextDate.setMonth(nextDate.getMonth() + schedule.interval);
 
       // Adjust to dayOfMonth if specified

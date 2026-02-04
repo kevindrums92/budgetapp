@@ -13,7 +13,8 @@
     "history_filters": "Filter your history by status, category and more",
     "export": "Export your data as CSV or JSON",
     "settings": "Fully customize your experience",
-    "upgrade_prompt": "Unlock advanced statistics, unlimited categories and more"
+    "upgrade_prompt": "Unlock advanced statistics, unlimited categories and more",
+    "batch_entry_limit": "Get 10 AI requests per hour to add transactions"
   },
   "benefits": {
     "unlimitedCategories": "Unlimited categories and budgets",

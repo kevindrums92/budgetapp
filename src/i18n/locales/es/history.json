@@ -28,6 +28,10 @@
     "minimum": "Mínimo",
     "maximum": "Máximo",
     "noLimit": "Sin límite",
+    "recurring": "Recurrentes",
+    "allRecurring": "Todos",
+    "recurringOnly": "Solo recurrentes",
+    "nonRecurring": "No recurrentes",
     "cancel": "Cancelar",
     "apply": "Aplicar",
     "clear": "Limpiar"
@@ -35,6 +39,7 @@
   "results": {
     "title": "Resultados ({{count}})",
     "exportCSV": "Exportar CSV",
+    "balanceOfSelection": "Total",
     "noResults": "No se encontraron transacciones con los filtros aplicados"
   }
 }

@@ -1,0 +1,101 @@
+{
+  "title": "Adicionar Múltiplos",
+  "subtitle": "Escolha como você quer inserir suas transações",
+  "inputTypes": {
+    "text": {
+      "title": "Digitar texto",
+      "description": "Descreva suas despesas ou receitas",
+      "label": "Texto",
+      "hint": "Escreva em linguagem natural"
+    },
+    "image": {
+      "title": "Escanear recibo",
+      "description": "Tire uma foto ou selecione uma imagem",
+      "label": "Foto",
+      "hint": "Escaneie um recibo ou nota"
+    },
+    "voice": {
+      "title": "Gravar voz",
+      "description": "Dite suas transações",
+      "label": "Voz",
+      "hint": "Dite suas despesas e receitas"
+    }
+  },
+  "textInput": {
+    "placeholder": "Exemplo: \"Gastei R$50 no almoço, R$30 no uber e recebi R$2000 de salário\"",
+    "tip": "Mencione valores (\"R$50\", \"2 contos\"), datas (\"ontem\", \"na segunda\") e descreva se é despesa ou receita.",
+    "processing": "Analisando transações com IA...",
+    "extract": "Extrair"
+  },
+  "voiceInput": {
+    "processing": "Processando áudio...",
+    "transcribing": "Transcrevendo e extraindo transações",
+    "recording": "Gravando...",
+    "starting": "Iniciando...",
+    "maxDuration": "Máximo {{duration}}"
+  },
+  "imageInput": {
+    "processing": "Analisando imagem...",
+    "extracting": "Extraindo transações do recibo",
+    "takePhoto": "Tirar foto",
+    "takePhotoDesc": "Capture um recibo ou nota",
+    "selectGallery": "Selecionar da galeria",
+    "selectGalleryDesc": "Escolha uma imagem existente",
+    "anotherImage": "Outra imagem",
+    "analyze": "Analisar",
+    "capturedReceipt": "Recibo capturado"
+  },
+  "review": {
+    "title": "Revisão",
+    "reviewInstructions": "Revise e complete as informações de {{count}} transações",
+    "reviewInstructions_one": "Revise e complete as informações de {{count}} transação",
+    "transactionsFound": "{{count}} transações encontradas",
+    "transactionsFound_one": "{{count}} transação encontrada",
+    "noTransactionsFound": "Nenhuma transação encontrada no input",
+    "tryAgain": "Tentar de novo",
+    "confidence": "Confiança",
+    "needsReviewWarning": "Algumas transações precisam de revisão (marcadas com !)",
+    "fixCategory": "{{count}} transações sem categoria. Atribua uma categoria ou remova.",
+    "fixCategory_one": "{{count}} transação sem categoria. Atribua uma categoria ou remova.",
+    "fixAmount": "{{count}} transações sem valor. Adicione o valor ou remova.",
+    "fixAmount_one": "{{count}} transação sem valor. Adicione o valor ou remova.",
+    "fixCategoryAndAmount": "{{categoryCount}} sem categoria e {{amountCount}} sem valor. Corrija ou remova.",
+    "retry": "Tentar novamente",
+    "saveAll": "Salvar todas",
+    "save": "Salvar",
+    "saving": "Salvando..."
+  },
+  "draft": {
+    "noCategory": "Sem categoria",
+    "namePlaceholder": "Descrição",
+    "aiConfidence": "Confiança IA",
+    "needsReviewMessage": "A IA não tem certeza sobre alguns campos. Por favor revise antes de salvar.",
+    "missingCategory": "Você deve selecionar uma categoria",
+    "missingAmount": "Você deve adicionar um valor",
+    "missingCategoryAndAmount": "Você deve adicionar valor e categoria",
+    "changeCategory": "Categoria",
+    "changeAmount": "Valor",
+    "deleteFromBatch": "Remover do lote"
+  },
+  "errors": {
+    "generic": "Erro ao processar",
+    "loginRequired": "Você precisa estar logado para usar esta função",
+    "rateLimitFree": "Você atingiu seu limite diário. Atualize para Pro para continuar usando esta função.",
+    "rateLimitPro": "Você excedeu o limite de solicitações. Tente novamente mais tarde.",
+    "upgradeToPro": "Atualizar para Pro",
+    "timeout": "A solicitação demorou muito. Tente novamente.",
+    "noResponse": "Nenhuma resposta recebida do servidor",
+    "captureError": "Erro ao capturar imagem",
+    "selectError": "Erro ao selecionar imagem",
+    "recordingError": "Erro ao iniciar gravação",
+    "stopRecordingError": "Erro ao parar gravação"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "back": "Voltar",
+    "retry": "Tentar novamente",
+    "save": "Salvar",
+    "processing": "Processando...",
+    "error": "Erro"
+  }
+}

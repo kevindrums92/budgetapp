@@ -14,7 +14,104 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.15.0] - 2026-02-04
+
+- **fix(perf): replace console.log with environment-aware logger utility**
+  - Replaced all console.log/warn/error calls in useSubscription.ts and usePaywallPurchase.ts with logger utility
+  - Logger only executes in development (import.meta.env.DEV), eliminated in production builds
+  - Fixes performance issue where thousands of debug logs were being generated in production
+  - canUseFeature() was being called on every render, causing excessive console output
+  - Production console now clean, improving performance and user experience
+
+- **feat(history): add transaction counts and smart sorting to category selector**
+  - Category selector now displays transaction count next to each category name (e.g., "Mercado (45)")
+  - Categories automatically sorted by transaction count (highest to lowest) based on current filters
+  - Only shows categories with at least 1 transaction in the filtered result set
+  - Counts calculated from all active filters except category filter itself
+  - Alphabetical sorting as tiebreaker when counts are equal
+  - Provides better context and discoverability when filtering by category
+
+- **refactor(history): improve filter chips layout with multi-line display**
+  - Filter chips now wrap to multiple lines instead of horizontal scroll
+  - All filter options visible on screen without scrolling
+  - Removed overflow-x-auto in favor of flex-wrap for better mobile UX
+  - Maintains spacing and responsive behavior across screen sizes
+
+- **feat(history): add recurring transactions filter**
+  - New filter chip to show/hide recurring transactions in history page
+  - Three options: All, Recurring only (templates + generated), Non-recurring
+  - Detects transactions with `schedule.enabled` or `sourceTemplateId`
+  - PRO feature with paywall integration and lock icon for free users
+  - Fully translated in 4 languages (es, en, fr, pt)
+  - Persistent in localStorage with filter state restoration
+
+- **fix(recurring): handle end-of-month dates correctly in monthly schedules**
+  - Transactions on day 31 now correctly appear on last day of shorter months (e.g., Jan 31 → Feb 28/29)
+  - Fixed JavaScript date overflow issue by setting day 1 before changing month
+  - Previously would skip February and show March 31 for Jan 31 recurring transactions
+
+- **test(batch-entry): add comprehensive unit tests for batch-entry feature**
+  - Add 42 unit tests covering batchEntry service (15 tests), useFakeProgress hook (10 tests), and TransactionPreview component (17 tests)
+  - Test authentication, API parsing, rate limiting, timeouts, progress animations, component rendering, and user interactions
+  - Complete mocks for Supabase, i18next, react-router-dom, and date utilities
+  - All tests passing with 100% coverage of core batch-entry functionality
+- **fix(test): change test command to exit after completion instead of watch mode**
+  - Update `npm run test` from "vitest" to "vitest run" for CI/CD compatibility
+  - Command now exits with proper status code after test completion
+- **refactor(batch-entry): eliminate duplicate code, use existing utility services**
+  - Remove custom `getLocalDate()` function, use shared `todayISO()` from dates.service
+  - Remove `useNetworkStatus` hook, use `getNetworkStatus()` and `addNetworkListener()` directly from network.service
+  - Align with existing CloudSyncGate pattern for network status handling
+  - Reduces code duplication and improves maintainability
+- **feat(batch-entry): implement AI-powered batch transaction entry system**
+  - Add complete batch entry flow with voice, image (receipt scan), and text input modes
+  - Integrate Gemini 2.5 Flash and GPT-4o Mini via Supabase Edge Function for AI parsing
+  - New BatchEntrySheet component with InputTypeSelector, VoiceRecorder, ImageCaptureView, and TextInputArea
+  - TransactionPreview with inline editing: tap to edit name, category, amount, or date
+  - Smart category mapping with fallback system and keyword matching for custom categories
+  - Add camera and audio permissions for native Android/iOS platforms
+  - Complete i18n support in 4 languages (es, en, fr, pt)
+  - Close action sheet automatically after saving batch entries
+- **fix(batch-entry): improve TransactionDraftCard layout and UX**
+  - Reorganize layout: move date below category chip for better visual hierarchy
+  - Fix double currency symbol in totals display (was $$, now $)
+  - Add descriptive text "Review and complete the details of N transactions" to guide users
+  - Remove duplicate "Revisión" title from preview section
+- **feat(history): display filtered transactions balance in results header**
+  - Shows calculated balance (income - expense) of filtered transactions
+  - Balance displayed in right column, vertically centered with title and export button
+  - Green color for positive balance, gray for negative balance
+- **docs(ai): add ADR and implementation plan for AI Batch Entry feature**
+  - ADR-001: Architecture Decision Record documenting tech stack selection (Gemini 2.5 Flash, GPT-4o Mini Transcribe, Capacitor plugins)
+  - PLAN: Phased implementation checklist with 7 phases covering backend, frontend, testing and rollout
+  - Includes cost projections, system prompts, TypeScript types, and sequence diagrams
+
+- **feat(history): display filtered transactions balance in results header**
+  - Shows calculated balance (income - expense) of filtered transactions
+  - Balance displayed in right column, vertically centered with title and export button
+  - Green color for positive balance, gray for negative balance
+  - Helps users quickly see the net result of their filtered transaction set
+- **feat(ui): make BalanceCard income/expense mini-cards clickable to filter transactions**
+  - Click on "Ingresos" card filters transaction list to show only income
+  - Click on "Gastos" card filters transaction list to show only expenses
+  - Click again on active filter deselects and shows all transactions
+  - Active filter indicated with brighter background (bg-white/20) and ring highlight
+  - Improves discoverability and provides quick access to filtered views
+- **refactor(stats): remove unnecessary scroll from ComparisonSheet modal**
+  - Removed maxHeight constraint and overflow-y-auto from content area
+  - Modal now adjusts to content height naturally without scrolling
+  - Content fits within viewport without requiring user to scroll (only 3 cards)
+- **feat(transactions): add toggle to filter scheduled/virtual transactions on home page**
+  - New "Proyección(N)" chip toggle next to "Ver historial completo" with Eye/EyeOff icons
+  - Shows count of scheduled transactions in current month
+  - Active (teal): showing all transactions including scheduled
+  - Inactive (gray): hiding scheduled transactions, showing only real ones
+  - Preference persisted in localStorage (key: budget.homeViewFilter)
+  - ScheduledBanner automatically hidden when filter is active
+  - "Ver historial completo" button now always visible regardless of month
 
 ## [0.14.5] - 2026-02-02
 

@@ -11,6 +11,13 @@
   "addActionSheet": {
     "title": "Novo registro",
     "close": "Fechar",
+    "quickEntry": "Registro Rápido (IA)",
+    "dictate": "Ditar",
+    "photo": "Foto",
+    "text": "Texto",
+    "manual": "Manual",
+    "manualIncome": "Receita Manual",
+    "manualExpense": "Despesa Manual",
     "addIncome": "Adicionar Receita",
     "incomeHint": "Salário, vendas, etc.",
     "addExpense": "Adicionar Despesa",
@@ -41,6 +48,9 @@
     "info": "Todas as transações do mês atual serão exportadas em formato CSV",
     "total": "Total de transações:",
     "noTransactions": "Não há transações para exportar neste mês"
+  },
+  "viewFilter": {
+    "scheduled": "Projeção({{count}})"
   },
   "pushBanner": {
     "title": "Notificações",

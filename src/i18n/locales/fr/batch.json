@@ -1,0 +1,101 @@
+{
+  "title": "Ajouter Plusieurs",
+  "subtitle": "Choisissez comment vous voulez saisir vos transactions",
+  "inputTypes": {
+    "text": {
+      "title": "Écrire du texte",
+      "description": "Décrivez vos dépenses ou revenus",
+      "label": "Texte",
+      "hint": "Écrivez en langage naturel"
+    },
+    "image": {
+      "title": "Scanner un reçu",
+      "description": "Prenez une photo ou sélectionnez une image",
+      "label": "Photo",
+      "hint": "Scannez un reçu ou une note"
+    },
+    "voice": {
+      "title": "Enregistrer la voix",
+      "description": "Dictez vos transactions",
+      "label": "Voix",
+      "hint": "Dictez vos dépenses et revenus"
+    }
+  },
+  "textInput": {
+    "placeholder": "Exemple : \"J'ai dépensé 50€ pour le déjeuner, 30€ en uber et reçu 2000€ de salaire\"",
+    "tip": "Mentionnez les montants (\"50€\", \"2000 euros\"), les dates (\"hier\", \"lundi\") et précisez s'il s'agit d'une dépense ou d'un revenu.",
+    "processing": "Analyse des transactions avec l'IA...",
+    "extract": "Extraire"
+  },
+  "voiceInput": {
+    "processing": "Traitement de l'audio...",
+    "transcribing": "Transcription et extraction des transactions",
+    "recording": "Enregistrement...",
+    "starting": "Démarrage...",
+    "maxDuration": "Maximum {{duration}}"
+  },
+  "imageInput": {
+    "processing": "Analyse de l'image...",
+    "extracting": "Extraction des transactions du reçu",
+    "takePhoto": "Prendre une photo",
+    "takePhotoDesc": "Capturez un reçu ou une note",
+    "selectGallery": "Sélectionner de la galerie",
+    "selectGalleryDesc": "Choisissez une image existante",
+    "anotherImage": "Autre image",
+    "analyze": "Analyser",
+    "capturedReceipt": "Reçu capturé"
+  },
+  "review": {
+    "title": "Vérification",
+    "reviewInstructions": "Vérifiez et complétez les informations de {{count}} transactions",
+    "reviewInstructions_one": "Vérifiez et complétez les informations de {{count}} transaction",
+    "transactionsFound": "{{count}} transactions trouvées",
+    "transactionsFound_one": "{{count}} transaction trouvée",
+    "noTransactionsFound": "Aucune transaction trouvée dans l'entrée",
+    "tryAgain": "Réessayer",
+    "confidence": "Confiance",
+    "needsReviewWarning": "Certaines transactions nécessitent une vérification (marquées avec !)",
+    "fixCategory": "{{count}} transactions sans catégorie. Assignez une catégorie ou supprimez-les.",
+    "fixCategory_one": "{{count}} transaction sans catégorie. Assignez une catégorie ou supprimez-la.",
+    "fixAmount": "{{count}} transactions sans montant. Ajoutez le montant ou supprimez-les.",
+    "fixAmount_one": "{{count}} transaction sans montant. Ajoutez le montant ou supprimez-la.",
+    "fixCategoryAndAmount": "{{categoryCount}} sans catégorie et {{amountCount}} sans montant. Corrigez ou supprimez.",
+    "retry": "Réessayer",
+    "saveAll": "Tout enregistrer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement..."
+  },
+  "draft": {
+    "noCategory": "Sans catégorie",
+    "namePlaceholder": "Description",
+    "aiConfidence": "Confiance IA",
+    "needsReviewMessage": "L'IA n'est pas sûre de certains champs. Veuillez vérifier avant d'enregistrer.",
+    "missingCategory": "Vous devez sélectionner une catégorie",
+    "missingAmount": "Vous devez ajouter un montant",
+    "missingCategoryAndAmount": "Vous devez ajouter montant et catégorie",
+    "changeCategory": "Catégorie",
+    "changeAmount": "Montant",
+    "deleteFromBatch": "Supprimer du lot"
+  },
+  "errors": {
+    "generic": "Erreur de traitement",
+    "loginRequired": "Vous devez être connecté pour utiliser cette fonction",
+    "rateLimitFree": "Vous avez atteint votre limite quotidienne. Passez à Pro pour continuer à utiliser cette fonction.",
+    "rateLimitPro": "Vous avez dépassé la limite de requêtes. Réessayez plus tard.",
+    "upgradeToPro": "Passer à Pro",
+    "timeout": "La requête a pris trop de temps. Réessayez.",
+    "noResponse": "Aucune réponse reçue du serveur",
+    "captureError": "Erreur lors de la capture de l'image",
+    "selectError": "Erreur lors de la sélection de l'image",
+    "recordingError": "Erreur lors du démarrage de l'enregistrement",
+    "stopRecordingError": "Erreur lors de l'arrêt de l'enregistrement"
+  },
+  "common": {
+    "cancel": "Annuler",
+    "back": "Retour",
+    "retry": "Réessayer",
+    "save": "Enregistrer",
+    "processing": "Traitement...",
+    "error": "Erreur"
+  }
+}

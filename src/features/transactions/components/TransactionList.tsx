@@ -23,9 +23,10 @@ interface GroupedTransactions {
 interface TransactionListProps {
   searchQuery?: string;
   filterType?: "all" | "expense" | "income" | "pending" | "recurring";
+  showVirtual?: boolean;
 }
 
-export default function TransactionList({ searchQuery = "", filterType = "all" }: TransactionListProps) {
+export default function TransactionList({ searchQuery = "", filterType = "all", showVirtual = true }: TransactionListProps) {
   const { t } = useTranslation("transactions");
   const { t: tCommon } = useTranslation("common");
   const { getLocale } = useLanguage();
@@ -48,10 +49,11 @@ export default function TransactionList({ searchQuery = "", filterType = "all" }
     return generateVirtualTransactions(transactions, today);
   }, [transactions, today]);
 
-  // Combine real + virtual transactions
+  // Combine real + virtual transactions (or only real if showVirtual is false)
   const allTransactions = useMemo<DisplayTransaction[]>(() => {
+    if (!showVirtual) return [...transactions];
     return [...transactions, ...virtualTransactions];
-  }, [transactions, virtualTransactions]);
+  }, [transactions, virtualTransactions, showVirtual]);
 
   // Agrupar transacciones por fecha (con búsqueda)
   const groupedList = useMemo<GroupedTransactions[]>(() => {

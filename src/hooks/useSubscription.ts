@@ -3,6 +3,7 @@ import { useBudgetStore } from '@/state/budget.store';
 import { FREE_TIER_LIMITS, COUNT_LIMITED_FEATURES } from '@/constants/pricing';
 import type { ProFeature } from '@/constants/pricing';
 import type { SubscriptionState, Category, Budget, Transaction } from '@/types/budget.types';
+import { logger } from '@/shared/utils/logger';
 
 type SubscriptionInfo = {
   isPro: boolean;
@@ -55,21 +56,21 @@ export function useSubscription(): SubscriptionInfo {
     const trialEndsAt = subscription?.trialEndsAt ?? null;
     const subscriptionType = subscription?.type ?? 'free';
 
-    // Debug logs
-    console.log('[useSubscription] subscription:', subscription);
-    console.log('[useSubscription] isPro:', isPro);
-    console.log('[useSubscription] isTrialing:', isTrialing);
-    console.log('[useSubscription] subscriptionType:', subscriptionType);
+    // Debug logs (development only)
+    logger.debug('useSubscription', 'subscription:', subscription);
+    logger.debug('useSubscription', 'isPro:', isPro);
+    logger.debug('useSubscription', 'isTrialing:', isTrialing);
+    logger.debug('useSubscription', 'subscriptionType:', subscriptionType);
 
     function canUseFeature(feature: ProFeature): boolean {
-      console.log('[canUseFeature] checking feature:', feature, 'isPro:', isPro);
+      logger.debug('canUseFeature', 'checking feature:', feature, 'isPro:', isPro);
 
       if (isPro) return true;
 
       const limitKey = COUNT_LIMITED_FEATURES[feature];
       if (limitKey) {
         const currentCount = getCurrentCount(limitKey, categoryDefinitions, budgets, transactions);
-        console.log('[canUseFeature] limitKey:', limitKey, 'currentCount:', currentCount, 'limit:', FREE_TIER_LIMITS[limitKey]);
+        logger.debug('canUseFeature', 'limitKey:', limitKey, 'currentCount:', currentCount, 'limit:', FREE_TIER_LIMITS[limitKey]);
         return currentCount < FREE_TIER_LIMITS[limitKey];
       }
 

@@ -12,6 +12,7 @@ import {
   Check,
   Search,
   Lock,
+  Repeat,
 } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
@@ -26,6 +27,7 @@ import * as icons from "lucide-react";
 
 type FilterType = "all" | "expense" | "income";
 type FilterStatus = "all" | "paid" | "pending" | "planned";
+type FilterRecurring = "all" | "recurring" | "non-recurring";
 type DateRangePreset = "this-month" | "last-month" | "custom";
 
 // Helper para convertir kebab-case a PascalCase
@@ -61,6 +63,7 @@ export default function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const [filterRecurring, setFilterRecurring] = useState<FilterRecurring>("all");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [tempSelectedCategoryIds, setTempSelectedCategoryIds] = useState<string[]>([]);
   const [minAmount, setMinAmount] = useState("");
@@ -195,6 +198,7 @@ export default function HistoryPage() {
           if (filters.searchQuery) setSearchQuery(filters.searchQuery);
           if (filters.filterType) setFilterType(filters.filterType);
           if (filters.filterStatus) setFilterStatus(filters.filterStatus);
+          if (filters.filterRecurring) setFilterRecurring(filters.filterRecurring);
           if (filters.selectedCategoryIds) setSelectedCategoryIds(filters.selectedCategoryIds);
           if (filters.minAmount) setMinAmount(filters.minAmount);
           if (filters.maxAmount) setMaxAmount(filters.maxAmount);
@@ -221,6 +225,7 @@ export default function HistoryPage() {
         searchQuery,
         filterType,
         filterStatus,
+        filterRecurring,
         selectedCategoryIds,
         minAmount,
         maxAmount,
@@ -237,6 +242,7 @@ export default function HistoryPage() {
     searchQuery,
     filterType,
     filterStatus,
+    filterRecurring,
     selectedCategoryIds,
     minAmount,
     maxAmount,
@@ -291,6 +297,17 @@ export default function HistoryPage() {
       result = result.filter((t) => t.status === "planned");
     }
 
+    // Recurring filter
+    if (filterRecurring === "recurring") {
+      result = result.filter((t) =>
+        (t.schedule?.enabled === true) || (t.sourceTemplateId !== undefined)
+      );
+    } else if (filterRecurring === "non-recurring") {
+      result = result.filter((t) =>
+        !t.schedule?.enabled && !t.sourceTemplateId
+      );
+    }
+
     // Category filter (multiple selection)
     if (selectedCategoryIds.length > 0) {
       result = result.filter((t) => selectedCategoryIds.includes(t.category));
@@ -313,12 +330,118 @@ export default function HistoryPage() {
     searchQuery,
     filterType,
     filterStatus,
+    filterRecurring,
     selectedCategoryIds,
     minAmount,
     maxAmount,
     currentMonth,
     previousMonth,
   ]);
+
+  // Transactions filtered WITHOUT category filter (for category counts)
+  const transactionsWithoutCategoryFilter = useMemo(() => {
+    let result = [...transactions];
+
+    // Date range filter
+    if (dateRangePreset === "this-month") {
+      result = result.filter((t) => t.date.slice(0, 7) === currentMonth);
+    } else if (dateRangePreset === "last-month") {
+      result = result.filter((t) => t.date.slice(0, 7) === previousMonth);
+    } else if (dateRangePreset === "custom") {
+      result = result.filter((t) => t.date >= customStartDate && t.date <= customEndDate);
+    }
+
+    // Search filter (by name/description)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((t) => t.name.toLowerCase().includes(query));
+    }
+
+    // Type filter
+    if (filterType === "expense") {
+      result = result.filter((t) => t.type === "expense");
+    } else if (filterType === "income") {
+      result = result.filter((t) => t.type === "income");
+    }
+
+    // Status filter
+    if (filterStatus === "paid") {
+      result = result.filter((t) => t.status === "paid" || !t.status);
+    } else if (filterStatus === "pending") {
+      result = result.filter((t) => t.status === "pending");
+    } else if (filterStatus === "planned") {
+      result = result.filter((t) => t.status === "planned");
+    }
+
+    // Recurring filter
+    if (filterRecurring === "recurring") {
+      result = result.filter((t) =>
+        (t.schedule?.enabled === true) || (t.sourceTemplateId !== undefined)
+      );
+    } else if (filterRecurring === "non-recurring") {
+      result = result.filter((t) =>
+        !t.schedule?.enabled && !t.sourceTemplateId
+      );
+    }
+
+    // Amount range filter
+    const min = minAmount ? parseFloat(minAmount) : 0;
+    const max = maxAmount ? parseFloat(maxAmount) : Infinity;
+    result = result.filter((t) => t.amount >= min && t.amount <= max);
+
+    return result;
+  }, [
+    transactions,
+    dateRangePreset,
+    customStartDate,
+    customEndDate,
+    searchQuery,
+    filterType,
+    filterStatus,
+    filterRecurring,
+    minAmount,
+    maxAmount,
+    currentMonth,
+    previousMonth,
+  ]);
+
+  // Count transactions per category (based on filters without category filter)
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+
+    transactionsWithoutCategoryFilter.forEach((t) => {
+      counts[t.category] = (counts[t.category] || 0) + 1;
+    });
+
+    return counts;
+  }, [transactionsWithoutCategoryFilter]);
+
+  // Sort and filter categories by count
+  const sortedAndFilteredCategories = useMemo(() => {
+    return [...categoryDefinitions]
+      .filter((cat) => (categoryCounts[cat.id] || 0) > 0) // Only categories with transactions
+      .sort((a, b) => {
+        const countDiff = (categoryCounts[b.id] || 0) - (categoryCounts[a.id] || 0);
+        if (countDiff !== 0) return countDiff; // Sort by count (descending)
+        return a.name.localeCompare(b.name); // Alphabetical if tie
+      });
+  }, [categoryDefinitions, categoryCounts]);
+
+  // Calculate balance from filtered transactions
+  const filteredBalance = useMemo(() => {
+    let income = 0;
+    let expense = 0;
+
+    filteredTransactions.forEach((t) => {
+      if (t.type === "income") {
+        income += t.amount;
+      } else {
+        expense += t.amount;
+      }
+    });
+
+    return income - expense;
+  }, [filteredTransactions]);
 
   const handleExport = async () => {
     // Check if user can export
@@ -419,7 +542,7 @@ export default function HistoryPage() {
 
         {/* Filter Pills */}
         <div className="relative">
-          <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+          <div className="flex flex-wrap gap-2 mb-4">
             {/* Date Range */}
             <button
             type="button"
@@ -529,6 +652,34 @@ export default function HistoryPage() {
           >
             {!canUseFeature('history_filters') && <Lock size={14} />}
             {t("filters.amount")}
+          </button>
+
+          {/* Recurrentes */}
+          <button
+            type="button"
+            onClick={() => {
+              if (!canUseFeature('history_filters')) {
+                setShowPaywall(true);
+              } else {
+                setExpandedFilter(expandedFilter === "recurring" ? null : "recurring");
+              }
+            }}
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
+              !canUseFeature('history_filters')
+                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
+                : expandedFilter === "recurring" || filterRecurring !== "all"
+                ? "bg-[#18B7B0] text-white"
+                : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {!canUseFeature('history_filters') ? (
+              <Lock size={14} />
+            ) : (
+              <Repeat size={14} />
+            )}
+            {filterRecurring === "all" && t("filters.recurring")}
+            {filterRecurring === "recurring" && t("filters.recurringOnly")}
+            {filterRecurring === "non-recurring" && t("filters.nonRecurring")}
           </button>
         </div>
       </div>
@@ -727,38 +878,103 @@ export default function HistoryPage() {
             </div>
           </div>
         )}
+
+        {expandedFilter === "recurring" && (
+          <div className="mb-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterRecurring("all");
+                  setExpandedFilter(null);
+                }}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  filterRecurring === "all"
+                    ? "bg-[#18B7B0] text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {t("filters.allRecurring")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterRecurring("recurring");
+                  setExpandedFilter(null);
+                }}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  filterRecurring === "recurring"
+                    ? "bg-[#18B7B0] text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {t("filters.recurringOnly")}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterRecurring("non-recurring");
+                  setExpandedFilter(null);
+                }}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  filterRecurring === "non-recurring"
+                    ? "bg-[#18B7B0] text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                {t("filters.nonRecurring")}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Results Header */}
-      <div className="mx-auto w-full max-w-xl px-4 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-          {t("results.title", { count: filteredTransactions.length })}
-        </h2>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={filteredTransactions.length === 0}
-          className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed ${
-            !canUseFeature('export_data')
-              ? 'text-gray-500'
-              : 'text-[#18B7B0] hover:text-[#159d97]'
-          }`}
-        >
-          {!canUseFeature('export_data') ? (
-            <>
-              <Lock size={16} />
-              {t("results.exportCSV")}
-              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
-                PRO
-              </span>
-            </>
-          ) : (
-            <>
-              <Download size={16} />
-              {t("results.exportCSV")}
-            </>
-          )}
-        </button>
+      <div className="mx-auto w-full max-w-xl px-4 py-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="flex items-center justify-between">
+          {/* Left Column */}
+          <div>
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              {t("results.title", { count: filteredTransactions.length })}
+            </h2>
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={filteredTransactions.length === 0}
+              className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed ${
+                !canUseFeature('export_data')
+                  ? 'text-gray-500'
+                  : 'text-[#18B7B0] hover:text-[#159d97]'
+              }`}
+            >
+              {!canUseFeature('export_data') ? (
+                <>
+                  <Lock size={16} />
+                  {t("results.exportCSV")}
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
+                    PRO
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Download size={16} />
+                  {t("results.exportCSV")}
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Right Column - Balance */}
+          <div className="text-right">
+            <p className={`text-sm font-bold whitespace-nowrap ${
+              filteredBalance >= 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-gray-900 dark:text-gray-50"
+            }`}>
+              {filteredBalance >= 0 ? "+" : "-"} {formatAmount(Math.abs(filteredBalance))}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Transactions List */}
@@ -1016,7 +1232,7 @@ export default function HistoryPage() {
             {/* Categories List (Scrollable) - No drag events here */}
             <div className="flex-1 overflow-y-auto px-4 min-h-0">
               <div className="space-y-2 pb-4">
-                {categoryDefinitions.map((category) => {
+                {sortedAndFilteredCategories.map((category) => {
                   const IconComponent = icons[
                     kebabToPascal(category.icon) as keyof typeof icons
                   ] as any;
@@ -1039,9 +1255,12 @@ export default function HistoryPage() {
                         )}
                       </div>
 
-                      {/* Category Name */}
+                      {/* Category Name + Count */}
                       <span className="flex-1 text-left font-medium text-gray-900 dark:text-gray-50">
-                        {category.name}
+                        {category.name}{" "}
+                        <span className="text-gray-500 dark:text-gray-400">
+                          ({categoryCounts[category.id] || 0})
+                        </span>
                       </span>
 
                       {/* Checkbox */}

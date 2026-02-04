@@ -1,12 +1,18 @@
 {
   "title": "Historique et Filtres",
   "filters": {
+    "searchPlaceholder": "Rechercher par description...",
     "dateRange": "Plage de Dates",
     "thisMonth": "Ce Mois",
     "lastMonth": "Mois Dernier",
     "custom": "Personnalisé",
+    "customDateTitle": "Plage Personnalisée",
+    "startDate": "Date de Début",
+    "endDate": "Date de Fin",
     "type": "Type",
     "allTypes": "Tous",
+    "income": "Revenus",
+    "expenses": "Dépenses",
     "status": "Statut",
     "allStatus": "Tous",
     "paid": "Payé",
@@ -15,14 +21,25 @@
     "category": "Catégorie",
     "selectCategory": "Sélectionner une catégorie",
     "allCategories": "Toutes les catégories",
+    "categories_one": "{{count}} catégorie",
+    "categories_other": "{{count}} catégories",
+    "amount": "Montant",
     "amountRange": "Plage de Montant",
     "minimum": "Minimum",
     "maximum": "Maximum",
-    "noLimit": "Sans limite"
+    "noLimit": "Sans limite",
+    "recurring": "Récurrents",
+    "allRecurring": "Tous",
+    "recurringOnly": "Récurrents seulement",
+    "nonRecurring": "Non récurrents",
+    "cancel": "Annuler",
+    "apply": "Appliquer",
+    "clear": "Effacer"
   },
   "results": {
     "title": "Résultats ({{count}})",
     "exportCSV": "Exporter CSV",
+    "balanceOfSelection": "Total",
     "noResults": "Aucune transaction trouvée avec les filtres appliqués"
   }
 }

@@ -293,6 +293,66 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ---
 
+## 🔍 Historial y Filtros Avanzados
+
+### Página de Historial
+- **Búsqueda avanzada** por descripción de transacción
+- **Sistema de filtros** con chips interactivos y expansibles
+- **Persistencia de filtros** en localStorage (restaura al volver)
+- **Reset automático** al entrar desde home (botón directo)
+- **Balance calculado** de transacciones filtradas en header
+- **Exportación a CSV** con filtros aplicados (feature PRO)
+
+### Filtros Disponibles
+1. **Rango de Fechas**
+   - Este Mes
+   - Mes Pasado
+   - Personalizado (con DatePicker para inicio/fin)
+
+2. **Tipo de Transacción**
+   - Todos
+   - Ingresos
+   - Gastos
+
+3. **Estado** (PRO)
+   - Todos
+   - Pagado
+   - Pendiente
+   - Planeado
+
+4. **Categoría** (PRO)
+   - Selección múltiple con modal scrollable
+   - Preview de categorías seleccionadas en chip
+   - Búsqueda y filtrado de categorías
+
+5. **Rango de Monto** (PRO)
+   - Mínimo y máximo configurables
+   - Input numérico con validación
+
+6. **Recurrentes** (PRO)
+   - Todos
+   - Solo recurrentes (templates + generadas)
+   - No recurrentes
+   - Detecta transacciones con `schedule.enabled` o `sourceTemplateId`
+
+### Características de UX
+- **Filtros expandibles** con animación
+- **Visual feedback** con color teal (#18B7B0) en filtros activos
+- **Chips informativos** muestran el valor actual del filtro
+- **Contador de resultados** en tiempo real
+- **Modals draggable** para categorías con gesture support
+- **Dark mode** completo en todos los filtros
+- **i18n** en 4 idiomas (es, en, fr, pt)
+
+### Paywall Integration
+- **Filtros básicos gratuitos**: Fecha, Tipo
+- **Filtros PRO**: Estado, Categoría, Monto, Recurrentes
+- **Lock icon** en chips de features PRO
+- **Paywall modal** al intentar usar filtros bloqueados
+- Integrado con RevenueCat para verificación de suscripción
+
+---
+
 ## 🔐 Autenticación y Cuenta
 
 ### Métodos de Autenticación
@@ -769,7 +829,6 @@ Ver [ROADMAP.md](ROADMAP.md) para features planeados:
 - Budgets con períodos personalizados (Q1, Bimestral, Semestral)
 - Shared budgets (presupuestos compartidos)
 - Transaction templates (plantillas reutilizables)
-- Advanced filtering (búsqueda avanzada)
 - Tags/labels para transacciones
 - Attachments (adjuntos en transacciones)
 - Rich notifications con acciones (confirmar transacción desde notificación)
@@ -778,6 +837,6 @@ Ver [ROADMAP.md](ROADMAP.md) para features planeados:
 
 ## 📄 Versión Actual
 
-**Versión**: 0.14.4 (latest release)
+**Versión**: 0.14.5 (latest release)
 
 Para historial completo de cambios, ver [CHANGELOG.md](../CHANGELOG.md)

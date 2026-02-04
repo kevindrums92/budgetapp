@@ -7,7 +7,11 @@ import "./index.css";
 import { registerSW } from "virtual:pwa-register";
 import { App as CapacitorApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { isNative } from '@/shared/utils/platform';
+
+// Load PWA elements for Capacitor web support (camera modal, etc.)
+defineCustomElements(window);
 
 registerSW({
   immediate: true,

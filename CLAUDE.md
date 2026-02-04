@@ -70,6 +70,55 @@ Requires `.env.local` with:
 
 PWA enabled via `vite-plugin-pwa` with auto-update. Workbox caches all static assets.
 
+### Shared Utilities & Services
+
+**CRITICAL**: Always use existing utility services. Never create duplicate implementations.
+
+**Date Utilities** (`src/services/dates.service.ts`):
+```typescript
+import { todayISO } from "@/services/dates.service";
+
+// ✅ CORRECT - Use existing utility
+const today = todayISO(); // Returns "YYYY-MM-DD" in local timezone
+
+// ❌ WRONG - Don't create custom date functions
+function getLocalDate() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+```
+
+**Network Status** (`src/services/network.service.ts`):
+```typescript
+import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
+
+// ✅ CORRECT - Use existing service
+const [isOnline, setIsOnline] = useState(true);
+
+useEffect(() => {
+  getNetworkStatus().then(setIsOnline);
+  const removeListener = addNetworkListener((online) => {
+    setIsOnline(online);
+  });
+  return removeListener;
+}, []);
+
+// ❌ WRONG - Don't create custom network hooks
+function useNetworkStatus() {
+  const [isOnline, setIsOnline] = useState(true);
+  // ... custom implementation
+  return { isOnline };
+}
+```
+
+**Why**: Using shared utilities ensures:
+- Consistent behavior across the app
+- Easier maintenance (single source of truth)
+- Reduced code duplication
+- Better testability
+
+**Reference**: See `CloudSyncGate.tsx` for the canonical pattern of using `network.service.ts` directly.
+
 ---
 
 ## Design Guidelines
@@ -495,6 +544,85 @@ Used for action selection, pickers (AddActionSheet, CategoryPickerDrawer).
 - Modals: `z-50`
 - Bottom Sheets: `z-[70]`
 - Wizard/Onboarding: `z-[85]`
+
+#### Batch Entry Components
+
+**Purpose**: AI-powered batch transaction entry with text, voice, and image input modes.
+
+**BatchEntrySheet** (Full-height bottom sheet):
+- Triggered from AddActionSheet via "Agregar varias" button
+- Three input modes: Text, Voice, Image (receipt scan)
+- Uses Supabase Edge Function (`parse-batch`) with Gemini 2.5 Flash
+- Rate limiting: 5 requests/day free, 50/day Pro
+
+**Component Structure**:
+```tsx
+// BatchEntrySheet.tsx
+<div className="fixed inset-0 z-[70] flex flex-col bg-white dark:bg-gray-900">
+  {/* Header with close button */}
+  {/* Input type selector tabs */}
+  {/* Input area (TextInputArea | VoiceRecorder | ImageCaptureView) */}
+  {/* Submit button with loading state */}
+  {/* TransactionPreview (when drafts exist) */}
+</div>
+```
+
+**Input Components**:
+
+1. **TextInputArea**: Multi-line textarea for natural language input
+   - Placeholder: "Ej: Gasté 50 mil en almuerzo y 20 en taxi"
+   - Auto-resize based on content
+   - `useKeyboardDismiss()` hook for mobile UX
+
+2. **VoiceRecorder**: Audio recording with waveform visualization
+   - Real-time waveform using `AudioWaveform` component
+   - Recording timer (MM:SS format)
+   - Uses `@capacitor-community/voice-recorder` plugin
+   - Whisper API transcription via Edge Function
+
+3. **ImageCaptureView**: Camera/gallery image capture
+   - Uses `@capacitor/camera` plugin
+   - Receipt OCR via Gemini 2.5 Flash vision
+   - Preview with recapture option
+
+**TransactionPreview**: Review and edit parsed transactions
+- Inline editing: tap name/category/amount/date to edit
+- `TransactionDraftCard` with validation indicators
+- Totals summary (income/expense)
+- Bulk save or individual deletion
+- Validation warnings for missing data
+
+**Key Patterns**:
+
+```tsx
+// Inline editing with CategoryPickerDrawer
+<button onClick={() => setShowCategoryPicker(true)}>
+  {category.name}
+</button>
+<CategoryPickerDrawer
+  open={showCategoryPicker}
+  onClose={() => setShowCategoryPicker(false)}
+  value={draft.category}
+  onSelect={(categoryId) => {
+    onUpdateDraft({ ...draft, category: categoryId });
+    setShowCategoryPicker(false);
+  }}
+  transactionType={draft.type}
+/>
+
+// Amount editing with currency formatter
+<button onClick={() => setShowAmountPicker(true)}>
+  {draft.type === "income" ? "+" : "-"}
+  {formatCOP(draft.amount)}
+</button>
+```
+
+**Testing**: 42 comprehensive unit tests
+- `batchEntry.service.test.ts` (15 tests): API, auth, rate limiting, errors
+- `useFakeProgress.test.ts` (10 tests): Progress animations
+- `TransactionPreview.test.tsx` (17 tests): Component rendering, interactions
+
+**i18n**: `i18n/locales/{lang}/batch.json` with full translations (es, en, fr, pt)
 
 #### Buttons
 
