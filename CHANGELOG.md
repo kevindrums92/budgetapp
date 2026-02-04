@@ -16,6 +16,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(recurring): handle end-of-month dates correctly in monthly schedules**
+  - Transactions on day 31 now correctly appear on last day of shorter months (e.g., Jan 31 → Feb 28/29)
+  - Fixed JavaScript date overflow issue by setting day 1 before changing month
+  - Previously would skip February and show March 31 for Jan 31 recurring transactions
+
 - **docs(ai): add ADR and implementation plan for AI Batch Entry feature**
   - ADR-001: Architecture Decision Record documenting tech stack selection (Gemini 2.5 Flash, GPT-4o Mini Transcribe, Capacitor plugins)
   - PLAN: Phased implementation checklist with 7 phases covering backend, frontend, testing and rollout

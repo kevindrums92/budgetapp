@@ -125,7 +125,7 @@ describe("scheduler.service", () => {
       expect(next).toBe("2026-01-15");
     });
 
-    it("should handle Feb 31 -> Mar 31 when adding month to Jan 31", () => {
+    it("should handle Jan 31 -> Feb 28/29 (last day of shorter month)", () => {
       const schedule: Schedule = {
         enabled: true,
         frequency: "monthly",
@@ -134,13 +134,13 @@ describe("scheduler.service", () => {
         dayOfMonth: 31,
       };
 
-      // When adding 1 month to Jan 31, JavaScript goes to Mar 2/3, then we adjust to day 31
-      // This results in Mar 31, which is the expected behavior
+      // When day doesn't exist in target month, use last day of that month
+      // Jan 31 + 1 month = Feb 28 (2025 is not a leap year)
       const next = calculateNextDate(schedule, "2025-01-31");
-      expect(next).toBe("2025-03-31");
+      expect(next).toBe("2025-02-28");
     });
 
-    it("should handle month overflow correctly", () => {
+    it("should handle Jan 31 -> Feb 29 in leap year", () => {
       const schedule: Schedule = {
         enabled: true,
         frequency: "monthly",
@@ -149,9 +149,41 @@ describe("scheduler.service", () => {
         dayOfMonth: 31,
       };
 
-      // Adding month to Jan 31 should go to Mar 31 (Feb doesn't have 31 days)
+      // 2024 is a leap year, so Feb has 29 days
       const next = calculateNextDate(schedule, "2024-01-31");
-      expect(next).toBe("2024-03-31");
+      expect(next).toBe("2024-02-29");
+    });
+
+    it("should handle Feb 28 -> Mar 31 correctly", () => {
+      const schedule: Schedule = {
+        enabled: true,
+        frequency: "monthly",
+        interval: 1,
+        startDate: "2025-02-28",
+        dayOfMonth: 31,
+      };
+
+      // Feb 28 + 1 month with dayOfMonth=31 should give Mar 31
+      const next = calculateNextDate(schedule, "2025-02-28");
+      expect(next).toBe("2025-03-31");
+    });
+
+    it("should continue correctly after Feb to Mar", () => {
+      const schedule: Schedule = {
+        enabled: true,
+        frequency: "monthly",
+        interval: 1,
+        startDate: "2024-01-31",
+        dayOfMonth: 31,
+      };
+
+      // Jan 31 -> Feb 29 (leap year)
+      const feb = calculateNextDate(schedule, "2024-01-31");
+      expect(feb).toBe("2024-02-29");
+
+      // Feb 29 -> Mar 31
+      const mar = calculateNextDate(schedule, feb!);
+      expect(mar).toBe("2024-03-31");
     });
 
     it("should handle shorter months correctly when dayOfMonth fits", () => {
