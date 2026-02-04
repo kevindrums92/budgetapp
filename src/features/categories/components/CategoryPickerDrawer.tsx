@@ -14,6 +14,8 @@ type Props = {
   value: string | null;
   onSelect: (categoryId: string) => void;
   onNavigateToNewCategory?: () => void;
+  /** Whether to show the "New Category" button (default: true) */
+  showNewCategoryButton?: boolean;
 };
 
 const SHEET_HEIGHT = 500;
@@ -26,6 +28,7 @@ export default function CategoryPickerDrawer({
   value,
   onSelect,
   onNavigateToNewCategory,
+  showNewCategoryButton = true,
 }: Props) {
   const navigate = useNavigate();
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -292,16 +295,23 @@ export default function CategoryPickerDrawer({
         </div>
 
         {/* New Category button */}
-        <div className="flex-none border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-          <button
-            type="button"
-            onClick={handleNewCategory}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-emerald-200 dark:border-emerald-700 py-3 text-emerald-600 dark:text-emerald-400 transition-colors hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30"
-          >
-            <Plus className="h-5 w-5" />
-            <span className="font-medium">Nueva Categoría</span>
-          </button>
-        </div>
+        {showNewCategoryButton && (
+          <div className="flex-none border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+            <button
+              type="button"
+              onClick={handleNewCategory}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-emerald-200 dark:border-emerald-700 py-3 text-emerald-600 dark:text-emerald-400 transition-colors hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="font-medium">Nueva Categoría</span>
+            </button>
+          </div>
+        )}
+
+        {/* Safe area padding when no button */}
+        {!showNewCategoryButton && (
+          <div className="flex-none pb-[calc(env(safe-area-inset-bottom)+12px)]" />
+        )}
       </div>
     </div>
   );

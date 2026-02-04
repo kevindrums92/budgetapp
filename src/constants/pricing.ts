@@ -19,7 +19,8 @@ export type PaywallTrigger =
   | 'export'
   | 'backup_features'
   | 'settings'
-  | 'upgrade_prompt'; // Para CTAs generales de upgrade
+  | 'upgrade_prompt' // Para CTAs generales de upgrade
+  | 'batch_entry_limit'; // Límite de IA batch entry para usuarios free
 
 // ==================== PRICING PLANS ====================
 

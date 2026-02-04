@@ -50,6 +50,24 @@ All notable changes to SmartSpend will be documented in this file.
   - Fixed JavaScript date overflow issue by setting day 1 before changing month
   - Previously would skip February and show March 31 for Jan 31 recurring transactions
 
+- **feat(batch-entry): implement AI-powered batch transaction entry system**
+  - Add complete batch entry flow with voice, image (receipt scan), and text input modes
+  - Integrate Gemini 2.5 Flash and GPT-4o Mini via Supabase Edge Function for AI parsing
+  - New BatchEntrySheet component with InputTypeSelector, VoiceRecorder, ImageCaptureView, and TextInputArea
+  - TransactionPreview with inline editing: tap to edit name, category, amount, or date
+  - Smart category mapping with fallback system and keyword matching for custom categories
+  - Add camera and audio permissions for native Android/iOS platforms
+  - Complete i18n support in 4 languages (es, en, fr, pt)
+  - Close action sheet automatically after saving batch entries
+- **fix(batch-entry): improve TransactionDraftCard layout and UX**
+  - Reorganize layout: move date below category chip for better visual hierarchy
+  - Fix double currency symbol in totals display (was $$, now $)
+  - Add descriptive text "Review and complete the details of N transactions" to guide users
+  - Remove duplicate "Revisión" title from preview section
+- **feat(history): display filtered transactions balance in results header**
+  - Shows calculated balance (income - expense) of filtered transactions
+  - Balance displayed in right column, vertically centered with title and export button
+  - Green color for positive balance, gray for negative balance
 - **docs(ai): add ADR and implementation plan for AI Batch Entry feature**
   - ADR-001: Architecture Decision Record documenting tech stack selection (Gemini 2.5 Flash, GPT-4o Mini Transcribe, Capacitor plugins)
   - PLAN: Phased implementation checklist with 7 phases covering backend, frontend, testing and rollout
