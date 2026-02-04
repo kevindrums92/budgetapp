@@ -28,6 +28,23 @@ export type TransactionDraft = {
   confidence: number;
 };
 
+/**
+ * A transaction pattern from user's history
+ * Used to improve AI category matching and fill missing amounts
+ */
+export type HistoryPattern = {
+  /** Normalized transaction name */
+  name: string;
+  /** Most common category ID for this name */
+  category: string;
+  /** Average amount for this transaction */
+  avgAmount: number;
+  /** Number of times this pattern was seen */
+  occurrences: number;
+  /** Transaction type */
+  type: "income" | "expense";
+};
+
 /** Request payload sent to Edge Function */
 export type BatchEntryRequest = {
   /** Type of input being sent */
@@ -40,6 +57,8 @@ export type BatchEntryRequest = {
   audioBase64?: string;
   /** User's local date in YYYY-MM-DD format (to handle timezone correctly) */
   localDate?: string;
+  /** User's transaction history patterns for better matching */
+  historyPatterns?: HistoryPattern[];
 };
 
 /** Response from Edge Function */

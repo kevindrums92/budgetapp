@@ -6,10 +6,46 @@
 import { generateCategoryKeywordsForPrompt, ALL_CATEGORY_IDS } from "./categories.ts";
 
 /**
- * Get the system prompt with current date injected
+ * Transaction pattern from user's history for improved matching
  */
-export function getSystemPrompt(currentDate: string): string {
+export type HistoryPattern = {
+  name: string;
+  category: string;
+  avgAmount: number;
+  occurrences: number;
+  type: "income" | "expense";
+};
+
+/**
+ * Format history patterns for inclusion in the prompt
+ */
+function formatHistoryPatterns(patterns: HistoryPattern[]): string {
+  if (!patterns || patterns.length === 0) {
+    return "";
+  }
+
+  const lines = patterns
+    .slice(0, 30) // Limit to top 30 for prompt size
+    .map((p) => `- "${p.name}" → category: ${p.category}, avg amount: ${p.avgAmount}, type: ${p.type} (seen ${p.occurrences}x)`);
+
+  return `
+USER'S TRANSACTION HISTORY (IMPORTANT - use this to improve category and amount matching):
+${lines.join("\n")}
+
+HISTORY MATCHING RULES:
+- If the user's input closely matches any pattern name above, PREFER that category
+- If the amount is unclear or missing, consider using the average amount from matching patterns
+- History patterns are more reliable than generic keyword matching
+- Match based on meaning, not exact text (e.g., "café chipre" matches "café en chipre")
+`;
+}
+
+/**
+ * Get the system prompt with current date and optional history patterns
+ */
+export function getSystemPrompt(currentDate: string, historyPatterns?: HistoryPattern[]): string {
   const categoryKeywords = generateCategoryKeywordsForPrompt();
+  const historySection = formatHistoryPatterns(historyPatterns || []);
 
   return `You are a financial assistant specialized in extracting transactions from text, transcribed audio, or receipt images for a personal budget app.
 
@@ -51,7 +87,7 @@ Portuguese: hoje, ontem, anteontem, semana passada, segunda/terça/etc
 - Output format always: YYYY-MM-DD
 
 ${categoryKeywords}
-
+${historySection}
 EXTRACTION RULES:
 1. Extract ALL transactions mentioned, no limit
 2. Amounts are ALWAYS positive numbers ("type" indicates expense/income)

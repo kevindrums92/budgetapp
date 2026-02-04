@@ -8,6 +8,7 @@ import { todayISO } from "@/services/dates.service";
 import type {
   BatchEntryRequest,
   BatchEntryResponse,
+  HistoryPattern,
 } from "../types/batch-entry.types";
 
 /** Timeout for API calls in milliseconds */
@@ -27,7 +28,7 @@ export async function parseBatch(request: BatchEntryRequest): Promise<BatchEntry
     localDate: request.localDate || todayISO(),
   };
 
-  console.log("[batchEntry] Calling parse-batch with input type:", request.inputType, "localDate:", requestWithDate.localDate);
+  console.log("[batchEntry] Calling parse-batch with input type:", request.inputType, "localDate:", requestWithDate.localDate, "historyPatterns:", request.historyPatterns?.length || 0);
 
   try {
     // Get current session for auth token
@@ -198,31 +199,49 @@ export async function parseBatch(request: BatchEntryRequest): Promise<BatchEntry
 
 /**
  * Parse text input
+ * @param text - The text to parse
+ * @param historyPatterns - Optional transaction patterns from user's history for better matching
  */
-export async function parseText(text: string): Promise<BatchEntryResponse> {
+export async function parseText(
+  text: string,
+  historyPatterns?: HistoryPattern[]
+): Promise<BatchEntryResponse> {
   return parseBatch({
     inputType: "text",
     data: text.trim(),
+    historyPatterns,
   });
 }
 
 /**
  * Parse image input
+ * @param imageBase64 - Base64-encoded image
+ * @param historyPatterns - Optional transaction patterns from user's history for better matching
  */
-export async function parseImage(imageBase64: string): Promise<BatchEntryResponse> {
+export async function parseImage(
+  imageBase64: string,
+  historyPatterns?: HistoryPattern[]
+): Promise<BatchEntryResponse> {
   return parseBatch({
     inputType: "image",
     imageBase64,
+    historyPatterns,
   });
 }
 
 /**
  * Parse audio input
+ * @param audioBase64 - Base64-encoded audio
+ * @param historyPatterns - Optional transaction patterns from user's history for better matching
  */
-export async function parseAudio(audioBase64: string): Promise<BatchEntryResponse> {
+export async function parseAudio(
+  audioBase64: string,
+  historyPatterns?: HistoryPattern[]
+): Promise<BatchEntryResponse> {
   return parseBatch({
     inputType: "audio",
     audioBase64,
+    historyPatterns,
   });
 }
 

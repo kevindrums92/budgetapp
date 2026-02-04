@@ -13,7 +13,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@2.0.5";
 import { Redis } from "https://esm.sh/@upstash/redis@1.34.3";
-import { getSystemPrompt, RESPONSE_SCHEMA } from "./prompts.ts";
+import { getSystemPrompt, RESPONSE_SCHEMA, type HistoryPattern } from "./prompts.ts";
 
 // CORS headers
 const corsHeaders = {
@@ -154,7 +154,8 @@ async function transcribeAudio(audioBase64: string): Promise<string> {
 async function processWithGemini(
   text: string,
   currentDate: string,
-  imageBase64?: string
+  imageBase64?: string,
+  historyPatterns?: HistoryPattern[]
 ): Promise<{
   transactions: Array<{
     type: "income" | "expense";
@@ -176,7 +177,7 @@ async function processWithGemini(
 
   console.log("[parse-batch] Processing with Gemini 2.0 Flash...");
 
-  const systemPrompt = getSystemPrompt(currentDate);
+  const systemPrompt = getSystemPrompt(currentDate, historyPatterns);
 
   // Build content parts
   const parts: Array<{ text?: string; inlineData?: { mimeType: string; data: string } }> = [];
@@ -228,7 +229,7 @@ async function processWithGemini(
 
     // Fallback to GPT-4o-mini
     console.log("[parse-batch] Falling back to GPT-4o-mini...");
-    return await processWithOpenAI(text, currentDate, imageBase64);
+    return await processWithOpenAI(text, currentDate, imageBase64, historyPatterns);
   }
 
   const data = await response.json();
@@ -254,7 +255,8 @@ async function processWithGemini(
 async function processWithOpenAI(
   text: string,
   currentDate: string,
-  imageBase64?: string
+  imageBase64?: string,
+  historyPatterns?: HistoryPattern[]
 ): Promise<{
   transactions: Array<{
     type: "income" | "expense";
@@ -278,7 +280,7 @@ async function processWithOpenAI(
   console.log("[parse-batch] Input text to process:", text);
   console.log("[parse-batch] Current date for prompt:", currentDate);
 
-  const systemPrompt = getSystemPrompt(currentDate);
+  const systemPrompt = getSystemPrompt(currentDate, historyPatterns);
 
   const messages: Array<{
     role: string;
@@ -494,13 +496,22 @@ Deno.serve(async (req) => {
 
     // 3. Parse request body
     const body = await req.json();
-    const { inputType, data, imageBase64, audioBase64, localDate } = body as {
+    const { inputType, data, imageBase64, audioBase64, localDate, historyPatterns } = body as {
       inputType: "text" | "image" | "audio";
       data?: string;
       imageBase64?: string;
       audioBase64?: string;
       localDate?: string;
+      historyPatterns?: Array<{
+        name: string;
+        category: string;
+        avgAmount: number;
+        occurrences: number;
+        type: "income" | "expense";
+      }>;
     };
+
+    console.log(`[parse-batch] History patterns received: ${historyPatterns?.length || 0}`);
 
     // Use client's local date if provided, otherwise fall back to UTC
     const currentDate = localDate || new Date().toISOString().split("T")[0];
@@ -551,14 +562,16 @@ Deno.serve(async (req) => {
       result = await processWithGemini(
         textToProcess,
         currentDate,
-        inputType === "image" ? imageBase64 : undefined
+        inputType === "image" ? imageBase64 : undefined,
+        historyPatterns
       );
     } catch (geminiError) {
       console.error("[parse-batch] Gemini failed, falling back to OpenAI:", geminiError);
       result = await processWithOpenAI(
         textToProcess,
         currentDate,
-        inputType === "image" ? imageBase64 : undefined
+        inputType === "image" ? imageBase64 : undefined,
+        historyPatterns
       );
     }
 

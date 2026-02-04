@@ -3,7 +3,7 @@
  * Main bottom sheet that orchestrates the AI batch entry flow
  */
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, WifiOff } from "lucide-react";
 import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
@@ -111,6 +111,11 @@ function mapAICategoryToStoreCategory(
 }
 
 import { parseText, parseImage, parseAudio, isAuthenticated } from "../services/batchEntry.service";
+import {
+  extractPatterns,
+  postProcessWithHistory,
+} from "../services/historyMatcher.service";
+import type { HistoryPattern } from "../types/batch-entry.types";
 import InputTypeSelector from "./InputTypeSelector";
 import VoiceRecorder from "./VoiceRecorder";
 import ImageCaptureView from "./ImageCaptureView";
@@ -140,6 +145,14 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const { t } = useTranslation("batch");
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+  const transactions = useBudgetStore((s) => s.transactions);
+
+  // Extract patterns from user's transaction history for better AI matching
+  const historyPatterns: HistoryPattern[] = useMemo(() => {
+    const patterns = extractPatterns(transactions);
+    console.log("[BatchEntrySheet] Extracted history patterns:", patterns.length);
+    return patterns;
+  }, [transactions]);
 
   // Sheet animation state
   const [isVisible, setIsVisible] = useState(false);
@@ -327,11 +340,13 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const handleTextSubmit = async (text: string) => {
     setFlowState("processing");
     try {
-      const result = await parseText(text);
+      const result = await parseText(text, historyPatterns);
       if (result.success && result.transactions.length > 0) {
         const interpretation = result.rawInterpretation || "";
         setRawInterpretation(interpretation);
-        const processedDrafts = processAIResults(result.transactions, interpretation);
+        // Process AI results and apply history-based improvements
+        let processedDrafts = processAIResults(result.transactions, interpretation);
+        processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
         setDrafts(processedDrafts);
         setConfidence(result.confidence);
         setFlowState("preview");
@@ -348,11 +363,13 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const handleImageCapture = async (imageBase64: string) => {
     setFlowState("processing");
     try {
-      const result = await parseImage(imageBase64);
+      const result = await parseImage(imageBase64, historyPatterns);
       if (result.success && result.transactions.length > 0) {
         const interpretation = result.rawInterpretation || "";
         setRawInterpretation(interpretation);
-        const processedDrafts = processAIResults(result.transactions, interpretation);
+        // Process AI results and apply history-based improvements
+        let processedDrafts = processAIResults(result.transactions, interpretation);
+        processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
         setDrafts(processedDrafts);
         setConfidence(result.confidence);
         setFlowState("preview");
@@ -369,11 +386,13 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const handleAudioCapture = async (audioBase64: string) => {
     setFlowState("processing");
     try {
-      const result = await parseAudio(audioBase64);
+      const result = await parseAudio(audioBase64, historyPatterns);
       if (result.success && result.transactions.length > 0) {
         const interpretation = result.rawInterpretation || "";
         setRawInterpretation(interpretation);
-        const processedDrafts = processAIResults(result.transactions, interpretation);
+        // Process AI results and apply history-based improvements
+        let processedDrafts = processAIResults(result.transactions, interpretation);
+        processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
         setDrafts(processedDrafts);
         setConfidence(result.confidence);
         setFlowState("preview");
