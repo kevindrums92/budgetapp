@@ -1,14 +1,16 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, Mic, Camera, Type, ChevronRight, Sparkles } from "lucide-react";
+import BatchEntrySheet from "@/features/batch-entry/components/BatchEntrySheet";
+import type { BatchInputType } from "@/features/batch-entry/types/batch-entry.types";
 
 type Props = {
   open: boolean;
   onClose: () => void;
 };
 
-const SHEET_HEIGHT = 220;
+const SHEET_HEIGHT = 340;
 const DRAG_THRESHOLD = 0.3;
 
 export default function AddActionSheet({ open, onClose }: Props) {
@@ -18,6 +20,8 @@ export default function AddActionSheet({ open, onClose }: Props) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showBatchEntry, setShowBatchEntry] = useState(false);
+  const [initialInputType, setInitialInputType] = useState<BatchInputType | null>(null);
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
@@ -117,6 +121,31 @@ export default function AddActionSheet({ open, onClose }: Props) {
     navigate("/add?type=expense");
   }
 
+  function handleBatchEntry(inputType: BatchInputType) {
+    setInitialInputType(inputType);
+    // Don't close AddActionSheet - just show BatchEntrySheet on top
+    // When BatchEntrySheet closes, AddActionSheet will be visible again
+    setShowBatchEntry(true);
+  }
+
+  function handleCloseBatchEntry() {
+    setShowBatchEntry(false);
+    setInitialInputType(null);
+    // Close AddActionSheet as well
+    onClose();
+  }
+
+  // Render BatchEntrySheet even when action sheet is closed
+  if (showBatchEntry) {
+    return (
+      <BatchEntrySheet
+        open={showBatchEntry}
+        onClose={handleCloseBatchEntry}
+        initialInputType={initialInputType}
+      />
+    );
+  }
+
   if (!isVisible) return null;
 
   const sheetTranslate = isAnimating ? dragOffset : SHEET_HEIGHT;
@@ -162,40 +191,100 @@ export default function AddActionSheet({ open, onClose }: Props) {
 
         {/* Content */}
         <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
-          <h3 className="mb-4 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
-            {t('addActionSheet.title')}
-          </h3>
+          {/* AI Quick Entry Section */}
+          <div className="mb-5">
+            <div className="mb-3 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-violet-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                {t('addActionSheet.quickEntry', 'Registro Rápido (IA)')}
+              </span>
+            </div>
 
-          <div className="space-y-2">
-            {/* Add Income */}
-            <button
-              type="button"
-              onClick={handleAddIncome}
-              className="flex w-full items-center gap-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 px-4 py-4 transition-all active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
-                <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-gray-900 dark:text-gray-50">{t('addActionSheet.addIncome')}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{t('addActionSheet.incomeHint')}</p>
-              </div>
-            </button>
+            <div className="flex justify-center gap-6">
+              {/* Voice Button */}
+              <button
+                type="button"
+                onClick={() => handleBatchEntry("audio")}
+                className="flex flex-col items-center gap-2 transition-all active:scale-95"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
+                  <Mic className="h-6 w-6 text-violet-500" />
+                </div>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  {t('addActionSheet.dictate', 'Dictar')}
+                </span>
+              </button>
 
-            {/* Add Expense */}
-            <button
-              type="button"
-              onClick={handleAddExpense}
-              className="flex w-full items-center gap-4 rounded-2xl bg-red-50 dark:bg-red-900/30 px-4 py-4 transition-all active:scale-[0.98]"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
-                <TrendingDown className="h-6 w-6 text-red-500 dark:text-red-400" />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-gray-900 dark:text-gray-50">{t('addActionSheet.addExpense')}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{t('addActionSheet.expenseHint')}</p>
-              </div>
-            </button>
+              {/* Photo Button */}
+              <button
+                type="button"
+                onClick={() => handleBatchEntry("image")}
+                className="flex flex-col items-center gap-2 transition-all active:scale-95"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
+                  <Camera className="h-6 w-6 text-rose-500" />
+                </div>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  {t('addActionSheet.photo', 'Foto')}
+                </span>
+              </button>
+
+              {/* Text Button */}
+              <button
+                type="button"
+                onClick={() => handleBatchEntry("text")}
+                className="flex flex-col items-center gap-2 transition-all active:scale-95"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
+                  <Type className="h-6 w-6 text-violet-400" />
+                </div>
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  {t('addActionSheet.text', 'Texto')}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="mb-4 border-t border-gray-200 dark:border-gray-700" />
+
+          {/* Manual Entry Section */}
+          <div>
+            <span className="mb-3 block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              {t('addActionSheet.manual', 'Manual')}
+            </span>
+
+            <div className="space-y-2">
+              {/* Add Income */}
+              <button
+                type="button"
+                onClick={handleAddIncome}
+                className="flex w-full items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-3 transition-all active:scale-[0.98] active:bg-gray-100 dark:active:bg-gray-800"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+                  <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <span className="flex-1 text-left font-medium text-gray-900 dark:text-gray-50">
+                  {t('addActionSheet.manualIncome', 'Ingreso Manual')}
+                </span>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+
+              {/* Add Expense */}
+              <button
+                type="button"
+                onClick={handleAddExpense}
+                className="flex w-full items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-3 transition-all active:scale-[0.98] active:bg-gray-100 dark:active:bg-gray-800"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+                  <TrendingDown className="h-5 w-5 text-red-500 dark:text-red-400" />
+                </div>
+                <span className="flex-1 text-left font-medium text-gray-900 dark:text-gray-50">
+                  {t('addActionSheet.manualExpense', 'Gasto Manual')}
+                </span>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

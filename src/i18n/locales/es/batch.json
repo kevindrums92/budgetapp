@@ -1,0 +1,101 @@
+{
+  "title": "Agregar Múltiple",
+  "subtitle": "Elige cómo quieres ingresar tus transacciones",
+  "inputTypes": {
+    "text": {
+      "title": "Escribir texto",
+      "description": "Describe tus gastos o ingresos",
+      "label": "Texto",
+      "hint": "Escribe en lenguaje natural"
+    },
+    "image": {
+      "title": "Escanear recibo",
+      "description": "Toma una foto o selecciona imagen",
+      "label": "Foto",
+      "hint": "Escanea un recibo o nota"
+    },
+    "voice": {
+      "title": "Grabar voz",
+      "description": "Dicta tus transacciones",
+      "label": "Voz",
+      "hint": "Dicta tus gastos e ingresos"
+    }
+  },
+  "textInput": {
+    "placeholder": "Ejemplo: \"Gasté 50 mil en almuerzo, 30 mil en uber y recibí 2 millones de salario\"",
+    "tip": "Menciona montos (\"50 mil\", \"2 palos\"), fechas (\"ayer\", \"el lunes\") y describe si es gasto o ingreso.",
+    "processing": "Analizando transacciones con IA...",
+    "extract": "Extraer"
+  },
+  "voiceInput": {
+    "processing": "Procesando audio...",
+    "transcribing": "Transcribiendo y extrayendo transacciones",
+    "recording": "Grabando...",
+    "starting": "Iniciando...",
+    "maxDuration": "Máximo {{duration}}"
+  },
+  "imageInput": {
+    "processing": "Analizando imagen...",
+    "extracting": "Extrayendo transacciones del recibo",
+    "takePhoto": "Tomar foto",
+    "takePhotoDesc": "Captura un recibo o nota",
+    "selectGallery": "Seleccionar de galería",
+    "selectGalleryDesc": "Elige una imagen existente",
+    "anotherImage": "Otra imagen",
+    "analyze": "Analizar",
+    "capturedReceipt": "Recibo capturado"
+  },
+  "review": {
+    "title": "Revisión",
+    "reviewInstructions": "Revisa y completa la información de {{count}} transacciones",
+    "reviewInstructions_one": "Revisa y completa la información de {{count}} transacción",
+    "transactionsFound": "{{count}} transacciones encontradas",
+    "transactionsFound_one": "{{count}} transacción encontrada",
+    "noTransactionsFound": "No se encontraron transacciones en el input",
+    "tryAgain": "Intentar de nuevo",
+    "confidence": "Confianza",
+    "needsReviewWarning": "Algunas transacciones necesitan revisión (marcadas con !)",
+    "fixCategory": "{{count}} transacciones sin categoría. Asigna una categoría o elimínalas.",
+    "fixCategory_one": "{{count}} transacción sin categoría. Asigna una categoría o elimínala.",
+    "fixAmount": "{{count}} transacciones sin monto. Agrega el monto o elimínalas.",
+    "fixAmount_one": "{{count}} transacción sin monto. Agrega el monto o elimínala.",
+    "fixCategoryAndAmount": "{{categoryCount}} sin categoría y {{amountCount}} sin monto. Corrígelas o elimínalas.",
+    "retry": "Reintentar",
+    "saveAll": "Guardar todas",
+    "save": "Guardar",
+    "saving": "Guardando..."
+  },
+  "draft": {
+    "noCategory": "Sin categoría",
+    "namePlaceholder": "Descripción",
+    "aiConfidence": "Confianza IA",
+    "needsReviewMessage": "La IA no está segura de algún campo. Por favor revisa antes de guardar.",
+    "missingCategory": "Debes seleccionar una categoría",
+    "missingAmount": "Debes agregar un monto",
+    "missingCategoryAndAmount": "Debes agregar monto y categoría",
+    "changeCategory": "Categoría",
+    "changeAmount": "Monto",
+    "deleteFromBatch": "Eliminar del lote"
+  },
+  "errors": {
+    "generic": "Error al procesar",
+    "loginRequired": "Debes iniciar sesión para usar esta función",
+    "rateLimitFree": "Has alcanzado tu límite diario. Actualiza a Pro para seguir usando esta función.",
+    "rateLimitPro": "Has excedido el límite de solicitudes. Intenta de nuevo más tarde.",
+    "upgradeToPro": "Actualizar a Pro",
+    "timeout": "La solicitud tardó demasiado. Intenta de nuevo.",
+    "noResponse": "No se recibió respuesta del servidor",
+    "captureError": "Error al capturar imagen",
+    "selectError": "Error al seleccionar imagen",
+    "recordingError": "Error al iniciar grabación",
+    "stopRecordingError": "Error al detener grabación"
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "back": "Volver",
+    "retry": "Reintentar",
+    "save": "Guardar",
+    "processing": "Procesando...",
+    "error": "Error"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "title": "Add Multiple",
+  "subtitle": "Choose how you want to enter your transactions",
+  "inputTypes": {
+    "text": {
+      "title": "Type text",
+      "description": "Describe your expenses or income",
+      "label": "Text",
+      "hint": "Write in natural language"
+    },
+    "image": {
+      "title": "Scan receipt",
+      "description": "Take a photo or select an image",
+      "label": "Photo",
+      "hint": "Scan a receipt or note"
+    },
+    "voice": {
+      "title": "Record voice",
+      "description": "Dictate your transactions",
+      "label": "Voice",
+      "hint": "Dictate your expenses and income"
+    }
+  },
+  "textInput": {
+    "placeholder": "Example: \"I spent $50 on lunch, $30 on uber and received $2000 salary\"",
+    "tip": "Mention amounts (\"$50\", \"2 grand\"), dates (\"yesterday\", \"on Monday\") and describe if it's an expense or income.",
+    "processing": "Analyzing transactions with AI...",
+    "extract": "Extract"
+  },
+  "voiceInput": {
+    "processing": "Processing audio...",
+    "transcribing": "Transcribing and extracting transactions",
+    "recording": "Recording...",
+    "starting": "Starting...",
+    "maxDuration": "Maximum {{duration}}"
+  },
+  "imageInput": {
+    "processing": "Analyzing image...",
+    "extracting": "Extracting transactions from receipt",
+    "takePhoto": "Take photo",
+    "takePhotoDesc": "Capture a receipt or note",
+    "selectGallery": "Select from gallery",
+    "selectGalleryDesc": "Choose an existing image",
+    "anotherImage": "Another image",
+    "analyze": "Analyze",
+    "capturedReceipt": "Captured receipt"
+  },
+  "review": {
+    "title": "Review",
+    "reviewInstructions": "Review and complete the details of {{count}} transactions",
+    "reviewInstructions_one": "Review and complete the details of {{count}} transaction",
+    "transactionsFound": "{{count}} transactions found",
+    "transactionsFound_one": "{{count}} transaction found",
+    "noTransactionsFound": "No transactions found in the input",
+    "tryAgain": "Try again",
+    "confidence": "Confidence",
+    "needsReviewWarning": "Some transactions need review (marked with !)",
+    "fixCategory": "{{count}} transactions without category. Assign a category or remove them.",
+    "fixCategory_one": "{{count}} transaction without category. Assign a category or remove it.",
+    "fixAmount": "{{count}} transactions without amount. Add the amount or remove them.",
+    "fixAmount_one": "{{count}} transaction without amount. Add the amount or remove it.",
+    "fixCategoryAndAmount": "{{categoryCount}} without category and {{amountCount}} without amount. Fix or remove them.",
+    "retry": "Retry",
+    "saveAll": "Save all",
+    "save": "Save",
+    "saving": "Saving..."
+  },
+  "draft": {
+    "noCategory": "No category",
+    "namePlaceholder": "Description",
+    "aiConfidence": "AI Confidence",
+    "needsReviewMessage": "The AI is not sure about some fields. Please review before saving.",
+    "missingCategory": "You must select a category",
+    "missingAmount": "You must add an amount",
+    "missingCategoryAndAmount": "You must add amount and category",
+    "changeCategory": "Category",
+    "changeAmount": "Amount",
+    "deleteFromBatch": "Remove from batch"
+  },
+  "errors": {
+    "generic": "Processing error",
+    "loginRequired": "You must be logged in to use this feature",
+    "rateLimitFree": "You've reached your daily limit. Upgrade to Pro to keep using this feature.",
+    "rateLimitPro": "You've exceeded the request limit. Try again later.",
+    "upgradeToPro": "Upgrade to Pro",
+    "timeout": "The request took too long. Try again.",
+    "noResponse": "No response received from server",
+    "captureError": "Error capturing image",
+    "selectError": "Error selecting image",
+    "recordingError": "Error starting recording",
+    "stopRecordingError": "Error stopping recording"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Retry",
+    "save": "Save",
+    "processing": "Processing...",
+    "error": "Error"
+  }
+}

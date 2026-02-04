@@ -122,6 +122,49 @@ features/{feature-name}/
 
 ---
 
+### Feature: Batch Entry
+
+**Purpose**: AI-powered batch transaction entry (text, voice, receipt scan)
+
+**Files**:
+- **Components**: `BatchEntrySheet`, `InputTypeSelector`, `VoiceRecorder`, `ImageCaptureView`, `TextInputArea`, `TransactionPreview`, `TransactionDraftCard`, `AudioWaveform`
+- **Services**: `batchEntry.service.ts`, `audioCapture.service.ts`, `imageCapture.service.ts`
+- **Hooks**: `useFakeProgress.ts`
+- **Types**: `batch-entry.types.ts`
+- **Tests**: `batchEntry.service.test.ts` (15 tests), `useFakeProgress.test.ts` (10 tests), `TransactionPreview.test.tsx` (17 tests) - 42 total
+
+**Integration**:
+- Triggered from AddActionSheet via "Agregar varias" button
+- Uses Supabase Edge Function (`parse-batch`) with Gemini 2.5 Flash for parsing
+- Supports voice (Whisper transcription), image (receipt OCR), and text input
+- Rate limiting: 5 requests/day for free users, 50/day for Pro users
+
+**Features**:
+- **Input Modes**:
+  - Text: Free-form natural language (e.g., "Gasté 50 mil en almuerzo y 20 en taxi")
+  - Voice: Audio recording with real-time waveform visualization and transcription via Whisper API
+  - Image: Camera/gallery receipt scan with OCR and AI extraction
+- **Smart Parsing**:
+  - AI-powered extraction of transaction details (name, amount, category, date)
+  - Category mapping with fallback system for custom categories
+  - Confidence scoring and needs-review flags
+  - Handles Colombian peso format (e.g., "50 mil" → 50,000)
+- **Review & Edit**:
+  - Inline editing: tap to edit name, category, amount, or date
+  - Visual validation warnings for missing data
+  - Totals summary (income/expense) with live updates
+  - Bulk save or individual deletion
+- **Testing**:
+  - Comprehensive unit tests (42 tests) with 100% coverage
+  - Mocks for Supabase, i18next, react-router-dom
+  - Tests for authentication, API parsing, rate limiting, timeouts, animations
+
+**Routes**: N/A (modal-based, no dedicated routes)
+
+**i18n**: Complete support in 4 languages (es, en, fr, pt) via `i18n/locales/{lang}/batch.json`
+
+---
+
 ### Feature: Categories
 
 **Purpose**: Manage expense/income categories and groups
@@ -646,9 +689,33 @@ For questions about the architecture or how to implement a new feature, refer to
 
 ---
 
-**Last updated**: 2026-02-02
+**Last updated**: 2026-02-04
 
-## Recent Updates (v0.14.4)
+## Recent Updates (v0.14.5)
+
+**Date**: 2026-02-04
+
+**Changes**:
+- **Batch Entry Feature**: AI-powered batch transaction entry system
+  - Three input modes: text, voice (Whisper), and image (receipt scan OCR)
+  - Gemini 2.5 Flash integration via Supabase Edge Function
+  - Smart category mapping with fallback system for custom categories
+  - Inline editing of transaction drafts with validation
+  - Rate limiting: 5/day free, 50/day Pro
+  - 42 comprehensive unit tests with 100% coverage
+- Refactored duplicate utilities to use existing services
+  - Use `todayISO()` from `dates.service.ts` (not custom date functions)
+  - Use `getNetworkStatus()` from `network.service.ts` (not custom hooks)
+- Fixed test command to exit after completion (`vitest run`)
+- Updated 556 total tests passing
+
+**Benefits**:
+- Faster transaction entry with AI assistance
+- Support for voice and receipt scanning
+- Better code maintainability with shared utilities
+- CI/CD compatible test command
+
+## Previous Updates (v0.14.4)
 
 **Date**: 2026-02-02
 

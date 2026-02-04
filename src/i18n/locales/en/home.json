@@ -11,6 +11,13 @@
   "addActionSheet": {
     "title": "New Record",
     "close": "Close",
+    "quickEntry": "Quick Entry (AI)",
+    "dictate": "Dictate",
+    "photo": "Photo",
+    "text": "Text",
+    "manual": "Manual",
+    "manualIncome": "Manual Income",
+    "manualExpense": "Manual Expense",
     "addIncome": "Add Income",
     "incomeHint": "Salary, sales, etc.",
     "addExpense": "Add Expense",
