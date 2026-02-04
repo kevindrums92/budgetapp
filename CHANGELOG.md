@@ -14,7 +14,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.15.0] - 2026-02-04
 
 - **fix(perf): replace console.log with environment-aware logger utility**
   - Replaced all console.log/warn/error calls in useSubscription.ts and usePaywallPurchase.ts with logger utility
