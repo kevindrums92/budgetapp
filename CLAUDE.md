@@ -151,6 +151,124 @@ formatCOP(amount); // Always shows "$ X.XXX" regardless of user's currency
 
 **Reference**: See `CloudSyncGate.tsx` for the canonical pattern of using `network.service.ts` directly.
 
+**In-App Browser** (`src/shared/utils/browser.utils.ts`):
+
+**CRITICAL**: Always use in-app browser utilities for opening external URLs. This is REQUIRED for Apple App Store compliance (Guideline 4.0).
+
+```typescript
+import { openUrl, openLegalPage } from "@/shared/utils/browser.utils";
+
+// ✅ CORRECT - Generic URL opening
+await openUrl("https://example.com");
+await openUrl("https://example.com", { presentationStyle: 'fullscreen' });
+
+// ✅ CORRECT - Legal pages (Terms/Privacy)
+const locale = i18n.language || 'es';
+await openLegalPage('terms', locale);    // Opens Terms of Service
+await openLegalPage('privacy', locale);  // Opens Privacy Policy
+
+// ❌ WRONG - Never use window.open in native context
+if (isNative()) {
+  window.open("https://example.com", "_blank"); // Apple will reject!
+}
+
+// ❌ WRONG - Don't navigate to external URLs directly
+<a href="https://example.com" target="_blank">Link</a> // Breaks on native
+```
+
+**openUrl API**:
+- `url: string` - The URL to open
+- `options.presentationStyle?: 'fullscreen' | 'popover'` - Presentation style (default: 'fullscreen')
+
+**openLegalPage API**:
+- `page: 'terms' | 'privacy'` - Which legal page to open
+- `locale: string` - Language code (e.g., 'es', 'en', 'fr')
+
+**Platform Behavior**:
+- **iOS**: Opens Safari View Controller (in-app browser, user stays in app)
+- **Android**: Opens Chrome Custom Tabs (in-app browser, user stays in app)
+- **Web**: Opens in new tab using `window.open(url, '_blank')`
+
+**Why In-App Browser**:
+- **Apple Requirement**: Guideline 4.0 requires in-app browsers for external links to avoid app rejection
+- **Better UX**: Users stay in your app, seamless navigation flow
+- **OAuth Support**: Required for Google/Apple Sign-In flows (see OAuth section below)
+
+**OAuth with In-App Browser** (`src/shared/utils/oauth.utils.ts`):
+
+**CRITICAL**: Always use `signInWithOAuthInAppBrowser()` for OAuth authentication. Never use Supabase's `signInWithOAuth()` directly in components.
+
+```typescript
+import { signInWithOAuthInAppBrowser } from "@/shared/utils/oauth.utils";
+
+// ✅ CORRECT - OAuth with in-app browser
+const handleGoogleLogin = async () => {
+  setLoading(true);
+  try {
+    const { error } = await signInWithOAuthInAppBrowser('google', {
+      queryParams: {
+        prompt: 'select_account',
+      },
+    });
+    if (error) throw error;
+    // Auth callback handled by App.tsx deep link listener
+  } catch (err) {
+    console.error('[Component] OAuth error:', err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Apple Sign-In (same pattern)
+const handleAppleLogin = async () => {
+  const { error } = await signInWithOAuthInAppBrowser('apple');
+  if (error) console.error('[Component] Apple OAuth error:', error);
+};
+
+// ❌ WRONG - Using Supabase directly
+const { error } = await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: { redirectTo: '...' },
+});
+```
+
+**signInWithOAuthInAppBrowser API**:
+- `provider: 'google' | 'apple'` - OAuth provider
+- `options.queryParams?: Record<string, string>` - Additional OAuth query params (e.g., `{ prompt: 'select_account' }`)
+- Returns: `Promise<{ error: Error | null }>` - Error object if auth fails, null on success
+
+**OAuth Flow**:
+1. Function calls `supabase.auth.signInWithOAuth()` with `skipBrowserRedirect: true`
+2. Opens OAuth URL in Safari View Controller (iOS) or Chrome Custom Tabs (Android)
+3. User authenticates in in-app browser
+4. Provider redirects back to app via deep link (`smartspend://`)
+5. App.tsx deep link listener catches redirect and calls `supabase.auth.getSession()`
+6. Session established, user logged in
+
+**Common Mistakes to Avoid**:
+
+❌ Using `window.open()` directly on native platforms (Apple rejection)
+✅ Always use `openUrl()` utility
+
+❌ Navigating to legal pages with `window.location.href` or `<a href>`
+✅ Use `openLegalPage()` for Terms/Privacy
+
+❌ Calling `supabase.auth.signInWithOAuth()` directly in components
+✅ Use `signInWithOAuthInAppBrowser()` helper
+
+❌ Forgetting to handle OAuth errors
+✅ Always wrap in try-catch and show user-friendly error messages
+
+❌ Opening external links without checking platform
+✅ `openUrl()` automatically detects platform and uses correct method
+
+**Examples in Codebase**:
+- PaywallModal.tsx - Legal links in subscription modal
+- ProfilePage.tsx - Terms and Privacy menu items
+- LoginProScreen.tsx - Google/Apple OAuth buttons
+- LoginScreen.tsx - Guest mode OAuth buttons
+
 ---
 
 ## Design Guidelines

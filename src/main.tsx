@@ -65,6 +65,12 @@ if (isNative()) {
             }));
           } else {
             console.log('[DeepLink] Session established successfully');
+
+            // Close in-app browser after successful OAuth
+            const { closeBrowser } = await import('@/shared/utils/browser.utils');
+            await closeBrowser();
+            console.log('[DeepLink] In-app browser closed');
+
             // Don't redirect here - LoginScreen's auth listener will handle navigation
             // This prevents double navigation and allows proper data sync
           }
@@ -88,6 +94,12 @@ if (isNative()) {
             }));
           } else {
             console.log('[DeepLink] Session set successfully');
+
+            // Close in-app browser after successful OAuth
+            const { closeBrowser } = await import('@/shared/utils/browser.utils');
+            await closeBrowser();
+            console.log('[DeepLink] In-app browser closed');
+
             // Don't redirect here - LoginScreen's auth listener will handle navigation
           }
         } else {

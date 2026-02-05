@@ -4,6 +4,7 @@ import { X, Check, Crown } from 'lucide-react';
 import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
 import PricingCard from './PricingCard';
 import type { PricingPlanKey, PaywallTrigger } from '@/constants/pricing';
+import { openLegalPage } from '@/shared/utils/browser.utils';
 
 type PaywallModalProps = {
   open: boolean;
@@ -14,6 +15,7 @@ type PaywallModalProps = {
 
 const BENEFIT_KEYS = [
   'unlimitedCategories',
+  'aiBatchEntry',
   'stats',
   'historyFilters',
   'export',
@@ -22,7 +24,7 @@ const BENEFIT_KEYS = [
 ] as const;
 
 export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: PaywallModalProps) {
-  const { t } = useTranslation('paywall');
+  const { t, i18n } = useTranslation('paywall');
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey>('annual');
   const [isVisible, setIsVisible] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -205,6 +207,32 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
             }}
           />
         </div>
+
+        {/* Legal Links - Required by Apple */}
+        <p className="mt-4 px-2 text-center text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+          {t('legal.text')}{' '}
+          <button
+            type="button"
+            onClick={() => {
+              const locale = i18n.language || 'es';
+              openLegalPage('terms', locale);
+            }}
+            className="text-[#18B7B0] underline"
+          >
+            {t('legal.terms')}
+          </button>
+          {' '}{t('legal.and')}{' '}
+          <button
+            type="button"
+            onClick={() => {
+              const locale = i18n.language || 'es';
+              openLegalPage('privacy', locale);
+            }}
+            className="text-[#18B7B0] underline"
+          >
+            {t('legal.privacy')}
+          </button>.
+        </p>
 
         {/* Restore purchases */}
         <button

@@ -13,10 +13,11 @@ import { Capacitor } from '@capacitor/core';
 import { isNative } from '@/shared/utils/platform';
 import PaywallModal from '@/shared/components/modals/PaywallModal';
 import { authenticateWithBiometrics, checkBiometricAvailability, getBiometryDisplayName } from "@/features/biometric/services/biometric.service";
+import { openLegalPage } from '@/shared/utils/browser.utils';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { t } = useTranslation('profile');
+  const { t, i18n } = useTranslation('profile');
   const { currentLanguageData } = useLanguage();
   const { theme } = useTheme();
   const { currencyInfo } = useCurrency();
@@ -529,12 +530,18 @@ export default function ProfilePage() {
             <MenuItem
               icon={<ScrollText size={20} />}
               label={t('legal.terms.title', 'Términos de Servicio')}
-              onClick={() => navigate('/legal/terms')}
+              onClick={() => {
+                const locale = i18n.language || 'es';
+                openLegalPage('terms', locale);
+              }}
             />
             <MenuItem
               icon={<Lock size={20} />}
               label={t('legal.privacy.title', 'Política de Privacidad')}
-              onClick={() => navigate('/legal/privacy')}
+              onClick={() => {
+                const locale = i18n.language || 'es';
+                openLegalPage('privacy', locale);
+              }}
             />
           </div>
         </div>

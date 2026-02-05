@@ -17,6 +17,21 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(auth): implement in-app browser for OAuth and legal links**
+  - Added @capacitor/browser for Safari View Controller (iOS) and Chrome Custom Tabs (Android)
+  - Created browser.utils.ts with openUrl(), closeBrowser(), openLegalPage() utilities
+  - Created oauth.utils.ts with signInWithOAuthInAppBrowser() for OAuth flows
+  - Updated LoginScreen and LoginProScreen to use in-app browser for Google/Apple OAuth
+  - Updated PaywallModal and ProfilePage to use in-app browser for Terms/Privacy links
+  - In-app browser auto-closes after successful OAuth completion
+  - Detects OAuth cancellation and resets loading state when user goes back
+  - Fixes Apple App Store Guideline 4.0 rejection
+  - Comprehensive documentation added to CLAUDE.md
+
+- **chore(ci): add verify command for quality checks**
+  - Added npm run verify script to run lint, tests, and build in sequence
+  - Ensures all 583 unit tests pass before deployment
+
 ## [0.15.0] - 2026-02-04
 
 - **fix(perf): replace console.log with environment-aware logger utility**

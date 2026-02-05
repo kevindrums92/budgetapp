@@ -49,9 +49,9 @@ const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"
 const NotificationSettingsPage = lazy(() => import("@/features/notifications/pages/NotificationSettingsPage"));
 const SubscriptionManagementPage = lazy(() => import("@/features/profile/pages/SubscriptionManagementPage"));
 
-// Lazy load legal pages
-const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfServicePage"));
-const PrivacyPolicyPage = lazy(() => import("@/features/profile/pages/PrivacyPolicyPage"));
+// Lazy load legal pages (now using landing site with proper i18n)
+// const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfServicePage"));
+// const PrivacyPolicyPage = lazy(() => import("@/features/profile/pages/PrivacyPolicyPage"));
 
 import CloudSyncGate from "@/shared/components/providers/CloudSyncGate";
 import AdMobProvider from "@/shared/components/providers/AdMobProvider";
@@ -151,8 +151,9 @@ function AppFrame() {
             <Route path="/settings/export-csv" element={<ExportCSVPage />} />
             <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
 
-            <Route path="/legal/terms" element={<TermsOfServicePage />} />
-            <Route path="/legal/privacy" element={<PrivacyPolicyPage />} />
+            {/* Legal pages now redirect to landing site with proper i18n */}
+            {/* <Route path="/legal/terms" element={<TermsOfServicePage />} /> */}
+            {/* <Route path="/legal/privacy" element={<PrivacyPolicyPage />} /> */}
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

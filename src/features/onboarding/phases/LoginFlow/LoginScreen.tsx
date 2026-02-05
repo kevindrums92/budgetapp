@@ -6,23 +6,27 @@
  * 2. Logout: Login → App (directo)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Shield, User, Chrome, Apple, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
-import { isNative } from '@/shared/utils/platform';
-import { getOAuthRedirectUrl } from '@/config/env';
 import { useOnboarding } from '../../OnboardingContext';
 import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
+import { openLegalPage } from '@/shared/utils/browser.utils';
+import { signInWithOAuthInAppBrowser } from '@/shared/utils/oauth.utils';
+import { isNative } from '@/shared/utils/platform';
 
 export default function LoginScreen() {
-  const { t } = useTranslation('onboarding');
+  const { t, i18n } = useTranslation('onboarding');
   const navigate = useNavigate();
   const { state, updatePhase, setAuthMethod } = useOnboarding();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [oauthError, setOAuthError] = useState<{ message: string; isRetryable: boolean } | null>(null);
+
+  // Track OAuth in progress to handle browser cancellation
+  const oauthInProgress = useRef(false);
 
   // ✅ CRITICAL: Mark device as initialized when user reaches login screen
   // This permanent flag ensures WelcomeOnboarding is only shown on first device use
@@ -60,8 +64,9 @@ export default function LoginScreen() {
 
       console.log('[LoginScreen] OAuth error received:', { error, isRetryable });
 
-      // Stop loading state
+      // Stop loading state and OAuth tracking
       setLoading(false);
+      oauthInProgress.current = false;
 
       // Show error modal
       setOAuthError({
@@ -74,6 +79,51 @@ export default function LoginScreen() {
 
     return () => {
       window.removeEventListener('oauth-error', handleOAuthError);
+    };
+  }, []);
+
+  /**
+   * Listener para detectar cuando el usuario vuelve a la app sin completar OAuth
+   * (cerró el in-app browser sin hacer login)
+   */
+  useEffect(() => {
+    if (!isNative()) return;
+
+    let appListener: any;
+
+    const setupListener = async () => {
+      const { App } = await import('@capacitor/app');
+
+      appListener = await App.addListener('appStateChange', async ({ isActive }) => {
+        if (isActive && oauthInProgress.current) {
+          console.log('[LoginScreen] App returned to foreground during OAuth');
+
+          // Wait a bit for session to be established
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // Check if session was created
+          const { data } = await supabase.auth.getSession();
+
+          if (!data.session) {
+            // No session = user cancelled OAuth
+            console.log('[LoginScreen] No session found, user likely cancelled OAuth');
+            setLoading(false);
+            oauthInProgress.current = false;
+          } else {
+            // Session exists = OAuth succeeded, clear OAuth tracking
+            console.log('[LoginScreen] Session found, OAuth completed successfully');
+            oauthInProgress.current = false;
+          }
+        }
+      });
+    };
+
+    setupListener();
+
+    return () => {
+      if (appListener) {
+        appListener.remove();
+      }
     };
   }, []);
 
@@ -218,26 +268,17 @@ export default function LoginScreen() {
   };
 
   /**
-   * Maneja el login con Google OAuth
+   * Maneja el login con Google OAuth (uses in-app browser on native)
    */
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError(null);
+    oauthInProgress.current = true;
 
     try {
-      // Native apps use custom URL scheme for OAuth deep linking
-      // The scheme changes per environment (smartspend:// vs smartspend-dev://)
-      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
-
-      console.log('[LoginScreen] OAuth redirect URL:', redirectTo);
-
-      const { error: authError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          queryParams: {
-            prompt: 'select_account',
-          },
+      const { error: authError } = await signInWithOAuthInAppBrowser('google', {
+        queryParams: {
+          prompt: 'select_account',
         },
       });
 
@@ -250,29 +291,20 @@ export default function LoginScreen() {
       console.error('[LoginScreen] Error en Google login:', err);
       setError(err.message || t('login.errorGoogle'));
       setLoading(false);
+      oauthInProgress.current = false;
     }
   };
 
   /**
-   * Maneja el login con Apple OAuth
+   * Maneja el login con Apple OAuth (uses in-app browser on native)
    */
   const handleAppleLogin = async () => {
     setLoading(true);
     setError(null);
+    oauthInProgress.current = true;
 
     try {
-      // Native apps use custom URL scheme for OAuth deep linking
-      // The scheme changes per environment (smartspend:// vs smartspend-dev://)
-      const redirectTo = isNative() ? getOAuthRedirectUrl() : window.location.origin;
-
-      console.log('[LoginScreen] Apple OAuth redirect URL:', redirectTo);
-
-      const { error: authError } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo,
-        },
-      });
+      const { error: authError } = await signInWithOAuthInAppBrowser('apple');
 
       if (authError) throw authError;
 
@@ -283,6 +315,7 @@ export default function LoginScreen() {
       console.error('[LoginScreen] Error en Apple login:', err);
       setError(err.message || 'Error al iniciar sesión con Apple');
       setLoading(false);
+      oauthInProgress.current = false;
     }
   };
 
@@ -390,7 +423,10 @@ export default function LoginScreen() {
           {t('login.termsPrefix')}{' '}
           <button
             type="button"
-            onClick={() => navigate('/legal/terms')}
+            onClick={() => {
+              const locale = i18n.language || 'es';
+              openLegalPage('terms', locale);
+            }}
             className="font-medium text-[#18B7B0] underline"
           >
             {t('login.termsService')}
@@ -398,7 +434,10 @@ export default function LoginScreen() {
           {t('login.termsAnd')}{' '}
           <button
             type="button"
-            onClick={() => navigate('/legal/privacy')}
+            onClick={() => {
+              const locale = i18n.language || 'es';
+              openLegalPage('privacy', locale);
+            }}
             className="font-medium text-[#18B7B0] underline"
           >
             {t('login.termsPrivacy')}
