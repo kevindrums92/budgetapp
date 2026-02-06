@@ -5,7 +5,7 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Sparkles, WifiOff } from "lucide-react";
+import { Sparkles, WifiOff, X, Check } from "lucide-react";
 import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
 import { useBudgetStore } from "@/state/budget.store";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
@@ -550,33 +550,9 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
 
     // Error state
     if (flowState === "error") {
-      // Check if it's a free user rate limit - show paywall instead
+      // Free user rate limit - modal is rendered separately below
       if (error === "RATE_LIMIT_FREE") {
-        return (
-          <div className="flex flex-col items-center py-8">
-            <div className="mb-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 p-4">
-              <p className="text-center text-sm text-amber-700 dark:text-amber-400">
-                {t("errors.rateLimitFree")}
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="rounded-xl bg-gray-100 dark:bg-gray-800 px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                {t("common.back")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowPaywall(true)}
-                className="rounded-xl bg-violet-500 px-6 py-2 text-sm font-medium text-white"
-              >
-                {t("errors.upgradeToPro")}
-              </button>
-            </div>
-          </div>
-        );
+        return null;
       }
 
       // Translate error codes to user-friendly messages
@@ -695,14 +671,14 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
         }}
       />
 
-      {/* Sheet */}
+      {/* Sheet - hidden when rate limit modal is showing */}
       <div
         ref={sheetRef}
         className={`absolute shadow-2xl ${
           isFullScreen
             ? "inset-0 flex flex-col bg-gray-100 dark:bg-gray-950"
             : "inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900"
-        }`}
+        } ${flowState === "error" && error === "RATE_LIMIT_FREE" ? "!hidden" : ""}`}
         style={{
           transform: isFullScreen
             ? `translateY(${isAnimating ? 0 : window.innerHeight}px)`
@@ -749,6 +725,70 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
           </div>
         </div>
       </div>
+
+      {/* Rate limit upsell modal for free users */}
+      {flowState === "error" && error === "RATE_LIMIT_FREE" && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+
+          <div className="relative mx-6 w-full max-w-sm overflow-hidden rounded-3xl bg-gradient-to-b from-gray-800 to-gray-900 p-6 shadow-2xl">
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all active:scale-95"
+            >
+              <X size={16} className="text-gray-400" />
+            </button>
+
+            {/* Icon */}
+            <div className="mb-5 flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#18B7B0] to-violet-500 shadow-lg shadow-[#18B7B0]/20">
+                <Sparkles size={32} className="text-white" strokeWidth={1.8} />
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="mb-2 text-center text-xl font-extrabold tracking-tight text-white">
+              Sin Límites
+            </h3>
+
+            {/* Subtitle */}
+            <p className="mb-6 text-center text-sm leading-relaxed text-gray-400">
+              No dejes que nada te detenga. Desbloquea registros con IA ilimitados y obtén el control total.
+            </p>
+
+            {/* Benefits */}
+            <div className="mb-6 space-y-3">
+              <div className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#18B7B0]/20">
+                  <Check size={14} className="text-[#18B7B0]" strokeWidth={3} />
+                </div>
+                <span className="text-sm font-medium text-gray-200">
+                  Registros con IA ilimitados
+                </span>
+              </div>
+              <div className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#18B7B0]/20">
+                  <Check size={14} className="text-[#18B7B0]" strokeWidth={3} />
+                </div>
+                <span className="text-sm font-medium text-gray-200">
+                  Escaneo de recibos inteligente
+                </span>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <button
+              type="button"
+              onClick={() => setShowPaywall(true)}
+              className="w-full rounded-2xl bg-white py-4 text-base font-bold text-gray-900 shadow-lg transition-all active:scale-[0.98]"
+            >
+              Prueba Gratis por 7 Días
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Paywall modal for free users */}
       <PaywallModal

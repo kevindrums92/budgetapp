@@ -4,6 +4,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(home): redesign empty state with AI batch entry CTA**
+  - New EmptyStateHome component with Sparkles hero icon and three input mode buttons (Voice, Photo, Text)
+  - Hide BalanceCard, daily budget banner, and history link when no transactions exist
+  - Each button has distinct color identity (teal, violet, amber) and opens BatchEntrySheet directly
+  - Redesign batch entry rate limit modal as dark premium upsell card ("Sin Límites")
+  - Hide BatchEntrySheet when rate limit modal is showing to avoid visual overlap
+
 - **fix(ui): remove duplicate error modal in PaywallModal**
   - Removed onError callback from usePaywallPurchase in ProfilePage that showed redundant error modal
   - Error is now shown only in inline banner within PaywallModal (no duplicate modal on close)
