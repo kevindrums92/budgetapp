@@ -3,7 +3,16 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.15.2] - 2026-02-05
+
+- **fix(batch-entry): enable PaywallModal purchase button from rate limit upsell**
+  - Added usePaywallPurchase hook and onSelectPlan handler to BatchEntrySheet
+  - PaywallModal now receives onSelectPlan prop to process trial activation
+  - Hide rate limit modal when PaywallModal opens to prevent interaction conflicts
+  - Fixes "Start 7-day free trial" button not responding when triggered from AI rate limit screen
 
 ## [0.15.1] - 2026-02-05
 

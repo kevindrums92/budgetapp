@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Sparkles, WifiOff, X, Check } from "lucide-react";
 import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
 import { useBudgetStore } from "@/state/budget.store";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 import type { Category } from "@/types/budget.types";
 import type { BatchInputType, TransactionDraft } from "../types/batch-entry.types";
@@ -175,6 +176,11 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const [error, setError] = useState<string | null>(null);
   const [isAuthed, setIsAuthed] = useState<boolean | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
+
+  // Paywall purchase handler
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setShowPaywall(false),
+  });
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
@@ -727,7 +733,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
       </div>
 
       {/* Rate limit upsell modal for free users */}
-      {flowState === "error" && error === "RATE_LIMIT_FREE" && (
+      {flowState === "error" && error === "RATE_LIMIT_FREE" && !showPaywall && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
@@ -795,6 +801,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
         open={showPaywall}
         onClose={() => setShowPaywall(false)}
         trigger="batch_entry_limit"
+        onSelectPlan={handleSelectPlan}
       />
     </div>
   );
