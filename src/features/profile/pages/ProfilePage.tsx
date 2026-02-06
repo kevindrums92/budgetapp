@@ -27,7 +27,7 @@ export default function ProfilePage() {
   // Paywall purchase handler
   const { handleSelectPlan } = usePaywallPurchase({
     onSuccess: () => setShowPaywall(false),
-    onError: () => setErrorMessage('No se pudo activar el trial. Por favor intenta de nuevo.'),
+    // Error is shown inline in PaywallModal banner, no need for extra modal
   });
 
   // ✅ Read from Zustand store (single source of truth)

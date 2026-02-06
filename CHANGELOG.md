@@ -4,6 +4,17 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(ui): remove duplicate error modal in PaywallModal**
+  - Removed onError callback from usePaywallPurchase in ProfilePage that showed redundant error modal
+  - Error is now shown only in inline banner within PaywallModal (no duplicate modal on close)
+  - Improves UX by avoiding confusing double error messages
+
+- **fix(batch): upgrade to Gemini 2.5 Flash-Lite for better rate limits**
+  - Migrated parse-batch Edge Function from Gemini 2.0 Flash to Gemini 2.5 Flash-Lite
+  - New model has better free tier limits: 15 RPM, 1000 RPD (vs 5 RPM, ~250 RPD)
+  - Fixes 429 quota exceeded errors that were occurring even on first request of the day
+  - Documented in MEMORY.md for future reference
+
 - **docs(app-store): add App Privacy configuration guide**
   - Created comprehensive guide for configuring App Privacy in App Store Connect
   - Documents all 9 data types collected (Contact Info, Financial Info, Identifiers, Usage Data, User Content)
