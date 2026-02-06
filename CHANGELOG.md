@@ -17,6 +17,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **docs(app-store): add URL configuration guide for App Store Connect**
+  - Created comprehensive guide with all required URLs (Privacy Policy, Terms, Support, Marketing)
+  - Includes step-by-step instructions for App Store Connect configuration
+  - Documents Apple Guidelines compliance (4.0, 5.1.1, 5.1.2)
+  - Provides verification checklist and testing commands
+
 - **feat(auth): implement in-app browser for OAuth and legal links**
   - Added @capacitor/browser for Safari View Controller (iOS) and Chrome Custom Tabs (Android)
   - Created browser.utils.ts with openUrl(), closeBrowser(), openLegalPage() utilities
