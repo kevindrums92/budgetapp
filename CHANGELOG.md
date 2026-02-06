@@ -3,7 +3,10 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.15.2] - 2026-02-05
 
 - **fix(batch-entry): enable PaywallModal purchase button from rate limit upsell**
   - Added usePaywallPurchase hook and onSelectPlan handler to BatchEntrySheet
