@@ -59,6 +59,28 @@
     "trial": {
       "daysRemaining_one": "{{count}} día de prueba",
       "daysRemaining_other": "{{count}} días de prueba"
+    },
+    "delete": {
+      "title": "Eliminar Cuenta",
+      "subtitle": "Elimina permanentemente tu cuenta y todos tus datos",
+      "buttonLabel": "Eliminar mi cuenta permanentemente",
+      "confirmTitle": "¿Eliminar tu cuenta?",
+      "confirmMessage": "Esta acción es permanente y no se puede deshacer. Se eliminarán:",
+      "dataList": {
+        "transactions": "Todas tus transacciones e historial financiero",
+        "categories": "Categorías y presupuestos personalizados",
+        "settings": "Preferencias y configuración",
+        "subscription": "Información de suscripción (deberás cancelarla por separado en la App Store)"
+      },
+      "warning": "Esta acción no se puede revertir",
+      "understanding": "Entiendo que esta acción es permanente",
+      "cancelButton": "Cancelar",
+      "deleteButton": "Eliminar Mi Cuenta",
+      "deleting": "Eliminando cuenta...",
+      "successTitle": "Cuenta Eliminada",
+      "successMessage": "Tu cuenta y todos tus datos han sido eliminados permanentemente.",
+      "errorTitle": "Error",
+      "errorMessage": "No se pudo eliminar tu cuenta. Por favor, intenta de nuevo o contacta a soporte."
     }
   },
   "login": "Iniciar sesión",

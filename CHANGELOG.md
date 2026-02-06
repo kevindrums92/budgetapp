@@ -3,19 +3,63 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ## [unreleased] - {relase date}
+
+## [0.15.1] - 2026-02-05
+
+- **feat(home): redesign empty state with AI batch entry CTA**
+  - New EmptyStateHome component with Sparkles hero icon and three input mode buttons (Voice, Photo, Text)
+  - Hide BalanceCard, daily budget banner, and history link when no transactions exist
+  - Each button has distinct color identity (teal, violet, amber) and opens BatchEntrySheet directly
+  - Redesign batch entry rate limit modal as dark premium upsell card ("Sin Límites")
+  - Hide BatchEntrySheet when rate limit modal is showing to avoid visual overlap
+
+- **fix(ui): remove duplicate error modal in PaywallModal**
+  - Removed onError callback from usePaywallPurchase in ProfilePage that showed redundant error modal
+  - Error is now shown only in inline banner within PaywallModal (no duplicate modal on close)
+  - Improves UX by avoiding confusing double error messages
+
+- **fix(batch): upgrade to Gemini 2.5 Flash-Lite for better rate limits**
+  - Migrated parse-batch Edge Function from Gemini 2.0 Flash to Gemini 2.5 Flash-Lite
+  - New model has better free tier limits: 15 RPM, 1000 RPD (vs 5 RPM, ~250 RPD)
+  - Fixes 429 quota exceeded errors that were occurring even on first request of the day
+  - Documented in MEMORY.md for future reference
+
+- **docs(app-store): add App Privacy configuration guide**
+  - Created comprehensive guide for configuring App Privacy in App Store Connect
+  - Documents all 9 data types collected (Contact Info, Financial Info, Identifiers, Usage Data, User Content)
+  - Includes step-by-step instructions for each data type configuration
+  - Discloses third-party services (Supabase, RevenueCat, OAuth providers)
+  - Verification checklist and common review issues
+  - Fixes Apple App Store Guideline 5.1.2 (Data Privacy Disclosures)
+
+- **feat(profile): implement account deletion for App Store compliance**
+  - Added delete-account Edge Function with JWT authentication and cascade cleanup
+  - Created deleteAccount.service.ts to call Edge Function
+  - Added delete account UI with confirmation modal, success/error states
+  - Includes i18n translations in 4 languages (es, en, fr, pt)
+  - Fixes Apple App Store Guideline 5.1.1 (Account Deletion requirement)
+
+- **docs(app-store): add URL configuration guide for App Store Connect**
+  - Created comprehensive guide with all required URLs (Privacy Policy, Terms, Support, Marketing)
+  - Includes step-by-step instructions for App Store Connect configuration
+  - Documents Apple Guidelines compliance (4.0, 5.1.1, 5.1.2)
+  - Provides verification checklist and testing commands
+
+- **feat(auth): implement in-app browser for OAuth and legal links**
+  - Added @capacitor/browser for Safari View Controller (iOS) and Chrome Custom Tabs (Android)
+  - Created browser.utils.ts with openUrl(), closeBrowser(), openLegalPage() utilities
+  - Created oauth.utils.ts with signInWithOAuthInAppBrowser() for OAuth flows
+  - Updated LoginScreen and LoginProScreen to use in-app browser for Google/Apple OAuth
+  - Updated PaywallModal and ProfilePage to use in-app browser for Terms/Privacy links
+  - In-app browser auto-closes after successful OAuth completion
+  - Detects OAuth cancellation and resets loading state when user goes back
+  - Fixes Apple App Store Guideline 4.0 rejection
+  - Comprehensive documentation added to CLAUDE.md
+
+- **chore(ci): add verify command for quality checks**
+  - Added npm run verify script to run lint, tests, and build in sequence
+  - Ensures all 583 unit tests pass before deployment
 
 ## [0.15.0] - 2026-02-04
 

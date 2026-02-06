@@ -45,6 +45,7 @@ export default function CategoryPickerDrawer({
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   // Filter categories by type and search
   const filteredCategories = useMemo(() => {
@@ -161,6 +162,32 @@ export default function CategoryPickerDrawer({
     navigate(`/category/new?type=${transactionType}&returnTo=transaction`);
   }
 
+  // Touch handlers for category selection (fixes iOS keyboard dismiss issue)
+  const handleCategoryTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  };
+
+  const handleCategoryTouchEnd = (categoryId: string) => (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+
+    const touch = e.changedTouches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+
+    // Only select if it was a tap (not a scroll gesture)
+    // Allow small movement tolerance of 10px
+    if (deltaX < 10 && deltaY < 10) {
+      e.preventDefault(); // Prevent click from also firing
+      e.stopPropagation(); // Prevent event from bubbling to backdrop
+      onSelect(categoryId);
+    }
+
+    touchStartRef.current = null;
+  };
+
   if (!isVisible) return null;
 
   const sheetTranslate = isAnimating ? dragOffset : SHEET_HEIGHT;
@@ -254,6 +281,8 @@ export default function CategoryPickerDrawer({
                       key={cat.id}
                       type="button"
                       onClick={() => onSelect(cat.id)}
+                      onTouchStart={handleCategoryTouchStart}
+                      onTouchEnd={handleCategoryTouchEnd(cat.id)}
                       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-colors ${
                         isSelected
                           ? "bg-emerald-50 dark:bg-emerald-900/30"

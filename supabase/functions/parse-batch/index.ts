@@ -6,7 +6,7 @@
  * 1. Validate JWT from Supabase Auth
  * 2. Check rate limit (10 requests/hour/user)
  * 3. If audio: transcribe with OpenAI Whisper
- * 4. Process with Gemini 2.0 Flash to extract transactions (fallback: GPT-4o-mini)
+ * 4. Process with Gemini 2.5 Flash-Lite to extract transactions (fallback: GPT-4o-mini)
  * 5. Return structured JSON response
  */
 
@@ -150,7 +150,7 @@ async function transcribeAudio(audioBase64: string): Promise<string> {
   return transcription;
 }
 
-// Process with Gemini 2.0 Flash
+// Process with Gemini 2.5 Flash-Lite
 async function processWithGemini(
   text: string,
   currentDate: string,
@@ -175,7 +175,7 @@ async function processWithGemini(
     throw new Error("GEMINI_API_KEY not configured");
   }
 
-  console.log("[parse-batch] Processing with Gemini 2.0 Flash...");
+  console.log("[parse-batch] Processing with Gemini 2.5 Flash-Lite...");
 
   const systemPrompt = getSystemPrompt(currentDate, historyPatterns);
 
@@ -211,9 +211,9 @@ async function processWithGemini(
     },
   };
 
-  // Try gemini-2.0-flash first, fallback to 1.5-flash if not available
+  // Try gemini-2.5-flash-lite (best free tier limits: 15 RPM, 1000 RPD)
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${geminiKey}`,
     {
       method: "POST",
       headers: {

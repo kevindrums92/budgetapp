@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.15.0",
+  "version": "0.15.1",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -20,6 +20,7 @@
     "android:dev": "npm run configure:dev && npm run build:dev && npx cap sync android && npx cap open android",
     "android:prod": "npm run configure:prod && npm run build:prod && npx cap sync android && npx cap open android",
     "lint": "eslint .",
+    "verify": "npm run lint && npm run test:run && npm run build",
     "preview": "vite preview",
     "start": "node server.js",
     "heroku-postbuild": "npm run build",
@@ -48,6 +49,7 @@
     "@capacitor-firebase/messaging": "^8.0.1",
     "@capacitor/android": "^8.0.1",
     "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
     "@capacitor/camera": "^8.0.0",
     "@capacitor/cli": "^8.0.1",
     "@capacitor/core": "^8.0.1",

@@ -8,15 +8,17 @@ import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
-import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown, Chrome, Apple } from "lucide-react";
+import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown, Chrome, Apple, AlertTriangle } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
 import { isNative } from '@/shared/utils/platform';
 import PaywallModal from '@/shared/components/modals/PaywallModal';
 import { authenticateWithBiometrics, checkBiometricAvailability, getBiometryDisplayName } from "@/features/biometric/services/biometric.service";
+import { openLegalPage } from '@/shared/utils/browser.utils';
+import { deleteAccount } from "@/features/profile/services/deleteAccount.service";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { t } = useTranslation('profile');
+  const { t, i18n } = useTranslation('profile');
   const { currentLanguageData } = useLanguage();
   const { theme } = useTheme();
   const { currencyInfo } = useCurrency();
@@ -25,7 +27,7 @@ export default function ProfilePage() {
   // Paywall purchase handler
   const { handleSelectPlan } = usePaywallPurchase({
     onSuccess: () => setShowPaywall(false),
-    onError: () => setErrorMessage('No se pudo activar el trial. Por favor intenta de nuevo.'),
+    // Error is shown inline in PaywallModal banner, no need for extra modal
   });
 
   // ✅ Read from Zustand store (single source of truth)
@@ -42,6 +44,13 @@ export default function ProfilePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [biometryType, setBiometryType] = useState<string>('Face ID');
   const [showPaywall, setShowPaywall] = useState(false);
+
+  // Delete account states
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteUnderstanding, setDeleteUnderstanding] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Get current theme name for display
   const currentThemeName = useMemo(() => {
@@ -94,6 +103,84 @@ export default function ProfilePage() {
 
     setLoading(false);
     navigate("/");
+  }
+
+  // Handle delete account
+  async function handleDeleteAccount() {
+    console.log('[ProfilePage] Starting account deletion process');
+    setDeletingAccount(true);
+    setDeleteError(null);
+
+    try {
+      // Call delete account service
+      const { success, error } = await deleteAccount();
+
+      if (!success) {
+        console.error('[ProfilePage] Failed to delete account:', error);
+        setDeleteError(error || t('account.delete.errorMessage'));
+        setDeletingAccount(false);
+        setShowDeleteConfirm(false);
+        return;
+      }
+
+      console.log('[ProfilePage] Account deleted successfully');
+
+      // Close confirmation modal
+      setShowDeleteConfirm(false);
+      setDeletingAccount(false);
+
+      // Show success modal
+      setShowDeleteSuccess(true);
+
+      // Wait 2 seconds before cleaning up and signing out
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Clean up and sign out (SAME AS signOut() FUNCTION)
+      console.log('[ProfilePage] Cleaning up after account deletion');
+
+      // 1. Sign out from Supabase (CRITICAL - clears auth session)
+      await supabase.auth.signOut();
+      console.log('[ProfilePage] Supabase auth signed out');
+
+      // 2. Log out from RevenueCat (native only)
+      if (isNative()) {
+        try {
+          const { Purchases } = await import('@revenuecat/purchases-capacitor');
+          await Purchases.logOut();
+          console.log('[ProfilePage] RevenueCat logged out');
+        } catch (error) {
+          console.warn('[ProfilePage] Failed to log out from RevenueCat:', error);
+          // Continue anyway - graceful degradation
+        }
+      }
+
+      // 3. Clear subscription from store and localStorage
+      clearSubscription();
+      console.log('[ProfilePage] Subscription cleared from store');
+
+      const { clearSubscriptionCache } = await import('@/services/subscription.service');
+      clearSubscriptionCache();
+      console.log('[ProfilePage] Subscription cache cleared');
+
+      // 4. Clear localStorage completely (to remove any residual data)
+      const { clearState } = await import('@/services/storage.service');
+      clearState();
+      console.log('[ProfilePage] localStorage cleared');
+
+      // 5. Mark logout for OnboardingGate to redirect to login
+      const { markLogout } = await import('@/features/onboarding/utils/onboarding.helpers');
+      markLogout();
+      console.log('[ProfilePage] Logout marked for OnboardingGate');
+
+      // 6. Navigate to home (OnboardingGate will redirect to login)
+      navigate("/");
+
+    } catch (err: any) {
+      console.error('[ProfilePage] Unexpected error during account deletion:', err);
+      setDeleteError(err.message || t('account.delete.errorMessage'));
+      setDeletingAccount(false);
+      setShowDeleteConfirm(false);
+    }
   }
 
   // Handle biometric toggle
@@ -529,12 +616,18 @@ export default function ProfilePage() {
             <MenuItem
               icon={<ScrollText size={20} />}
               label={t('legal.terms.title', 'Términos de Servicio')}
-              onClick={() => navigate('/legal/terms')}
+              onClick={() => {
+                const locale = i18n.language || 'es';
+                openLegalPage('terms', locale);
+              }}
             />
             <MenuItem
               icon={<Lock size={20} />}
               label={t('legal.privacy.title', 'Política de Privacidad')}
-              onClick={() => navigate('/legal/privacy')}
+              onClick={() => {
+                const locale = i18n.language || 'es';
+                openLegalPage('privacy', locale);
+              }}
             />
           </div>
         </div>
@@ -554,9 +647,25 @@ export default function ProfilePage() {
             <span>{loading ? t('loggingOut') : t('logout')}</span>
           </button>
         )}
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+
+        {/* Version */}
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center mb-4">
           v{__APP_VERSION__} ({__GIT_HASH__})
         </p>
+
+        {/* Delete Account - flat button at bottom */}
+        {isLoggedIn && (
+          <button
+            type="button"
+            onClick={() => {
+              setDeleteUnderstanding(false);
+              setShowDeleteConfirm(true);
+            }}
+            className="w-full py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 active:scale-[0.98] transition-all text-center"
+          >
+            {t('account.delete.buttonLabel')}
+          </button>
+        )}
       </div>
 
       {/* Paywall Modal */}
@@ -584,6 +693,149 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setErrorMessage(null)}
+              className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => !deletingAccount && setShowDeleteConfirm(false)}
+          />
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            {/* Warning Icon */}
+            <div className="mb-4 flex justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50 dark:bg-red-900/30">
+                <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="mb-2 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t('account.delete.confirmTitle')}
+            </h3>
+
+            {/* Warning Message */}
+            <p className="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
+              {t('account.delete.confirmMessage')}
+            </p>
+
+            {/* Data List */}
+            <div className="mb-4 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
+              <ul className="space-y-2 text-xs text-gray-700 dark:text-gray-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-red-600 dark:text-red-400">•</span>
+                  <span>{t('account.delete.dataList.transactions')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-600 dark:text-red-400">•</span>
+                  <span>{t('account.delete.dataList.categories')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-600 dark:text-red-400">•</span>
+                  <span>{t('account.delete.dataList.settings')}</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-red-600 dark:text-red-400">•</span>
+                  <span>{t('account.delete.dataList.subscription')}</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Warning Badge */}
+            <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-3">
+              <p className="text-xs font-semibold text-red-600 dark:text-red-400 text-center">
+                ⚠️ {t('account.delete.warning')}
+              </p>
+            </div>
+
+            {/* Understanding Checkbox */}
+            <label className="mb-4 flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={deleteUnderstanding}
+                onChange={(e) => setDeleteUnderstanding(e.target.checked)}
+                disabled={deletingAccount}
+                className="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-red-600 focus:ring-red-500 disabled:opacity-50"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {t('account.delete.understanding')}
+              </span>
+            </label>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteUnderstanding(false);
+                }}
+                disabled={deletingAccount}
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+              >
+                {t('account.delete.cancelButton')}
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={!deleteUnderstanding || deletingAccount}
+                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50 disabled:bg-red-300 transition-colors"
+              >
+                {deletingAccount ? t('account.delete.deleting') : t('account.delete.deleteButton')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Success Modal */}
+      {showDeleteSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            {/* Success Icon */}
+            <div className="mb-4 flex justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
+                <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+
+            <h3 className="mb-2 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t('account.delete.successTitle')}
+            </h3>
+            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              {t('account.delete.successMessage')}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Error Modal */}
+      {deleteError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setDeleteError(null)}
+          />
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t('account.delete.errorTitle')}
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {deleteError}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDeleteError(null)}
               className="w-full rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
             >
               OK

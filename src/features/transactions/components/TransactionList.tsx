@@ -4,6 +4,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { formatDateGroupHeaderI18n, todayISO, currentMonthKey } from "@/services/dates.service";
 import { useLanguage } from "@/hooks/useLanguage";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
+import EmptyStateHome from "@/features/transactions/components/EmptyStateHome";
 import type { Transaction, Category } from "@/types/budget.types";
 import { useCurrency } from "@/features/currency";
 import { generateVirtualTransactions, isVirtualTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
@@ -144,11 +145,13 @@ export default function TransactionList({ searchQuery = "", filterType = "all", 
       )}
 
       {groupedList.length === 0 ? (
-        <div className="mx-4 bg-white dark:bg-gray-900 p-6 text-center text-sm text-gray-600 dark:text-gray-400 rounded-xl shadow-sm">
-          {searchQuery
-            ? t("list.searchEmpty", { query: searchQuery })
-            : t("list.noTransactions")}
-        </div>
+        searchQuery ? (
+          <div className="mx-4 bg-white dark:bg-gray-900 p-6 text-center text-sm text-gray-600 dark:text-gray-400 rounded-xl shadow-sm">
+            {t("list.searchEmpty", { query: searchQuery })}
+          </div>
+        ) : (
+          <EmptyStateHome />
+        )
       ) : (
         <div className="space-y-3">
           {groupedList.map((group) => {

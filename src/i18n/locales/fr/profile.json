@@ -59,6 +59,28 @@
     "trial": {
       "daysRemaining_one": "{{count}} jour d'essai",
       "daysRemaining_other": "{{count}} jours d'essai"
+    },
+    "delete": {
+      "title": "Supprimer le Compte",
+      "subtitle": "Supprimer définitivement votre compte et toutes vos données",
+      "buttonLabel": "Supprimer mon compte définitivement",
+      "confirmTitle": "Supprimer votre compte ?",
+      "confirmMessage": "Cette action est permanente et ne peut pas être annulée. Les éléments suivants seront supprimés :",
+      "dataList": {
+        "transactions": "Toutes vos transactions et votre historique financier",
+        "categories": "Catégories et budgets personnalisés",
+        "settings": "Préférences et paramètres",
+        "subscription": "Informations d'abonnement (vous devrez annuler séparément dans l'App Store)"
+      },
+      "warning": "Cette action ne peut pas être inversée",
+      "understanding": "Je comprends que cette action est permanente",
+      "cancelButton": "Annuler",
+      "deleteButton": "Supprimer Mon Compte",
+      "deleting": "Suppression du compte...",
+      "successTitle": "Compte Supprimé",
+      "successMessage": "Votre compte et toutes vos données ont été définitivement supprimés.",
+      "errorTitle": "Erreur",
+      "errorMessage": "Nous n'avons pas pu supprimer votre compte. Veuillez réessayer ou contacter le support."
     }
   },
   "login": "Se connecter",

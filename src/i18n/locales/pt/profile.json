@@ -59,6 +59,28 @@
     "trial": {
       "daysRemaining_one": "{{count}} dia de teste",
       "daysRemaining_other": "{{count}} dias de teste"
+    },
+    "delete": {
+      "title": "Excluir Conta",
+      "subtitle": "Excluir permanentemente sua conta e todos os seus dados",
+      "buttonLabel": "Excluir minha conta permanentemente",
+      "confirmTitle": "Excluir sua conta?",
+      "confirmMessage": "Esta ação é permanente e não pode ser desfeita. Os seguintes itens serão excluídos:",
+      "dataList": {
+        "transactions": "Todas as suas transações e histórico financeiro",
+        "categories": "Categorias e orçamentos personalizados",
+        "settings": "Preferências e configurações",
+        "subscription": "Informações de assinatura (você precisará cancelar separadamente na App Store)"
+      },
+      "warning": "Esta ação não pode ser revertida",
+      "understanding": "Eu entendo que esta ação é permanente",
+      "cancelButton": "Cancelar",
+      "deleteButton": "Excluir Minha Conta",
+      "deleting": "Excluindo conta...",
+      "successTitle": "Conta Excluída",
+      "successMessage": "Sua conta e todos os seus dados foram permanentemente excluídos.",
+      "errorTitle": "Erro",
+      "errorMessage": "Não foi possível excluir sua conta. Por favor, tente novamente ou entre em contato com o suporte."
     }
   },
   "login": "Fazer login",

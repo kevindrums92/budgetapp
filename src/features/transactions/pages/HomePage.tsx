@@ -145,6 +145,11 @@ export default function HomePage() {
     return allVirtual.filter((vt) => vt.date.slice(0, 7) === selectedMonth);
   }, [transactions, today, selectedMonth]);
 
+  // Check if there are any transactions in the selected month
+  const hasTransactionsInMonth = useMemo(() => {
+    return transactions.some((t) => t.date.slice(0, 7) === selectedMonth);
+  }, [transactions, selectedMonth]);
+
   // Calculate daily budget based on current balance
   const dailyBudgetInfo = useMemo(() => {
     let income = 0;
@@ -232,108 +237,112 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
-      <BalanceCard activeFilter={filterType} onFilterChange={setFilterType} />
+      {hasTransactionsInMonth && (
+        <>
+          <BalanceCard activeFilter={filterType} onFilterChange={setFilterType} />
 
-      {/* Daily Budget Banner */}
-      {dailyBudgetInfo &&
-        dailyBudgetInfo.dailyBudget > 0 &&
-        !isDailyBudgetPermanentlyHidden &&
-        !hideDailyBudgetSession && (
-        <div className="mx-auto max-w-xl px-4 mt-6">
-          <section className="bg-teal-50 dark:bg-teal-900/30 border border-teal-100/50 dark:border-teal-800/50 rounded-2xl p-4 flex items-center justify-between shadow-sm relative overflow-hidden transition-all duration-300">
-            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-teal-100/40 dark:from-teal-800/20 to-transparent" />
-            <div className="flex items-center gap-4 relative z-10">
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-[#18B7B0] flex items-center justify-center shadow-sm border border-teal-50 dark:border-teal-800 shrink-0">
-                <Calculator size={20} strokeWidth={2} />
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-wider font-bold text-[#18B7B0] mb-0.5">
-                  {t('dailyBudget.remaining', { count: dailyBudgetInfo.daysRemaining })}
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight">
-                  {t('dailyBudget.couldSpend', { amount: formatAmount(dailyBudgetInfo.dailyBudget) })}
-                </p>
-              </div>
-            </div>
-            {/* Close button */}
-            <button
-              type="button"
-              onClick={() => setShowDailyBudgetConfirm(true)}
-              className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-teal-100/60 dark:hover:bg-teal-800/40 active:scale-95 transition-all z-10"
-            >
-              <X className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-            </button>
-          </section>
-        </div>
-      )}
-
-      {/* Push Notification Banner */}
-      {showPushBanner && (
-        <div className="mx-auto max-w-xl px-4 mt-6">
-          <section className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100/50 dark:border-emerald-800/50 rounded-2xl p-4 shadow-sm relative overflow-hidden transition-all duration-300">
-            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-emerald-100/40 dark:from-emerald-800/20 to-transparent" />
-            <div className="flex items-start gap-3 relative z-10">
-              <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-50 dark:border-emerald-800 shrink-0">
-                <Bell size={20} strokeWidth={2} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-500 mb-0.5">
-                  {t('pushBanner.title')}
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight mb-2">
-                  {t('pushBanner.description')}
-                </p>
+          {/* Daily Budget Banner */}
+          {dailyBudgetInfo &&
+            dailyBudgetInfo.dailyBudget > 0 &&
+            !isDailyBudgetPermanentlyHidden &&
+            !hideDailyBudgetSession && (
+            <div className="mx-auto max-w-xl px-4 mt-6">
+              <section className="bg-teal-50 dark:bg-teal-900/30 border border-teal-100/50 dark:border-teal-800/50 rounded-2xl p-4 flex items-center justify-between shadow-sm relative overflow-hidden transition-all duration-300">
+                <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-teal-100/40 dark:from-teal-800/20 to-transparent" />
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-[#18B7B0] flex items-center justify-center shadow-sm border border-teal-50 dark:border-teal-800 shrink-0">
+                    <Calculator size={20} strokeWidth={2} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-[#18B7B0] mb-0.5">
+                      {t('dailyBudget.remaining', { count: dailyBudgetInfo.daysRemaining })}
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight">
+                      {t('dailyBudget.couldSpend', { amount: formatAmount(dailyBudgetInfo.dailyBudget) })}
+                    </p>
+                  </div>
+                </div>
+                {/* Close button */}
                 <button
                   type="button"
-                  onClick={handleEnablePush}
-                  disabled={isEnablingPush}
-                  className="text-xs font-semibold text-emerald-600 dark:text-emerald-500 active:scale-95 transition-all disabled:opacity-50"
+                  onClick={() => setShowDailyBudgetConfirm(true)}
+                  className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-teal-100/60 dark:hover:bg-teal-800/40 active:scale-95 transition-all z-10"
                 >
-                  {isEnablingPush ? t('pushBanner.enabling') : t('pushBanner.enable')}
+                  <X className="h-4 w-4 text-teal-600 dark:text-teal-400" />
                 </button>
-              </div>
+              </section>
             </div>
-            {/* Close button */}
+          )}
+
+          {/* Push Notification Banner */}
+          {showPushBanner && (
+            <div className="mx-auto max-w-xl px-4 mt-6">
+              <section className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100/50 dark:border-emerald-800/50 rounded-2xl p-4 shadow-sm relative overflow-hidden transition-all duration-300">
+                <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-emerald-100/40 dark:from-emerald-800/20 to-transparent" />
+                <div className="flex items-start gap-3 relative z-10">
+                  <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-emerald-600 dark:text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-50 dark:border-emerald-800 shrink-0">
+                    <Bell size={20} strokeWidth={2} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-500 mb-0.5">
+                      {t('pushBanner.title')}
+                    </p>
+                    <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight mb-2">
+                      {t('pushBanner.description')}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleEnablePush}
+                      disabled={isEnablingPush}
+                      className="text-xs font-semibold text-emerald-600 dark:text-emerald-500 active:scale-95 transition-all disabled:opacity-50"
+                    >
+                      {isEnablingPush ? t('pushBanner.enabling') : t('pushBanner.enable')}
+                    </button>
+                  </div>
+                </div>
+                {/* Close button */}
+                <button
+                  type="button"
+                  onClick={handleDismissPushBanner}
+                  className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-emerald-100/60 dark:hover:bg-emerald-800/40 active:scale-95 transition-all z-10"
+                >
+                  <X className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
+                </button>
+              </section>
+            </div>
+          )}
+
+          {/* Navigation to History + View Filter */}
+          <div className="mx-auto max-w-xl px-4 pt-6 pb-3 flex items-center justify-between">
             <button
               type="button"
-              onClick={handleDismissPushBanner}
-              className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-emerald-100/60 dark:hover:bg-emerald-800/40 active:scale-95 transition-all z-10"
+              onClick={() => navigate('/history', { state: { resetFilters: true } })}
+              className="flex items-center gap-1 py-2 text-sm font-medium text-[#18B7B0] active:scale-95 transition-all"
             >
-              <X className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
+              <span>{t('viewFullHistory')}</span>
+              <ChevronRight size={16} />
             </button>
-          </section>
-        </div>
+            {virtualTransactionsForMonth.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !showVirtual;
+                  setShowVirtual(next);
+                  localStorage.setItem("budget.homeViewFilter", next ? "all" : "real");
+                }}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all active:scale-95 ${
+                  showVirtual
+                    ? "bg-[#18B7B0]/20 text-[#18B7B0]"
+                    : "bg-gray-200 dark:bg-gray-800 text-gray-400"
+                }`}
+              >
+                {showVirtual ? <Eye size={14} /> : <EyeOff size={14} />}
+                {t('viewFilter.scheduled', { count: virtualTransactionsForMonth.length })}
+              </button>
+            )}
+          </div>
+        </>
       )}
-
-      {/* Navigation to History + View Filter */}
-      <div className="mx-auto max-w-xl px-4 pt-6 pb-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => navigate('/history', { state: { resetFilters: true } })}
-          className="flex items-center gap-1 py-2 text-sm font-medium text-[#18B7B0] active:scale-95 transition-all"
-        >
-          <span>{t('viewFullHistory')}</span>
-          <ChevronRight size={16} />
-        </button>
-        {virtualTransactionsForMonth.length > 0 && (
-          <button
-            type="button"
-            onClick={() => {
-              const next = !showVirtual;
-              setShowVirtual(next);
-              localStorage.setItem("budget.homeViewFilter", next ? "all" : "real");
-            }}
-            className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition-all active:scale-95 ${
-              showVirtual
-                ? "bg-[#18B7B0]/20 text-[#18B7B0]"
-                : "bg-gray-200 dark:bg-gray-800 text-gray-400"
-            }`}
-          >
-            {showVirtual ? <Eye size={14} /> : <EyeOff size={14} />}
-            {t('viewFilter.scheduled', { count: virtualTransactionsForMonth.length })}
-          </button>
-        )}
-      </div>
 
       <main className="pb-28 pt-4">
         {/* Scheduled transactions banner (hidden when filtering to real only) */}

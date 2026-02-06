@@ -111,6 +111,38 @@ function useNetworkStatus() {
 }
 ```
 
+**Currency Formatting** (`src/features/currency`):
+
+**CRITICAL**: The app supports multiple currencies (COP, USD, GTQ, etc). NEVER hardcode currency symbols or use `formatCOP()`.
+
+```typescript
+import { useCurrency } from "@/features/currency";
+
+// ✅ CORRECT - Use useCurrency hook
+const { formatAmount, currencyInfo } = useCurrency();
+
+// For displaying formatted amounts (includes symbol):
+<span>{formatAmount(amount)}</span>  // Renders "$ 1.500.000" or "Q 1.500.000"
+
+// For displaying just the symbol (e.g., in inputs):
+<span>{currencyInfo.symbol}</span>   // Renders "$" or "Q"
+
+// ❌ WRONG - Never use formatCOP (hardcoded to COP)
+import { formatCOP } from "@/shared/utils/currency.utils";
+formatCOP(amount); // Always shows "$ X.XXX" regardless of user's currency
+
+// ❌ WRONG - Never hardcode currency symbols
+<span>$</span>  // Won't adapt to user's currency
+<span>$ {formatCOP(amount)}</span>  // Double symbol bug: "Q $ 1.500.000"
+```
+
+**useCurrency API**:
+- `formatAmount(value: number): string` - Full formatted currency (e.g., "$ 1.500.000", "Q 100")
+- `currencyInfo.symbol: string` - Currency symbol (e.g., "$", "Q", "€")
+- `currencyInfo.code: string` - ISO code (e.g., "COP", "GTQ", "USD")
+- `currency: string` - Current currency code
+- `setCurrency(code: string): void` - Change currency
+
 **Why**: Using shared utilities ensures:
 - Consistent behavior across the app
 - Easier maintenance (single source of truth)
@@ -118,6 +150,124 @@ function useNetworkStatus() {
 - Better testability
 
 **Reference**: See `CloudSyncGate.tsx` for the canonical pattern of using `network.service.ts` directly.
+
+**In-App Browser** (`src/shared/utils/browser.utils.ts`):
+
+**CRITICAL**: Always use in-app browser utilities for opening external URLs. This is REQUIRED for Apple App Store compliance (Guideline 4.0).
+
+```typescript
+import { openUrl, openLegalPage } from "@/shared/utils/browser.utils";
+
+// ✅ CORRECT - Generic URL opening
+await openUrl("https://example.com");
+await openUrl("https://example.com", { presentationStyle: 'fullscreen' });
+
+// ✅ CORRECT - Legal pages (Terms/Privacy)
+const locale = i18n.language || 'es';
+await openLegalPage('terms', locale);    // Opens Terms of Service
+await openLegalPage('privacy', locale);  // Opens Privacy Policy
+
+// ❌ WRONG - Never use window.open in native context
+if (isNative()) {
+  window.open("https://example.com", "_blank"); // Apple will reject!
+}
+
+// ❌ WRONG - Don't navigate to external URLs directly
+<a href="https://example.com" target="_blank">Link</a> // Breaks on native
+```
+
+**openUrl API**:
+- `url: string` - The URL to open
+- `options.presentationStyle?: 'fullscreen' | 'popover'` - Presentation style (default: 'fullscreen')
+
+**openLegalPage API**:
+- `page: 'terms' | 'privacy'` - Which legal page to open
+- `locale: string` - Language code (e.g., 'es', 'en', 'fr')
+
+**Platform Behavior**:
+- **iOS**: Opens Safari View Controller (in-app browser, user stays in app)
+- **Android**: Opens Chrome Custom Tabs (in-app browser, user stays in app)
+- **Web**: Opens in new tab using `window.open(url, '_blank')`
+
+**Why In-App Browser**:
+- **Apple Requirement**: Guideline 4.0 requires in-app browsers for external links to avoid app rejection
+- **Better UX**: Users stay in your app, seamless navigation flow
+- **OAuth Support**: Required for Google/Apple Sign-In flows (see OAuth section below)
+
+**OAuth with In-App Browser** (`src/shared/utils/oauth.utils.ts`):
+
+**CRITICAL**: Always use `signInWithOAuthInAppBrowser()` for OAuth authentication. Never use Supabase's `signInWithOAuth()` directly in components.
+
+```typescript
+import { signInWithOAuthInAppBrowser } from "@/shared/utils/oauth.utils";
+
+// ✅ CORRECT - OAuth with in-app browser
+const handleGoogleLogin = async () => {
+  setLoading(true);
+  try {
+    const { error } = await signInWithOAuthInAppBrowser('google', {
+      queryParams: {
+        prompt: 'select_account',
+      },
+    });
+    if (error) throw error;
+    // Auth callback handled by App.tsx deep link listener
+  } catch (err) {
+    console.error('[Component] OAuth error:', err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Apple Sign-In (same pattern)
+const handleAppleLogin = async () => {
+  const { error } = await signInWithOAuthInAppBrowser('apple');
+  if (error) console.error('[Component] Apple OAuth error:', error);
+};
+
+// ❌ WRONG - Using Supabase directly
+const { error } = await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: { redirectTo: '...' },
+});
+```
+
+**signInWithOAuthInAppBrowser API**:
+- `provider: 'google' | 'apple'` - OAuth provider
+- `options.queryParams?: Record<string, string>` - Additional OAuth query params (e.g., `{ prompt: 'select_account' }`)
+- Returns: `Promise<{ error: Error | null }>` - Error object if auth fails, null on success
+
+**OAuth Flow**:
+1. Function calls `supabase.auth.signInWithOAuth()` with `skipBrowserRedirect: true`
+2. Opens OAuth URL in Safari View Controller (iOS) or Chrome Custom Tabs (Android)
+3. User authenticates in in-app browser
+4. Provider redirects back to app via deep link (`smartspend://`)
+5. App.tsx deep link listener catches redirect and calls `supabase.auth.getSession()`
+6. Session established, user logged in
+
+**Common Mistakes to Avoid**:
+
+❌ Using `window.open()` directly on native platforms (Apple rejection)
+✅ Always use `openUrl()` utility
+
+❌ Navigating to legal pages with `window.location.href` or `<a href>`
+✅ Use `openLegalPage()` for Terms/Privacy
+
+❌ Calling `supabase.auth.signInWithOAuth()` directly in components
+✅ Use `signInWithOAuthInAppBrowser()` helper
+
+❌ Forgetting to handle OAuth errors
+✅ Always wrap in try-catch and show user-friendly error messages
+
+❌ Opening external links without checking platform
+✅ `openUrl()` automatically detects platform and uses correct method
+
+**Examples in Codebase**:
+- PaywallModal.tsx - Legal links in subscription modal
+- ProfilePage.tsx - Terms and Privacy menu items
+- LoginProScreen.tsx - Google/Apple OAuth buttons
+- LoginScreen.tsx - Guest mode OAuth buttons
 
 ---
 
@@ -1345,6 +1495,9 @@ useEffect(() => {
 ❌ Wrong shadow (using shadow-lg instead of shadow-sm on cards)
 ✅ Follow documented shadow specs: shadow-sm for cards, shadow-xl for modals
 
+❌ Hardcoded currency symbols (`$`) or using `formatCOP()`
+✅ Use `useCurrency()` hook: `formatAmount()` for display, `currencyInfo.symbol` for inputs
+
 ### Testing Checklist
 
 Before committing UI changes:
@@ -1360,6 +1513,7 @@ Before committing UI changes:
 - [ ] Z-index follows documented hierarchy
 - [ ] Border radius matches patterns (xl, 2xl, t-3xl)
 - [ ] Colors match palette (emerald for income, gray-900 for expense)
+- [ ] Currency uses `useCurrency()` hook (no hardcoded `$` or `formatCOP`)
 - [ ] Safe area insets for bottom elements
 - [ ] Shadows match documented specs
 - [ ] Icons use `size=` prop, not className for size

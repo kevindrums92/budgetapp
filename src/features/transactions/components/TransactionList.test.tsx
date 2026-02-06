@@ -16,6 +16,11 @@ vi.mock('@/features/transactions/components/TransactionItem', () => ({
   ),
 }));
 
+// Mock EmptyStateHome component
+vi.mock('@/features/transactions/components/EmptyStateHome', () => ({
+  default: () => <div data-testid="empty-state-home">Empty state home</div>,
+}));
+
 // Mock dates service
 vi.mock('@/services/dates.service', async () => {
   const actual = await vi.importActual('@/services/dates.service');
@@ -157,7 +162,7 @@ describe('TransactionList', () => {
 
       render(<TransactionList />);
 
-      expect(screen.getByText('Aún no tienes movimientos este mes.')).toBeInTheDocument();
+      expect(screen.getByTestId('empty-state-home')).toBeInTheDocument();
     });
 
     it('should show empty search results message', () => {

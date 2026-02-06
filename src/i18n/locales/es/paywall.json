@@ -18,6 +18,7 @@
   },
   "benefits": {
     "unlimitedCategories": "Categorias y presupuestos ilimitados",
+    "aiBatchEntry": "Entrada de movimientos con IA (texto, audio, imagen)",
     "stats": "Estadisticas detalladas y proyecciones",
     "historyFilters": "Filtros avanzados de historial",
     "export": "Exportacion de datos CSV y JSON",
@@ -52,5 +53,11 @@
     "locked": "Funcion Pro",
     "unlock": "Desbloquear",
     "limitReached": "Limite alcanzado ({{current}}/{{max}})"
+  },
+  "legal": {
+    "text": "Al continuar, aceptas nuestros",
+    "terms": "Terminos de Servicio",
+    "and": "y",
+    "privacy": "Politica de Privacidad"
   }
 }
