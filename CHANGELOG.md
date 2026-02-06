@@ -2,20 +2,14 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## [unreleased] - {relase date}
+
+- **feat(profile): implement account deletion for App Store compliance**
+  - Added delete-account Edge Function with JWT authentication and cascade cleanup
+  - Created deleteAccount.service.ts to call Edge Function
+  - Added delete account UI with confirmation modal, success/error states
+  - Includes i18n translations in 4 languages (es, en, fr, pt)
+  - Fixes Apple App Store Guideline 5.1.1 (Account Deletion requirement)
 
 - **docs(app-store): add URL configuration guide for App Store Connect**
   - Created comprehensive guide with all required URLs (Privacy Policy, Terms, Support, Marketing)

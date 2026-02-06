@@ -59,6 +59,28 @@
     "trial": {
       "daysRemaining_one": "{{count}} trial day",
       "daysRemaining_other": "{{count}} trial days"
+    },
+    "delete": {
+      "title": "Delete Account",
+      "subtitle": "Permanently delete your account and all your data",
+      "buttonLabel": "Delete my account permanently",
+      "confirmTitle": "Delete your account?",
+      "confirmMessage": "This action is permanent and cannot be undone. The following will be deleted:",
+      "dataList": {
+        "transactions": "All your transactions and financial history",
+        "categories": "Custom categories and budgets",
+        "settings": "Preferences and settings",
+        "subscription": "Subscription information (you'll need to cancel separately in the App Store)"
+      },
+      "warning": "This action cannot be reversed",
+      "understanding": "I understand this action is permanent",
+      "cancelButton": "Cancel",
+      "deleteButton": "Delete My Account",
+      "deleting": "Deleting account...",
+      "successTitle": "Account Deleted",
+      "successMessage": "Your account and all your data have been permanently deleted.",
+      "errorTitle": "Error",
+      "errorMessage": "We couldn't delete your account. Please try again or contact support."
     }
   },
   "login": "Log In",
