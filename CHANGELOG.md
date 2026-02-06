@@ -2,7 +2,10 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+
 ## [unreleased] - {relase date}
+
+## [0.15.1] - 2026-02-05
 
 - **feat(home): redesign empty state with AI batch entry CTA**
   - New EmptyStateHome component with Sparkles hero icon and three input mode buttons (Voice, Photo, Text)
