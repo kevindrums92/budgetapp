@@ -4,6 +4,14 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **docs(app-store): add App Privacy configuration guide**
+  - Created comprehensive guide for configuring App Privacy in App Store Connect
+  - Documents all 9 data types collected (Contact Info, Financial Info, Identifiers, Usage Data, User Content)
+  - Includes step-by-step instructions for each data type configuration
+  - Discloses third-party services (Supabase, RevenueCat, OAuth providers)
+  - Verification checklist and common review issues
+  - Fixes Apple App Store Guideline 5.1.2 (Data Privacy Disclosures)
+
 - **feat(profile): implement account deletion for App Store compliance**
   - Added delete-account Edge Function with JWT authentication and cascade cleanup
   - Created deleteAccount.service.ts to call Edge Function
