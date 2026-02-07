@@ -522,6 +522,7 @@ export default function AddEditTransactionPage() {
                 </label>
                 <input
                   type="text"
+                  data-testid="transaction-name-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Ej: Cena familiar, Pago Netflix..."
@@ -615,6 +616,7 @@ export default function AddEditTransactionPage() {
                 </label>
                 <input
                   type="text"
+                  data-testid="transaction-notes-input"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder={t("form.notesPlaceholder")}
