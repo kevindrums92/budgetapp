@@ -10,6 +10,8 @@ export default function SplashScreen({ visible }: Props) {
 
   return (
     <div
+      id="app-splash"
+      data-testid="splash-screen"
       className="
         fixed inset-0 z-[100]
         flex items-center justify-center

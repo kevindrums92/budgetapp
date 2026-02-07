@@ -40,6 +40,7 @@ export default function Screen6_UnderstandMoney() {
       ctaButton={
         <button
           type="button"
+          data-testid="welcome-start-button"
           onClick={handleNext}
           className="w-full rounded-2xl bg-gradient-to-r from-[#18B7B0] to-[#0F8580] py-4 text-base font-bold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
         >

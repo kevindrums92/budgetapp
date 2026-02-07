@@ -105,6 +105,7 @@ export default function Screen5_Complete() {
         <div>
           <button
             type="button"
+            data-testid="complete-onboarding-button"
             onClick={handleComplete}
             className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-4 font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all active:scale-[0.98]"
           >
