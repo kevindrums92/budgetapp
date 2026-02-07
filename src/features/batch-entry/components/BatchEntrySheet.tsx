@@ -774,7 +774,10 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
       {/* Paywall modal for free users */}
       <PaywallModal
         open={showPaywall}
-        onClose={() => setShowPaywall(false)}
+        onClose={() => {
+          setShowPaywall(false);
+          onClose();
+        }}
         trigger="batch_entry_limit"
         onSelectPlan={handleSelectPlan}
       />

@@ -6,6 +6,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(batch-entry): close rate limit upsell modal when PaywallModal dismisses**
+  - PaywallModal onClose now also closes the entire BatchEntrySheet
+  - Prevents "Sin Límites" modal from reappearing after returning from paywall (purchase or cancel)
+
 - **feat(auth): anonymous auth with cloud sync + orphaned user cleanup**
   - All new users get automatic anonymous Supabase session with cloud sync from day one
   - `cloudMode = "cloud"` for both anonymous and authenticated users (guest mode is now rare fallback)
