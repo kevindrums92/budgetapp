@@ -122,6 +122,261 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 
 ---
 
+## 🤖 Registro de Movimientos con IA (AI Batch Entry)
+
+### Descripción General
+**Killer Feature** que permite ingresar múltiples transacciones simultáneamente usando inteligencia artificial. Los usuarios pueden registrar gastos e ingresos de forma natural mediante voz, texto libre o fotos de recibos, y la IA automáticamente extrae y estructura las transacciones.
+
+### Modos de Entrada
+
+#### 1. 📝 Entrada por Texto
+- **Input libre en lenguaje natural** sin formato estructurado
+- Múltiples transacciones en una sola oración
+- Interpretación inteligente de montos colombianos:
+  - "50 mil" → $50.000
+  - "2 palos" → $2.000.000
+  - "una luca" → $1.000
+- Soporte para fechas relativas ("ayer", "el lunes", "la semana pasada")
+- Textarea con placeholder contextual
+- Hook `useKeyboardDismiss` para cerrar teclado al hacer scroll
+
+**Ejemplo:** "Gasté 50 mil en almuerzo en el D1, 30 mil en Uber y recibí 2 millones de salario"
+
+#### 2. 🎤 Entrada por Voz
+- **Grabación de audio** con visualización de forma de onda en tiempo real
+- Transcripción automática con GPT-4o Mini Transcribe ($0.003/min)
+- Precisión optimizada para español colombiano
+- Soporte para acentos regionales (paisa, costeño, rolo, etc.)
+- Timer de duración (formato MM:SS)
+- Límite de 120 segundos por grabación
+- Controles: Iniciar, Detener, Cancelar
+- Plugin: `@capacitor-community/voice-recorder`
+- Fallback a Whisper API si GPT-4o Mini falla
+
+**Componente:** `VoiceRecorder` con `AudioWaveform` para visualización
+
+#### 3. 📷 Entrada por Imagen (OCR de Recibos)
+- **Escaneo de recibos** con OCR inteligente
+- Captura desde cámara o selección de galería
+- Compresión automática de imágenes (max 500KB, max 1280px)
+- Procesamiento con Gemini 2.5 Flash Vision ($0.15/1M tokens input)
+- Reconocimiento de:
+  - Nombre del comercio
+  - Items y cantidades
+  - Montos totales
+  - Fecha del recibo
+  - Categoría del gasto
+- Preview de imagen antes de procesar
+- Opción de recaptura si la imagen no es clara
+- Plugin: `@capacitor/camera`
+
+**Recibos soportados:** Éxito, Carulla, Jumbo, D1, Ara, Oxxo, Rappi, restaurantes, facturas de servicios
+
+### TransactionPreview (Vista de Confirmación)
+
+Después de procesar el input, el usuario revisa y edita las transacciones extraídas:
+
+- **Lista de TransactionDraftCard**: Cada transacción en un card individual
+- **Edición inline** de todos los campos:
+  - Tap en nombre → Editar descripción
+  - Tap en categoría → Abrir `CategoryPickerDrawer`
+  - Tap en monto → Editar monto con teclado numérico
+  - Tap en fecha → Abrir `DatePicker`
+- **Indicadores visuales**:
+  - Badge "Revisar" para transacciones con baja confianza
+  - Indicador de tipo (ingreso/gasto) con colores
+  - Validación en tiempo real de campos requeridos
+- **Resumen de totales**: Suma de ingresos y gastos
+- **Acciones**:
+  - Eliminar transacción individual del lote
+  - Guardar todas las transacciones
+  - Cancelar y descartar
+
+### Rate Limiting y Control de Uso
+
+- **Free Tier**: 5 requests/día por usuario
+- **Pro Tier**: 50 requests/día por usuario
+- **Rate limit check** antes de procesar
+- **Modal de upsell** al alcanzar el límite (muestra PaywallModal)
+- **Upstash Redis** para tracking de uso
+- Headers de rate limit en respuesta:
+  - `X-RateLimit-Limit`
+  - `X-RateLimit-Remaining`
+  - `X-RateLimit-Reset`
+
+### Sistema de IA (Backend)
+
+#### Edge Function: `parse-batch`
+- **Supabase Edge Function** serverless en Deno
+- **Autenticación obligatoria**: JWT de Supabase
+- **Rate limiting** con Upstash Redis
+- **Timeout**: 60 segundos máximo
+- **Logging estructurado** para debugging
+
+#### Pipeline de Procesamiento
+
+1. **Transcripción de Audio** (si aplica):
+   - Primario: GPT-4o Mini Transcribe API ($0.003/min)
+   - Fallback: Whisper API ($0.006/min)
+   - Conversión de base64 a formato compatible
+
+2. **Extracción de Transacciones**:
+   - Primario: Gemini 2.5 Flash ($0.15/1M input, $0.60/1M output)
+   - Fallback: GPT-4o-mini si Gemini falla
+   - System Prompt con:
+     - Contexto de Colombia/COP
+     - Lista completa de categorías de SmartSpend
+     - Reglas de interpretación de montos y fechas
+     - JSON Schema para output estructurado
+   - Extracción de múltiples transacciones en un solo request
+
+3. **Validación y Respuesta**:
+   - Validación de JSON response contra schema
+   - Asignación de nivel de confianza (0-1) por transacción
+   - Marca de `needsReview` para transacciones ambiguas
+   - Return de array de `TransactionDraft`
+
+### Tipos TypeScript
+
+```typescript
+export type BatchInputType = "text" | "image" | "audio";
+
+export type TransactionDraft = {
+  id: string;                    // UUID temporal
+  type: "income" | "expense";
+  name: string;
+  category: string;              // ID de categoría
+  amount: number;
+  date: string;                  // YYYY-MM-DD
+  notes?: string;
+  needsReview: boolean;          // Si la IA no está segura
+  confidence: number;            // 0-1
+};
+
+export type BatchEntryRequest = {
+  inputType: BatchInputType;
+  data?: string;                 // Texto libre
+  imageBase64?: string;          // Imagen comprimida
+  audioBase64?: string;          // Audio grabado
+};
+
+export type BatchEntryResponse = {
+  success: boolean;
+  transactions: TransactionDraft[];
+  confidence: number;            // Confianza general
+  rawInterpretation?: string;    // Para debugging
+  error?: string;
+};
+```
+
+### Componentes Principales
+
+- **BatchEntrySheet**: Bottom sheet full-height (z-[70])
+  - Selector de tipo de input (tabs)
+  - Input area según tipo seleccionado
+  - Loading state con fake progress animation
+  - TransactionPreview al completar procesamiento
+  - Integrado desde `AddActionSheet` → botón "Agregar varias"
+
+- **TextInputArea**: Textarea multilinea con auto-resize
+- **VoiceRecorder**: Grabación con waveform en tiempo real
+- **ImageCaptureView**: Camera/gallery selector con preview
+- **TransactionPreview**: Lista editable de drafts con totales
+- **TransactionDraftCard**: Card con edición inline de todos los campos
+
+### Testing
+
+**42 tests unitarios completos:**
+
+1. **batchEntry.service.test.ts** (15 tests)
+   - API calls y respuestas
+   - Autenticación y JWT
+   - Rate limiting
+   - Manejo de errores (network, timeout, invalid response)
+
+2. **useFakeProgress.test.ts** (10 tests)
+   - Animaciones de progreso simulado
+   - Timing y velocidad de incrementos
+   - Cleanup al desmontar
+
+3. **TransactionPreview.test.tsx** (17 tests)
+   - Renderizado de drafts
+   - Edición inline de campos
+   - Eliminación de transacciones
+   - Guardado de lote completo
+   - Validación de campos requeridos
+
+### Internacionalización
+
+**Totalmente traducido a 4 idiomas:**
+- Español (es): `i18n/locales/es/batch.json`
+- Inglés (en): `i18n/locales/en/batch.json`
+- Francés (fr): `i18n/locales/fr/batch.json`
+- Portugués (pt): `i18n/locales/pt/batch.json`
+
+**Strings incluyen:**
+- Títulos y descripciones de modos de entrada
+- Placeholders contextuales
+- Mensajes de error específicos
+- Tooltips y ayuda contextual
+- Modal de rate limit y upsell
+
+### Permisos Nativos Requeridos
+
+**iOS** (`Info.plist`):
+- `NSCameraUsageDescription`: Para escanear recibos
+- `NSPhotoLibraryUsageDescription`: Para seleccionar fotos
+- `NSMicrophoneUsageDescription`: Para dictar transacciones
+
+**Android** (`AndroidManifest.xml`):
+- `android.permission.CAMERA`
+- `android.permission.RECORD_AUDIO`
+- `android.permission.READ_EXTERNAL_STORAGE`
+
+### Costos Proyectados
+
+**Escenario: 1,000 usuarios × 5 batch entries/mes**
+
+| Servicio | Uso | Costo/mes |
+|----------|-----|-----------|
+| Gemini 2.5 Flash (imágenes) | 5,000 imgs | $0.20 |
+| Gemini 2.5 Flash (output) | ~200K tokens | $0.12 |
+| GPT-4o Mini Transcribe | 5,000 min audio | $15.00 |
+| Upstash Redis | ~25K requests | $0.00 (free) |
+| **TOTAL** | | **~$15.32/mes** |
+
+**Escalabilidad:**
+- 10,000 usuarios: ~$150/mes
+- Rate limiting mantiene costos predecibles
+- Pro tier amortiza costo con suscripciones
+
+### Seguridad
+
+- **API Keys nunca expuestas**: Edge Function obligatoria
+- **Autenticación JWT**: Solo usuarios autenticados
+- **Rate limiting por usuario**: Previene abuso
+- **Compresión de imágenes**: Previene payloads gigantes (max 500KB)
+- **Timeout de 60s**: Previene requests eternos
+- **Logging sin PII**: No se guardan imágenes ni audios
+
+### Monitoreo y Métricas
+
+- **Requests por día/semana** por usuario
+- **Tipo de input más usado** (texto/voz/imagen)
+- **Tasa de éxito/error** del procesamiento
+- **Tiempo promedio de respuesta** por tipo
+- **Precisión de categorización** (feedback de usuarios)
+- **Costos reales vs proyectados** (alertas automáticas)
+
+### Referencias
+
+- [ADR-001: AI Batch Entry](ADR-001-AI-BATCH-ENTRY.md) - Decisiones arquitectónicas
+- [PLAN: AI Batch Entry](PLAN-AI-BATCH-ENTRY.md) - Plan de implementación detallado
+- [Gemini API Pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [OpenAI Transcription Pricing](https://platform.openai.com/docs/pricing)
+
+---
+
 ## 🏷️ Sistema de Categorías
 
 ### Gestión de Categorías
@@ -358,6 +613,17 @@ SmartSpend es una aplicación PWA de control de gastos personales con enfoque lo
 ### Métodos de Autenticación
 - **Google OAuth** (Sign in with Google)
 - **Apple Sign In** (Sign in with Apple)
+- **Anonymous Auth** (Supabase `signInAnonymously()` - cloud sync sin cuenta)
+
+### In-App Browser OAuth (CRÍTICO - Apple Guideline 4.0)
+- **Archivo**: `src/shared/utils/oauth.utils.ts` → `signInWithOAuthInAppBrowser()`
+- **iOS**: Safari View Controller (usuario no sale de la app)
+- **Android**: Chrome Custom Tabs (usuario no sale de la app)
+- **Web**: `window.open()` en nueva pestaña
+- **Flujo normal**: `signInWithOAuth({ skipBrowserRedirect: true })` → `Browser.open({ url })`
+- **Flujo anónimo→autenticado**: `linkIdentity({ skipBrowserRedirect: true })` → `Browser.open({ url })`
+- **CRÍTICO**: `skipBrowserRedirect: true` es OBLIGATORIO en ambos métodos. Sin este flag, Supabase abre el browser externo automáticamente.
+- **`linkIdentity()`**: Convierte usuario anónimo a autenticado preservando el mismo `user_id` (mantiene suscripciones RevenueCat y datos en la nube)
 
 ### Biometric Authentication
 - **Face ID / Touch ID / Fingerprint** para usuarios autenticados
