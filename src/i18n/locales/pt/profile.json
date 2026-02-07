@@ -81,6 +81,14 @@
       "successMessage": "Sua conta e todos os seus dados foram permanentemente excluídos.",
       "errorTitle": "Erro",
       "errorMessage": "Não foi possível excluir sua conta. Por favor, tente novamente ou entre em contato com o suporte."
+    },
+    "deleteData": {
+      "buttonLabel": "Excluir meus dados",
+      "confirmTitle": "Excluir seus dados?",
+      "confirmMessage": "Esta ação é permanente e não pode ser desfeita. Os seguintes itens serão excluídos:",
+      "deleteButton": "Excluir Meus Dados",
+      "successTitle": "Dados Excluídos",
+      "successMessage": "Todos os seus dados foram excluídos permanentemente do servidor."
     }
   },
   "login": "Fazer login",

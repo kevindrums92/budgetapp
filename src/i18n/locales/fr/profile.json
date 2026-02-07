@@ -81,6 +81,14 @@
       "successMessage": "Votre compte et toutes vos données ont été définitivement supprimés.",
       "errorTitle": "Erreur",
       "errorMessage": "Nous n'avons pas pu supprimer votre compte. Veuillez réessayer ou contacter le support."
+    },
+    "deleteData": {
+      "buttonLabel": "Supprimer mes données",
+      "confirmTitle": "Supprimer vos données ?",
+      "confirmMessage": "Cette action est permanente et irréversible. Les éléments suivants seront supprimés :",
+      "deleteButton": "Supprimer Mes Données",
+      "successTitle": "Données Supprimées",
+      "successMessage": "Toutes vos données ont été définitivement supprimées du serveur."
     }
   },
   "login": "Se connecter",

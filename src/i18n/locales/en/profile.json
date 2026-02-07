@@ -81,6 +81,14 @@
       "successMessage": "Your account and all your data have been permanently deleted.",
       "errorTitle": "Error",
       "errorMessage": "We couldn't delete your account. Please try again or contact support."
+    },
+    "deleteData": {
+      "buttonLabel": "Delete my data",
+      "confirmTitle": "Delete your data?",
+      "confirmMessage": "This action is permanent and cannot be undone. The following will be deleted:",
+      "deleteButton": "Delete My Data",
+      "successTitle": "Data Deleted",
+      "successMessage": "All your data has been permanently deleted from the server."
     }
   },
   "login": "Log In",

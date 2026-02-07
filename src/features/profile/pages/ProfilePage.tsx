@@ -49,7 +49,6 @@ export default function ProfilePage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteUnderstanding, setDeleteUnderstanding] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [showDeleteSuccess, setShowDeleteSuccess] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Get current theme name for display
@@ -70,6 +69,7 @@ export default function ProfilePage() {
   }, []);
 
   const isLoggedIn = !!user.email;
+  const isAnonymousCloud = !isLoggedIn && cloudMode === 'cloud';
 
   // Auth actions
   async function signOut() {
@@ -128,12 +128,6 @@ export default function ProfilePage() {
       // Close confirmation modal
       setShowDeleteConfirm(false);
       setDeletingAccount(false);
-
-      // Show success modal
-      setShowDeleteSuccess(true);
-
-      // Wait 2 seconds before cleaning up and signing out
-      await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Clean up and sign out (SAME AS signOut() FUNCTION)
       console.log('[ProfilePage] Cleaning up after account deletion');
@@ -660,8 +654,8 @@ export default function ProfilePage() {
           v{__APP_VERSION__} ({__GIT_HASH__})
         </p>
 
-        {/* Delete Account - flat button at bottom */}
-        {isLoggedIn && (
+        {/* Delete Account / Delete Data - flat button at bottom */}
+        {(isLoggedIn || isAnonymousCloud) && (
           <button
             type="button"
             onClick={() => {
@@ -670,7 +664,7 @@ export default function ProfilePage() {
             }}
             className="w-full py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 active:scale-[0.98] transition-all text-center"
           >
-            {t('account.delete.buttonLabel')}
+            {isAnonymousCloud ? t('account.deleteData.buttonLabel') : t('account.delete.buttonLabel')}
           </button>
         )}
       </div>
@@ -725,12 +719,12 @@ export default function ProfilePage() {
 
             {/* Title */}
             <h3 className="mb-2 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t('account.delete.confirmTitle')}
+              {isAnonymousCloud ? t('account.deleteData.confirmTitle') : t('account.delete.confirmTitle')}
             </h3>
 
             {/* Warning Message */}
             <p className="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
-              {t('account.delete.confirmMessage')}
+              {isAnonymousCloud ? t('account.deleteData.confirmMessage') : t('account.delete.confirmMessage')}
             </p>
 
             {/* Data List */}
@@ -748,10 +742,12 @@ export default function ProfilePage() {
                   <span className="text-red-600 dark:text-red-400">•</span>
                   <span>{t('account.delete.dataList.settings')}</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-red-600 dark:text-red-400">•</span>
-                  <span>{t('account.delete.dataList.subscription')}</span>
-                </li>
+                {isLoggedIn && (
+                  <li className="flex items-start gap-2">
+                    <span className="text-red-600 dark:text-red-400">•</span>
+                    <span>{t('account.delete.dataList.subscription')}</span>
+                  </li>
+                )}
               </ul>
             </div>
 
@@ -795,33 +791,14 @@ export default function ProfilePage() {
                 disabled={!deleteUnderstanding || deletingAccount}
                 className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50 disabled:bg-red-300 transition-colors"
               >
-                {deletingAccount ? t('account.delete.deleting') : t('account.delete.deleteButton')}
+                {deletingAccount
+                  ? t('account.delete.deleting')
+                  : isAnonymousCloud
+                    ? t('account.deleteData.deleteButton')
+                    : t('account.delete.deleteButton')
+                }
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Success Modal */}
-      {showDeleteSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
-            {/* Success Icon */}
-            <div className="mb-4 flex justify-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
-                <svg className="h-6 w-6 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-
-            <h3 className="mb-2 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t('account.delete.successTitle')}
-            </h3>
-            <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-              {t('account.delete.successMessage')}
-            </p>
           </div>
         </div>
       )}

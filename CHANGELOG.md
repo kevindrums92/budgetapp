@@ -6,6 +6,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(profile): add "Delete my data" option for anonymous cloud users**
+  - Anonymous users with active Supabase sessions can now delete their server data (Apple Guideline 5.1.1(v) / GDPR compliance)
+  - Differentiated UI text: "Eliminar mis datos" for anonymous vs "Eliminar mi cuenta" for authenticated users
+  - Subscription data list item hidden for anonymous users (no subscription to delete)
+  - Remove success modal after deletion — redirect to login immediately
+  - i18n keys added for all 4 locales (es, en, fr, pt)
+
 - **test(onboarding): add 34 unit tests for new onboarding flow**
   - Validates navigation (handleNext, handleBack, handleSkip), determineStartScreen, DEVICE_INITIALIZED lifecycle, and 5 user flow scenarios
 
