@@ -310,7 +310,7 @@ export default function ProfilePage() {
         <div className="px-4 pt-6 pb-4">
           <button
             type="button"
-            onClick={() => isLoggedIn ? navigate('/profile/subscription') : navigate('/onboarding/login')}
+            onClick={() => (isLoggedIn || isPro || isTrialing) ? navigate('/profile/subscription') : navigate('/onboarding/login')}
             className="w-full bg-white dark:bg-gray-900 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden hover:border-teal-200 dark:hover:border-teal-700 transition active:scale-[0.99] text-left"
           >
             {/* Decorative element */}

@@ -7,6 +7,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(profile): allow anonymous Pro users to access subscription management**
+  - ProfilePage subscription card now navigates to `/profile/subscription` when user has Pro or trial, even if anonymous
+  - Added login banner on SubscriptionManagementPage for anonymous Pro/trial users inviting them to create an account
+  - i18n keys added for login banner in all 4 locales (es, en, fr, pt)
+
 ## [0.16.0] - 2026-02-07
 
 - **feat(profile): add "Delete my data" option for anonymous cloud users**

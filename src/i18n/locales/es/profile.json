@@ -199,6 +199,11 @@
     "info": {
       "note": "Nota:",
       "appleManagement": "Los cambios de suscripción y cancelaciones se gestionan a través de la App Store de Apple. Las cancelaciones entran en efecto al final del período de facturación actual."
+    },
+    "loginBanner": {
+      "title": "Protege tu suscripción",
+      "subtitle": "Crea una cuenta para mantener tu suscripción Pro y tus datos seguros. Si cambias de dispositivo sin una cuenta, podrías perder el acceso.",
+      "cta": "Crear Cuenta"
     }
   }
 }

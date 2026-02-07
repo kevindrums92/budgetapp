@@ -5,6 +5,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { PRICING_PLANS } from "@/constants/pricing";
 import { supabase } from "@/lib/supabaseClient";
+import { useBudgetStore } from "@/state/budget.store";
 import {
   ChevronLeft,
   Crown,
@@ -14,7 +15,9 @@ import {
   ExternalLink,
   CheckCircle2,
   Sparkles,
-  Infinity as InfinityIcon
+  Infinity as InfinityIcon,
+  Shield,
+  ChevronRight
 } from "lucide-react";
 import { isNative } from "@/shared/utils/platform";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
@@ -23,6 +26,8 @@ export default function SubscriptionManagementPage() {
   const navigate = useNavigate();
   const { t } = useTranslation("profile");
   const { isPro, isTrialing, subscription, trialEndsAt } = useSubscription();
+  const user = useBudgetStore((s) => s.user);
+  const isAnonymous = !user.email;
   const [showPaywall, setShowPaywall] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [restoreMessage, setRestoreMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -234,6 +239,33 @@ export default function SubscriptionManagementPage() {
             </div>
           )}
         </div>
+
+        {/* Login Banner - Show for anonymous Pro/trial users */}
+        {isAnonymous && (isPro || isTrialing) && (
+          <button
+            type="button"
+            onClick={() => navigate('/onboarding/login')}
+            className="mb-6 w-full rounded-2xl p-5 shadow-sm overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-950/30 dark:via-orange-950/20 dark:to-yellow-950/20 border border-amber-200 dark:border-amber-800 text-left transition active:scale-[0.99]"
+          >
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 dark:bg-amber-500/30">
+                <Shield size={22} className="text-amber-600 dark:text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-50 mb-1">
+                  {t("subscription.loginBanner.title")}
+                </h3>
+                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+                  {t("subscription.loginBanner.subtitle")}
+                </p>
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700 dark:text-amber-400">
+                  {t("subscription.loginBanner.cta")}
+                  <ChevronRight size={16} />
+                </span>
+              </div>
+            </div>
+          </button>
+        )}
 
         {/* Upgrade Options - Only show if not lifetime */}
         {!isLifetime && (
