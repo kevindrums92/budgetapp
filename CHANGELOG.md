@@ -4,7 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.0] - 2026-02-07
 
 - **feat(profile): add "Delete my data" option for anonymous cloud users**
   - Anonymous users with active Supabase sessions can now delete their server data (Apple Guideline 5.1.1(v) / GDPR compliance)
