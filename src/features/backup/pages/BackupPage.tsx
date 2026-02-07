@@ -15,7 +15,6 @@ const BACKUP_METHOD_KEY = "budget.backupMethod";
 
 export default function BackupPage() {
   const { t } = useTranslation("backup");
-  const cloudMode = useBudgetStore((s) => s.cloudMode);
   const user = useBudgetStore((s) => s.user);
   const [selectedMethod, setSelectedMethod] = useState<BackupMethod | null>(null);
 
@@ -58,7 +57,6 @@ export default function BackupPage() {
         <div className="flex-1 px-4 pt-6 pb-8">
           <BackupMethodSelector
             onSelect={handleSelectMethod}
-            cloudMode={cloudMode}
           />
         </div>
       </div>
@@ -158,7 +156,7 @@ export default function BackupPage() {
         {/* Local Auto-Backup Tab */}
         {selectedMethod === "local" && (
           <div className="space-y-6">
-            {cloudMode === "guest" ? (
+            {!user.email ? (
               <div className="rounded-xl bg-amber-50 dark:bg-amber-900/30 p-6 text-center">
                 <p className="text-amber-900 dark:text-amber-100 font-medium mb-2">
                   🔒 {t("local.authRequired")}
@@ -200,7 +198,7 @@ export default function BackupPage() {
         {/* Cloud Backup Tab */}
         {selectedMethod === "cloud" && (
           <div className="space-y-6">
-            {cloudMode === "guest" ? (
+            {!user.email ? (
               <div className="rounded-xl bg-amber-50 dark:bg-amber-900/30 p-6 text-center">
                 <p className="text-amber-900 dark:text-amber-100 font-medium mb-2">
                   🔒 {t("cloud.authRequired")}

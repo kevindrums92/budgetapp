@@ -287,13 +287,19 @@ features/{feature-name}/
 
 **Features**:
 - Welcome flow with 6 intro screens
-- Login with Google OAuth, Email, or Phone
-- Guest mode (local-only)
+- Login with Google OAuth or Apple OAuth (via in-app browser)
+- Anonymous Auth: all users get a Supabase anonymous session with cloud sync
 - First Config wizard (language, theme, currency, categories, push notifications)
 - Push notification onboarding at step 5 (auto-skip for web/guest users)
 - Progress persistence and resumption
 - Multi-user bug fix: always checks cloud data first to detect new vs returning users
 - Cloud data detection for seamless returning user experience
+
+**OAuth Transition (LoginScreen/LoginProScreen)**:
+- Stores `budget.previousAnonUserId` and `budget.oauthTransition` flags before initiating OAuth
+- Uses `signInWithOAuth()` (never `linkIdentity()`) to avoid `identity_already_exists` errors
+- Cleans up flags in catch block if OAuth fails
+- CloudSyncGate SIGNED_IN handler completes the transition (cleanup orphaned user, init new session)
 
 ---
 
@@ -405,11 +411,42 @@ Components in `src/shared/components/` are reusable across multiple features.
 
 ### Providers (`shared/components/providers/`)
 
-- **CloudSyncGate**: Wrapper for automatic cloud sync
+- **CloudSyncGate**: Core cloud sync orchestrator (see detailed section below)
 - **RevenueCatProvider**: Subscription management and Pro status
 - **AdMobProvider**: Ad monetization initialization (free users only)
 - **OnboardingGate**: First-time user onboarding
 - **BiometricGate**: Biometric authentication for app lock
+
+### CloudSyncGate - Detailed Architecture
+
+`CloudSyncGate` (`src/shared/components/providers/CloudSyncGate.tsx`) is the core provider that manages authentication state, cloud synchronization, and session lifecycle. It renders no UI (only `BackupScheduler` and `CloudBackupScheduler` children).
+
+**Initialization Flow** (`initForSession()`):
+1. Calls `supabase.auth.getSession()` to check for existing session
+2. If no session → calls `signInAnonymously()` → returns (SIGNED_IN handler will re-init)
+3. If session exists (anonymous or authenticated) → sets `cloudMode = "cloud"` → pulls cloud state → merges or replaces local data
+
+**Auth Event Handlers** (via `onAuthStateChange`):
+- **SIGNED_IN (anonymous)**: Initializes cloud sync if not already initialized (guard prevents loop)
+- **SIGNED_IN (authenticated)**: Migrates push tokens, calls `initForSession()`, cleans up orphaned anonymous user via RPC
+- **SIGNED_OUT**: If `budget.oauthTransition` flag is fresh (<2 min), skips cleanup (OAuth in progress). Otherwise clears state, re-creates anonymous session → SIGNED_IN handler activates cloud sync
+
+**OAuth Transition Protection**:
+- `budget.oauthTransition` localStorage flag prevents data clearing during OAuth (SIGNED_OUT fires when replacing anonymous session)
+- `budget.previousAnonUserId` localStorage flag stores anonymous user ID for post-OAuth cleanup
+- After successful authenticated SIGNED_IN, calls `cleanup_orphaned_anonymous_user` RPC (SECURITY DEFINER)
+
+**Key Guards**:
+- `initializedRef`: Prevents duplicate initialization and SIGNED_IN loops
+- Empty snapshot guard: Blocks push if data is empty (prevents accidental data wipe)
+- Sync lock (`navigator.locks`): Prevents concurrent pushes in multi-tab scenarios
+- Debounced push (1.2s): Batches rapid mutations into a single cloud push
+
+**Cloud Mode Semantics**:
+- `"cloud"` = Has Supabase session (anonymous OR authenticated). Data syncs.
+- `"guest"` = No session possible (Supabase down, offline on first launch). localStorage only. Rare fallback.
+
+**Tests**: 13 unit tests covering all 5 OAuth transition cases + 8 edge cases (`CloudSyncGate.test.tsx`)
 
 ---
 
@@ -689,9 +726,37 @@ For questions about the architecture or how to implement a new feature, refer to
 
 ---
 
-**Last updated**: 2026-02-04
+**Last updated**: 2026-02-06
 
-## Recent Updates (v0.14.5)
+## Recent Updates (v0.15.2)
+
+**Date**: 2026-02-06
+
+**Changes**:
+- **Anonymous Auth & Cloud Sync for all users**:
+  - All new users get automatic anonymous Supabase session with cloud sync
+  - `cloudMode = "cloud"` for both anonymous and authenticated users
+  - Guest mode is now a rare fallback (Supabase down / offline on first launch)
+- **OAuth Transition Flow**:
+  - LoginScreen/LoginProScreen use `signInWithOAuth()` (not `linkIdentity()`)
+  - `budget.oauthTransition` flag protects data during session transition
+  - `budget.previousAnonUserId` flag enables orphaned user cleanup
+  - CloudSyncGate SIGNED_IN handler orchestrates cleanup and session init
+- **Orphaned Anonymous User Cleanup**:
+  - `cleanup_orphaned_anonymous_user` SECURITY DEFINER SQL function (immediate cleanup after OAuth)
+  - `pg_cron` weekly job cleans stale anonymous users (60-day retention)
+  - SQL migrations: `20260206_cleanup_orphaned_anonymous_user.sql`, `20260206_cleanup_stale_anonymous_users_cron.sql`
+- **CloudSyncGate detailed architecture** documented in Providers section
+- **13 unit tests** for anonymous auth → OAuth transition flows
+- Updated 594 total tests passing (21 test files)
+
+**Benefits**:
+- All users have cloud backup from day one (no data loss on device change)
+- Seamless transition from anonymous to authenticated (no double login)
+- Clean database: orphaned anonymous users cleaned automatically
+- Comprehensive test coverage for critical auth transition flows
+
+## Previous Updates (v0.14.5)
 
 **Date**: 2026-02-04
 

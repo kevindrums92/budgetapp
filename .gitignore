@@ -52,5 +52,6 @@ docs/push-notifications/GoogleService-Info.plist
 
 docs/inapppurchases/*.p8
 docs/testData/*.json
+docs/sql-queries.md
 important
 supabase/.temp/cli-latest

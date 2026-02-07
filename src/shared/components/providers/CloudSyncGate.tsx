@@ -170,10 +170,10 @@ export default function CloudSyncGate() {
       if (hasStoredSession && storedSessionData) {
         setCloudMode("cloud");
 
-        // ✅ Extract user data from stored session to show in ProfilePage when offline
+        // Extract user data from stored session (authenticated or anonymous)
         const session = storedSessionData;
         const sessionUser = session.currentSession?.user || session.user;
-        if (sessionUser) {
+        if (sessionUser && !sessionUser.is_anonymous) {
           const meta = sessionUser.user_metadata ?? {};
           const appMeta = sessionUser.app_metadata ?? {};
           const provider = (appMeta.provider as string) || sessionUser.identities?.[0]?.provider || null;
@@ -186,7 +186,8 @@ export default function CloudSyncGate() {
           });
           logger.info("CloudSync", `Offline mode: cloud (loaded user: ${sessionUser.email})`);
         } else {
-          logger.info("CloudSync", "Offline mode: cloud (has session, will sync when online)");
+          // Anonymous user or no user data — still cloud mode, will sync when online
+          logger.info("CloudSync", "Offline mode: cloud (anonymous user, will sync when online)");
         }
       } else {
         setCloudMode("guest");
@@ -234,7 +235,6 @@ export default function CloudSyncGate() {
 
       if (import.meta.env.DEV && hasExistingCloudSession) {
         logger.warn("CloudSync", "HMR detected: Session null but already in cloud mode. Skipping reset.");
-        // Re-fetch session after a short delay (Supabase might still be initializing)
         setTimeout(async () => {
           const { data: retryData } = await supabase.auth.getSession();
           if (retryData.session) {
@@ -247,33 +247,25 @@ export default function CloudSyncGate() {
 
       logger.info("CloudSync", "No session found, checking if guest mode or logout");
 
-      // ✅ CRITICAL FIX: Only clear state if user was previously in cloud mode and logged out
-      // If user is in guest mode (never logged in), preserve their local data
-      const wasInCloudMode = currentMode === "cloud";
-      const hasLocalData = useBudgetStore.getState().categoryDefinitions.length > 0 ||
-                           useBudgetStore.getState().transactions.length > 0;
+      // Only clear state if an AUTHENTICATED user lost their session (logout scenario)
+      // Anonymous cloud users losing session → preserve data, try to re-create session
+      // Guest users with local data → preserve data
+      const wasAuthenticated = currentMode === "cloud" && !!currentUser.email;
 
-      if (wasInCloudMode) {
-        // User was logged in and now logged out → clear everything
-        logger.info("CloudSync", "User logged out from cloud mode, clearing local data");
+      if (wasAuthenticated) {
+        logger.info("CloudSync", "Authenticated user logged out, clearing local data");
         clearPendingSnapshot();
         clearState();
         replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
 
-        // Reset welcome para que vuelva a salir en guest
         try {
           localStorage.removeItem(SEEN_KEY);
         } catch {}
         setWelcomeSeen(false);
-      } else if (!hasLocalData) {
-        // No session, no local data → user hasn't completed onboarding yet
-        logger.info("CloudSync", "No session, no local data - user hasn't completed onboarding");
       } else {
-        // No session but has local data → guest mode user returning to app
-        logger.info("CloudSync", "No session but has local data - guest mode user, preserving data");
+        logger.info("CloudSync", "No session, preserving local data (guest or anonymous session expired)");
       }
 
-      // ✅ Clear user state atomically
       setUser({
         email: null,
         name: null,
@@ -281,19 +273,34 @@ export default function CloudSyncGate() {
         provider: null,
       });
 
+      // Try to create anonymous session → SIGNED_IN handler will activate cloud sync
+      if (isOnline) {
+        try {
+          const { error: anonError } = await supabase.auth.signInAnonymously();
+          if (!anonError) {
+            console.log("[CloudSyncGate] Anonymous session created, SIGNED_IN will init cloud sync");
+            return; // SIGNED_IN handler will call initForSession()
+          }
+          console.warn("[CloudSyncGate] signInAnonymously failed:", anonError);
+        } catch (err) {
+          console.warn("[CloudSyncGate] signInAnonymously error:", err);
+        }
+      }
+
+      // Fallback: no session possible → true guest mode (rare: offline first launch, Supabase down)
       setCloudMode("guest");
       setCloudStatus("idle");
       initializedRef.current = false;
-
-      // Mark CloudSync as ready in guest mode (no sync needed, scheduler can run immediately)
       useBudgetStore.getState().setCloudSyncReady();
-      logger.info("CloudSync", "Guest mode - scheduler can run immediately");
+      logger.info("CloudSync", "Guest mode fallback - no session available");
       return;
     }
 
-    logger.info("CloudSync", "Session found, user:", session.user.id);
+    logger.info("CloudSync", "Session found, user:", session.user.id, "anonymous:", session.user.is_anonymous);
 
     // ✅ Update user state atomically with cloudMode
+    // Anonymous users: email/name/avatar will all be null (expected)
+    // UI uses !!user.email to distinguish anonymous from authenticated
     const meta = session.user.user_metadata ?? {};
     const appMeta = session.user.app_metadata ?? {};
 
@@ -656,14 +663,35 @@ export default function CloudSyncGate() {
   useEffect(() => {
     initForSession();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_OUT") {
+        // ✅ Check if this SIGNED_OUT is part of an OAuth transition (anonymous → authenticated).
+        // exchangeCodeForSession() emits SIGNED_OUT when replacing the anonymous session
+        // with the authenticated one. We must NOT clear data in this case.
+        const oauthTransition = localStorage.getItem('budget.oauthTransition');
+        if (oauthTransition) {
+          const elapsed = Date.now() - parseInt(oauthTransition, 10);
+          if (elapsed < 120_000) { // 2 minutes max
+            console.log("[CloudSyncGate] SIGNED_OUT during OAuth transition, skipping cleanup");
+            return;
+          }
+          // Stale flag (>2min) — remove it and proceed with normal cleanup
+          localStorage.removeItem('budget.oauthTransition');
+        }
+
         // Deactivate push notification token before clearing data
         deactivateToken();
         cleanupPushNotifications();
 
         clearPendingSnapshot();
         clearState();
+
+        // Clear subscription state on logout
+        useBudgetStore.getState().clearSubscription();
+        import('@/services/subscription.service').then(({ clearSubscriptionCache }) => {
+          clearSubscriptionCache();
+        });
+
         // Leave categories empty - user will recover them when logging back in
         replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
 
@@ -673,7 +701,7 @@ export default function CloudSyncGate() {
         } catch {}
         setWelcomeSeen(false);
 
-        // ✅ Clear user state on logout
+        // Clear user state on logout
         setUser({
           email: null,
           name: null,
@@ -681,24 +709,94 @@ export default function CloudSyncGate() {
           provider: null,
         });
 
-        setCloudMode("guest");
+        setCloudMode("guest"); // Temporary until anonymous session is created
         setCloudStatus("idle");
         initializedRef.current = false;
+
+        // Re-create anonymous session → SIGNED_IN handler will init cloud sync
+        try {
+          const { error } = await supabase.auth.signInAnonymously();
+          if (error) {
+            console.warn("[CloudSyncGate] Failed to re-create anonymous session after logout:", error);
+            useBudgetStore.getState().setCloudSyncReady();
+          } else {
+            console.log("[CloudSyncGate] Anonymous session re-created, SIGNED_IN will init cloud sync");
+            // SIGNED_IN handler will call initForSession() and set cloudMode = "cloud"
+          }
+        } catch (err) {
+          console.warn("[CloudSyncGate] signInAnonymously error after logout:", err);
+          useBudgetStore.getState().setCloudSyncReady();
+        }
+
         return;
       }
 
       if (event === "SIGNED_IN") {
-        console.log("[CloudSyncGate] SIGNED_IN event received, re-initializing...");
+        // Clear OAuth transition flag — the transition completed successfully
+        localStorage.removeItem('budget.oauthTransition');
 
-        // Migrate any guest push token to the authenticated user
-        migrateGuestTokenToUser().then((migrated) => {
-          if (migrated) {
-            console.log("[CloudSyncGate] Guest push token migrated to authenticated user");
+        // CRITICAL: Defer all work to next tick with setTimeout(fn, 0).
+        // exchangeCodeForSession() emits SIGNED_IN while holding a navigator.locks lock.
+        // If we call getSession() (used by initForSession, getCloudState, etc.) synchronously
+        // inside this callback, it tries to acquire the SAME lock → deadlock.
+        // setTimeout ensures our code runs AFTER the lock is released.
+
+        if (session?.user?.is_anonymous) {
+          // Anonymous SIGNED_IN: init cloud sync if not already initialized
+          // Guard prevents loop: signInAnonymously → SIGNED_IN → initForSession → (finds session) → done
+          if (initializedRef.current && useBudgetStore.getState().cloudMode === "cloud") {
+            console.log("[CloudSyncGate] Anonymous SIGNED_IN but already in cloud mode, skipping");
+            return;
           }
-        });
+          console.log("[CloudSyncGate] Anonymous SIGNED_IN, initializing cloud sync");
+          initializedRef.current = false;
+          setTimeout(() => initForSession(), 0);
+          return;
+        }
 
+        // Authenticated SIGNED_IN (real login or linkIdentity upgrade)
+        console.log("[CloudSyncGate] Authenticated SIGNED_IN, re-initializing...");
         initializedRef.current = false;
-        initForSession();
+
+        setTimeout(async () => {
+          // Migrate RevenueCat to authenticated user (preserves subscription from anonymous session)
+          try {
+            const { isNative } = await import('@/shared/utils/platform');
+            if (isNative() && session?.user) {
+              const { Purchases } = await import('@revenuecat/purchases-capacitor');
+              await Purchases.logIn({ appUserID: session.user.id });
+              console.log("[CloudSyncGate] RevenueCat linked to user:", session.user.id);
+
+              const { getSubscription } = await import('@/services/subscription.service');
+              const subscription = await getSubscription(session.user.id);
+              useBudgetStore.getState().setSubscription(subscription);
+              console.log("[CloudSyncGate] Subscription refreshed post-login:", subscription?.status ?? 'free');
+            }
+          } catch (err) {
+            console.warn("[CloudSyncGate] Failed to migrate RevenueCat (non-blocking):", err);
+          }
+
+          // Migrate any guest push token to the authenticated user
+          migrateGuestTokenToUser().then((migrated) => {
+            if (migrated) {
+              console.log("[CloudSyncGate] Guest push token migrated to authenticated user");
+            }
+          });
+
+          await initForSession();
+
+          // Clean up orphaned anonymous user data (if this was an OAuth transition)
+          const previousAnonUserId = localStorage.getItem('budget.previousAnonUserId');
+          if (previousAnonUserId) {
+            localStorage.removeItem('budget.previousAnonUserId');
+            try {
+              await supabase.rpc('cleanup_orphaned_anonymous_user', { anon_user_id: previousAnonUserId });
+              console.log("[CloudSyncGate] Cleaned up orphaned anonymous user:", previousAnonUserId);
+            } catch (err) {
+              console.warn("[CloudSyncGate] Failed to cleanup orphaned anonymous user (non-blocking):", err);
+            }
+          }
+        }, 0);
       }
     });
 

@@ -311,12 +311,12 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-dvh bg-gray-50 dark:bg-gray-950 pb-28 transition-colors">
-      {/* User Account Card - Only for logged in users */}
-      {isLoggedIn && (
+      {/* User Account Card - For logged in users AND anonymous cloud users */}
+      {(isLoggedIn || cloudMode === "cloud") && (
         <div className="px-4 pt-6 pb-4">
           <button
             type="button"
-            onClick={() => navigate('/profile/subscription')}
+            onClick={() => isLoggedIn ? navigate('/profile/subscription') : navigate('/onboarding/login')}
             className="w-full bg-white dark:bg-gray-900 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden hover:border-teal-200 dark:hover:border-teal-700 transition active:scale-[0.99] text-left"
           >
             {/* Decorative element */}
@@ -350,20 +350,26 @@ export default function ProfilePage() {
               {/* User info */}
               <div className="flex-1 min-w-0">
                 <h2 className="font-bold text-lg text-gray-900 dark:text-gray-50 leading-tight truncate">
-                  {user.name || "Usuario"}
+                  {user.name || (isLoggedIn ? "Usuario" : "Invitado")}
                 </h2>
                 <div className="flex items-center gap-1.5 mb-2">
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
-                  {/* Provider icon */}
-                  {user.provider === 'google' && (
-                    <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-white dark:bg-gray-900 shadow-sm">
-                      <Chrome size={12} className="text-gray-700 dark:text-gray-300" />
-                    </div>
-                  )}
-                  {user.provider === 'apple' && (
-                    <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-black">
-                      <Apple size={12} className="text-white" />
-                    </div>
+                  {isLoggedIn ? (
+                    <>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                      {/* Provider icon */}
+                      {user.provider === 'google' && (
+                        <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-white dark:bg-gray-900 shadow-sm">
+                          <Chrome size={12} className="text-gray-700 dark:text-gray-300" />
+                        </div>
+                      )}
+                      {user.provider === 'apple' && (
+                        <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-black">
+                          <Apple size={12} className="text-white" />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-[#18B7B0] dark:text-[#18B7B0] truncate">Crear cuenta &rarr;</p>
                   )}
                 </div>
                 {/* Badges - Two rows */}
@@ -410,8 +416,9 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Session Inconsistency Card - Show when Pro but not logged in (and not offline) */}
-      {isPro && !isLoggedIn && cloudStatus !== "offline" && (
+      {/* Session Inconsistency Card - Show when Pro but not logged in AND not in cloud mode (and not offline) */}
+      {/* Anonymous users in cloud mode have active sessions, so this only shows for true session loss */}
+      {isPro && !isLoggedIn && cloudMode !== "cloud" && cloudStatus !== "offline" && (
         <div className="px-4 pt-6 pb-4">
           <div className="relative w-full rounded-2xl p-5 shadow-sm overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-amber-950/30 dark:via-orange-950/30 dark:to-red-950/30 border border-amber-200 dark:border-amber-800">
             {/* Decorative gradient */}
@@ -448,8 +455,8 @@ export default function ProfilePage() {
       {/* Dynamic Subscription Status Card - Hide when Pro */}
       {!isPro && (
         <div className="px-4 pt-6 pb-4">
-          {!isLoggedIn ? (
-            // Guest State: No backup, encourage signup
+          {!isLoggedIn && cloudMode !== "cloud" ? (
+            // Guest State: No backup, no cloud session, encourage signup
             <div className="relative w-full rounded-2xl p-5 shadow-sm overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900">
               {/* Decorative gradient */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-bl-[6rem] -mr-8 -mt-8" />

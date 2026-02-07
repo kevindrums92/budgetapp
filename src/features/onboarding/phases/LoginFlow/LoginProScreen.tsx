@@ -28,6 +28,8 @@ export default function LoginProScreen() {
 
   // Track OAuth in progress to handle browser cancellation
   const oauthInProgress = useRef(false);
+  // Track last OAuth provider used (for identity_already_exists retry)
+  const lastProvider = useRef<'google' | 'apple'>('google');
 
   // ✅ CRITICAL: Mark device as initialized when user reaches login screen
   // This permanent flag ensures WelcomeOnboarding is only shown on first device use
@@ -76,6 +78,41 @@ export default function LoginProScreen() {
   }, []);
 
   /**
+   * Listener para identity_already_exists error.
+   * When linkIdentity() fails because the OAuth identity is already linked to
+   * another user, retry with regular signInWithOAuth (signs in as existing user).
+   */
+  useEffect(() => {
+    const handleIdentityExists = async () => {
+      console.log('[LoginProScreen] Identity already exists, retrying with signInWithOAuth');
+      oauthInProgress.current = true;
+
+      try {
+        // Retry with regular signInWithOAuth (signs in as the existing user).
+        // User will need to authenticate again since each OAuth flow is a new authorization request.
+        const { error: authError } = await signInWithOAuthInAppBrowser(lastProvider.current, {
+          queryParams: lastProvider.current === 'google' ? { prompt: 'select_account' } : undefined,
+          skipLinkIdentity: true,
+        });
+
+        if (authError) throw authError;
+        console.log('[LoginProScreen] OAuth retry initiated (signInWithOAuth)');
+      } catch (err: any) {
+        console.error('[LoginProScreen] Error in OAuth retry:', err);
+        setError(err.message || 'Error al iniciar sesión');
+        setLoading(false);
+        oauthInProgress.current = false;
+      }
+    };
+
+    window.addEventListener('oauth-identity-exists', handleIdentityExists);
+
+    return () => {
+      window.removeEventListener('oauth-identity-exists', handleIdentityExists);
+    };
+  }, []);
+
+  /**
    * Listener para detectar cuando el usuario vuelve a la app sin completar OAuth
    * (cerró el in-app browser sin hacer login)
    */
@@ -97,13 +134,16 @@ export default function LoginProScreen() {
           // Check if session was created
           const { data } = await supabase.auth.getSession();
 
-          if (!data.session) {
-            // No session = user cancelled OAuth
-            console.log('[LoginProScreen] No session found, user likely cancelled OAuth');
+          if (!data.session || data.session.user.is_anonymous) {
+            // No real session = user cancelled OAuth (anonymous session doesn't count)
+            // NOTE: Don't remove oauthTransition flag here — deep link may arrive AFTER
+            // this check (race condition). Flag is cleaned by CloudSyncGate SIGNED_IN handler
+            // or by the 2-minute stale check.
+            console.log('[LoginProScreen] No real session found, user likely cancelled OAuth');
             setLoading(false);
             oauthInProgress.current = false;
           } else {
-            // Session exists = OAuth succeeded, clear OAuth tracking
+            // Real session exists = OAuth succeeded, clear OAuth tracking
             console.log('[LoginProScreen] Session found, OAuth completed successfully');
             oauthInProgress.current = false;
           }
@@ -133,7 +173,7 @@ export default function LoginProScreen() {
       }
 
       const { data } = await supabase.auth.getSession();
-      if (data.session) {
+      if (data.session && !data.session.user.is_anonymous) {
         console.log('[LoginProScreen] Session detected on mount, handling OAuth callback');
         handleOAuthCallback();
       }
@@ -147,8 +187,11 @@ export default function LoginProScreen() {
       async (event, session) => {
         console.log('[LoginProScreen] Auth event:', event);
 
-        if (event === 'SIGNED_IN' && session) {
-          handleOAuthCallback();
+        if (event === 'SIGNED_IN' && session && !session.user.is_anonymous) {
+          // Defer to next tick: exchangeCodeForSession() emits SIGNED_IN while holding
+          // a navigator.locks lock. handleOAuthCallback → getSession() would deadlock
+          // trying to acquire the same lock.
+          setTimeout(() => handleOAuthCallback(), 0);
         }
       }
     );
@@ -367,12 +410,26 @@ export default function LoginProScreen() {
     setLoading(true);
     setError(null);
     oauthInProgress.current = true;
+    lastProvider.current = 'google';
 
     try {
+      // Save anonymous user ID so we can clean up orphaned data after OAuth
+      const { data: currentSession } = await supabase.auth.getSession();
+      if (currentSession.session?.user?.is_anonymous) {
+        localStorage.setItem('budget.previousAnonUserId', currentSession.session.user.id);
+      }
+
+      // Flag OAuth transition so CloudSyncGate's SIGNED_OUT handler preserves local data
+      // (exchangeCodeForSession emits SIGNED_OUT when replacing the anonymous session)
+      localStorage.setItem('budget.oauthTransition', Date.now().toString());
+
       const { error: authError } = await signInWithOAuthInAppBrowser('google', {
         queryParams: {
           prompt: 'select_account',
         },
+        // Always use signInWithOAuth on login screens (never linkIdentity).
+        // This avoids identity_already_exists which forces a second authentication.
+        skipLinkIdentity: true,
       });
 
       if (authError) throw authError;
@@ -380,6 +437,8 @@ export default function LoginProScreen() {
       console.log('[LoginProScreen] Google OAuth initiated');
     } catch (err: any) {
       console.error('[LoginProScreen] Error en Google login:', err);
+      localStorage.removeItem('budget.oauthTransition');
+      localStorage.removeItem('budget.previousAnonUserId');
       setError(err.message || t('login.errorGoogle'));
       setLoading(false);
       oauthInProgress.current = false;
@@ -393,15 +452,30 @@ export default function LoginProScreen() {
     setLoading(true);
     setError(null);
     oauthInProgress.current = true;
+    lastProvider.current = 'apple';
 
     try {
-      const { error: authError } = await signInWithOAuthInAppBrowser('apple');
+      // Save anonymous user ID so we can clean up orphaned data after OAuth
+      const { data: currentSession } = await supabase.auth.getSession();
+      if (currentSession.session?.user?.is_anonymous) {
+        localStorage.setItem('budget.previousAnonUserId', currentSession.session.user.id);
+      }
+
+      // Flag OAuth transition so CloudSyncGate's SIGNED_OUT handler preserves local data
+      localStorage.setItem('budget.oauthTransition', Date.now().toString());
+
+      const { error: authError } = await signInWithOAuthInAppBrowser('apple', {
+        // Always use signInWithOAuth on login screens (never linkIdentity).
+        skipLinkIdentity: true,
+      });
 
       if (authError) throw authError;
 
       console.log('[LoginProScreen] Apple OAuth initiated');
     } catch (err: any) {
       console.error('[LoginProScreen] Error en Apple login:', err);
+      localStorage.removeItem('budget.oauthTransition');
+      localStorage.removeItem('budget.previousAnonUserId');
       setError(err.message || 'Error al iniciar sesión con Apple');
       setLoading(false);
       oauthInProgress.current = false;

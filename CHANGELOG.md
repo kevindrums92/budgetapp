@@ -6,6 +6,21 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(auth): anonymous auth with cloud sync + orphaned user cleanup**
+  - All new users get automatic anonymous Supabase session with cloud sync from day one
+  - `cloudMode = "cloud"` for both anonymous and authenticated users (guest mode is now rare fallback)
+  - Login screens store `budget.previousAnonUserId` before OAuth for post-login cleanup
+  - `budget.oauthTransition` flag prevents SIGNED_OUT handler from clearing data during OAuth
+  - CloudSyncGate SIGNED_IN handler calls `cleanup_orphaned_anonymous_user` RPC after successful OAuth
+  - SECURITY DEFINER SQL function cleans orphaned anonymous user data (user_state, push_tokens, auth.users)
+  - pg_cron weekly job cleans stale anonymous users (60+ days inactive) for uninstalled apps
+  - 13 unit tests covering all 5 OAuth transition cases + 8 edge cases
+
+- **docs: update core documentation with anonymous auth architecture**
+  - CLAUDE.md: updated Cloud Sync Flow section with anonymous auth and OAuth transition details
+  - FEATURES.md: rewrote Authentication section with anonymous auth, OAuth transition, orphaned user cleanup, and test table
+  - ARCHITECTURE.md: added detailed CloudSyncGate architecture section and OAuth transition flow
+
 ## [0.15.2] - 2026-02-05
 
 - **fix(batch-entry): enable PaywallModal purchase button from rate limit upsell**

@@ -613,17 +613,87 @@ export type BatchEntryResponse = {
 ### Métodos de Autenticación
 - **Google OAuth** (Sign in with Google)
 - **Apple Sign In** (Sign in with Apple)
-- **Anonymous Auth** (Supabase `signInAnonymously()` - cloud sync sin cuenta)
+- **Anonymous Auth** (Supabase `signInAnonymously()` - cloud sync desde el primer momento)
 
-### In-App Browser OAuth (CRÍTICO - Apple Guideline 4.0)
+### Anonymous Auth (Cloud Sync para todos)
+
+Todos los usuarios nuevos reciben automáticamente una sesión anónima de Supabase con cloud sync activo. No se requiere crear cuenta para sincronizar datos con la nube.
+
+- **Sesión anónima automática**: Al abrir la app por primera vez, `CloudSyncGate` llama `signInAnonymously()` → sesión con JWT válido y `auth.uid()` funcional
+- **Cloud sync inmediato**: `cloudMode = "cloud"` para TODOS los usuarios (anónimos y autenticados)
+- **RLS compatible**: Las políticas RLS de todas las tablas (`user_state`, `push_tokens`, `user_subscriptions`) usan `auth.uid() = user_id` → funcionan con sesiones anónimas sin cambios
+- **Distinción UI**: Para diferenciar invitado vs autenticado en la interfaz, usar `!!user.email` (los anónimos no tienen email)
+- **Fallback guest**: `cloudMode = "guest"` solo ocurre si `signInAnonymously()` falla (Supabase caído, offline en primer arranque)
+
+### Transición Anónimo → OAuth (Flujo de Login)
+
+Cuando un usuario anónimo decide crear cuenta (Google/Apple OAuth), ocurre una transición de sesión:
+
+**Archivos clave**:
+- `src/features/onboarding/phases/LoginFlow/LoginScreen.tsx`
+- `src/features/onboarding/phases/LoginFlow/LoginProScreen.tsx`
+- `src/shared/components/providers/CloudSyncGate.tsx`
+
+**Flujo paso a paso**:
+
+1. **Pre-OAuth** (LoginScreen/LoginProScreen `handleGoogleLogin`/`handleAppleLogin`):
+   - Guarda `budget.previousAnonUserId` en localStorage (ID del usuario anónimo actual)
+   - Guarda `budget.oauthTransition` con timestamp (protege datos durante la transición)
+
+2. **Durante OAuth**:
+   - `signInWithOAuth()` reemplaza la sesión anónima → emite SIGNED_OUT + SIGNED_IN
+   - El flag `oauthTransition` previene que SIGNED_OUT borre los datos locales (ventana de 2 min)
+
+3. **Post-OAuth** (CloudSyncGate SIGNED_IN handler):
+   - Detecta usuario autenticado (`is_anonymous = false`)
+   - Ejecuta `await initForSession()` → pull de cloud data del nuevo usuario
+   - Si existe `budget.previousAnonUserId`, llama RPC `cleanup_orphaned_anonymous_user`
+   - Limpia los flags de localStorage
+
+**IMPORTANTE**: Se usa `signInWithOAuth()` (NUNCA `linkIdentity()`) en las pantallas de login. `linkIdentity()` causaba errores `identity_already_exists` cuando el email ya existía en otra cuenta. `signInWithOAuth()` crea un nuevo `user_id`, lo cual requiere limpiar el usuario anónimo huérfano.
+
+### Limpieza de Usuarios Anónimos Huérfanos
+
+#### Limpieza inmediata (después de OAuth)
+- **Función SQL**: `cleanup_orphaned_anonymous_user(anon_user_id UUID)` - `SECURITY DEFINER`
+- **Por qué SECURITY DEFINER**: El nuevo usuario autenticado no puede borrar filas del usuario anónimo por RLS (`auth.uid() ≠ anon_user_id`)
+- **Verificación de seguridad**: Solo borra si `is_anonymous = true` (no-op para usuarios reales)
+- **Tablas limpiadas**: `user_state`, `push_tokens`, `auth.users`
+- **Non-blocking**: Si el RPC falla, el login sigue funcionando normalmente
+- **Migración**: `supabase/migrations/20260206_cleanup_orphaned_anonymous_user.sql`
+
+#### Limpieza programada (usuarios que desinstalan la app)
+- **Cron job**: `pg_cron` ejecuta cada domingo a las 4 AM UTC
+- **Retención**: 60 días de inactividad (`COALESCE(last_sign_in_at, created_at)`)
+- **Tablas limpiadas**: `user_state`, `push_tokens`, `auth.users`
+- **Migración**: `supabase/migrations/20260206_cleanup_stale_anonymous_users_cron.sql`
+
+### Testing de Transición Auth (13 tests)
+Suite completa en `CloudSyncGate.test.tsx`:
+
+| Caso | Descripción |
+|------|-------------|
+| Case 1 | Invitado con datos → Login nuevo Google → Hereda datos, limpia anónimo |
+| Case 2 | Invitado con datos + Pro → Login nuevo Google → Migra RevenueCat |
+| Case 3 | Invitado con datos → Login cuenta existente → No sobrescribe datos cloud |
+| Case 4 | Instalación fresca → Login nuevo → Limpia anónimo de corta vida |
+| Case 5 | Instalación fresca → Login cuenta existente → Carga datos cloud |
+| E1 | OAuth cancelado → flags permanecen (inofensivos) |
+| E2 | OAuth falla → flags limpiados en catch |
+| E3 | Cleanup RPC falla → non-blocking, login continúa |
+| E5 | SIGNED_OUT durante OAuth → no borra datos (flag protege) |
+| E5b | Flag oauthTransition stale (>2min) → procede normalmente |
+| E6 | Múltiples intentos OAuth → idempotente |
+| E7 | Sin previousAnonUserId → no llama cleanup |
+| E8 | SIGNED_IN anónimo → cloud sync, sin cleanup |
+
+### In-App Browser OAuth (CRITICO - Apple Guideline 4.0)
 - **Archivo**: `src/shared/utils/oauth.utils.ts` → `signInWithOAuthInAppBrowser()`
 - **iOS**: Safari View Controller (usuario no sale de la app)
 - **Android**: Chrome Custom Tabs (usuario no sale de la app)
 - **Web**: `window.open()` en nueva pestaña
-- **Flujo normal**: `signInWithOAuth({ skipBrowserRedirect: true })` → `Browser.open({ url })`
-- **Flujo anónimo→autenticado**: `linkIdentity({ skipBrowserRedirect: true })` → `Browser.open({ url })`
-- **CRÍTICO**: `skipBrowserRedirect: true` es OBLIGATORIO en ambos métodos. Sin este flag, Supabase abre el browser externo automáticamente.
-- **`linkIdentity()`**: Convierte usuario anónimo a autenticado preservando el mismo `user_id` (mantiene suscripciones RevenueCat y datos en la nube)
+- **Flujo**: `signInWithOAuth({ skipBrowserRedirect: true })` → `Browser.open({ url })`
+- **CRITICO**: `skipBrowserRedirect: true` es OBLIGATORIO. Sin este flag, Supabase abre el browser externo automáticamente.
 
 ### Biometric Authentication
 - **Face ID / Touch ID / Fingerprint** para usuarios autenticados
@@ -643,7 +713,7 @@ export type BatchEntryResponse = {
 
 ### Onboarding System
 - **Welcome Flow**: 6 pantallas de introducción visual
-- **LoginScreen**: Selección entre modo invitado o cloud sync
+- **LoginScreen**: Todos los usuarios obtienen sesión anónima con cloud sync
 - **First Config Flow**: 6 pantallas de configuración inicial
   1. Selección de idioma (es/en/pt/fr)
   2. Selección de tema (light/dark/system)
@@ -658,13 +728,11 @@ export type BatchEntryResponse = {
 - **Cloud data detection**: Previene que usuarios nuevos salten FirstConfig en dispositivos compartidos
 - Migración automática desde sistema legacy
 
-### Guest Mode
-- **Modo Local-First**: Datos solo en localStorage
+### Guest Mode (Fallback)
+- **Solo ocurre** si `signInAnonymously()` falla (Supabase caído, sin conexión en primer uso)
+- **Modo Local-First**: Datos solo en localStorage, sin cloud sync
 - **Banner "Conectar cuenta"** en ProfilePage
-- Navegación a login para convertir guest a user
-- Seamless transition a modo cloud
-- Guest users completan onboarding sin autenticación
-- Push notifications auto-skip para guest users (solo para usuarios autenticados)
+- Reintento de `signInAnonymously()` en el siguiente arranque
 
 ---
 
@@ -921,10 +989,10 @@ export type BatchEntryResponse = {
 ## 🧪 Testing y Calidad
 
 ### Unit Tests
-- **514 tests pasando** en todas las suites
+- **594 tests pasando** en 21 suites
 - **Zustand Store**: 79 tests (98.65% statements, 84.48% branches)
 - **Services**: 147 tests
-  - pendingSync.service: 20 tests (data loss prevention - CRÍTICO)
+  - pendingSync.service: 20 tests (data loss prevention - CRITICO)
   - recurringTransactions.service: 22 tests
   - cloudState.service: 19 tests
   - storage.service: 26 tests (migrations v1→v7)
@@ -936,8 +1004,10 @@ export type BatchEntryResponse = {
   - TransactionList: 30 tests
   - CategoryPickerDrawer: 44 tests
   - ProfilePage: 12 tests (offline UX)
+- **CloudSyncGate**: 13 tests (anonymous auth → OAuth transition)
 - **Critical Test Suites**:
   - 20 tests para prevención de pérdida de datos (pendingSync)
+  - 13 tests para transición anonymous auth → OAuth (CloudSyncGate)
   - 12 tests para UX offline y manejo de sesión expirada (ProfilePage)
 
 ### E2E Tests (Playwright)
@@ -1103,6 +1173,6 @@ Ver [ROADMAP.md](ROADMAP.md) para features planeados:
 
 ## 📄 Versión Actual
 
-**Versión**: 0.14.5 (latest release)
+**Versión**: 0.15.2 (latest release)
 
 Para historial completo de cambios, ver [CHANGELOG.md](../CHANGELOG.md)

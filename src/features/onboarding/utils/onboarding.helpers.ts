@@ -51,7 +51,10 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
 
   // CASO 0: Logout explícito → LOGIN (verificar ANTES de sesión activa)
   // El signOut() de Supabase es async, la sesión puede seguir "activa" brevemente
-  if (hasLoggedOut && onboardingEverCompleted) {
+  // Note: Don't require onboardingEverCompleted — markLogout() clears the COMPLETED flag
+  // so it would always be false here. The LOGOUT flag alone is sufficient since it's
+  // only set by explicit user action (they must have completed onboarding to reach logout).
+  if (hasLoggedOut) {
     console.log('[determineStartScreen] → LOGIN (logout explícito, prioridad sobre sesión)');
     return 'login';
   }

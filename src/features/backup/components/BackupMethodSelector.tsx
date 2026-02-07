@@ -2,13 +2,13 @@ import { useState } from "react";
 import { Download, RefreshCw, Cloud, Lock } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
+import { useBudgetStore } from "@/state/budget.store";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 
 export type BackupMethod = "manual" | "local" | "cloud";
 
 type Props = {
   onSelect: (method: BackupMethod) => void;
-  cloudMode: "guest" | "cloud";
 };
 
 /**
@@ -19,9 +19,10 @@ type Props = {
  * - Local: Automatic backups every 24 hours (localStorage)
  * - Cloud: Weekly backups in Supabase (requires auth)
  */
-export default function BackupMethodSelector({ onSelect, cloudMode }: Props) {
+export default function BackupMethodSelector({ onSelect }: Props) {
+  const user = useBudgetStore((s) => s.user);
   const { canUseFeature } = useSubscription();
-  const isCloudDisabled = cloudMode === "guest";
+  const isCloudDisabled = !user.email;
   const isProBackupLocked = !canUseFeature('unlimited_backups');
 
   // Paywall state
