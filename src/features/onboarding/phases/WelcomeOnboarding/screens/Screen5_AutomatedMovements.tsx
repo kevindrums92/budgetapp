@@ -27,7 +27,7 @@ export default function Screen5_AutomatedMovements() {
           <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
         </button>
       }
-      headerCenter={<ProgressDots total={7} current={5} />}
+      headerCenter={<ProgressDots total={6} current={5} />}
       headerRight={
         <button
           type="button"

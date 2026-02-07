@@ -1,9 +1,9 @@
 /**
  * LoginScreen
- * Pantalla de autenticación - obligatoria (no skippeable)
+ * Pantalla de autenticación (para logout/re-login, no parte del onboarding inicial)
  * Contextos:
- * 1. Primera vez: Welcome → Login → Config → App
- * 2. Logout: Login → App (directo)
+ * 1. Logout: Login → App (directo)
+ * 2. Device initialized but no session: Login → Config or App
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -39,14 +39,6 @@ export default function LoginScreen() {
       console.log('[LoginScreen] Device marked as initialized (first time reaching login)');
     }
   }, []);
-
-  // Redirect to login-pro if user selected a plan
-  useEffect(() => {
-    if (state.selections.selectedPlan) {
-      console.log('[LoginScreen] Plan detected, redirecting to Pro login:', state.selections.selectedPlan);
-      navigate('/onboarding/login-pro', { replace: true });
-    }
-  }, [state.selections.selectedPlan, navigate]);
 
   // Sync context with URL when component mounts
   useEffect(() => {

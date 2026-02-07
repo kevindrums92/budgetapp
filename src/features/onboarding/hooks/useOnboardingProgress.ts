@@ -64,7 +64,7 @@ export function useOnboardingProgress() {
       console.log('[useOnboardingProgress] Moving to next phase');
       switch (phase) {
         case 'welcome':
-          navigateToPhase('login');
+          navigateToPhase('config');
           break;
         case 'login':
           // Login phase doesn't auto-advance
@@ -90,7 +90,7 @@ export function useOnboardingProgress() {
           navigateToPhase('welcome', PHASE_SCREEN_COUNTS.welcome);
           break;
         case 'config':
-          navigateToPhase('login');
+          navigateToPhase('welcome', PHASE_SCREEN_COUNTS.welcome);
           break;
         // Welcome phase at step 1: no back
       }
@@ -101,9 +101,8 @@ export function useOnboardingProgress() {
     const { phase } = state;
 
     if (phase === 'welcome') {
-      // Skip directly to Choose Plan screen (screen 7)
-      // Don't call skipWelcome() as it changes phase to 'login'
-      navigateToPhase('welcome', 7);
+      // Skip directly to Complete screen in FirstConfig
+      navigateToPhase('config', 5);
     } else if (phase === 'config') {
       // Skip directly to Complete screen (screen 5)
       // Don't call skipConfig() as it would mark config as skipped

@@ -18,7 +18,7 @@ export default function Screen1_Welcome() {
 
   return (
     <FullscreenLayout
-      headerCenter={<ProgressDots total={7} current={1} />}
+      headerCenter={<ProgressDots total={6} current={1} />}
       headerRight={
         <button
           type="button"

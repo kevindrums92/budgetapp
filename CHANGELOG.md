@@ -6,6 +6,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(onboarding): remove ChoosePlan and LoginPro screens to reduce friction**
+  - Welcome flow reduced from 7 to 6 screens; login phase removed from initial onboarding
+  - New users go directly Welcome → Config (guest/anonymous mode is the default experience)
+  - Skip button on all screens now jumps to Config Screen5_Complete
+  - DEVICE_INITIALIZED flag moved from LoginScreen to Screen5_Complete
+  - Fix loading flash between screen transitions (OnboardingGate skips async re-checks for intra-onboarding navigation)
+
 - **fix(batch-entry): close rate limit upsell modal when PaywallModal dismisses**
   - PaywallModal onClose now also closes the entire BatchEntrySheet
   - Prevents "Sin Límites" modal from reappearing after returning from paywall (purchase or cancel)

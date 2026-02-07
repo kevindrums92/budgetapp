@@ -27,7 +27,7 @@ export default function Screen4_HabitsAnalysis() {
           <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
         </button>
       }
-      headerCenter={<ProgressDots total={7} current={4} />}
+      headerCenter={<ProgressDots total={6} current={4} />}
       headerRight={
         <button
           type="button"

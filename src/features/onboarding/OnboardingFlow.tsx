@@ -10,7 +10,6 @@ import { OnboardingProvider } from './OnboardingContext';
 // Import phases
 import WelcomeOnboardingFlow from './phases/WelcomeOnboarding';
 import LoginFlow from './phases/LoginFlow';
-import LoginProScreen from './phases/LoginFlow/LoginProScreen';
 import FirstConfigFlow from './phases/FirstConfig';
 
 // Import auth pages
@@ -29,12 +28,11 @@ import {
 function OnboardingRouter() {
   return (
     <Routes>
-      {/* Welcome Onboarding - 7 screens */}
+      {/* Welcome Onboarding - 6 screens */}
       <Route path="welcome/:step" element={<WelcomeOnboardingFlow />} />
 
-      {/* Login Flow - 2 screens */}
+      {/* Login Flow (for logout/re-login, not part of initial onboarding) */}
       <Route path="login" element={<LoginFlow />} />
-      <Route path="login-pro" element={<LoginProScreen />} />
 
       {/* Auth Flow - Email/Password + OTP */}
       <Route path="auth" element={<AuthPage />} />
