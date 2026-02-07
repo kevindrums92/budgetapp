@@ -31,11 +31,28 @@ export async function parseBatch(request: BatchEntryRequest): Promise<BatchEntry
   console.log("[batchEntry] Calling parse-batch with input type:", request.inputType, "localDate:", requestWithDate.localDate, "historyPatterns:", request.historyPatterns?.length || 0);
 
   try {
-    // Get current session for auth token
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabase.auth.getSession();
+    // Get current session for auth token (with timeout to prevent hanging)
+    console.log("[batchEntry] Getting session...");
+    let session;
+    let sessionError;
+    try {
+      const result = await Promise.race([
+        supabase.auth.getSession(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("SESSION_TIMEOUT")), 10000)
+        ),
+      ]);
+      session = result.data.session;
+      sessionError = result.error;
+    } catch (e) {
+      console.error("[batchEntry] getSession() timed out or failed:", e);
+      return {
+        success: false,
+        transactions: [],
+        confidence: 0,
+        error: "TIMEOUT",
+      };
+    }
 
     if (sessionError || !session) {
       console.error("[batchEntry] No active session:", sessionError);
@@ -49,20 +66,24 @@ export async function parseBatch(request: BatchEntryRequest): Promise<BatchEntry
 
     console.log("[batchEntry] Session found, access token present:", !!session.access_token);
 
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-
     try {
-      // Call Edge Function with explicit Authorization header
-      const { data, error } = await supabase.functions.invoke(EDGE_FUNCTION_NAME, {
-        body: requestWithDate,
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      clearTimeout(timeoutId);
+      // Call Edge Function with timeout via Promise.race
+      // (supabase.functions.invoke does not accept AbortSignal)
+      console.log("[batchEntry] Invoking Edge Function...");
+      const { data, error } = await Promise.race([
+        supabase.functions.invoke(EDGE_FUNCTION_NAME, {
+          body: requestWithDate,
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => {
+            reject(new Error("AbortError"));
+          }, API_TIMEOUT_MS)
+        ),
+      ]);
+      console.log("[batchEntry] Edge Function responded");
 
       if (error) {
         console.error("[batchEntry] Edge Function error:", error);
@@ -172,9 +193,7 @@ export async function parseBatch(request: BatchEntryRequest): Promise<BatchEntry
         rawInterpretation: data.rawInterpretation,
       };
     } catch (fetchError) {
-      clearTimeout(timeoutId);
-
-      if (fetchError instanceof Error && fetchError.name === "AbortError") {
+      if (fetchError instanceof Error && (fetchError.name === "AbortError" || fetchError.message === "AbortError")) {
         console.error("[batchEntry] Request timed out");
         return {
           success: false,
@@ -245,12 +264,3 @@ export async function parseAudio(
   });
 }
 
-/**
- * Check if user is authenticated (required for batch entry)
- */
-export async function isAuthenticated(): Promise<boolean> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  return !!session;
-}

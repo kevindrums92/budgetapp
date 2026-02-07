@@ -27,7 +27,7 @@ export default function Screen2_QuickRegister() {
           <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
         </button>
       }
-      headerCenter={<ProgressDots total={7} current={2} />}
+      headerCenter={<ProgressDots total={6} current={2} />}
       headerRight={
         <button
           type="button"

@@ -9,7 +9,6 @@ import {
   parseText,
   parseImage,
   parseAudio,
-  isAuthenticated,
 } from "./batchEntry.service";
 import type { BatchEntryResponse } from "../types/batch-entry.types";
 
@@ -37,31 +36,6 @@ describe("batchEntry.service", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-  });
-
-  describe("isAuthenticated", () => {
-    it("should return true when session exists", async () => {
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: { user: { id: "user-123" } } as any },
-        error: null,
-      });
-
-      const result = await isAuthenticated();
-
-      expect(result).toBe(true);
-      expect(supabase.auth.getSession).toHaveBeenCalled();
-    });
-
-    it("should return false when session does not exist", async () => {
-      vi.mocked(supabase.auth.getSession).mockResolvedValue({
-        data: { session: null },
-        error: null,
-      });
-
-      const result = await isAuthenticated();
-
-      expect(result).toBe(false);
-    });
   });
 
   describe("parseBatch", () => {

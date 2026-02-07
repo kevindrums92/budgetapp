@@ -4,7 +4,7 @@
  * Similar al WelcomeGate anterior pero con el nuevo sistema
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { determineStartScreen, migrateFromLegacyWelcome, getSavedProgress } from './utils/onboarding.helpers';
 
@@ -12,9 +12,18 @@ export default function OnboardingGate() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
+  const initialCheckDone = useRef(false);
 
   useEffect(() => {
     const checkOnboarding = async () => {
+      // Skip re-checking for intra-onboarding navigation after initial check
+      // The Gate only needs to determine the starting point once — after that,
+      // the Flow components (WelcomeOnboardingFlow, ConfigFlow) handle navigation
+      if (initialCheckDone.current && location.pathname.startsWith('/onboarding')) {
+        setIsChecking(false);
+        return;
+      }
+
       setIsChecking(true);
 
       // Permitir rutas auxiliares durante el onboarding (ej: crear categoría)
@@ -22,6 +31,7 @@ export default function OnboardingGate() {
       if (searchParams.get('returnTo') === 'onboarding') {
         console.log('[OnboardingGate] Allowing auxiliary route during onboarding:', location.pathname);
         setIsChecking(false);
+        initialCheckDone.current = true;
         return;
       }
 
@@ -106,6 +116,9 @@ export default function OnboardingGate() {
           setIsChecking(false);
         }
       }
+
+      // Mark initial check as done so intra-onboarding navigation skips re-checking
+      initialCheckDone.current = true;
     };
 
     checkOnboarding();

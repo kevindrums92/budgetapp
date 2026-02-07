@@ -27,7 +27,7 @@ export default function Screen6_UnderstandMoney() {
           <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
         </button>
       }
-      headerCenter={<ProgressDots total={7} current={6} />}
+      headerCenter={<ProgressDots total={6} current={6} />}
       headerRight={
         <button
           type="button"

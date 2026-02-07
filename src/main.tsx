@@ -38,11 +38,52 @@ if (isNative()) {
     // Check if this is an OAuth callback
     if (url.includes('auth/callback') || url.includes('code=') || url.includes('access_token')) {
       try {
-        // Use existing supabase client to avoid multiple instances warning
-        const { supabase } = await import('@/lib/supabaseClient');
+        // Close in-app browser IMMEDIATELY when deep link arrives.
+        // The deep link means OAuth completed in the browser — close it before
+        // processing the code. This prevents the browser staying open if
+        // exchangeCodeForSession() deadlocks with navigator.locks (which happens
+        // when linkIdentity's SIGNED_IN handler calls getSession() while the
+        // code exchange still holds the lock).
+        const { closeBrowser } = await import('@/shared/utils/browser.utils');
+        await closeBrowser();
+        console.log('[DeepLink] In-app browser closed');
 
         // Parse URL parameters
         const urlObj = new URL(url);
+
+        // Check for OAuth error in callback URL (e.g., identity_already_exists from linkIdentity)
+        // Note: Supabase errors have both `error` + `error_code`, but Google/OAuth errors
+        // may only have `error` (e.g., interaction_required). We check `errorParam` alone.
+        const errorParam = urlObj.searchParams.get('error');
+        const errorCode = urlObj.searchParams.get('error_code');
+        const errorDescription = urlObj.searchParams.get('error_description');
+
+        if (errorParam) {
+          console.warn(`[DeepLink] OAuth error in callback: ${errorCode || errorParam} - ${errorDescription}`);
+
+          if (errorCode === 'identity_already_exists') {
+            // The OAuth identity is already linked to another Supabase user.
+            // This happens when an anonymous user tries linkIdentity() with a Google/Apple
+            // account that was previously linked to a different user.
+            // Solution: retry with regular signInWithOAuth (signs in as existing user).
+            console.log('[DeepLink] Identity already exists, dispatching retry event');
+            window.dispatchEvent(new CustomEvent('oauth-identity-exists'));
+          } else {
+            // Other OAuth errors — show to user
+            window.dispatchEvent(new CustomEvent('oauth-error', {
+              detail: {
+                error: errorDescription?.replace(/\+/g, ' ') || errorParam,
+                code: 0,
+                isRetryable: true,
+              }
+            }));
+          }
+          return;
+        }
+
+        // Use existing supabase client to avoid multiple instances warning
+        const { supabase } = await import('@/lib/supabaseClient');
+
         const code = urlObj.searchParams.get('code');
         const hashParams = new URLSearchParams(url.split('#')[1] || '');
         const accessToken = hashParams.get('access_token');
@@ -65,12 +106,6 @@ if (isNative()) {
             }));
           } else {
             console.log('[DeepLink] Session established successfully');
-
-            // Close in-app browser after successful OAuth
-            const { closeBrowser } = await import('@/shared/utils/browser.utils');
-            await closeBrowser();
-            console.log('[DeepLink] In-app browser closed');
-
             // Don't redirect here - LoginScreen's auth listener will handle navigation
             // This prevents double navigation and allows proper data sync
           }
@@ -94,12 +129,6 @@ if (isNative()) {
             }));
           } else {
             console.log('[DeepLink] Session set successfully');
-
-            // Close in-app browser after successful OAuth
-            const { closeBrowser } = await import('@/shared/utils/browser.utils');
-            await closeBrowser();
-            console.log('[DeepLink] In-app browser closed');
-
             // Don't redirect here - LoginScreen's auth listener will handle navigation
           }
         } else {

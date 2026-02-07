@@ -111,7 +111,7 @@ function mapAICategoryToStoreCategory(
   return null;
 }
 
-import { parseText, parseImage, parseAudio, isAuthenticated } from "../services/batchEntry.service";
+import { parseText, parseImage, parseAudio } from "../services/batchEntry.service";
 import {
   extractPatterns,
   postProcessWithHistory,
@@ -174,7 +174,6 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_rawInterpretation, setRawInterpretation] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [isAuthed, setIsAuthed] = useState<boolean | null>(null);
   const [showPaywall, setShowPaywall] = useState(false);
 
   // Paywall purchase handler
@@ -214,13 +213,6 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
     },
     [categoryDefinitions]
   );
-
-  // Check authentication on mount
-  useEffect(() => {
-    if (open) {
-      isAuthenticated().then(setIsAuthed);
-    }
-  }, [open]);
 
   // Track network status
   useEffect(() => {
@@ -537,23 +529,6 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
       );
     }
 
-    // Check auth
-    if (isAuthed === false) {
-      return (
-        <div className="flex flex-col items-center py-8">
-          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-            <Sparkles className="h-10 w-10 text-gray-400" />
-          </div>
-          <p className="text-base font-medium text-gray-900 dark:text-gray-50">
-            {t("errors.loginRequiredTitle", { defaultValue: "Inicia sesión" })}
-          </p>
-          <p className="mt-1 text-center text-sm text-gray-500 dark:text-gray-400">
-            {t("errors.loginRequired")}
-          </p>
-        </div>
-      );
-    }
-
     // Error state
     if (flowState === "error") {
       // Free user rate limit - modal is rendered separately below
@@ -799,7 +774,10 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
       {/* Paywall modal for free users */}
       <PaywallModal
         open={showPaywall}
-        onClose={() => setShowPaywall(false)}
+        onClose={() => {
+          setShowPaywall(false);
+          onClose();
+        }}
         trigger="batch_entry_limit"
         onSelectPlan={handleSelectPlan}
       />

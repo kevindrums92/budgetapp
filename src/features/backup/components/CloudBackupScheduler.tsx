@@ -25,11 +25,12 @@ const BACKUP_METHOD_KEY = "budget.backupMethod";
  */
 export default function CloudBackupScheduler() {
   const cloudMode = useBudgetStore((s) => s.cloudMode);
+  const userEmail = useBudgetStore((s) => s.user.email);
 
   useEffect(() => {
-    // Only run for authenticated users
-    if (cloudMode !== "cloud") {
-      logger.info("CloudBackupScheduler", "Skipping - user not logged in");
+    // Only run for authenticated users (not anonymous)
+    if (cloudMode !== "cloud" || !userEmail) {
+      logger.info("CloudBackupScheduler", "Skipping - user not authenticated");
       return;
     }
 
@@ -75,7 +76,7 @@ export default function CloudBackupScheduler() {
     const intervalId = setInterval(checkAndBackup, 24 * 60 * 60 * 1000);
 
     return () => clearInterval(intervalId);
-  }, [cloudMode]);
+  }, [cloudMode, userEmail]);
 
   return null; // This component doesn't render anything
 }

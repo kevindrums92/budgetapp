@@ -42,9 +42,7 @@ export function usePaywallPurchase(options?: UsePaywallPurchaseOptions) {
             if (user) {
               const { Purchases } = await import('@revenuecat/purchases-capacitor');
               await Purchases.logIn({ appUserID: user.id });
-              logger.debug('usePaywallPurchase', 'Linked to user:', user.id);
-            } else {
-              logger.warn('usePaywallPurchase', 'No authenticated user, purchase may not be associated');
+              logger.debug('usePaywallPurchase', 'Linked to user:', user.id, 'anonymous:', user.is_anonymous);
             }
           } catch (loginError) {
             logger.warn('usePaywallPurchase', 'Failed to link user (continuing anyway):', loginError);

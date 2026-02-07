@@ -7,6 +7,7 @@ import { Sparkles, ArrowRight, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { markOnboardingComplete } from '../../../utils/onboarding.helpers';
+import { ONBOARDING_KEYS } from '../../../utils/onboarding.constants';
 import { useOnboarding } from '../../../OnboardingContext';
 import { useBudgetStore } from '@/state/budget.store';
 import { DEFAULT_CATEGORIES } from '@/constants/categories/default-categories';
@@ -87,6 +88,8 @@ export default function Screen5_Complete() {
       }
     }
 
+    // Set permanent device flag (ensures Welcome is skipped on future app resets)
+    localStorage.setItem(ONBOARDING_KEYS.DEVICE_INITIALIZED, 'true');
     markOnboardingComplete();
     navigate('/', { replace: true });
   };

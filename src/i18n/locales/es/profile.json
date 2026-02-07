@@ -81,6 +81,14 @@
       "successMessage": "Tu cuenta y todos tus datos han sido eliminados permanentemente.",
       "errorTitle": "Error",
       "errorMessage": "No se pudo eliminar tu cuenta. Por favor, intenta de nuevo o contacta a soporte."
+    },
+    "deleteData": {
+      "buttonLabel": "Eliminar mis datos",
+      "confirmTitle": "¿Eliminar tus datos?",
+      "confirmMessage": "Esta acción es permanente y no se puede deshacer. Se eliminarán:",
+      "deleteButton": "Eliminar Mis Datos",
+      "successTitle": "Datos Eliminados",
+      "successMessage": "Todos tus datos han sido eliminados permanentemente del servidor."
     }
   },
   "login": "Iniciar sesión",

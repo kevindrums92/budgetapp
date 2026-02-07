@@ -4,7 +4,46 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.0] - 2026-02-07
+
+- **feat(profile): add "Delete my data" option for anonymous cloud users**
+  - Anonymous users with active Supabase sessions can now delete their server data (Apple Guideline 5.1.1(v) / GDPR compliance)
+  - Differentiated UI text: "Eliminar mis datos" for anonymous vs "Eliminar mi cuenta" for authenticated users
+  - Subscription data list item hidden for anonymous users (no subscription to delete)
+  - Remove success modal after deletion — redirect to login immediately
+  - i18n keys added for all 4 locales (es, en, fr, pt)
+
+- **test(onboarding): add 34 unit tests for new onboarding flow**
+  - Validates navigation (handleNext, handleBack, handleSkip), determineStartScreen, DEVICE_INITIALIZED lifecycle, and 5 user flow scenarios
+
+- **refactor(onboarding): remove ChoosePlan and LoginPro screens to reduce friction**
+  - Welcome flow reduced from 7 to 6 screens; login phase removed from initial onboarding
+  - New users go directly Welcome → Config (guest/anonymous mode is the default experience)
+  - Skip button on all screens now jumps to Config Screen5_Complete
+  - DEVICE_INITIALIZED flag moved from LoginScreen to Screen5_Complete
+  - Fix loading flash between screen transitions (OnboardingGate skips async re-checks for intra-onboarding navigation)
+
+- **fix(batch-entry): close rate limit upsell modal when PaywallModal dismisses**
+  - PaywallModal onClose now also closes the entire BatchEntrySheet
+  - Prevents "Sin Límites" modal from reappearing after returning from paywall (purchase or cancel)
+
+- **feat(auth): anonymous auth with cloud sync + orphaned user cleanup**
+  - All new users get automatic anonymous Supabase session with cloud sync from day one
+  - `cloudMode = "cloud"` for both anonymous and authenticated users (guest mode is now rare fallback)
+  - Login screens store `budget.previousAnonUserId` before OAuth for post-login cleanup
+  - `budget.oauthTransition` flag prevents SIGNED_OUT handler from clearing data during OAuth
+  - CloudSyncGate SIGNED_IN handler calls `cleanup_orphaned_anonymous_user` RPC after successful OAuth
+  - SECURITY DEFINER SQL function cleans orphaned anonymous user data (user_state, push_tokens, auth.users)
+  - pg_cron weekly job cleans stale anonymous users (60+ days inactive) for uninstalled apps
+  - 13 unit tests covering all 5 OAuth transition cases + 8 edge cases
+
+- **docs: update core documentation with anonymous auth architecture**
+  - CLAUDE.md: updated Cloud Sync Flow section with anonymous auth and OAuth transition details
+  - FEATURES.md: rewrote Authentication section with anonymous auth, OAuth transition, orphaned user cleanup, and test table
+  - ARCHITECTURE.md: added detailed CloudSyncGate architecture section and OAuth transition flow
 
 ## [0.15.2] - 2026-02-05
 

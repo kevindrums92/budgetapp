@@ -56,7 +56,8 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
     setError(null); // Clear previous errors
     try {
       await onSelectPlan(selectedPlan);
-      // If successful, onSuccess callback will close the modal
+      // Purchase succeeded - close modal directly
+      onClose();
     } catch (err: any) {
       console.error('[PaywallModal] Purchase failed:', err);
       console.log('[PaywallModal] Error type:', typeof err);
@@ -93,7 +94,7 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
             await Purchases.logIn({ appUserID: user.id });
           }
         } catch (loginError) {
-          console.warn('[PaywallModal] Failed to link user for restore:', loginError);
+          console.debug('[PaywallModal] Failed to link user for restore:', loginError);
         }
       }
 

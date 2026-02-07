@@ -24,12 +24,11 @@ export const WELCOME_SCREENS = {
   4: 'Análisis de Hábitos',
   5: 'Automatización de Movimientos',
   6: 'Entiende tu Plata',
-  7: 'Elige tu Plan',
 } as const;
 
 // Total screens per phase
 export const PHASE_SCREEN_COUNTS = {
-  welcome: 7,
+  welcome: 6,
   login: 1,
   config: 5, // Language → Theme → Currency → Categories → Complete
 } as const;

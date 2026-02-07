@@ -39,11 +39,22 @@ This is a **local-first PWA** budget tracking app built with React 19 + TypeScri
 - Auto-persists on every mutation via `saveState()`
 - Exposes `getSnapshot()` and `replaceAllData()` for cloud sync
 
-**Cloud Sync Flow** (`src/components/CloudSyncGate.tsx`):
-- Guest mode: data stays in localStorage only
-- Cloud mode: authenticated users sync to Supabase `user_state` table
+**Cloud Sync Flow** (`src/shared/components/providers/CloudSyncGate.tsx`):
+- Cloud mode: users with a Supabase session (anonymous OR authenticated) sync to `user_state` table
+- Guest mode: fallback only when no session is possible (Supabase down, offline on first launch)
 - Offline-first: pending changes stored via `pendingSync.service.ts`, pushed when online
 - Debounced push (1.2s) on data changes
+
+**Anonymous Auth & OAuth Transition**:
+- All new users get an anonymous Supabase session (`signInAnonymously()`) with cloud sync from day one
+- Anonymous users have valid `auth.uid()` → RLS policies work → data syncs to `user_state`
+- To distinguish anonymous vs authenticated in UI: use `!!user.email` (anonymous users have no email)
+- Login screens use `signInWithOAuth()` (never `linkIdentity()`) → creates NEW `user_id` on OAuth
+- `budget.oauthTransition` localStorage flag prevents SIGNED_OUT handler from clearing data during OAuth
+- `budget.previousAnonUserId` localStorage flag stores old anonymous ID for cleanup after OAuth
+- After successful OAuth SIGNED_IN, `CloudSyncGate` calls `cleanup_orphaned_anonymous_user` RPC to delete orphaned anonymous user data
+- SECURITY DEFINER SQL function handles cleanup (new user can't delete old user's rows due to RLS)
+- Stale anonymous users (60+ days inactive, app uninstalled) cleaned by `pg_cron` weekly job
 
 **Routing**: React Router v7 with pages in `src/pages/`. Form routes (`/add`, `/edit/:id`) hide the header/bottom bar.
 
@@ -238,13 +249,40 @@ const { error } = await supabase.auth.signInWithOAuth({
 - `options.queryParams?: Record<string, string>` - Additional OAuth query params (e.g., `{ prompt: 'select_account' }`)
 - Returns: `Promise<{ error: Error | null }>` - Error object if auth fails, null on success
 
-**OAuth Flow**:
-1. Function calls `supabase.auth.signInWithOAuth()` with `skipBrowserRedirect: true`
-2. Opens OAuth URL in Safari View Controller (iOS) or Chrome Custom Tabs (Android)
-3. User authenticates in in-app browser
-4. Provider redirects back to app via deep link (`smartspend://`)
-5. App.tsx deep link listener catches redirect and calls `supabase.auth.getSession()`
-6. Session established, user logged in
+**OAuth Flow** (native):
+1. Function detects if current user is anonymous (via `getUser()`)
+2. **Anonymous user**: Calls `supabase.auth.linkIdentity()` with `skipBrowserRedirect: true`
+3. **Non-anonymous user**: Calls `supabase.auth.signInWithOAuth()` with `skipBrowserRedirect: true`
+4. Gets the OAuth URL from `data.url` (browser NOT opened yet)
+5. Opens OAuth URL in Safari View Controller (iOS) or Chrome Custom Tabs (Android) via `Browser.open()`
+6. User authenticates in in-app browser
+7. Provider redirects back to app via deep link (`smartspend://`)
+8. App.tsx deep link listener catches redirect and calls `supabase.auth.getSession()`
+9. Session established, user logged in
+
+**CRITICAL - `skipBrowserRedirect: true`**:
+Both `signInWithOAuth()` AND `linkIdentity()` MUST include `skipBrowserRedirect: true` in their options when running on native platforms. Without this flag, Supabase's JS client automatically opens the OAuth URL in the **external browser** (Safari/Chrome) instead of letting our code open it in the **in-app browser** (Safari View Controller / Chrome Custom Tabs). This causes:
+- Apple App Store rejection (Guideline 4.0)
+- Poor UX (user leaves the app)
+- Potential deep link callback issues
+
+```typescript
+// ✅ CORRECT - skipBrowserRedirect prevents auto-opening external browser
+const { data, error } = await supabase.auth.linkIdentity({
+  provider,
+  options: { redirectTo, skipBrowserRedirect: true },
+});
+// Then manually open: Browser.open({ url: data.url })
+
+// ❌ WRONG - Missing skipBrowserRedirect opens EXTERNAL browser
+const { data, error } = await supabase.auth.linkIdentity({
+  provider,
+  options: { redirectTo },
+});
+```
+
+**Anonymous → Authenticated Flow** (`linkIdentity()`):
+When an anonymous user (from `signInAnonymously()`) logs in with Google/Apple, `linkIdentity()` is used instead of `signInWithOAuth()`. This preserves the anonymous user's `user_id`, keeping their RevenueCat subscriptions and cloud data intact. The `signInWithOAuthInAppBrowser()` utility handles this automatically.
 
 **Common Mistakes to Avoid**:
 
@@ -254,8 +292,11 @@ const { error } = await supabase.auth.signInWithOAuth({
 ❌ Navigating to legal pages with `window.location.href` or `<a href>`
 ✅ Use `openLegalPage()` for Terms/Privacy
 
-❌ Calling `supabase.auth.signInWithOAuth()` directly in components
-✅ Use `signInWithOAuthInAppBrowser()` helper
+❌ Calling `supabase.auth.signInWithOAuth()` or `linkIdentity()` directly in components
+✅ Use `signInWithOAuthInAppBrowser()` helper (handles both anonymous and non-anonymous)
+
+❌ Forgetting `skipBrowserRedirect: true` on `linkIdentity()` or `signInWithOAuth()` (opens external browser!)
+✅ Always include `skipBrowserRedirect: true` in options for native platforms
 
 ❌ Forgetting to handle OAuth errors
 ✅ Always wrap in try-catch and show user-friendly error messages
