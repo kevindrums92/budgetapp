@@ -6,6 +6,9 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **test(onboarding): add 34 unit tests for new onboarding flow**
+  - Validates navigation (handleNext, handleBack, handleSkip), determineStartScreen, DEVICE_INITIALIZED lifecycle, and 5 user flow scenarios
+
 - **refactor(onboarding): remove ChoosePlan and LoginPro screens to reduce friction**
   - Welcome flow reduced from 7 to 6 screens; login phase removed from initial onboarding
   - New users go directly Welcome → Config (guest/anonymous mode is the default experience)
