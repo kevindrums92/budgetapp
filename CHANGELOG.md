@@ -7,6 +7,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **docs(scripts): document `purchase` event in test-webhook.sh**
+
 - **feat(profile): allow anonymous Pro users to access subscription management**
   - ProfilePage subscription card now navigates to `/profile/subscription` when user has Pro or trial, even if anonymous
   - Added login banner on SubscriptionManagementPage for anonymous Pro/trial users inviting them to create an account

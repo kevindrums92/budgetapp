@@ -8,6 +8,7 @@
 #
 # Eventos disponibles:
 #   initial_purchase  - Simula compra inicial (trial)
+#   purchase          - Simula compra inicial (pagada, sin trial)
 #   renewal           - Simula renovación de suscripción
 #   cancellation      - Simula cancelación
 #   expiration        - Simula expiración
@@ -24,6 +25,7 @@
 # Ejemplos:
 #   ./scripts/test-webhook.sh initial_purchase abc123-user-id
 #   ./scripts/test-webhook.sh initial_purchase abc123-user-id co.smartspend.annual
+#   ./scripts/test-webhook.sh purchase abc123-user-id co.smartspend.lifetime
 #   ./scripts/test-webhook.sh cancellation abc123-user-id
 #   ./scripts/test-webhook.sh test abc123-user-id
 #
@@ -498,7 +500,7 @@ EOF
     echo ""
     echo "Eventos disponibles:"
     echo "  initial_purchase | trial   - Compra inicial (trial 7 días)"
-    echo "  purchase                   - Compra inicial (pagada)"
+    echo "  purchase                   - Compra inicial (pagada, sin trial)"
     echo "  renewal                    - Renovación"
     echo "  cancellation | cancel      - Cancelación"
     echo "  expiration | expire        - Expiración"
