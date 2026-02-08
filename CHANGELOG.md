@@ -7,6 +7,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(android): configure production build and RevenueCat integration**
+  - Changed package name from `com.jhotech.smartspend.dev` to `com.jhotech.smartspend`
+  - Added release signing configuration with keystore
+  - Generated all Android adaptive icons from iOS 1024px source
+  - Configured RevenueCat Android API key for Google Play in-app purchases
+  - Added Capacitor Browser plugin dependency for OAuth
+
 - **docs(scripts): document `purchase` event in test-webhook.sh**
 
 - **feat(profile): allow anonymous Pro users to access subscription management**

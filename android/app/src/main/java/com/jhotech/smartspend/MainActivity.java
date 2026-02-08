@@ -1,4 +1,4 @@
-package com.jhotech.smartspend.dev;
+package com.jhotech.smartspend;
 
 import com.getcapacitor.BridgeActivity;
 
