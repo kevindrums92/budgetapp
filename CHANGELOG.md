@@ -7,6 +7,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(history): add sort options to history page**
+  - Sort by date (newest/oldest) or amount (highest/lowest)
+  - Cycle button in results header above balance total
+  - Sort preference persisted in localStorage with other filters
+  - Translations added for es, en, fr, pt
+
 - **fix(ui): prevent keyboard dismiss when tapping inside active input**
   - Added touch origin tracking to skip blur when touch starts on the focused input
   - Added 15px scroll threshold to distinguish real scrolls from micro-movements on taps

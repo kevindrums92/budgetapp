@@ -12,6 +12,7 @@ import {
   Search,
   Lock,
   Repeat,
+  ArrowUpDown,
 } from "lucide-react";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import { useBudgetStore } from "@/state/budget.store";
@@ -29,6 +30,7 @@ type FilterType = "all" | "expense" | "income";
 type FilterStatus = "all" | "paid" | "pending" | "planned";
 type FilterRecurring = "all" | "recurring" | "non-recurring";
 type DateRangePreset = "this-month" | "last-month" | "custom";
+type SortOrder = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
 
 // Helper para convertir kebab-case a PascalCase
 function kebabToPascal(str: string): string {
@@ -68,6 +70,7 @@ export default function HistoryPage() {
   const [tempSelectedCategoryIds, setTempSelectedCategoryIds] = useState<string[]>([]);
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("date-desc");
 
   const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -202,6 +205,7 @@ export default function HistoryPage() {
           if (filters.selectedCategoryIds) setSelectedCategoryIds(filters.selectedCategoryIds);
           if (filters.minAmount) setMinAmount(filters.minAmount);
           if (filters.maxAmount) setMaxAmount(filters.maxAmount);
+          if (filters.sortOrder) setSortOrder(filters.sortOrder);
         }
       }
     } catch (error) {
@@ -229,6 +233,7 @@ export default function HistoryPage() {
         selectedCategoryIds,
         minAmount,
         maxAmount,
+        sortOrder,
       };
       localStorage.setItem("history-filters", JSON.stringify(filters));
     } catch (error) {
@@ -246,6 +251,7 @@ export default function HistoryPage() {
     selectedCategoryIds,
     minAmount,
     maxAmount,
+    sortOrder,
   ]);
 
   // Get current month for filtering
@@ -318,8 +324,22 @@ export default function HistoryPage() {
     const max = maxAmount ? parseFloat(maxAmount) : Infinity;
     result = result.filter((t) => t.amount >= min && t.amount <= max);
 
-    // Sort by date descending
-    result.sort((a, b) => b.date.localeCompare(a.date));
+    // Sort
+    switch (sortOrder) {
+      case "date-asc":
+        result.sort((a, b) => a.date.localeCompare(b.date));
+        break;
+      case "amount-desc":
+        result.sort((a, b) => b.amount - a.amount);
+        break;
+      case "amount-asc":
+        result.sort((a, b) => a.amount - b.amount);
+        break;
+      case "date-desc":
+      default:
+        result.sort((a, b) => b.date.localeCompare(a.date));
+        break;
+    }
 
     return result;
   }, [
@@ -334,6 +354,7 @@ export default function HistoryPage() {
     selectedCategoryIds,
     minAmount,
     maxAmount,
+    sortOrder,
     currentMonth,
     previousMonth,
   ]);
@@ -664,6 +685,7 @@ export default function HistoryPage() {
             {filterRecurring === "recurring" && t("filters.recurringOnly")}
             {filterRecurring === "non-recurring" && t("filters.nonRecurring")}
           </button>
+
         </div>
       </div>
 
@@ -910,6 +932,7 @@ export default function HistoryPage() {
             </div>
           </div>
         )}
+
       </div>
 
       {/* Results Header */}
@@ -947,8 +970,23 @@ export default function HistoryPage() {
             </button>
           </div>
 
-          {/* Right Column - Balance */}
+          {/* Right Column - Sort + Balance */}
           <div className="text-right">
+            <button
+              type="button"
+              onClick={() => {
+                const options: SortOrder[] = ["date-desc", "date-asc", "amount-desc", "amount-asc"];
+                const currentIndex = options.indexOf(sortOrder);
+                setSortOrder(options[(currentIndex + 1) % options.length]);
+              }}
+              className="mb-1 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors active:bg-gray-100 dark:active:bg-gray-800"
+            >
+              <ArrowUpDown size={12} />
+              {sortOrder === "date-desc" && t("filters.sortDateDesc")}
+              {sortOrder === "date-asc" && t("filters.sortDateAsc")}
+              {sortOrder === "amount-desc" && t("filters.sortAmountDesc")}
+              {sortOrder === "amount-asc" && t("filters.sortAmountAsc")}
+            </button>
             <p className={`text-sm font-bold whitespace-nowrap ${
               filteredBalance >= 0
                 ? "text-emerald-600 dark:text-emerald-400"
