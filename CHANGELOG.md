@@ -7,6 +7,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **chore(ads): switch Android AdMob App ID from test to production**
+  - Replaced Google test App ID (`ca-app-pub-3940256099942544`) with production ID in AndroidManifest.xml
+  - Added related repositories section to CLAUDE.md for SmartSpend landing page
+
 - **feat(history): add sort options to history page**
   - Sort by date (newest/oldest) or amount (highest/lowest)
   - Cycle button in results header above balance total

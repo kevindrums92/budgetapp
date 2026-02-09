@@ -18,6 +18,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This ensures the user maintains full control over their git history and can review changes before they're committed.
 
+## Related Repositories
+
+**SmartSpend Landing Page (Next.js)**:
+- **Path**: `/Users/mac/Documents/development/smartspendweb/web-kimi`
+- **Repo**: `smartspendweb-landing` on GitHub
+- **Branch**: `main`
+- **Stack**: Next.js 15, React 19, Tailwind CSS 4, Framer Motion
+- **Includes**: Landing page (multilingual), admin panel (`/admin`) with user management, subscriptions, and gift Pro
+- **Has its own `CLAUDE.md`** with full documentation of the admin module, architecture, and conventions
+
+When the user asks about "la landing", "the landing page", or "admin panel", look in that path.
+
+---
+
 ## Build & Development Commands
 
 ```bash
