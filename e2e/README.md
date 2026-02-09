@@ -1,200 +1,207 @@
 # E2E Tests - SmartSpend
 
-Comprehensive end-to-end test suite for SmartSpend budget tracking PWA.
+**Estado:** 🟡 In Progress (0 tests implemented)
+**Última actualización:** Feb 7, 2026
+**Versión de la app:** v0.16.0+
 
-## ⚠️ Current Status
+---
 
-**New Tests (01-10)**: ⏸️ **SKIPPED** - Awaiting selector/UI adjustments
-**Old Tests (pwa-offline)**: ⏸️ **SKIPPED** - Pre-existing state
+## 📋 TL;DR
 
-All **112 new test cases** are currently marked as `.skip()` and will not execute. These tests need to be adjusted to match the actual UI implementation (selectors, text, flow). This is expected - new E2E tests always require iteration.
+Este directorio contiene las pruebas end-to-end de SmartSpend usando Playwright.
 
-## Overview
+**Tests actuales:** 0 implementados
+**Plan completo:** Ver [E2E_TEST_PLAN.md](./E2E_TEST_PLAN.md)
 
-This test suite covers **10 major feature areas** with **100+ individual test cases** organized by priority.
+---
 
-### Test Structure
+## 🚀 Quick Start
+
+### Ejecutar tests (cuando estén implementados)
+
+```bash
+# Ejecutar todos los tests
+npm run test:e2e
+
+# Ejecutar en modo UI (desarrollo)
+npm run test:e2e:ui
+
+# Ejecutar en modo headed (ver browser)
+npm run test:e2e:headed
+
+# Ejecutar tests críticos solamente
+npm run test:e2e:critical
+
+# Debug mode
+npm run test:e2e:debug
+
+# Ver reporte HTML
+npm run test:e2e:report
+```
+
+---
+
+## 📁 Estructura
 
 ```
 e2e/
-├── test-helpers.ts              # Shared utilities and helpers
-├── 01-onboarding-flow.spec.ts   # ⭐ CRITICAL - First user experience
-├── 02-transaction-management.spec.ts # ⭐ CRITICAL - Core CRUD functionality
-├── 03-scheduled-transactions.spec.ts # 🔥 HIGH - Recurring transactions
-├── 04-category-management.spec.ts # 📊 MEDIUM - Category CRUD
-├── 05-budget-management.spec.ts  # 📊 MEDIUM - Budget tracking
-├── 06-cloud-sync.spec.ts        # ⭐ CRITICAL - Data persistence & sync
-├── 07-trip-management.spec.ts   # 📦 LOW - Trip tracking
-├── 08-settings-preferences.spec.ts # 🔥 HIGH - User preferences
-├── 09-search-filtering.spec.ts  # 📊 MEDIUM - Search & filters
-└── 10-navigation-integration.spec.ts # 📦 LOW - App navigation
+├── README.md                      # Este archivo
+├── E2E_TEST_PLAN.md              # Plan detallado de tests
+├── test-helpers.ts               # Utilities compartidas (por crear)
+│
+└── tests/ (por crear)
+    ├── 01-onboarding.spec.ts     # Tier 1: Onboarding y primer uso
+    ├── 02-transactions.spec.ts   # Tier 1: CRUD de transacciones
+    ├── 03-cloud-sync.spec.ts     # Tier 1: Sincronización cloud
+    ├── 04-ai-batch-entry.spec.ts # Tier 2: Batch entry con IA
+    ├── 05-scheduled.spec.ts      # Tier 2: Transacciones programadas
+    ├── 06-categories.spec.ts     # Tier 2: Gestión de categorías
+    ├── 07-budget.spec.ts         # Tier 2: Presupuestos
+    └── 08-settings.spec.ts       # Tier 2: Configuración
 ```
 
-## Running Tests
+---
 
-### Run all tests
-```bash
-npm run test:e2e
-```
+## 🎯 Prioridades
 
-### Run in UI mode (development)
-```bash
-npm run test:e2e:ui
-```
+### 🔴 Tier 1: CRÍTICOS (Must-Have)
+**~13 tests** - Deben pasar antes de cualquier release
 
-### Run in headed mode (see browser)
-```bash
-npm run test:e2e:headed
-```
+1. **Onboarding & First Launch** (4 tests)
+   - First-time user flow
+   - Skip welcome screens
+   - Returning user
+   - Anonymous session creation
 
-### Run critical tests only (fast feedback)
-```bash
-npm run test:e2e:critical
-```
+2. **Transaction CRUD** (6 tests)
+   - Create expense/income
+   - Edit transaction
+   - Delete transaction
+   - Transaction with notes
+   - Persistence after reload
 
-### Debug mode
-```bash
-npm run test:e2e:debug
-```
+3. **Cloud Sync (Anonymous)** (3 tests)
+   - Data syncs to cloud
+   - Pull cloud data on fresh device
+   - Offline mode handling
 
-### Run specific test file
-```bash
-npx playwright test e2e/02-transaction-management.spec.ts
-```
+### 🟡 Tier 2: IMPORTANTES (High-Value)
+**~19 tests** - Features diferenciadoras
 
-### Run tests matching pattern
-```bash
-npx playwright test -g "should create expense"
-```
+4. **AI Batch Entry** (3 tests - mocked)
+5. **Scheduled Transactions** (4 tests)
+6. **Categories** (4 tests)
+7. **Budget/Plan** (5 tests)
+8. **Settings** (3 tests)
 
-## Test Coverage
+### 🔵 Tier 3: SECUNDARIAS (Nice-to-Have)
+**~18 tests** - Se implementan después
 
-### Phase 1: CRITICAL (Must Pass Before Release)
-- **Onboarding Flow** (8 tests)
-  - Guest mode flow
-  - Welcome screens navigation
-  - First-time setup
-  - Returning users
-  - Default categories initialization
+9. Search & Filtering (6 tests)
+10. Statistics (4 tests)
+11. Trips (3 tests)
+12. Backup (2 tests)
+13. Navigation (3 tests)
 
-- **Transaction Management** (8 tests)
-  - Create expense/income
-  - Edit transaction
-  - Delete transaction
-  - Add notes
-  - Persistence
-  - Validation
-  - Balance calculation
+---
 
-- **Cloud Sync** (7 tests)
-  - Guest mode (localStorage)
-  - Data persistence
-  - Offline mode handling
-  - Rapid changes integrity
-  - Export functionality
+## 🛠️ Implementación
 
-**Total: ~23 critical tests**
+### Fase 1: Foundation (Semana 1)
+**Target:** 13 tests pasando
 
-### Phase 2: HIGH (Important Features)
-- **Scheduled Transactions** (10 tests)
-  - Monthly/weekly recurring
-  - Virtual transactions
-  - Auto-confirmation
-  - Edit/deactivate schedules
-  - Pending transactions banner
+- [ ] Setup test-helpers.ts
+- [ ] Configurar mocking de Supabase
+- [ ] Implementar tests Tier 1 (CRÍTICOS)
 
-- **Settings & Preferences** (14 tests)
-  - Language switching (es/en)
-  - Theme (light/dark/system)
-  - Currency selection
-  - Persistence
-  - Export/backup
+**Entregable:** Flujo crítico validado
 
-**Total: ~24 high-priority tests**
+### Fase 2: Killer Features (Semana 2)
+**Target:** 20 tests pasando
 
-### Phase 3: MEDIUM (Configuration)
-- **Category Management** (13 tests)
-  - Create/edit/delete categories
-  - Icon picker with search
-  - Color selection
-  - Expense/income tabs
-  - Validation
+- [ ] AI Batch Entry (mocked)
+- [ ] Scheduled Transactions
 
-- **Budget Management** (12 tests)
-  - Create budgets
-  - Track progress
-  - Onboarding wizard
-  - Month navigation
-  - Exceeded state
+**Entregable:** Features principales cubiertas
 
-- **Search & Filtering** (13 tests)
-  - Search by name/notes
-  - Filter by type/category
-  - Case-insensitive search
-  - Combined filters
-  - Empty state
+### Fase 3: Management (Semana 3)
+**Target:** 32 tests pasando
 
-**Total: ~38 medium tests**
+- [ ] Categories
+- [ ] Budget/Plan
+- [ ] Settings
 
-### Phase 4: LOW (Secondary Features)
-- **Trip Management** (12 tests)
-  - Create/edit/delete trips
-  - Add expenses
-  - Track budget
-  - Status workflow
+**Entregable:** Cobertura completa Tier 1 + 2
 
-- **Navigation & Integration** (15 tests)
-  - Bottom bar navigation
-  - FAB visibility
-  - Back button
-  - Deep linking
-  - Browser history
+---
 
-**Total: ~27 low-priority tests**
+## 📊 Estado Actual de la App
 
-## Total Test Count
+### Autenticación (v0.16.0)
+- ✅ **Anonymous auth por defecto** para todos los usuarios
+- ✅ **Cloud sync universal** desde día 1
+- ✅ **OAuth opcional** (Google, Apple)
+- ❌ **NO hay "modo invitado"** tradicional
+- ❌ **NO hay ChoosePlan/LoginPro** en onboarding
 
-**~112 test cases** across **10 test files**
+### Onboarding Actual
+- ✅ **6 pantallas** de Welcome Flow
+- ✅ **6 pantallas** de FirstConfig Flow
+- ✅ **Skip button** salta a completar onboarding
+- ✅ **DEVICE_INITIALIZED** se marca al completar FirstConfig
 
-## Test Helpers
+### Features Principales
+1. Transacciones (CRUD completo)
+2. Transacciones programadas/recurrentes
+3. **AI Batch Entry** 🚀 (voz, imagen, texto)
+4. Categorías (predefinidas + custom)
+5. Presupuestos (límites + metas)
+6. Cloud sync (todos los usuarios)
+7. Multi-idioma (es, en, fr, pt)
+8. Multi-moneda (50+ monedas)
+9. Dark mode
+10. RevenueCat + Ads
 
-### Available Helpers (test-helpers.ts)
+---
 
-```typescript
-// Setup
-skipOnboardingWithCategories(page) // Quick setup for tests
-clearStorage(page)                  // Clear localStorage/sessionStorage
+## 🧪 Estrategia de Testing
 
-// Transaction helpers
-createTransaction(page, {type, name, category, amount, date, notes})
-getCurrentBalance(page)
-getTransactionsCount(page)
+### ¿Qué mockeamos?
+✅ Supabase Edge Functions
+✅ Supabase Auth API
+✅ RevenueCat API
+✅ Capacitor Plugins (Camera, Voice, Biometric)
 
-// Category helpers
-createCategory(page, {name, type, icon, color})
+### ¿Qué NO mockeamos?
+❌ localStorage (usamos real)
+❌ React Router (navegación real)
+❌ Zustand Store (estado real)
+❌ UI (clicks e inputs reales)
 
-// Cloud sync
-waitForCloudSync(page, timeout)
-goOffline(page)
-goOnline(page)
+---
 
-// Navigation
-selectMonthInPicker(page, monthKey)
-```
+## 📝 Escribir Nuevos Tests
 
-## Writing New Tests
+### Template Básico
 
-### Test Structure
 ```typescript
 import { test, expect } from '@playwright/test';
-import { skipOnboardingWithCategories, clearStorage } from './test-helpers';
+import { skipOnboarding, createAnonymousSession } from './test-helpers';
 
 test.describe('Feature Name', () => {
   test.beforeEach(async ({ page }) => {
-    await clearStorage(page);
+    // Clear storage
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+
+    // Setup
+    await createAnonymousSession(page);
+    await skipOnboarding(page);
+
+    // Navigate
     await page.goto('/');
-    await skipOnboardingWithCategories(page);
-    await page.reload();
     await page.waitForLoadState('networkidle');
   });
 
@@ -202,206 +209,82 @@ test.describe('Feature Name', () => {
     // Arrange
     // Act
     // Assert
-    expect(true).toBe(true);
   });
 });
 ```
 
 ### Best Practices
 
-1. **Always clear storage** before each test
-2. **Use helpers** instead of repeating code
-3. **Wait for network idle** after navigation
-4. **Use semantic selectors**: `text=`, `has-text()` over classes
-5. **Handle timeouts gracefully**: `.catch(() => false)`
-6. **Add descriptive test names**: "should do X when Y"
-7. **Group related tests** in describe blocks
+1. **Clear storage** antes de cada test
+2. **Use semantic selectors**: `data-testid` > text > class
+3. **Wait for network idle** después de navegación
+4. **Mock external services** (Supabase, RevenueCat)
+5. **Independent tests**: No dependencias entre tests
+6. **Descriptive names**: "should X when Y"
 
-## CI/CD Integration
+---
 
-### Pre-release Script
-```bash
-npm run pre-release
-```
+## 🐛 Debugging
 
-Runs:
-1. Pull latest changes
-2. Build production
-3. Lint
-4. Unit tests
-5. **Critical E2E tests**
-
-### GitHub Actions (Optional)
-```yaml
-- name: Run E2E Tests
-  run: npm run test:e2e:critical
-```
-
-## Debugging Failed Tests
-
-### 1. Check screenshots
+### Ver screenshots de fallos
 ```bash
 open test-results/
 ```
 
-### 2. Check videos
+### Ver videos
 ```bash
 open test-results/**/video.webm
 ```
 
-### 3. View HTML report
+### HTML report
 ```bash
 npx playwright show-report
 ```
 
-### 4. Run in debug mode
+### Debug mode
 ```bash
 npm run test:e2e:debug
 ```
 
-### 5. Run specific test in headed mode
-```bash
-npx playwright test e2e/02-transaction-management.spec.ts --headed --debug
-```
+---
 
-## Known Limitations
+## 📚 Referencias
 
-### What's Mocked
-- **Supabase API**: All auth and database calls are mocked
-- **OTP verification**: Skipped in tests
-- **Network requests**: Offline/online events are simulated
-
-### What's NOT Tested
-- Real Supabase authentication
-- SMS/Email OTP codes
-- File uploads (not implemented yet)
-- Push notifications (future feature)
-- Visual regression (future: Percy/Chromatic)
-
-## Performance
-
-- **Critical tests** (~23 tests): **< 2 minutes**
-- **Full suite** (112 tests): **< 5 minutes**
-- **Parallel execution**: 4 workers (configurable)
-- **Retries on CI**: 2 retries for flaky tests
-
-## Maintenance
-
-### Update helpers
-When new common patterns emerge, add to `test-helpers.ts`
-
-### Update README
-When adding new test files, update this README
-
-### Review failing tests
-Check for:
-- UI changes breaking selectors
-- Timing issues (increase timeouts)
-- State pollution (improve cleanup)
-
-## Troubleshooting
-
-### Tests fail locally but pass on CI
-- Check Node.js version (should match CI)
-- Clear `node_modules` and reinstall
-- Check localhost:5173 is accessible
-
-### Flaky tests
-- Increase timeouts
-- Add explicit waits (`waitForSelector`)
-- Check for race conditions
-- Use `waitForLoadState('networkidle')`
-
-### Dev server not starting
-- Check port 5173 is free
-- Increase webServer timeout in `playwright.config.ts`
-- Run `npm run dev` manually to debug
-
-## Contributing
-
-### Adding New Tests
-1. Follow naming convention: `XX-feature-name.spec.ts`
-2. Add to appropriate phase (CRITICAL/HIGH/MEDIUM/LOW)
-3. Update this README with test count
-4. Use existing helpers when possible
-5. Add new helpers if pattern repeats 3+ times
-
-### Code Review Checklist
-- [ ] Tests follow existing structure
-- [ ] Descriptive test names
-- [ ] No hardcoded waits (`page.waitForTimeout` only when necessary)
-- [ ] Proper cleanup in `beforeEach`
-- [ ] Tests are independent (can run in any order)
-- [ ] Updated README if adding new file
-
-## Activating Tests Gradually
-
-All tests are currently skipped (`.skip()`). To activate them:
-
-### 1. Choose a test file to work on
-```bash
-# Open a test file
-code e2e/02-transaction-management.spec.ts
-```
-
-### 2. Remove `.skip` from ONE test
-```typescript
-// Before
-test.skip('should create expense transaction', async ({ page }) => {
-
-// After
-test('should create expense transaction', async ({ page }) => {
-```
-
-### 3. Run that specific test
-```bash
-npx playwright test e2e/02-transaction-management.spec.ts --headed
-```
-
-### 4. Fix selectors/assertions until it passes
-- Inspect the UI in browser
-- Update selectors to match actual elements
-- Adjust expected text to match translations
-
-### 5. Repeat for next test
-Once one test passes, activate the next one.
-
-### Common Fixes Needed
-
-1. **Text selectors**: Update to match i18n translations
-   ```typescript
-   // Instead of: 'text=Bienvenido a SmartSpend'
-   // Use pattern: 'text=/Bienvenido.*SmartSpend/i'
-   ```
-
-2. **Form inputs**: Match actual placeholders
-   ```typescript
-   // Check actual placeholder in TransactionForm
-   await page.fill('input[placeholder="¿En qué gastaste?"]', 'Test')
-   ```
-
-3. **FAB button**: Use data-testid or more specific selector
-   ```typescript
-   // Add to HomePage.tsx: data-testid="fab-add-transaction"
-   await page.click('[data-testid="fab-add-transaction"]')
-   ```
-
-4. **Category picker**: Match actual drawer structure
-   ```typescript
-   // May need to wait for animation
-   await page.waitForSelector('[data-testid="category-picker"]')
-   ```
-
-## Resources
-
-- [Playwright Documentation](https://playwright.dev/docs/intro)
-- [Playwright Best Practices](https://playwright.dev/docs/best-practices)
-- [Test Selectors](https://playwright.dev/docs/selectors)
-- [CLAUDE.md](../CLAUDE.md) - Project design guidelines
+- [E2E Test Plan](./E2E_TEST_PLAN.md) - Plan detallado completo
+- [CHANGELOG](../CHANGELOG.md) - Cambios recientes de la app
+- [FEATURES](../docs/FEATURES.md) - Features actuales
+- [Playwright Docs](https://playwright.dev/docs/intro)
 
 ---
 
-**Last Updated**: January 2026
-**Total Tests**: ~112 (all skipped)
-**Status**: 🟡 Awaiting UI adjustments
-**Coverage Goal**: Core flows 100%, Secondary features 80%
+## ❓ FAQ
+
+### ¿Por qué eliminamos los tests anteriores?
+
+Los tests fueron escritos antes de cambios arquitectónicos mayores:
+- Onboarding rediseñado (v0.16.0)
+- Anonymous auth implementado
+- AI Batch Entry añadido
+- 50+ features nuevas
+
+Era más eficiente empezar de cero con un plan basado en el estado ACTUAL.
+
+### ¿Cuándo implementamos Tier 3?
+
+Tier 3 es opcional. Se implementa si:
+- Tier 1 + 2 están estables
+- Tenemos tiempo antes del release
+- Hay features específicas de Tier 3 que queremos validar
+
+### ¿Cómo contribuyo?
+
+1. Lee [E2E_TEST_PLAN.md](./E2E_TEST_PLAN.md)
+2. Escoge un escenario no implementado
+3. Escribe el test siguiendo el template
+4. Asegúrate que pasa en local
+5. Crea PR
+
+---
+
+**Última actualización:** Feb 7, 2026
+**Contacto:** Ver CLAUDE.md para guías de desarrollo

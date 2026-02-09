@@ -42,7 +42,7 @@ export function useOnboardingProgress() {
           break;
         case 'complete':
           completeOnboarding();
-          navigate('/home');
+          navigate('/');
           break;
       }
     },

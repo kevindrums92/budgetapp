@@ -236,7 +236,7 @@ export default function HomePage() {
 
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
+    <div data-testid="home-page" className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
       {hasTransactionsInMonth && (
         <>
           <BalanceCard activeFilter={filterType} onFilterChange={setFilterType} />
