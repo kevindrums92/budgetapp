@@ -29,7 +29,7 @@
     "android:logs:all": "adb logcat -v color",
     "android:logs:clear": "adb logcat -c",
     "lint": "eslint .",
-    "verify": "npm run lint && npm run test:run && npm run build",
+    "verify": "npm run lint && npm run test:run && npm run build && npm run test:e2e",
     "preview": "vite preview",
     "start": "node server.js",
     "heroku-postbuild": "npm run build",
