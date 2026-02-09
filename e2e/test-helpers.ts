@@ -74,6 +74,17 @@ export async function skipOnboarding(page: Page) {
     localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
     localStorage.setItem('budget.savingsGoalOnboardingSeen.v1', '1');
 
+    // Mark all spotlight tours as seen (prevents overlay blocking UI)
+    localStorage.setItem('smartspend.homeTour.v1', '1');
+    localStorage.setItem('smartspend.statsTour.v1', '1');
+    localStorage.setItem('smartspend.addTransactionTour.v1', '1');
+    localStorage.setItem('smartspend.batchReviewTour.v1', '1');
+    localStorage.setItem('smartspend.historyTour.v1', '1');
+    localStorage.setItem('smartspend.scheduleTour.v1', '1');
+    localStorage.setItem('smartspend.scheduledBannerTour.v1', '1');
+    localStorage.setItem('smartspend.categoriesTour.v1', '1');
+    localStorage.setItem('smartspend.scheduledPageTour.v1', '1');
+
     // Set default preferences
     localStorage.setItem('app_language', 'es');
     localStorage.setItem('app_theme', 'light');

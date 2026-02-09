@@ -7,6 +7,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **test: fix failing tests and e2e compatibility with spotlight tours**
+  - Fix TransactionList test: EmptyStateHome now only expected on current month
+  - Fix batchEntry.service test: pass required `audioMimeType` argument to `parseAudio()`
+  - Add all spotlight tour localStorage flags to e2e `skipOnboarding()` helper to prevent overlay blocking UI
+
 - **feat(tour): add spotlight tour system for onboarding new users**
   - Guided step-by-step tours on 9 screens: Home, Stats, AddTransaction, BatchReview, History, Schedule, ScheduledBanner, Categories, ScheduledPage
   - SpotlightTour component with box-shadow cutout, auto-positioning tooltip, and smooth fade transitions

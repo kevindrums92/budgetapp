@@ -339,7 +339,7 @@ describe("batchEntry.service", () => {
     it("should call parseBatch with audio input type", async () => {
       const base64Audio = "data:audio/aac;base64,GkXfo59ChoEBQveB...";
 
-      await parseAudio(base64Audio);
+      await parseAudio(base64Audio, "audio/aac");
 
       expect(supabase.functions.invoke).toHaveBeenCalledWith(
         "parse-batch",
@@ -347,6 +347,7 @@ describe("batchEntry.service", () => {
           body: expect.objectContaining({
             inputType: "audio",
             audioBase64: base64Audio,
+            audioMimeType: "audio/aac",
           }),
         })
       );
