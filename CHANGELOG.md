@@ -7,6 +7,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(android): enable edge-to-edge display and proper safe area insets**
+  - Add `WindowCompat.setDecorFitsSystemWindows(false)` in MainActivity for correct `env(safe-area-inset-top)` on Android
+  - Add edge-to-edge theme attributes (`windowDrawsSystemBarBackgrounds`, `fitsSystemWindows`) to styles.xml
+  - Switch StatusBar to `overlaysWebView: true` with transparent background on both platforms
+  - Unify TopHeader safe area padding: use `max(env(safe-area-inset-top), 16px)` for all platforms
+
+- **fix(tour): reorder stats tour steps and fix tooltip position**
+  - Show quick-cards step first, then donut-chart with `position: "top"` to prevent off-screen tooltip
+
+- **fix(ui): scroll to top on CategoriesPage mount**
+
+- **fix(i18n): rename schedule config save button to "Aplicar" / "Apply"**
+  - Clarifies the button applies schedule config, not saving the transaction
+
 - **test: fix failing tests and e2e compatibility with spotlight tours**
   - Fix TransactionList test: EmptyStateHome now only expected on current month
   - Fix batchEntry.service test: pass required `audioMimeType` argument to `parseAudio()`

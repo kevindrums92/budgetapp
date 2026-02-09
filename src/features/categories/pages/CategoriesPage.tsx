@@ -19,6 +19,11 @@ export default function CategoriesPage() {
 
   const [activeTab, setActiveTab] = useState<Tab>("expense");
 
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Spotlight tour
   const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("categories");
 

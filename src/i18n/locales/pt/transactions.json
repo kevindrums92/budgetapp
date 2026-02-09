@@ -93,7 +93,7 @@
     "info": "Esta transação será gerada automaticamente a cada {{interval}} {{unit}}{{endDate}}",
     "infoUntil": " até {{date}}",
     "delete": "Excluir programação",
-    "save": "Salvar"
+    "save": "Aplicar"
   },
   "scheduledBanner": {
     "singular": "Transação programada",

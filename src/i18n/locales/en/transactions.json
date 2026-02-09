@@ -93,7 +93,7 @@
     "info": "This transaction will be generated automatically every {{interval}} {{unit}}{{endDate}}",
     "infoUntil": " until {{date}}",
     "delete": "Delete schedule",
-    "save": "Save"
+    "save": "Apply"
   },
   "scheduledBanner": {
     "singular": "Scheduled transaction",

@@ -20,20 +20,19 @@ registerSW({
 // Initialize Capacitor plugins (native only)
 if (isNative()) {
   // Set initial status bar style
+  // Edge-to-edge on both platforms: status bar overlays WebView
+  // Safe area handled via CSS env(safe-area-inset-top)
+  StatusBar.setOverlaysWebView({ overlay: true }).catch((err) => {
+    console.error('[StatusBar] setOverlaysWebView error:', err);
+  });
+  StatusBar.setStyle({ style: Style.Light }).catch((err) => {
+    console.error('[StatusBar] setStyle error:', err);
+  });
   if (isAndroid()) {
-    // Android: White status bar with dark icons (matches header)
-    StatusBar.setStyle({ style: Style.Light }).catch((err) => {
-      console.error('[StatusBar] setStyle error:', err);
-    });
-    StatusBar.setOverlaysWebView({ overlay: false }).catch((err) => {
-      console.error('[StatusBar] setOverlaysWebView error:', err);
-    });
-    StatusBar.setBackgroundColor({ color: '#ffffff' }).catch((err) => {
+    // Transparent status bar so app header background shows through
+    StatusBar.setBackgroundColor({ color: '#00000000' }).catch((err) => {
       console.error('[StatusBar] setBackgroundColor error:', err);
-    }); // White to match header
-  } else {
-    // iOS: Light content (white icons) over app content
-    StatusBar.setStyle({ style: Style.Light }).catch(() => {});
+    });
   }
 
   // Handle Android back button
