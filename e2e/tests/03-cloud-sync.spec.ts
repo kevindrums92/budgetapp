@@ -9,9 +9,7 @@ import { test, expect } from '@playwright/test';
 import {
   setupTestUser,
   mockSupabase,
-  mockSupabaseREST,
   getCloudStatus,
-  waitForCloudSync,
   getTransactionsCount,
   getCurrentBalance,
 } from '../test-helpers';
@@ -28,7 +26,6 @@ test.describe('Cloud Sync (Anonymous Mode)', () => {
 
   test('should sync data to cloud (anonymous user)', async ({ page }) => {
     // Mock Supabase REST API to track push/pull
-    let cloudDataPushed = false;
     let pushedData: any = null;
 
     await page.route('**/rest/v1/user_state**', async (route) => {
@@ -36,7 +33,6 @@ test.describe('Cloud Sync (Anonymous Mode)', () => {
 
       if (method === 'POST' || method === 'PATCH') {
         // Data is being pushed to cloud
-        cloudDataPushed = true;
         pushedData = route.request().postDataJSON();
 
         await route.fulfill({

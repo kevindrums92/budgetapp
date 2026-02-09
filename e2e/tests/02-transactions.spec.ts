@@ -15,8 +15,6 @@ import {
   expectTransactionToExist,
   expectTransactionNotToExist,
   expectBalance,
-  expectTransactionCount,
-  waitForNavigation,
 } from '../test-helpers';
 
 test.describe('Transaction Management', () => {

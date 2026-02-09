@@ -15,7 +15,6 @@ import {
   mockSupabase,
   isOnboardingCompleted,
   isDeviceInitialized,
-  waitForNavigation,
 } from '../test-helpers';
 
 test.describe('Onboarding Flow', () => {
@@ -56,14 +55,6 @@ test.describe('Onboarding Flow', () => {
 
     expect(foundIndicator).toBe(true);
 
-    // Verify we're in onboarding flow (URL should be /onboarding or similar)
-    // Note: Actual route may vary based on implementation
-    const currentURL = page.url();
-    const isOnOnboardingPage =
-      currentURL.includes('/onboarding') ||
-      currentURL.includes('/welcome') ||
-      currentURL === 'http://localhost:5173/'; // Might show on root
-
     // Navigate through welcome screens or config screens
     // Look for completion buttons
     const welcomeStartButton = page.locator('[data-testid="welcome-start-button"]');
@@ -76,8 +67,6 @@ test.describe('Onboarding Flow', () => {
     });
 
     // Try to complete onboarding (max 20 iterations to avoid infinite loop)
-    let completedOnboarding = false;
-
     for (let i = 0; i < 20; i++) {
       await page.waitForTimeout(500);
 
@@ -85,7 +74,6 @@ test.describe('Onboarding Flow', () => {
       if (await completeButton.isVisible({ timeout: 1000 }).catch(() => false)) {
         console.log('[Test] Clicking complete button');
         await completeButton.click();
-        completedOnboarding = true;
         break; // This should take us to HomePage
       }
 
@@ -117,7 +105,6 @@ test.describe('Onboarding Flow', () => {
         if (await completeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
           console.log('[Test] Found complete button after waiting');
           await completeButton.click();
-          completedOnboarding = true;
           break;
         }
         break;
