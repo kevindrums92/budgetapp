@@ -7,6 +7,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(ui): prevent keyboard dismiss when tapping inside active input**
+  - Added touch origin tracking to skip blur when touch starts on the focused input
+  - Added 15px scroll threshold to distinguish real scrolls from micro-movements on taps
+  - Fixes cursor repositioning and text deselection closing the keyboard unexpectedly
+
 - **feat(android): add Android build/deploy scripts and status bar configuration**
   - Added npm scripts for headless Android builds (`android:build`, `android:run`, `android:logs`)
   - Configured white status bar with dark icons for Android (`overlaysWebView: false`)
