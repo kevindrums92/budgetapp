@@ -164,6 +164,26 @@ type BudgetStore = BudgetState & {
   savingsGoalOnboardingSeen: boolean;
   setSavingsGoalOnboardingSeen: (v: boolean) => void;
 
+  // Spotlight tour flags
+  homeTourSeen: boolean;
+  setHomeTourSeen: (v: boolean) => void;
+  statsTourSeen: boolean;
+  setStatsTourSeen: (v: boolean) => void;
+  addTransactionTourSeen: boolean;
+  setAddTransactionTourSeen: (v: boolean) => void;
+  batchReviewTourSeen: boolean;
+  setBatchReviewTourSeen: (v: boolean) => void;
+  historyTourSeen: boolean;
+  setHistoryTourSeen: (v: boolean) => void;
+  scheduleTourSeen: boolean;
+  setScheduleTourSeen: (v: boolean) => void;
+  scheduledBannerTourSeen: boolean;
+  setScheduledBannerTourSeen: (v: boolean) => void;
+  categoriesTourSeen: boolean;
+  setCategoriesTourSeen: (v: boolean) => void;
+  scheduledPageTourSeen: boolean;
+  setScheduledPageTourSeen: (v: boolean) => void;
+
   cloudMode: CloudMode;
   cloudStatus: CloudStatus;
   setCloudMode: (m: CloudMode) => void;
@@ -266,6 +286,124 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         else localStorage.removeItem("budget.savingsGoalOnboardingSeen.v1");
       } catch { }
       set({ savingsGoalOnboardingSeen: v });
+      saveState(get());
+    },
+
+    // Spotlight tour flags
+    homeTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.homeTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setHomeTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.homeTour.v1", "1");
+        else localStorage.removeItem("smartspend.homeTour.v1");
+      } catch { }
+      set({ homeTourSeen: v });
+      saveState(get());
+    },
+
+    statsTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.statsTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setStatsTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.statsTour.v1", "1");
+        else localStorage.removeItem("smartspend.statsTour.v1");
+      } catch { }
+      set({ statsTourSeen: v });
+      saveState(get());
+    },
+
+    addTransactionTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.addTransactionTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setAddTransactionTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.addTransactionTour.v1", "1");
+        else localStorage.removeItem("smartspend.addTransactionTour.v1");
+      } catch { }
+      set({ addTransactionTourSeen: v });
+      saveState(get());
+    },
+
+    batchReviewTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.batchReviewTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setBatchReviewTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.batchReviewTour.v1", "1");
+        else localStorage.removeItem("smartspend.batchReviewTour.v1");
+      } catch { }
+      set({ batchReviewTourSeen: v });
+      saveState(get());
+    },
+
+    historyTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.historyTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setHistoryTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.historyTour.v1", "1");
+        else localStorage.removeItem("smartspend.historyTour.v1");
+      } catch { }
+      set({ historyTourSeen: v });
+      saveState(get());
+    },
+
+    scheduleTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.scheduleTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setScheduleTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.scheduleTour.v1", "1");
+        else localStorage.removeItem("smartspend.scheduleTour.v1");
+      } catch { }
+      set({ scheduleTourSeen: v });
+      saveState(get());
+    },
+
+    scheduledBannerTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.scheduledBannerTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setScheduledBannerTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.scheduledBannerTour.v1", "1");
+        else localStorage.removeItem("smartspend.scheduledBannerTour.v1");
+      } catch { }
+      set({ scheduledBannerTourSeen: v });
+      saveState(get());
+    },
+
+    categoriesTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.categoriesTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setCategoriesTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.categoriesTour.v1", "1");
+        else localStorage.removeItem("smartspend.categoriesTour.v1");
+      } catch { }
+      set({ categoriesTourSeen: v });
+      saveState(get());
+    },
+
+    scheduledPageTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.scheduledPageTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setScheduledPageTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.scheduledPageTour.v1", "1");
+        else localStorage.removeItem("smartspend.scheduledPageTour.v1");
+      } catch { }
+      set({ scheduledPageTourSeen: v });
       saveState(get());
     },
 
@@ -777,6 +915,15 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           tripExpenses: state.tripExpenses,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
+          homeTourSeen: state.homeTourSeen,
+          statsTourSeen: state.statsTourSeen,
+          addTransactionTourSeen: state.addTransactionTourSeen,
+          batchReviewTourSeen: state.batchReviewTourSeen,
+          historyTourSeen: state.historyTourSeen,
+          scheduleTourSeen: state.scheduleTourSeen,
+          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
+          categoriesTourSeen: state.categoriesTourSeen,
+          scheduledPageTourSeen: state.scheduledPageTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -831,6 +978,15 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           tripExpenses: state.tripExpenses,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
+          homeTourSeen: state.homeTourSeen,
+          statsTourSeen: state.statsTourSeen,
+          addTransactionTourSeen: state.addTransactionTourSeen,
+          batchReviewTourSeen: state.batchReviewTourSeen,
+          historyTourSeen: state.historyTourSeen,
+          scheduleTourSeen: state.scheduleTourSeen,
+          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
+          categoriesTourSeen: state.categoriesTourSeen,
+          scheduledPageTourSeen: state.scheduledPageTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -875,6 +1031,15 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           tripExpenses: state.tripExpenses,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
+          homeTourSeen: state.homeTourSeen,
+          statsTourSeen: state.statsTourSeen,
+          addTransactionTourSeen: state.addTransactionTourSeen,
+          batchReviewTourSeen: state.batchReviewTourSeen,
+          historyTourSeen: state.historyTourSeen,
+          scheduleTourSeen: state.scheduleTourSeen,
+          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
+          categoriesTourSeen: state.categoriesTourSeen,
+          scheduledPageTourSeen: state.scheduledPageTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -925,6 +1090,15 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           tripExpenses: state.tripExpenses,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
+          homeTourSeen: state.homeTourSeen,
+          statsTourSeen: state.statsTourSeen,
+          addTransactionTourSeen: state.addTransactionTourSeen,
+          batchReviewTourSeen: state.batchReviewTourSeen,
+          historyTourSeen: state.historyTourSeen,
+          scheduleTourSeen: state.scheduleTourSeen,
+          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
+          categoriesTourSeen: state.categoriesTourSeen,
+          scheduledPageTourSeen: state.scheduledPageTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1029,6 +1203,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         welcomeSeen: s.welcomeSeen,
         budgetOnboardingSeen: s.budgetOnboardingSeen,
         savingsGoalOnboardingSeen: s.savingsGoalOnboardingSeen,
+        // NOTE: tour flags are NOT included in snapshot (local-only, per-device)
         lastSchedulerRun: s.lastSchedulerRun,
         excludedFromStats: s.excludedFromStats,
         security: s.security,
@@ -1064,6 +1239,15 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           tripExpenses: state.tripExpenses,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
+          homeTourSeen: state.homeTourSeen,
+          statsTourSeen: state.statsTourSeen,
+          addTransactionTourSeen: state.addTransactionTourSeen,
+          batchReviewTourSeen: state.batchReviewTourSeen,
+          historyTourSeen: state.historyTourSeen,
+          scheduleTourSeen: state.scheduleTourSeen,
+          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
+          categoriesTourSeen: state.categoriesTourSeen,
+          scheduledPageTourSeen: state.scheduledPageTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
           cloudSyncReady: state.cloudSyncReady,
           excludedFromStats: isExcluded
@@ -1139,8 +1323,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           else localStorage.removeItem("budget.savingsGoalOnboardingSeen.v1");
         } catch { }
       }
+      // NOTE: tour flags are NOT synced from cloud - they are local-only per device
+      // Their source of truth is individual localStorage keys (smartspend.*Tour.v1)
 
       // set explícito (NO meter funciones del store dentro)
+      const current = get();
       set({
         schemaVersion: 8,
         transactions: data.transactions,
@@ -1153,6 +1340,16 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         welcomeSeen: data.welcomeSeen ?? false,
         budgetOnboardingSeen: data.budgetOnboardingSeen ?? false,
         savingsGoalOnboardingSeen: data.savingsGoalOnboardingSeen ?? false,
+        // Tour flags preserved from local state (not from cloud data)
+        homeTourSeen: current.homeTourSeen,
+        statsTourSeen: current.statsTourSeen,
+        addTransactionTourSeen: current.addTransactionTourSeen,
+        batchReviewTourSeen: current.batchReviewTourSeen,
+        historyTourSeen: current.historyTourSeen,
+        scheduleTourSeen: current.scheduleTourSeen,
+        scheduledBannerTourSeen: current.scheduledBannerTourSeen,
+        categoriesTourSeen: current.categoriesTourSeen,
+        scheduledPageTourSeen: current.scheduledPageTourSeen,
         lastSchedulerRun: data.lastSchedulerRun,
         excludedFromStats: data.excludedFromStats ?? [],
         security: data.security ?? { biometricEnabled: false },

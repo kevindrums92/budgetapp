@@ -24,6 +24,9 @@ import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
+import { historyTour } from "@/features/tour/tours/historyTour";
 import * as icons from "lucide-react";
 
 type FilterType = "all" | "expense" | "income";
@@ -49,6 +52,13 @@ export default function HistoryPage() {
 
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
+
+  // Spotlight tour
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("history");
+
+  useEffect(() => {
+    startTour();
+  }, [startTour]);
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -546,7 +556,7 @@ export default function HistoryPage() {
 
         {/* Filter Pills */}
         <div className="relative">
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div data-tour="history-filters" className="flex flex-wrap gap-2 mb-4">
             {/* Date Range */}
             <button
             type="button"
@@ -974,6 +984,7 @@ export default function HistoryPage() {
           <div className="text-right">
             <button
               type="button"
+              data-tour="history-sort"
               onClick={() => {
                 const options: SortOrder[] = ["date-desc", "date-asc", "amount-desc", "amount-asc"];
                 const currentIndex = options.indexOf(sortOrder);
@@ -1346,6 +1357,13 @@ export default function HistoryPage() {
         onClose={() => setShowPaywall(false)}
         trigger="history_filters"
         onSelectPlan={handleSelectPlan}
+      />
+
+      {/* Spotlight Tour */}
+      <SpotlightTour
+        config={historyTour}
+        isActive={isTourActive}
+        onComplete={completeTour}
       />
     </div>
   );

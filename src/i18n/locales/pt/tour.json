@@ -1,0 +1,129 @@
+{
+  "home": {
+    "fab": {
+      "title": "Adicione seus movimentos",
+      "description": "Toque neste botao para registrar uma despesa ou receita rapidamente."
+    },
+    "batchEntry": {
+      "title": "Registro com IA",
+      "description": "Voce tambem pode adicionar varios movimentos por voz, foto ou texto com inteligencia artificial."
+    },
+    "monthSelector": {
+      "title": "Navegue entre meses",
+      "description": "Use as setas para ver seus movimentos de outros meses."
+    },
+    "balanceCard": {
+      "title": "Seu saldo do mes",
+      "description": "Veja quanto voce ganhou e gastou. Toque em receitas ou despesas para filtrar."
+    },
+    "transactionList": {
+      "title": "Seus movimentos",
+      "description": "Toque em qualquer movimento para edita-lo ou exclui-lo."
+    },
+    "bottomBar": {
+      "title": "Explore o app",
+      "description": "Navegue entre Inicio, Plano, Estatisticas e Configuracoes."
+    }
+  },
+  "stats": {
+    "donutChart": {
+      "title": "Despesas por categoria",
+      "description": "Visualize como suas despesas se distribuem entre categorias."
+    },
+    "quickCards": {
+      "title": "Resumo rapido",
+      "description": "Estatisticas chave sobre seus habitos financeiros do mes."
+    }
+  },
+  "addTransaction": {
+    "typeSelector": {
+      "title": "Tipo de movimento",
+      "description": "Escolha se e uma despesa ou receita."
+    },
+    "amountInput": {
+      "title": "Valor",
+      "description": "Insira quanto voce gastou ou recebeu."
+    },
+    "categoryPicker": {
+      "title": "Categoria",
+      "description": "Selecione uma categoria para organizar seus movimentos."
+    },
+    "schedule": {
+      "title": "Transacoes recorrentes",
+      "description": "Programe despesas ou receitas que se repetem. Toque aqui para configurar a frequencia."
+    }
+  },
+  "batchReview": {
+    "header": {
+      "title": "Resumo do lote",
+      "description": "Aqui voce ve o total dos registros que a IA encontrou."
+    },
+    "cards": {
+      "title": "Revise e corrija",
+      "description": "Toque na descricao, categoria ou valor de qualquer registro para edita-lo."
+    },
+    "actions": {
+      "title": "Salve ou cancele",
+      "description": "Quando estiver pronto, pressione Salvar para adicionar todos os movimentos ou Cancelar para descarta-los."
+    }
+  },
+  "schedule": {
+    "frequency": {
+      "title": "Escolha a frequencia",
+      "description": "Selecione com que frequencia se repete: diario, semanal, mensal ou anual."
+    },
+    "info": {
+      "title": "Resumo e salvar",
+      "description": "Aqui voce ve um resumo da programacao. Quando estiver pronto, pressione Salvar."
+    }
+  },
+  "history": {
+    "filters": {
+      "title": "Filtre seus movimentos",
+      "description": "Use estes filtros para buscar por data, tipo, status, categoria, valor ou recorrencia."
+    },
+    "sort": {
+      "title": "Ordene os resultados",
+      "description": "Toque aqui para mudar a ordem: mais novo, mais antigo, maior valor ou menor valor."
+    }
+  },
+  "scheduledBanner": {
+    "banner": {
+      "title": "Transacoes programadas",
+      "description": "Estas sao transacoes virtuais que serao registradas automaticamente na data programada. Voce tambem pode tocar em 'Revisar' para registra-las manualmente."
+    },
+    "projection": {
+      "title": "Projecao",
+      "description": "Use este botao para mostrar ou ocultar os registros futuros que serao criados automaticamente pelas suas transacoes programadas."
+    }
+  },
+  "categories": {
+    "tabs": {
+      "title": "Despesas e receitas",
+      "description": "Suas categorias sao organizadas por tipo. Use estas abas para ver as de despesas ou receitas."
+    },
+    "groups": {
+      "title": "Grupos de categorias",
+      "description": "Organize suas categorias em grupos para ter um melhor controle do seu orcamento."
+    },
+    "add": {
+      "title": "Crie categorias",
+      "description": "Toque aqui para criar uma nova categoria personalizada com icone e cor."
+    }
+  },
+  "scheduledPage": {
+    "info": {
+      "title": "Transacoes programadas",
+      "description": "Aqui voce pode ver e gerenciar todas as suas transacoes recorrentes ativas e inativas."
+    },
+    "fab": {
+      "title": "Adicionar programacao",
+      "description": "Para adicionar uma nova, crie um movimento normal e ative a opcao 'Programar' antes de salvar."
+    }
+  },
+  "buttons": {
+    "next": "Proximo",
+    "skip": "Pular",
+    "done": "Entendi"
+  }
+}

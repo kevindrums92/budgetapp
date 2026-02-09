@@ -35,7 +35,7 @@ export default function BottomBar() {
   const { t } = useTranslation();
 
   return (
-    <div className="fixed inset-x-0 -bottom-1 z-50 bg-white dark:bg-gray-900 pt-1">
+    <div data-tour="home-bottom-bar" className="fixed inset-x-0 -bottom-1 z-50 bg-white dark:bg-gray-900 pt-1">
       {/* iOS-ish: blur + borde sutil + sombra hacia arriba */}
       <div
         className={[

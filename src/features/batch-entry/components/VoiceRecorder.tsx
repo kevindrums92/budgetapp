@@ -17,7 +17,7 @@ import { useFakeProgress } from "../hooks/useFakeProgress";
 import AudioWaveform from "./AudioWaveform";
 
 type Props = {
-  onRecordingComplete: (audioBase64: string) => void;
+  onRecordingComplete: (audioBase64: string, mimeType: string) => void;
   onCancel: () => void;
   isProcessing: boolean;
 };
@@ -68,8 +68,8 @@ export default function VoiceRecorder({
 
     try {
       setIsRecording(false);
-      const audioBase64 = await stopRecording();
-      onRecordingComplete(audioBase64);
+      const { audioBase64, mimeType } = await stopRecording();
+      onRecordingComplete(audioBase64, mimeType);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("errors.stopRecordingError"));
     }

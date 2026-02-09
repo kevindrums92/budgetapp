@@ -42,7 +42,7 @@ export default function EmptyStateHome() {
         </p>
 
         {/* Action Buttons */}
-        <div className="flex w-full max-w-xs justify-center gap-5">
+        <div data-tour="home-batch-entry" className="flex w-full max-w-xs justify-center gap-5">
           {/* Voice */}
           <button
             type="button"

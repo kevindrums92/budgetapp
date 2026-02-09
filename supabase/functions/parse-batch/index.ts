@@ -90,14 +90,39 @@ function getRateLimiter(plan: UserPlan) {
   });
 }
 
+// Map MIME type to file extension for OpenAI Whisper
+function getAudioExtension(mimeType: string): string {
+  const map: Record<string, string> = {
+    "audio/webm": "webm",
+    "audio/webm;codecs=opus": "webm",
+    "audio/mp4": "mp4",
+    "audio/aac": "m4a",
+    "audio/mpeg": "mp3",
+    "audio/ogg": "ogg",
+    "audio/ogg;codecs=opus": "ogg",
+    "audio/wav": "wav",
+    "audio/x-wav": "wav",
+    "audio/flac": "flac",
+    "audio/m4a": "m4a",
+    "audio/x-m4a": "m4a",
+  };
+  // Strip codec params for lookup (e.g., "audio/webm;codecs=opus" → "audio/webm")
+  const baseType = mimeType.split(";")[0].trim().toLowerCase();
+  return map[mimeType.toLowerCase()] || map[baseType] || "webm";
+}
+
 // Transcribe audio using OpenAI GPT-4o Mini Transcribe
-async function transcribeAudio(audioBase64: string): Promise<string> {
+async function transcribeAudio(audioBase64: string, audioMimeType?: string): Promise<string> {
   const openaiKey = Deno.env.get("OPENAI_API_KEY");
   if (!openaiKey) {
     throw new Error("OPENAI_API_KEY not configured");
   }
 
-  console.log("[parse-batch] Transcribing audio with GPT-4o Mini Transcribe...");
+  // Use provided MIME type or default to audio/webm
+  const mimeType = audioMimeType || "audio/webm";
+  const extension = getAudioExtension(mimeType);
+
+  console.log(`[parse-batch] Transcribing audio with GPT-4o Mini Transcribe (mimeType: ${mimeType}, ext: ${extension})...`);
 
   // Decode base64 to binary
   const binaryString = atob(audioBase64);
@@ -106,10 +131,10 @@ async function transcribeAudio(audioBase64: string): Promise<string> {
     bytes[i] = binaryString.charCodeAt(i);
   }
 
-  // Create form data
+  // Create form data with correct MIME type and extension
   const formData = new FormData();
-  const audioBlob = new Blob([bytes], { type: "audio/webm" });
-  formData.append("file", audioBlob, "recording.webm");
+  const audioBlob = new Blob([bytes], { type: mimeType });
+  formData.append("file", audioBlob, `recording.${extension}`);
   formData.append("model", "gpt-4o-mini-transcribe");
   formData.append("language", "es");
   formData.append("response_format", "text");
@@ -496,11 +521,12 @@ Deno.serve(async (req) => {
 
     // 3. Parse request body
     const body = await req.json();
-    const { inputType, data, imageBase64, audioBase64, localDate, historyPatterns } = body as {
+    const { inputType, data, imageBase64, audioBase64, audioMimeType, localDate, historyPatterns } = body as {
       inputType: "text" | "image" | "audio";
       data?: string;
       imageBase64?: string;
       audioBase64?: string;
+      audioMimeType?: string;
       localDate?: string;
       historyPatterns?: Array<{
         name: string;
@@ -553,7 +579,7 @@ Deno.serve(async (req) => {
 
     // If audio, transcribe first
     if (inputType === "audio" && audioBase64) {
-      textToProcess = await transcribeAudio(audioBase64);
+      textToProcess = await transcribeAudio(audioBase64, audioMimeType);
     }
 
     // 5. Process with AI (Gemini primary, OpenAI fallback)

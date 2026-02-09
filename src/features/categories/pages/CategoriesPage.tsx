@@ -1,10 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { icons, Plus, FolderOpen, ChevronRight } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import { kebabToPascal } from "@/shared/utils/string.utils";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { categoriesTour } from "@/features/tour/tours/categoriesTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 
 type Tab = "expense" | "income";
 
@@ -15,6 +18,13 @@ export default function CategoriesPage() {
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
 
   const [activeTab, setActiveTab] = useState<Tab>("expense");
+
+  // Spotlight tour
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("categories");
+
+  useEffect(() => {
+    startTour();
+  }, [startTour]);
 
   // Group categories by their group
   const categoriesByGroup = useMemo(() => {
@@ -51,6 +61,7 @@ export default function CategoriesPage() {
               onClick={() => navigate("/category-groups")}
               className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
               title={t("groups.title")}
+              data-tour="categories-groups-button"
             >
               <FolderOpen className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             </button>
@@ -58,6 +69,7 @@ export default function CategoriesPage() {
               type="button"
               onClick={() => navigate(`/category/new?type=${activeTab}`)}
               className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+              data-tour="categories-add-button"
             >
               <Plus className="h-5 w-5 text-gray-700 dark:text-gray-300" />
             </button>
@@ -66,7 +78,7 @@ export default function CategoriesPage() {
       />
 
       {/* Tabs */}
-      <div className="flex gap-2 bg-white dark:bg-gray-900 px-4 pt-3 pb-4">
+      <div className="flex gap-2 bg-white dark:bg-gray-900 px-4 pt-3 pb-4" data-tour="categories-tabs">
         <button
           type="button"
           onClick={() => setActiveTab("expense")}
@@ -156,6 +168,7 @@ export default function CategoriesPage() {
         )}
       </div>
 
+      <SpotlightTour config={categoriesTour} isActive={isTourActive} onComplete={completeTour} />
     </div>
   );
 }

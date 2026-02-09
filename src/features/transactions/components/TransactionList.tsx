@@ -149,8 +149,12 @@ export default function TransactionList({ searchQuery = "", filterType = "all", 
           <div className="mx-4 bg-white dark:bg-gray-900 p-6 text-center text-sm text-gray-600 dark:text-gray-400 rounded-xl shadow-sm">
             {t("list.searchEmpty", { query: searchQuery })}
           </div>
-        ) : (
+        ) : isCurrent ? (
           <EmptyStateHome />
+        ) : (
+          <div className="mx-4 bg-white dark:bg-gray-900 p-6 text-center text-sm text-gray-500 dark:text-gray-400 rounded-xl shadow-sm">
+            {t("list.noTransactions")}
+          </div>
         )
       ) : (
         <div className="space-y-3">

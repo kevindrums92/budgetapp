@@ -87,7 +87,7 @@ export default function TransactionPreview({
         </div>
 
         {/* Floating Card */}
-        <div className="bg-white dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-2xl p-4 shadow-sm dark:shadow-black/20">
+        <div data-tour="batch-review-header" className="bg-white dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-2xl p-4 shadow-sm dark:shadow-black/20">
           <div className="flex justify-between items-start mb-2">
             <div>
               <span className="text-xs font-medium text-gray-500 dark:text-gray-400 block mb-1">
@@ -149,7 +149,7 @@ export default function TransactionPreview({
       )}
 
       {/* Transaction list */}
-      <div className="mb-4 min-h-0 flex-1 space-y-2 overflow-y-auto">
+      <div data-tour="batch-review-cards" className="mb-4 min-h-0 flex-1 space-y-2 overflow-y-auto">
         {drafts.map((draft) => (
           <TransactionDraftCard
             key={draft.id}
@@ -162,7 +162,7 @@ export default function TransactionPreview({
 
       {/* Actions */}
       {isFullScreen ? (
-        <div className="shrink-0 space-y-3">
+        <div data-tour="batch-review-actions" className="shrink-0 space-y-3">
           <button
             type="button"
             onClick={onSaveAll}
@@ -188,7 +188,7 @@ export default function TransactionPreview({
           </button>
         </div>
       ) : (
-        <div className="flex shrink-0 gap-3">
+        <div data-tour="batch-review-actions" className="flex shrink-0 gap-3">
           <button
             type="button"
             onClick={onCancel}

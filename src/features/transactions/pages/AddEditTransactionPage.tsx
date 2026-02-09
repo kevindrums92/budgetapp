@@ -19,6 +19,9 @@ import PaywallModal from "@/shared/components/modals/PaywallModal";
 import type { TransactionType, TransactionStatus, Schedule } from "@/types/budget.types";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import { trackAction, maybeShowInterstitial } from "@/services/ads.service";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
+import { addTransactionTour } from "@/features/tour/tours/addTransactionTour";
 
 const FORM_STORAGE_KEY = "transaction_form_draft";
 
@@ -75,6 +78,15 @@ export default function AddEditTransactionPage() {
 
   // Ref for amount input to autofocus on new transactions
   const amountInputRef = useRef<HTMLInputElement>(null);
+
+  // Spotlight tour (only for new transactions, not edits)
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("addTransaction");
+
+  useEffect(() => {
+    if (!isEdit) {
+      startTour();
+    }
+  }, [isEdit, startTour]);
 
   // Paywall purchase handler
   const { handleSelectPlan } = usePaywallPurchase({
@@ -485,7 +497,7 @@ export default function AddEditTransactionPage() {
       />
 
       {/* Amount Input */}
-      <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
+      <div data-tour="add-amount-input" className="mx-auto max-w-xl px-4 pt-8 pb-6">
         <div className="text-center">
           <p className="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">{t("form.amount")}</p>
           <div className="flex items-center justify-center px-4">
@@ -559,7 +571,7 @@ export default function AddEditTransactionPage() {
           </div>
 
           {/* Category */}
-          <div className="py-4">
+          <div data-tour="add-category-picker" className="py-4">
             <div className="flex items-start gap-4">
               <div
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
@@ -696,6 +708,7 @@ export default function AddEditTransactionPage() {
               /* Normal schedule button */
               <button
                 type="button"
+                data-tour="add-schedule"
                 onClick={() => setShowScheduleDrawer(true)}
                 className="flex w-full items-center gap-4 active:bg-gray-50 dark:active:bg-gray-800 rounded-lg -mx-2 px-2 py-1"
               >
@@ -874,6 +887,13 @@ export default function AddEditTransactionPage() {
         onClose={() => setShowPaywall(false)}
         trigger="scheduled_limit"
         onSelectPlan={handleSelectPlan}
+      />
+
+      {/* Spotlight Tour */}
+      <SpotlightTour
+        config={addTransactionTour}
+        isActive={isTourActive}
+        onComplete={completeTour}
       />
     </div>
   );

@@ -80,7 +80,7 @@
     "deleteFromBatch": "Remove from batch"
   },
   "errors": {
-    "generic": "Processing error",
+    "generic": "Something went wrong. Check your connection and try again.",
     "loginRequired": "You must be logged in to use this feature",
     "rateLimitFree": "You've reached your daily limit. Upgrade to Pro to keep using this feature.",
     "rateLimitPro": "You've exceeded the request limit. Try again later.",

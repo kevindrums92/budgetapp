@@ -35,7 +35,7 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
     <div className="bg-gray-50 dark:bg-gray-950">
       <div className="mx-auto max-w-xl px-4 pt-4">
         {/* Hero Card with gradient */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-[#18B7B0] to-teal-800 rounded-[2rem] p-6 text-white shadow-xl shadow-teal-900/20 ring-1 ring-white/20">
+        <section data-tour="home-balance-card" className="relative overflow-hidden bg-gradient-to-br from-[#18B7B0] to-teal-800 rounded-[2rem] p-6 text-white shadow-xl shadow-teal-900/20 ring-1 ring-white/20">
           {/* Decorative blur elements */}
           <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl" />
           <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-teal-400 opacity-10 rounded-full blur-xl" />

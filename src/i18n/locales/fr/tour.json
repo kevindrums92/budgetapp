@@ -1,0 +1,129 @@
+{
+  "home": {
+    "fab": {
+      "title": "Ajoutez vos mouvements",
+      "description": "Appuyez sur ce bouton pour enregistrer rapidement une depense ou un revenu."
+    },
+    "batchEntry": {
+      "title": "Saisie par IA",
+      "description": "Vous pouvez aussi ajouter plusieurs mouvements par voix, photo ou texte avec l'intelligence artificielle."
+    },
+    "monthSelector": {
+      "title": "Naviguez entre les mois",
+      "description": "Utilisez les fleches pour voir vos mouvements des autres mois."
+    },
+    "balanceCard": {
+      "title": "Votre solde du mois",
+      "description": "Voyez combien vous avez gagne et depense. Appuyez sur revenus ou depenses pour filtrer."
+    },
+    "transactionList": {
+      "title": "Vos mouvements",
+      "description": "Appuyez sur un mouvement pour le modifier ou le supprimer."
+    },
+    "bottomBar": {
+      "title": "Explorez l'application",
+      "description": "Naviguez entre Accueil, Budget, Statistiques et Parametres."
+    }
+  },
+  "stats": {
+    "donutChart": {
+      "title": "Depenses par categorie",
+      "description": "Visualisez comment vos depenses se repartissent entre les categories."
+    },
+    "quickCards": {
+      "title": "Resume rapide",
+      "description": "Statistiques cles sur vos habitudes financieres du mois."
+    }
+  },
+  "addTransaction": {
+    "typeSelector": {
+      "title": "Type de mouvement",
+      "description": "Choisissez s'il s'agit d'une depense ou d'un revenu."
+    },
+    "amountInput": {
+      "title": "Montant",
+      "description": "Entrez combien vous avez depense ou recu."
+    },
+    "categoryPicker": {
+      "title": "Categorie",
+      "description": "Selectionnez une categorie pour organiser vos mouvements."
+    },
+    "schedule": {
+      "title": "Transactions recurrentes",
+      "description": "Programmez des depenses ou revenus qui se repetent. Appuyez ici pour configurer la frequence."
+    }
+  },
+  "batchReview": {
+    "header": {
+      "title": "Resume du lot",
+      "description": "Ici vous voyez le total des enregistrements trouves par l'IA."
+    },
+    "cards": {
+      "title": "Verifiez et corrigez",
+      "description": "Appuyez sur la description, la categorie ou le montant de n'importe quel enregistrement pour le modifier."
+    },
+    "actions": {
+      "title": "Enregistrez ou annulez",
+      "description": "Quand vous etes pret, appuyez sur Enregistrer pour ajouter tous les mouvements ou Annuler pour les supprimer."
+    }
+  },
+  "schedule": {
+    "frequency": {
+      "title": "Choisissez la frequence",
+      "description": "Selectionnez a quelle frequence ca se repete : quotidien, hebdomadaire, mensuel ou annuel."
+    },
+    "info": {
+      "title": "Resume et enregistrer",
+      "description": "Ici vous voyez un resume de la programmation. Quand vous etes pret, appuyez sur Enregistrer."
+    }
+  },
+  "history": {
+    "filters": {
+      "title": "Filtrez vos mouvements",
+      "description": "Utilisez ces filtres pour rechercher par date, type, statut, categorie, montant ou recurrence."
+    },
+    "sort": {
+      "title": "Triez les resultats",
+      "description": "Appuyez ici pour changer l'ordre: plus recent, plus ancien, montant le plus eleve ou le plus bas."
+    }
+  },
+  "scheduledBanner": {
+    "banner": {
+      "title": "Transactions programmees",
+      "description": "Ce sont des transactions virtuelles qui seront enregistrees automatiquement a la date prevue. Vous pouvez aussi appuyer sur 'Revoir' pour les enregistrer manuellement."
+    },
+    "projection": {
+      "title": "Projection",
+      "description": "Utilisez ce bouton pour afficher ou masquer les enregistrements futurs qui seront crees automatiquement par vos transactions programmees."
+    }
+  },
+  "categories": {
+    "tabs": {
+      "title": "Depenses et revenus",
+      "description": "Vos categories sont organisees par type. Utilisez ces onglets pour voir les depenses ou les revenus."
+    },
+    "groups": {
+      "title": "Groupes de categories",
+      "description": "Organisez vos categories en groupes pour mieux controler votre budget."
+    },
+    "add": {
+      "title": "Creez des categories",
+      "description": "Appuyez ici pour creer une nouvelle categorie personnalisee avec icone et couleur."
+    }
+  },
+  "scheduledPage": {
+    "info": {
+      "title": "Transactions programmees",
+      "description": "Ici vous pouvez voir et gerer toutes vos transactions recurrentes actives et inactives."
+    },
+    "fab": {
+      "title": "Ajouter une programmation",
+      "description": "Pour en ajouter une nouvelle, creez un mouvement normal et activez l'option 'Programmer' avant d'enregistrer."
+    }
+  },
+  "buttons": {
+    "next": "Suivant",
+    "skip": "Passer",
+    "done": "Compris"
+  }
+}

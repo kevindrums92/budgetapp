@@ -1,0 +1,129 @@
+{
+  "home": {
+    "fab": {
+      "title": "Add your transactions",
+      "description": "Tap this button to quickly record an expense or income."
+    },
+    "batchEntry": {
+      "title": "AI-powered entry",
+      "description": "You can also add multiple transactions by voice, photo, or text using artificial intelligence."
+    },
+    "monthSelector": {
+      "title": "Navigate between months",
+      "description": "Use the arrows to view your transactions from other months."
+    },
+    "balanceCard": {
+      "title": "Your monthly balance",
+      "description": "See how much you've earned and spent. Tap income or expenses to filter."
+    },
+    "transactionList": {
+      "title": "Your transactions",
+      "description": "Tap any transaction to edit or delete it."
+    },
+    "bottomBar": {
+      "title": "Explore the app",
+      "description": "Navigate between Home, Budget, Stats and Settings."
+    }
+  },
+  "stats": {
+    "donutChart": {
+      "title": "Expenses by category",
+      "description": "Visualize how your expenses are distributed across categories."
+    },
+    "quickCards": {
+      "title": "Quick summary",
+      "description": "Key statistics about your financial habits this month."
+    }
+  },
+  "addTransaction": {
+    "typeSelector": {
+      "title": "Transaction type",
+      "description": "Choose whether it's an expense or income."
+    },
+    "amountInput": {
+      "title": "Amount",
+      "description": "Enter how much you spent or received."
+    },
+    "categoryPicker": {
+      "title": "Category",
+      "description": "Select a category to organize your transactions."
+    },
+    "schedule": {
+      "title": "Recurring transactions",
+      "description": "Schedule expenses or income that repeat. Tap here to configure the frequency."
+    }
+  },
+  "batchReview": {
+    "header": {
+      "title": "Batch summary",
+      "description": "Here you can see the total of the records the AI found."
+    },
+    "cards": {
+      "title": "Review and edit",
+      "description": "Tap the description, category, or amount of any record to edit it."
+    },
+    "actions": {
+      "title": "Save or cancel",
+      "description": "When you're ready, tap Save to add all transactions or Cancel to discard them."
+    }
+  },
+  "schedule": {
+    "frequency": {
+      "title": "Choose the frequency",
+      "description": "Select how often it repeats: daily, weekly, monthly, or yearly."
+    },
+    "info": {
+      "title": "Summary and save",
+      "description": "Here you can see a summary of the schedule. When you're ready, tap Save."
+    }
+  },
+  "history": {
+    "filters": {
+      "title": "Filter your transactions",
+      "description": "Use these filters to search by date, type, status, category, amount, or recurrence."
+    },
+    "sort": {
+      "title": "Sort the results",
+      "description": "Tap here to change the order: newest, oldest, highest amount, or lowest amount."
+    }
+  },
+  "scheduledBanner": {
+    "banner": {
+      "title": "Scheduled transactions",
+      "description": "These are virtual transactions that will be automatically registered on their scheduled date. You can also tap 'Review' to register them manually."
+    },
+    "projection": {
+      "title": "Projection",
+      "description": "Use this button to show or hide future records that will be automatically created by your scheduled transactions."
+    }
+  },
+  "categories": {
+    "tabs": {
+      "title": "Expenses and income",
+      "description": "Your categories are organized by type. Use these tabs to view expense or income categories."
+    },
+    "groups": {
+      "title": "Category groups",
+      "description": "Organize your categories into groups for better budget control."
+    },
+    "add": {
+      "title": "Create categories",
+      "description": "Tap here to create a new custom category with its own icon and color."
+    }
+  },
+  "scheduledPage": {
+    "info": {
+      "title": "Scheduled transactions",
+      "description": "Here you can view and manage all your active and inactive recurring transactions."
+    },
+    "fab": {
+      "title": "Add a schedule",
+      "description": "To add a new one, create a regular transaction and enable the 'Schedule' option before saving."
+    }
+  },
+  "buttons": {
+    "next": "Next",
+    "skip": "Skip",
+    "done": "Got it"
+  }
+}

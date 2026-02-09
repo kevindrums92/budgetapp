@@ -8,11 +8,12 @@ import PaywallModal from "@/shared/components/modals/PaywallModal";
 import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { scheduledPageTour } from "@/features/tour/tours/scheduledPageTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 import type { Transaction } from "@/types/budget.types";
 
 type TabType = "active" | "inactive";
-
-const FAB_HINT_KEY = "scheduled-fab-hint-shown";
 
 export default function ScheduledPage() {
   const { t } = useTranslation("scheduled");
@@ -23,20 +24,14 @@ export default function ScheduledPage() {
 
   const [activeTab, setActiveTab] = useState<TabType>("active");
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [showFabHint, setShowFabHint] = useState(true);
   const [showPaywall, setShowPaywall] = useState(false);
 
   const { handleSelectPlan } = usePaywallPurchase({
     onSuccess: () => setShowPaywall(false),
   });
 
-  // Check if hint was already shown in this session
-  useEffect(() => {
-    const hintShown = sessionStorage.getItem(FAB_HINT_KEY);
-    if (hintShown === "true") {
-      setShowFabHint(false);
-    }
-  }, []);
+  // Spotlight tour
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("scheduledPage");
 
   // Get all templates (transactions with schedule)
   const templates = useMemo(() => {
@@ -58,6 +53,13 @@ export default function ScheduledPage() {
 
     return { active, inactive };
   }, [templates]);
+
+  // Start tour when templates exist (info banner is visible)
+  useEffect(() => {
+    if (templates.length > 0) {
+      startTour();
+    }
+  }, [templates.length, startTour]);
 
   // Handle inactivate (set schedule.enabled = false)
   const handleInactivate = (id: string) => {
@@ -121,7 +123,7 @@ export default function ScheduledPage() {
 
             {/* Info Banner - Only show on active tab */}
             {activeTab === "active" && (
-              <div className="mb-4 rounded-xl bg-[#18B7B0]/5 dark:bg-[#18B7B0]/10 p-3 flex items-start gap-2">
+              <div className="mb-4 rounded-xl bg-[#18B7B0]/5 dark:bg-[#18B7B0]/10 p-3 flex items-start gap-2" data-tour="scheduled-info-banner">
                 <Info className="h-4 w-4 shrink-0 text-[#18B7B0] mt-0.5" />
                 <p className="text-xs text-gray-600 dark:text-gray-400">
                   {t("infoBanner.message")}
@@ -263,26 +265,13 @@ export default function ScheduledPage() {
       {/* FAB with Gradient Background - Only show on empty state or active tab */}
       {(templates.length === 0 || activeTab === "active") && (
         <div
-          className="fixed right-4 z-40 flex flex-col items-end gap-2"
+          className="fixed right-4 z-40"
           style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+          data-tour="scheduled-fab"
         >
-          {/* Hint Text */}
-          {showFabHint && templates.length > 0 && (
-            <div className="rounded-xl bg-gray-900/95 dark:bg-gray-800/95 backdrop-blur-sm px-3 py-2 shadow-lg max-w-[200px]">
-              <p className="text-xs text-white text-right leading-tight">
-                {t("fab.hint")}
-              </p>
-            </div>
-          )}
-
-          {/* FAB Button */}
           <button
             type="button"
-            onClick={() => {
-              setShowFabHint(false);
-              sessionStorage.setItem(FAB_HINT_KEY, "true");
-              handleFabClick();
-            }}
+            onClick={handleFabClick}
             className="group relative"
           >
             {/* Gradient Background */}
@@ -309,6 +298,8 @@ export default function ScheduledPage() {
         trigger="scheduled_limit"
         onSelectPlan={handleSelectPlan}
       />
+
+      <SpotlightTour config={scheduledPageTour} isActive={isTourActive} onComplete={completeTour} />
     </div>
   );
 }

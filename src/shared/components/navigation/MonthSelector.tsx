@@ -35,7 +35,7 @@ export default function MonthSelector() {
   }).format(date).toUpperCase();
 
   return (
-    <div className="flex items-center gap-2">
+    <div data-tour="home-month-selector" className="flex items-center gap-2">
       <button
         type="button"
         onClick={() => setSelectedMonth(addMonths(selectedMonth, -1))}

@@ -122,6 +122,9 @@ import VoiceRecorder from "./VoiceRecorder";
 import ImageCaptureView from "./ImageCaptureView";
 import TextInputArea from "./TextInputArea";
 import TransactionPreview from "./TransactionPreview";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { batchReviewTour } from "@/features/tour/tours/batchReviewTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 
 type Props = {
   open: boolean;
@@ -160,6 +163,9 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Batch review tour
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("batchReview");
 
   // Network state
   const [isOnline, setIsOnline] = useState(true);
@@ -226,6 +232,13 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
 
     return removeListener;
   }, []);
+
+  // Start batch review tour when entering preview state
+  useEffect(() => {
+    if (flowState === "preview" && drafts.length > 0) {
+      startTour();
+    }
+  }, [flowState, drafts.length, startTour]);
 
   // Handle initialInputType - skip to capturing if provided
   useEffect(() => {
@@ -381,10 +394,10 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
     }
   };
 
-  const handleAudioCapture = async (audioBase64: string) => {
+  const handleAudioCapture = async (audioBase64: string, mimeType: string) => {
     setFlowState("processing");
     try {
-      const result = await parseAudio(audioBase64, historyPatterns);
+      const result = await parseAudio(audioBase64, mimeType, historyPatterns);
       if (result.success && result.transactions.length > 0) {
         const interpretation = result.rawInterpretation || "";
         setRawInterpretation(interpretation);
@@ -542,7 +555,8 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
         if (error === "RATE_LIMIT_PRO") return t("errors.rateLimitPro");
         if (error === "TIMEOUT") return t("errors.timeout");
         if (error === "NO_RESPONSE") return t("errors.noResponse");
-        return error;
+        // All other errors (technical messages from Supabase SDK, etc.) → generic message
+        return t("errors.generic");
       };
 
       return (
@@ -780,6 +794,13 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
         }}
         trigger="batch_entry_limit"
         onSelectPlan={handleSelectPlan}
+      />
+
+      {/* Batch review spotlight tour */}
+      <SpotlightTour
+        config={batchReviewTour}
+        isActive={isTourActive}
+        onComplete={completeTour}
       />
     </div>
   );

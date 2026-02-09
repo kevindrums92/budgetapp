@@ -7,6 +7,26 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(tour): add spotlight tour system for onboarding new users**
+  - Guided step-by-step tours on 9 screens: Home, Stats, AddTransaction, BatchReview, History, Schedule, ScheduledBanner, Categories, ScheduledPage
+  - SpotlightTour component with box-shadow cutout, auto-positioning tooltip, and smooth fade transitions
+  - Tour state persisted per-device in localStorage (`smartspend.*Tour.v1`), not synced to cloud
+  - i18n translations for all 4 locales (es, en, pt, fr)
+  - Fixed tooltip position flash when changing steps by clearing stale rect during transitions
+
+- **fix(batch): pass audio MIME type to Whisper API for correct transcription**
+  - VoiceRecorder now captures actual MIME type from MediaRecorder
+  - MIME type forwarded through service → edge function → OpenAI Whisper
+  - Correct file extension mapping for audio formats (webm, aac, mp4, m4a, etc.)
+  - Error messages now show generic i18n text instead of raw technical errors
+
+- **feat(home): show "Ver todo" and "Proyección" buttons on all months**
+  - Navigation and projection toggle now visible when viewing any month, not just months with transactions
+  - Conditioned on user having at least 1 transaction (hidden for new users in empty state)
+  - EmptyStateHome (AI batch entry promo) only shown on current month; other months show simple text
+
+- **chore: remove obsolete batch entry planning docs (ADR-001, PLAN)**
+
 - **chore(ads): switch Android AdMob App ID from test to production**
   - Replaced Google test App ID (`ca-app-pub-3940256099942544`) with production ID in AndroidManifest.xml
   - Added related repositories section to CLAUDE.md for SmartSpend landing page

@@ -80,7 +80,7 @@
     "deleteFromBatch": "Eliminar del lote"
   },
   "errors": {
-    "generic": "Error al procesar",
+    "generic": "Algo salió mal. Revisa tu conexión e intenta de nuevo.",
     "loginRequired": "Debes iniciar sesión para usar esta función",
     "rateLimitFree": "Has alcanzado tu límite diario. Actualiza a Pro para seguir usando esta función.",
     "rateLimitPro": "Has excedido el límite de solicitudes. Intenta de nuevo más tarde.",
