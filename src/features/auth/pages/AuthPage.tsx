@@ -6,10 +6,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, ChevronLeft } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { isNative } from '@/shared/utils/platform';
 import { getOAuthRedirectUrl } from '@/config/env';
+import PageHeader from '@/shared/components/layout/PageHeader';
 
 import AuthTabs from '../components/AuthTabs';
 import LoginForm from '../components/LoginForm';
@@ -62,21 +63,9 @@ export default function AuthPage() {
   };
 
   return (
-    <div
-      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
-    >
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header with back button */}
-      <div className="flex items-center px-4 pt-3">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
-          aria-label="Volver"
-        >
-          <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
-        </button>
-      </div>
+      <PageHeader title="" />
 
       {/* Hero section */}
       <div className="flex flex-col items-center px-6 pt-8 pb-6">

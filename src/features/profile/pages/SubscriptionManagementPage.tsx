@@ -7,7 +7,6 @@ import { PRICING_PLANS } from "@/constants/pricing";
 import { supabase } from "@/lib/supabaseClient";
 import { useBudgetStore } from "@/state/budget.store";
 import {
-  ChevronLeft,
   Crown,
   Calendar,
   DollarSign,
@@ -17,10 +16,12 @@ import {
   Sparkles,
   Infinity as InfinityIcon,
   Shield,
+  ChevronLeft,
   ChevronRight
 } from "lucide-react";
 import { isNative } from "@/shared/utils/platform";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
+import PageHeader from "@/shared/components/layout/PageHeader";
 
 export default function SubscriptionManagementPage() {
   const navigate = useNavigate();
@@ -124,27 +125,7 @@ export default function SubscriptionManagementPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
-      {/* Header */}
-      <div
-        className="sticky top-0 z-10 bg-white dark:bg-gray-900 shadow-sm"
-        style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
-      >
-        <div className="px-4 py-4">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Volver"
-            >
-              <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
-            </button>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t("subscription.title")}
-            </h1>
-          </div>
-        </div>
-      </div>
+      <PageHeader title={t("subscription.title")} />
 
       {/* Content */}
       <div

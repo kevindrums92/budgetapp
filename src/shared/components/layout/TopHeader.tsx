@@ -4,6 +4,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
 import { User, Bell } from "lucide-react";
+import { isAndroid } from "@/shared/utils/platform";
 
 type Props = {
   showMonthSelector?: boolean;
@@ -53,11 +54,21 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
     return "bg-green-500"; // ok
   }, [cloudMode, cloudStatus]);
 
+  // Platform-specific padding for status bar
+  const headerPaddingTop = useMemo(() => {
+    if (isAndroid()) {
+      // Android: Status bar is separate (white), just add internal spacing
+      return '16px';
+    }
+    // iOS: Use safe-area-inset-top for Dynamic Island/notch
+    return 'max(env(safe-area-inset-top), 24px)';
+  }, []);
+
   return (
     <header className="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.30)]">
       <div
         className="mx-auto max-w-xl px-4 pb-2"
-        style={{ paddingTop: 'max(env(safe-area-inset-top), 24px)' }}
+        style={{ paddingTop: headerPaddingTop }}
       >
         <div className="flex items-start justify-between">
           {/* Left: Logo + Content */}

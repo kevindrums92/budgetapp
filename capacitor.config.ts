@@ -10,8 +10,12 @@ const config: CapacitorConfig = {
   },
   plugins: {
     StatusBar: {
-      style: 'DARK',
-      backgroundColor: '#0d9488',
+      // iOS: Light content (white icons)
+      // Android: Light style (dark icons on white background)
+      style: 'LIGHT',
+      // Android: White background to match header
+      overlaysWebView: false,
+      backgroundColor: '#ffffff',
     },
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],

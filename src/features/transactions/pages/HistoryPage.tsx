@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ChevronLeft,
   Calendar,
   Filter,
   CheckCircle2,
@@ -14,6 +13,7 @@ import {
   Lock,
   Repeat,
 } from "lucide-react";
+import PageHeader from "@/shared/components/layout/PageHeader";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
@@ -493,24 +493,7 @@ export default function HistoryPage() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
-      {/* Header */}
-      <header
-        className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm dark:shadow-black/30 px-4 pb-4"
-        style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
-      >
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-gray-900 dark:text-gray-50 active:bg-gray-100 dark:active:bg-gray-800 transition-colors"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            {t("title")}
-          </h1>
-        </div>
-      </header>
+      <PageHeader title={t("title")} />
 
       {/* Filters Section */}
       <div className="mx-auto w-full max-w-xl px-4 pt-6 pb-4">

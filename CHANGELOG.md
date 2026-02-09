@@ -7,6 +7,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(android): add Android build/deploy scripts and status bar configuration**
+  - Added npm scripts for headless Android builds (`android:build`, `android:run`, `android:logs`)
+  - Configured white status bar with dark icons for Android (`overlaysWebView: false`)
+  - Platform-specific safe-area padding in TopHeader (16px Android, safe-area iOS)
+  - Added OAuth deep link intent filter in AndroidManifest.xml
+  - Bumped Android versionCode to 3
+
+- **refactor(ui): standardize all page headers to use shared components**
+  - Migrated HistoryPage, SubscriptionManagementPage, and AuthPage to use `PageHeader`
+  - Fixed safe-area padding on OTPVerificationPage, ResetPasswordOTPPage, and ResetPasswordPage (`max(env(safe-area-inset-top), 16px)`)
+  - Eliminated all custom inline headers — every page now uses `PageHeader` or `TopHeader`
+
+- **chore: add android directory to ESLint globalIgnores**
+
 - **feat(android): configure production build and RevenueCat integration**
   - Changed package name from `com.jhotech.smartspend.dev` to `com.jhotech.smartspend`
   - Added release signing configuration with keystore
