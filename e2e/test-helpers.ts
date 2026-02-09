@@ -70,6 +70,10 @@ export async function skipOnboarding(page: Page) {
     // Mark device as initialized (FirstConfig completed)
     localStorage.setItem('budget.device.initialized', 'true');
 
+    // Mark feature onboardings as seen
+    localStorage.setItem('budget.budgetOnboardingSeen.v1', '1');
+    localStorage.setItem('budget.savingsGoalOnboardingSeen.v1', '1');
+
     // Set default preferences
     localStorage.setItem('app_language', 'es');
     localStorage.setItem('app_theme', 'light');
