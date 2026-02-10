@@ -172,12 +172,14 @@
     "note": "Você pode modificar essas opções no seu perfil a qualquer momento"
   },
   "login": {
-    "title": "Comece a gerenciar\nsuas finanças",
-    "subtitle": "Escolha como você deseja começar. Você pode fazer login ou explorar sem conta.",
-    "privacyNote": "Criptografia de ponta a ponta. Com login, sincroniza automaticamente na nuvem.",
+    "title": "Proteja seus dados",
+    "subtitle": "Seus movimentos são sincronizados anonimamente, mas se você perder o celular ou desinstalar o app, vai perdê-los. Faça login para mantê-los seguros.",
+    "privacyNote": "Criptografia de ponta a ponta. Suas informações financeiras são privadas e seguras.",
     "guestTitle": "Explorar como convidado",
     "guestDesc": "Sem conta, dados apenas neste dispositivo",
-    "divider": "Ou faça login com",
+    "guestContinue": "Continuar como convidado",
+    "divider": "Faça login com",
+    "continueWith": "Continuar com",
     "google": "Google",
     "apple": "Apple",
     "emailLink": "Usar usuário e senha",

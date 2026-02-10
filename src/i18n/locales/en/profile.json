@@ -50,6 +50,11 @@
     }
   },
   "account": {
+    "guest": {
+      "sessionLabel": "Guest Session",
+      "title": "Create your account",
+      "subtitle": "Your data is safe, but not linked."
+    },
     "syncStatus": {
       "local": "Local Mode",
       "offline": "Offline",

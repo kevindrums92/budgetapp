@@ -50,6 +50,11 @@
     }
   },
   "account": {
+    "guest": {
+      "sessionLabel": "Sessão de Convidado",
+      "title": "Crie sua conta",
+      "subtitle": "Seus dados estão seguros, mas não vinculados."
+    },
     "syncStatus": {
       "local": "Modo Local",
       "offline": "Sem Conexão",

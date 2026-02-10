@@ -7,6 +7,19 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(auth): redesign LoginScreen and ProfilePage guest banner**
+  - Replace old guest-first LoginScreen with data-protection focused layout (Shield icon, stacked Google/Apple buttons)
+  - Add conditional back button: hidden post-logout, visible from Settings
+  - Add "Continue as guest" button only after explicit logout (not during onboarding)
+  - Fix Android status bar overlap with inline header + `max(env(safe-area-inset-top), 16px)`
+  - Redesign ProfilePage guest banner: teal glow card with UserCircle2 avatar, real sync status dot, session label
+  - Split ProfilePage account card into separate logged-in and guest variants
+  - Add i18n keys for guest banner and login flow in all 4 locales (es, en, pt, fr)
+
+- **test(e2e): add LoginScreen conditional UI tests**
+  - Scenario 1: Anonymous user from Settings sees back button, no guest button
+  - Scenario 2: Post-logout user sees no back button, guest button navigates to home
+
 - **fix(android): enable edge-to-edge display and proper safe area insets**
   - Add `WindowCompat.setDecorFitsSystemWindows(false)` in MainActivity for correct `env(safe-area-inset-top)` on Android
   - Add edge-to-edge theme attributes (`windowDrawsSystemBarBackgrounds`, `fitsSystemWindows`) to styles.xml

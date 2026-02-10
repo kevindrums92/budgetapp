@@ -172,12 +172,14 @@
     "note": "Podrás modificar estas opciones desde tu perfil en cualquier momento"
   },
   "login": {
-    "title": "Comienza a gestionar\ntus finanzas",
-    "subtitle": "Elige cómo quieres comenzar. Puedes iniciar sesión o explorar sin cuenta.",
-    "privacyNote": "Cifrado de extremo a extremo. Con inicio de sesión, sincroniza automáticamente en la nube.",
+    "title": "Protege tus datos",
+    "subtitle": "Tus movimientos se sincronizan de forma anónima, pero si pierdes el celular o desinstalas la app, los perderás. Inicia sesión para resguardarlos.",
+    "privacyNote": "Cifrado de extremo a extremo. Tu información financiera es privada y segura.",
     "guestTitle": "Explorar como invitado",
     "guestDesc": "Sin cuenta, datos solo en este dispositivo",
-    "divider": "O inicia sesión con",
+    "guestContinue": "Continuar como invitado",
+    "divider": "Inicia sesión con",
+    "continueWith": "Continuar con",
     "google": "Google",
     "apple": "Apple",
     "emailLink": "Usar usuario y contraseña",
