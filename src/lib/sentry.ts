@@ -8,10 +8,11 @@ const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
  * This maximizes the free tier quota (5,000 errors/month).
  */
 export function initSentry() {
+  if (!import.meta.env.PROD) {
+    return;
+  }
+
   if (!SENTRY_DSN) {
-    if (import.meta.env.DEV) {
-      console.log("[Sentry] No DSN configured, skipping initialization");
-    }
     return;
   }
 
