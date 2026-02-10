@@ -8,6 +8,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **chore(build): bump native version codes for app store submissions**
+  - Android: versionCode 3 → 4
+  - iOS: CURRENT_PROJECT_VERSION 16 → 17, MARKETING_VERSION 0.16.0 → 0.16.1
+
 ## [0.16.1] - 2026-02-09
 
 - **feat(auth): redesign LoginScreen and ProfilePage guest banner**
