@@ -3,6 +3,7 @@
  *
  * In production builds, all logs are silenced to avoid console spam.
  * In development, logs are printed with namespace formatting for easier debugging.
+ * Errors in production are sent to Sentry automatically.
  *
  * @example
  * ```typescript
@@ -14,6 +15,8 @@
  * logger.error('API', 'Failed to fetch data', error);
  * ```
  */
+
+import { captureError } from '@/lib/sentry';
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -53,14 +56,22 @@ class Logger {
   /**
    * Error-level logging (highest priority)
    * Use for error conditions
-   * Note: Errors are logged even in production for critical issues
+   * In production, errors are sent to Sentry for monitoring.
    */
   error(namespace: string, message: string, ...args: unknown[]): void {
     if (isDevelopment) {
       console.error(`[${namespace}] ${message}`, ...args);
     }
-    // In production, we might want to send errors to a monitoring service
-    // For now, we keep production console clean
+
+    // Send errors to Sentry in production
+    const errorArg = args.find(
+      (arg) => arg instanceof Error
+    );
+    if (errorArg instanceof Error) {
+      captureError(errorArg, { namespace, message });
+    } else {
+      captureError(new Error(`[${namespace}] ${message}`), { namespace, args });
+    }
   }
 
   /**
