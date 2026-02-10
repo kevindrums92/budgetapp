@@ -16,6 +16,10 @@ All notable changes to SmartSpend will be documented in this file.
   - Split ProfilePage account card into separate logged-in and guest variants
   - Add i18n keys for guest banner and login flow in all 4 locales (es, en, pt, fr)
 
+- **fix(sync): make TopHeader sync indicator reactive to network changes**
+  - Replace non-reactive `navigator.onLine` snapshot with `useState` + online/offline event listeners
+  - TopHeader sync dot now correctly turns green when returning from airplane mode (matching ProfilePage behavior)
+
 - **test(e2e): add LoginScreen conditional UI tests**
   - Scenario 1: Anonymous user from Settings sees back button, no guest button
   - Scenario 2: Post-logout user sees no back button, guest button navigates to home
