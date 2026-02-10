@@ -8,6 +8,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(batch): improve empty state when all drafts are deleted in batch review**
+  - Replace confusing "No transactions found" message with polished empty state (Trash icon, clear copy, "Entendido" button)
+  - Add `onClose` prop to `TransactionPreview` so empty state closes the sheet directly
+  - Add i18n keys (`allDraftsRemoved`, `allDraftsRemovedHint`, `common.ok`) in es, en, fr, pt
+
 - **fix(recurring): prevent duplicate transactions when user edits date of auto-generated recurring transaction**
   - Change `transactionExistsForDate()` to use period-based matching instead of exact date when checking by `sourceTemplateId`
   - Monthly schedules: match by same year-month; Yearly: same year; Weekly: within ±6 days

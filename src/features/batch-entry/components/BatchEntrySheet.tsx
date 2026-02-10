@@ -643,6 +643,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
           onDeleteDraft={handleDeleteDraft}
           onSaveAll={handleSaveAll}
           onCancel={handleRetry}
+          onClose={onClose}
           isSaving={flowState === "saving"}
           isFullScreen={isFullScreen}
         />

@@ -54,6 +54,8 @@
     "transactionsFound": "{{count}} transactions trouvées",
     "transactionsFound_one": "{{count}} transaction trouvée",
     "noTransactionsFound": "Aucune transaction trouvée dans l'entrée",
+    "allDraftsRemoved": "Vous avez supprimé toutes les transactions du lot",
+    "allDraftsRemovedHint": "Vous pouvez réessayer",
     "tryAgain": "Réessayer",
     "confidence": "Confiance",
     "needsReviewWarning": "Certaines transactions nécessitent une vérification (marquées avec !)",
@@ -94,6 +96,7 @@
   },
   "common": {
     "cancel": "Annuler",
+    "ok": "Compris",
     "back": "Retour",
     "retry": "Réessayer",
     "save": "Enregistrer",

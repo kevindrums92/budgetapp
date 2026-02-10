@@ -28,7 +28,12 @@ vi.mock("react-i18next", () => ({
       }
       if (key === "review.noTransactionsFound")
         return "No se encontraron transacciones en el input";
+      if (key === "review.allDraftsRemoved")
+        return "Eliminaste todas las transacciones del lote";
+      if (key === "review.allDraftsRemovedHint")
+        return "Puedes volver a intentarlo";
       if (key === "review.tryAgain") return "Intentar de nuevo";
+      if (key === "common.ok") return "Entendido";
       if (key === "review.saveAll") return "Guardar todas";
       if (key === "review.save") return "Guardar";
       if (key === "review.saving") return "Guardando...";
@@ -97,6 +102,7 @@ describe("TransactionPreview", () => {
     onDeleteDraft: vi.fn(),
     onSaveAll: vi.fn(),
     onCancel: vi.fn(),
+    onClose: vi.fn(),
   };
 
   it("should render empty state when no drafts", () => {
@@ -107,17 +113,21 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
 
     expect(
-      screen.getByText("No se encontraron transacciones en el input")
+      screen.getByText("Eliminaste todas las transacciones del lote")
     ).toBeInTheDocument();
-    expect(screen.getByText("Intentar de nuevo")).toBeInTheDocument();
+    expect(
+      screen.getByText("Puedes volver a intentarlo")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Entendido")).toBeInTheDocument();
   });
 
-  it("should call onCancel when try again button is clicked", () => {
+  it("should call onClose when ok button is clicked in empty state", () => {
     render(
       <TransactionPreview
         drafts={[]}
@@ -125,13 +135,14 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
 
-    fireEvent.click(screen.getByText("Intentar de nuevo"));
+    fireEvent.click(screen.getByText("Entendido"));
 
-    expect(mockHandlers.onCancel).toHaveBeenCalled();
+    expect(mockHandlers.onClose).toHaveBeenCalled();
   });
 
   it("should render smart card header with title and total", () => {
@@ -142,6 +153,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -161,6 +173,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -185,6 +198,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -206,6 +220,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -229,6 +244,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -250,6 +266,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -267,6 +284,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -283,6 +301,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -300,6 +319,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -317,6 +337,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -332,6 +353,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={true}
       />
     );
@@ -347,6 +369,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={true}
       />
     );
@@ -366,6 +389,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
         isFullScreen={true}
       />
@@ -386,6 +410,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
@@ -407,6 +432,7 @@ describe("TransactionPreview", () => {
         onDeleteDraft={mockHandlers.onDeleteDraft}
         onSaveAll={mockHandlers.onSaveAll}
         onCancel={mockHandlers.onCancel}
+        onClose={mockHandlers.onClose}
         isSaving={false}
       />
     );
