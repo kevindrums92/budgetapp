@@ -5,7 +5,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.1] - 2026-02-09
 
 - **feat(auth): redesign LoginScreen and ProfilePage guest banner**
   - Replace old guest-first LoginScreen with data-protection focused layout (Shield icon, stacked Google/Apple buttons)
