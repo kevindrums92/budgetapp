@@ -1200,5 +1200,122 @@ describe("scheduler.service", () => {
       expect(pastDue.length).toBe(1);
       expect(pastDue[0].date).toBe("2025-03-10");
     });
+
+    it("should not duplicate when user edits the date of an auto-generated monthly transaction", () => {
+      const template: Transaction = {
+        id: "template-disney",
+        type: "expense",
+        name: "Disney plus",
+        category: "subscriptions",
+        amount: 50000,
+        date: "2025-01-05",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-05",
+          dayOfMonth: 5,
+        },
+        createdAt: Date.now(),
+      };
+
+      // User edited the auto-generated Feb 5 transaction to Feb 10
+      const editedFeb: Transaction = {
+        id: "existing-feb",
+        type: "expense",
+        name: "Disney plus",
+        category: "subscriptions",
+        amount: 50000,
+        date: "2025-02-10", // User changed from Feb 5 → Feb 10
+        sourceTemplateId: "template-disney",
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template, editedFeb];
+      const today = "2025-02-15";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // Should NOT generate another for Feb 5 — the edited Feb 10 tx covers Feb
+      expect(pastDue.length).toBe(0);
+    });
+
+    it("should still generate next month after user edits date within same month", () => {
+      const template: Transaction = {
+        id: "template-disney",
+        type: "expense",
+        name: "Disney plus",
+        category: "subscriptions",
+        amount: 50000,
+        date: "2025-01-05",
+        schedule: {
+          enabled: true,
+          frequency: "monthly",
+          interval: 1,
+          startDate: "2025-01-05",
+          dayOfMonth: 5,
+        },
+        createdAt: Date.now(),
+      };
+
+      // User edited Feb 5 → Feb 10
+      const editedFeb: Transaction = {
+        id: "existing-feb",
+        type: "expense",
+        name: "Disney plus",
+        category: "subscriptions",
+        amount: 50000,
+        date: "2025-02-10",
+        sourceTemplateId: "template-disney",
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template, editedFeb];
+      const today = "2025-03-10";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // Should generate Mar 5 (Feb is covered by edited tx, Mar is not)
+      expect(pastDue.length).toBe(1);
+      expect(pastDue[0].date).toBe("2025-03-05");
+    });
+
+    it("should not duplicate when user edits the date of an auto-generated yearly transaction", () => {
+      const template: Transaction = {
+        id: "template-apple-dev",
+        type: "expense",
+        name: "Apple Developer",
+        category: "tech",
+        amount: 360000,
+        date: "2025-01-25",
+        schedule: {
+          enabled: true,
+          frequency: "yearly",
+          interval: 1,
+          startDate: "2025-01-25",
+        },
+        createdAt: Date.now(),
+      };
+
+      // User edited the 2026 occurrence from Jan 25 to Feb 2
+      const editedYearly: Transaction = {
+        id: "existing-2026",
+        type: "expense",
+        name: "Apple Developer",
+        category: "tech",
+        amount: 360000,
+        date: "2026-02-02", // User changed from Jan 25 → Feb 2
+        sourceTemplateId: "template-apple-dev",
+        createdAt: Date.now(),
+      };
+
+      const transactions: Transaction[] = [template, editedYearly];
+      const today = "2026-03-01";
+
+      const pastDue = generatePastDueTransactions(transactions, today);
+
+      // Should NOT generate another for Jan 25 2026 — the edited tx covers 2026
+      expect(pastDue.length).toBe(0);
+    });
   });
 });

@@ -27,10 +27,31 @@ function transactionExistsForDate(
   date: string
 ): boolean {
   return transactions.some((tx) => {
-    // Primary check: sourceTemplateId + date (for auto-generated transactions)
-    // This allows users to edit amount/name without duplicating
-    if (tx.sourceTemplateId === template.id && tx.date === date) {
-      return true;
+    // Primary check: sourceTemplateId (for auto-generated transactions)
+    if (tx.sourceTemplateId === template.id) {
+      // Exact date match (fast path, covers most cases)
+      if (tx.date === date) return true;
+
+      // Period-based match: handles case where user edited the date
+      // e.g., user changes auto-generated Feb 5 → Feb 10, we still recognize
+      // that Feb's occurrence was already generated for this template
+      if (template.schedule) {
+        switch (template.schedule.frequency) {
+          case "monthly":
+            if (tx.date.slice(0, 7) === date.slice(0, 7)) return true;
+            break;
+          case "yearly":
+            if (tx.date.slice(0, 4) === date.slice(0, 4)) return true;
+            break;
+          case "weekly": {
+            const txTime = new Date(tx.date + "T12:00:00").getTime();
+            const schedTime = new Date(date + "T12:00:00").getTime();
+            if (Math.abs(txTime - schedTime) < 7 * 24 * 60 * 60 * 1000) return true;
+            break;
+          }
+          // daily: only exact date match (already handled above)
+        }
+      }
     }
 
     // Fallback: legacy check by name + category + amount + date

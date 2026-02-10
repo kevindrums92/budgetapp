@@ -51,7 +51,9 @@
     "diff:main": "git diff main..develop",
     "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run && npm run test:e2e",
     "git:ignore-env": "git update-index --skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements",
-    "git:track-env": "git update-index --no-skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements"
+    "git:track-env": "git update-index --no-skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.0.0",
@@ -116,6 +118,14 @@
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
     "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^2.1.9"
+    "vitest": "^2.1.9",
+    "storybook": "^10.2.8",
+    "@storybook/react-vite": "^10.2.8",
+    "@chromatic-com/storybook": "^5.0.1",
+    "@storybook/addon-a11y": "^10.2.8",
+    "@storybook/addon-docs": "^10.2.8",
+    "@storybook/addon-themes": "^10.2.8",
+    "@storybook/addon-onboarding": "^10.2.8",
+    "eslint-plugin-storybook": "^10.2.8"
   }
 }

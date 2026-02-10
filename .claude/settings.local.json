@@ -67,7 +67,9 @@
       "Bash(npm run test:e2e:headed:*)",
       "Bash(npx playwright install:*)",
       "Bash(pkill:*)",
-      "Bash(npm run verify:*)"
+      "Bash(npm run verify:*)",
+      "WebFetch(domain:medium.com)",
+      "WebFetch(domain:storybook.js.org)"
     ]
   }
 }
