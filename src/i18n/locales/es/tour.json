@@ -1,0 +1,129 @@
+{
+  "home": {
+    "fab": {
+      "title": "Agrega tus movimientos",
+      "description": "Toca este boton para registrar un gasto o ingreso rapidamente."
+    },
+    "batchEntry": {
+      "title": "Registro con IA",
+      "description": "Tambien puedes agregar varios movimientos por voz, foto o texto con inteligencia artificial."
+    },
+    "monthSelector": {
+      "title": "Navega entre meses",
+      "description": "Usa las flechas para ver tus movimientos de otros meses."
+    },
+    "balanceCard": {
+      "title": "Tu balance del mes",
+      "description": "Aqui ves cuanto has ganado y gastado. Toca ingresos o gastos para filtrar."
+    },
+    "transactionList": {
+      "title": "Tus movimientos",
+      "description": "Toca cualquier movimiento para editarlo o eliminarlo."
+    },
+    "bottomBar": {
+      "title": "Explora la app",
+      "description": "Navega entre Inicio, Plan de gastos, Estadisticas y Ajustes."
+    }
+  },
+  "stats": {
+    "donutChart": {
+      "title": "Gastos por categoria",
+      "description": "Visualiza como se distribuyen tus gastos entre categorias."
+    },
+    "quickCards": {
+      "title": "Resumen rapido",
+      "description": "Estadisticas clave sobre tus habitos financieros del mes."
+    }
+  },
+  "addTransaction": {
+    "typeSelector": {
+      "title": "Tipo de movimiento",
+      "description": "Elige si es un gasto o un ingreso."
+    },
+    "amountInput": {
+      "title": "Monto",
+      "description": "Ingresa cuanto gastaste o recibiste."
+    },
+    "categoryPicker": {
+      "title": "Categoria",
+      "description": "Selecciona una categoria para organizar tus movimientos."
+    },
+    "schedule": {
+      "title": "Transacciones recurrentes",
+      "description": "Programa gastos o ingresos que se repiten. Toca aqui para configurar la frecuencia."
+    }
+  },
+  "batchReview": {
+    "header": {
+      "title": "Resumen del lote",
+      "description": "Aqui ves el total de los registros que la IA encontro."
+    },
+    "cards": {
+      "title": "Revisa y corrige",
+      "description": "Toca la descripcion, categoria o monto de cualquier registro para editarlo."
+    },
+    "actions": {
+      "title": "Guarda o cancela",
+      "description": "Cuando estes listo, presiona Guardar para agregar todos los movimientos o Cancelar para descartarlos."
+    }
+  },
+  "schedule": {
+    "frequency": {
+      "title": "Elige la frecuencia",
+      "description": "Selecciona cada cuanto se repite: diario, semanal, mensual o anual."
+    },
+    "info": {
+      "title": "Resumen y guardar",
+      "description": "Aqui ves un resumen de la programacion. Cuando estes listo, presiona Guardar."
+    }
+  },
+  "history": {
+    "filters": {
+      "title": "Filtra tus movimientos",
+      "description": "Usa estos filtros para buscar por fecha, tipo, estado, categoria, monto o recurrencia."
+    },
+    "sort": {
+      "title": "Ordena los resultados",
+      "description": "Toca aqui para cambiar el orden: mas nuevo, mas viejo, mayor monto o menor monto."
+    }
+  },
+  "scheduledBanner": {
+    "banner": {
+      "title": "Transacciones programadas",
+      "description": "Estas son transacciones virtuales que se registraran automaticamente el dia programado. Tambien puedes tocar 'Revisar' para registrarlas manualmente."
+    },
+    "projection": {
+      "title": "Proyeccion",
+      "description": "Usa este boton para mostrar u ocultar los registros futuros que seran creados automaticamente por tus transacciones programadas."
+    }
+  },
+  "categories": {
+    "tabs": {
+      "title": "Gastos e ingresos",
+      "description": "Tus categorias se organizan por tipo. Usa estas pestanas para ver las de gastos o ingresos."
+    },
+    "groups": {
+      "title": "Grupos de categorias",
+      "description": "Organiza tus categorias en grupos para tener un mejor control de tu presupuesto."
+    },
+    "add": {
+      "title": "Crea categorias",
+      "description": "Toca aqui para crear una nueva categoria personalizada con icono y color."
+    }
+  },
+  "scheduledPage": {
+    "info": {
+      "title": "Transacciones programadas",
+      "description": "Aqui puedes ver y administrar todas tus transacciones recurrentes activas e inactivas."
+    },
+    "fab": {
+      "title": "Agregar programacion",
+      "description": "Para agregar una nueva, crea un movimiento normal y activa la opcion 'Programar' antes de guardar."
+    }
+  },
+  "buttons": {
+    "next": "Siguiente",
+    "skip": "Omitir",
+    "done": "Entendido"
+  }
+}

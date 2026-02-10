@@ -8,7 +8,7 @@ import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
-import { User, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown, Chrome, Apple, AlertTriangle } from "lucide-react";
+import { User, UserCircle2, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown, Chrome, Apple, AlertTriangle, ArrowRight } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
 import { isNative } from '@/shared/utils/platform';
 import PaywallModal from '@/shared/components/modals/PaywallModal';
@@ -305,16 +305,16 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-dvh bg-gray-50 dark:bg-gray-950 pb-28 transition-colors">
-      {/* User Account Card - For logged in users AND anonymous cloud users */}
-      {(isLoggedIn || cloudMode === "cloud") && (
+      {/* User Account Card - Logged in users */}
+      {isLoggedIn && (
         <div className="px-4 pt-6 pb-4">
           <button
             type="button"
-            onClick={() => isLoggedIn ? navigate('/profile/subscription') : navigate('/onboarding/login')}
-            className="w-full bg-white dark:bg-gray-900 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden hover:border-teal-200 dark:hover:border-teal-700 transition active:scale-[0.99] text-left"
+            onClick={() => navigate('/profile/subscription')}
+            className="w-full bg-white dark:bg-gray-900 rounded-2xl p-5 shadow-sm border relative overflow-hidden transition active:scale-[0.99] text-left border-gray-100 dark:border-gray-800 hover:border-teal-200 dark:hover:border-teal-700"
           >
             {/* Decorative element */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 dark:bg-teal-900/30 rounded-bl-[4rem] -mr-4 -mt-4 transition-transform hover:scale-110" />
+            <div className="absolute top-0 right-0 w-24 h-24 rounded-bl-[4rem] -mr-4 -mt-4 transition-transform hover:scale-110 bg-teal-50 dark:bg-teal-900/30" />
 
             <div className="flex items-center gap-4 relative z-10">
               {/* Avatar with status dot */}
@@ -337,38 +337,30 @@ export default function ProfilePage() {
                     )}
                   </div>
                 )}
-                {/* Status dot - changes color based on sync status */}
+                {/* Status dot */}
                 <div className={`absolute bottom-0 right-0 w-5 h-5 ${syncDot} border-2 border-white dark:border-gray-900 rounded-full`} />
               </div>
 
               {/* User info */}
               <div className="flex-1 min-w-0">
                 <h2 className="font-bold text-lg text-gray-900 dark:text-gray-50 leading-tight truncate">
-                  {user.name || (isLoggedIn ? "Usuario" : "Invitado")}
+                  {user.name || "Usuario"}
                 </h2>
                 <div className="flex items-center gap-1.5 mb-2">
-                  {isLoggedIn ? (
-                    <>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
-                      {/* Provider icon */}
-                      {user.provider === 'google' && (
-                        <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-white dark:bg-gray-900 shadow-sm">
-                          <Chrome size={12} className="text-gray-700 dark:text-gray-300" />
-                        </div>
-                      )}
-                      {user.provider === 'apple' && (
-                        <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-black">
-                          <Apple size={12} className="text-white" />
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <p className="text-sm text-[#18B7B0] dark:text-[#18B7B0] truncate">Crear cuenta &rarr;</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+                  {user.provider === 'google' && (
+                    <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-white dark:bg-gray-900 shadow-sm">
+                      <Chrome size={12} className="text-gray-700 dark:text-gray-300" />
+                    </div>
+                  )}
+                  {user.provider === 'apple' && (
+                    <div className="shrink-0 flex h-4 w-4 items-center justify-center rounded-sm bg-black">
+                      <Apple size={12} className="text-white" />
+                    </div>
                   )}
                 </div>
-                {/* Badges - Two rows */}
+                {/* Badges */}
                 <div className="flex flex-col gap-2">
-                  {/* First row: PRO + TRIAL + FREE */}
                   {(proBadge || trialBadge || freeBadge) && (
                     <div className="flex flex-wrap gap-2">
                       {proBadge && (
@@ -390,7 +382,6 @@ export default function ProfilePage() {
                       )}
                     </div>
                   )}
-                  {/* Second row: SYNC status (always visible) */}
                   <div className="flex">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${syncBadge.color} text-xs font-bold uppercase tracking-wider`}>
                       {syncBadge.icon && <RefreshCw size={12} className="animate-spin" />}
@@ -404,6 +395,61 @@ export default function ProfilePage() {
               {/* Chevron indicator */}
               <div className="shrink-0">
                 <ChevronRight size={20} className="text-gray-400 dark:text-gray-600" />
+              </div>
+            </div>
+          </button>
+        </div>
+      )}
+
+      {/* Guest Banner Card - Anonymous users with cloud sync */}
+      {!isLoggedIn && cloudMode === "cloud" && (
+        <div className="px-4 pt-6 pb-4">
+          <button
+            type="button"
+            onClick={() => navigate('/onboarding/login')}
+            className="w-full relative group text-left"
+          >
+            {/* Glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#18B7B0]/20 to-transparent rounded-[2rem] blur-xl opacity-50" />
+
+            <div className="relative bg-white/90 dark:bg-gray-900/80 backdrop-blur-xl rounded-[2rem] p-6 border border-gray-200 dark:border-gray-800 flex items-center justify-between active:scale-[0.98] transition-all shadow-lg dark:shadow-2xl">
+              <div className="flex items-center gap-5">
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <div className="h-16 w-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 overflow-hidden border border-gray-200 dark:border-gray-700 shadow-inner">
+                    <UserCircle2 size={40} strokeWidth={1} />
+                  </div>
+                  {/* Status Dot - synced to real sync state */}
+                  <div className="absolute -bottom-1 -right-1">
+                    <span className="relative flex h-5 w-5">
+                      {cloudStatus === 'syncing' && (
+                        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${syncDot} opacity-40`} />
+                      )}
+                      <span className={`relative inline-flex rounded-full h-5 w-5 ${syncDot} border-4 border-white dark:border-gray-900`} />
+                    </span>
+                  </div>
+                </div>
+
+                {/* Text Content */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-[#18B7B0] uppercase tracking-[0.2em]">
+                      {t('account.guest.sessionLabel')}
+                    </span>
+                    <Sparkles size={12} className="text-amber-400 animate-pulse" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-none tracking-tight">
+                    {t('account.guest.title')}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                    {t('account.guest.subtitle')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="h-12 w-12 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-white border border-gray-200 dark:border-gray-700 shrink-0 ml-4">
+                <ArrowRight size={20} />
               </div>
             </div>
           </button>

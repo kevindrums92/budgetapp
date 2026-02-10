@@ -225,7 +225,7 @@ describe('Onboarding Flow', () => {
         result.current.handleNext();
       });
 
-      expect(mockNavigate).toHaveBeenCalledWith('/home');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
   });
 

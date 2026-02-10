@@ -80,7 +80,7 @@
     "deleteFromBatch": "Supprimer du lot"
   },
   "errors": {
-    "generic": "Erreur de traitement",
+    "generic": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
     "loginRequired": "Vous devez être connecté pour utiliser cette fonction",
     "rateLimitFree": "Vous avez atteint votre limite quotidienne. Passez à Pro pour continuer à utiliser cette fonction.",
     "rateLimitPro": "Vous avez dépassé la limite de requêtes. Réessayez plus tard.",

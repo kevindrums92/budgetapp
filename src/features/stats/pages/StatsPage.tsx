@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -27,6 +27,9 @@ import TopDaySheet from "../components/TopDaySheet";
 import DailyAverageBreakdownSheet from "../components/DailyAverageBreakdownSheet";
 import TopCategorySheet from "../components/TopCategorySheet";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
+import { statsTour } from "@/features/tour/tours/statsTour";
 
 // Get last N months ending at a specific month (YYYY-MM)
 function getMonthsEndingAt(count: number, endMonth: string): string[] {
@@ -93,6 +96,13 @@ export default function StatsPage() {
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
   const { isPro } = useSubscription();
+
+  // Spotlight tour
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("stats");
+
+  useEffect(() => {
+    startTour();
+  }, [startTour]);
 
   // Paywall purchase handler
   const { handleSelectPlan } = usePaywallPurchase({
@@ -385,7 +395,7 @@ export default function StatsPage() {
 
         {/* Quick Stats */}
         {quickStats.hasData && (
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div data-tour="stats-quick-cards" className="mt-4 grid grid-cols-2 gap-3">
             {/* Daily Average */}
             <button
               type="button"
@@ -504,7 +514,7 @@ export default function StatsPage() {
         )}
 
         {/* Donut Chart Section */}
-        <div className="mt-6">
+        <div data-tour="stats-donut-chart" className="mt-6">
           <h3 className="mb-4 text-sm font-medium text-gray-700 dark:text-gray-300">
             {t('expensesByCategory.title')}
           </h3>
@@ -823,6 +833,13 @@ export default function StatsPage() {
         onClose={() => setShowPaywall(false)}
         trigger="stats_page"
         onSelectPlan={handleSelectPlan}
+      />
+
+      {/* Spotlight Tour */}
+      <SpotlightTour
+        config={statsTour}
+        isActive={isTourActive}
+        onComplete={completeTour}
       />
     </div>
   );

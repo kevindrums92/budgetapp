@@ -10,8 +10,13 @@ const config: CapacitorConfig = {
   },
   plugins: {
     StatusBar: {
-      style: 'DARK',
-      backgroundColor: '#0d9488',
+      // iOS: Light content (white icons)
+      // Android: Light style (dark icons on light background)
+      style: 'LIGHT',
+      // Edge-to-edge: status bar overlays WebView on both platforms
+      // Safe area handled via CSS env(safe-area-inset-top)
+      overlaysWebView: true,
+      backgroundColor: '#00000000',
     },
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],

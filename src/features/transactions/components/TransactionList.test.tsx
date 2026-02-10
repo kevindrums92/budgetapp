@@ -150,7 +150,24 @@ describe('TransactionList', () => {
       expect(dateHeaders.length).toBeGreaterThan(0);
     });
 
-    it('should render empty state when no transactions', () => {
+    it('should render empty state home only on current month with no transactions', () => {
+      const d = new Date();
+      const currentMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
+        const state = {
+        selectedMonth: currentMonth,
+        transactions: [],
+        categoryDefinitions: mockCategories,
+        };
+        return selector(state);
+      });
+
+      render(<TransactionList />);
+
+      expect(screen.getByTestId('empty-state-home')).toBeInTheDocument();
+    });
+
+    it('should show simple empty message on non-current month with no transactions', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
@@ -162,7 +179,7 @@ describe('TransactionList', () => {
 
       render(<TransactionList />);
 
-      expect(screen.getByTestId('empty-state-home')).toBeInTheDocument();
+      expect(screen.queryByTestId('empty-state-home')).not.toBeInTheDocument();
     });
 
     it('should show empty search results message', () => {

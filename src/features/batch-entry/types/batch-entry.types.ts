@@ -55,6 +55,8 @@ export type BatchEntryRequest = {
   imageBase64?: string;
   /** Base64-encoded audio recording */
   audioBase64?: string;
+  /** MIME type of the audio recording (e.g., "audio/webm", "audio/aac", "audio/mp4") */
+  audioMimeType?: string;
   /** User's local date in YYYY-MM-DD format (to handle timezone correctly) */
   localDate?: string;
   /** User's transaction history patterns for better matching */

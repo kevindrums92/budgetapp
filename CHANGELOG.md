@@ -5,7 +5,109 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.1] - 2026-02-09
+
+- **feat(auth): redesign LoginScreen and ProfilePage guest banner**
+  - Replace old guest-first LoginScreen with data-protection focused layout (Shield icon, stacked Google/Apple buttons)
+  - Add conditional back button: hidden post-logout, visible from Settings
+  - Add "Continue as guest" button only after explicit logout (not during onboarding)
+  - Fix Android status bar overlap with inline header + `max(env(safe-area-inset-top), 16px)`
+  - Redesign ProfilePage guest banner: teal glow card with UserCircle2 avatar, real sync status dot, session label
+  - Split ProfilePage account card into separate logged-in and guest variants
+  - Add i18n keys for guest banner and login flow in all 4 locales (es, en, pt, fr)
+
+- **fix(sync): make TopHeader sync indicator reactive to network changes**
+  - Replace non-reactive `navigator.onLine` snapshot with `useState` + online/offline event listeners
+  - TopHeader sync dot now correctly turns green when returning from airplane mode (matching ProfilePage behavior)
+
+- **test(e2e): add LoginScreen conditional UI tests**
+  - Scenario 1: Anonymous user from Settings sees back button, no guest button
+  - Scenario 2: Post-logout user sees no back button, guest button navigates to home
+
+- **fix(android): enable edge-to-edge display and proper safe area insets**
+  - Add `WindowCompat.setDecorFitsSystemWindows(false)` in MainActivity for correct `env(safe-area-inset-top)` on Android
+  - Add edge-to-edge theme attributes (`windowDrawsSystemBarBackgrounds`, `fitsSystemWindows`) to styles.xml
+  - Switch StatusBar to `overlaysWebView: true` with transparent background on both platforms
+  - Unify TopHeader safe area padding: use `max(env(safe-area-inset-top), 16px)` for all platforms
+
+- **fix(tour): reorder stats tour steps and fix tooltip position**
+  - Show quick-cards step first, then donut-chart with `position: "top"` to prevent off-screen tooltip
+
+- **fix(ui): scroll to top on CategoriesPage mount**
+
+- **fix(i18n): rename schedule config save button to "Aplicar" / "Apply"**
+  - Clarifies the button applies schedule config, not saving the transaction
+
+- **test: fix failing tests and e2e compatibility with spotlight tours**
+  - Fix TransactionList test: EmptyStateHome now only expected on current month
+  - Fix batchEntry.service test: pass required `audioMimeType` argument to `parseAudio()`
+  - Add all spotlight tour localStorage flags to e2e `skipOnboarding()` helper to prevent overlay blocking UI
+
+- **feat(tour): add spotlight tour system for onboarding new users**
+  - Guided step-by-step tours on 9 screens: Home, Stats, AddTransaction, BatchReview, History, Schedule, ScheduledBanner, Categories, ScheduledPage
+  - SpotlightTour component with box-shadow cutout, auto-positioning tooltip, and smooth fade transitions
+  - Tour state persisted per-device in localStorage (`smartspend.*Tour.v1`), not synced to cloud
+  - i18n translations for all 4 locales (es, en, pt, fr)
+  - Fixed tooltip position flash when changing steps by clearing stale rect during transitions
+
+- **fix(batch): pass audio MIME type to Whisper API for correct transcription**
+  - VoiceRecorder now captures actual MIME type from MediaRecorder
+  - MIME type forwarded through service → edge function → OpenAI Whisper
+  - Correct file extension mapping for audio formats (webm, aac, mp4, m4a, etc.)
+  - Error messages now show generic i18n text instead of raw technical errors
+
+- **feat(home): show "Ver todo" and "Proyección" buttons on all months**
+  - Navigation and projection toggle now visible when viewing any month, not just months with transactions
+  - Conditioned on user having at least 1 transaction (hidden for new users in empty state)
+  - EmptyStateHome (AI batch entry promo) only shown on current month; other months show simple text
+
+- **chore: remove obsolete batch entry planning docs (ADR-001, PLAN)**
+
+- **chore(ads): switch Android AdMob App ID from test to production**
+  - Replaced Google test App ID (`ca-app-pub-3940256099942544`) with production ID in AndroidManifest.xml
+  - Added related repositories section to CLAUDE.md for SmartSpend landing page
+
+- **feat(history): add sort options to history page**
+  - Sort by date (newest/oldest) or amount (highest/lowest)
+  - Cycle button in results header above balance total
+  - Sort preference persisted in localStorage with other filters
+  - Translations added for es, en, fr, pt
+
+- **fix(ui): prevent keyboard dismiss when tapping inside active input**
+  - Added touch origin tracking to skip blur when touch starts on the focused input
+  - Added 15px scroll threshold to distinguish real scrolls from micro-movements on taps
+  - Fixes cursor repositioning and text deselection closing the keyboard unexpectedly
+
+- **feat(android): add Android build/deploy scripts and status bar configuration**
+  - Added npm scripts for headless Android builds (`android:build`, `android:run`, `android:logs`)
+  - Configured white status bar with dark icons for Android (`overlaysWebView: false`)
+  - Platform-specific safe-area padding in TopHeader (16px Android, safe-area iOS)
+  - Added OAuth deep link intent filter in AndroidManifest.xml
+  - Bumped Android versionCode to 3
+
+- **refactor(ui): standardize all page headers to use shared components**
+  - Migrated HistoryPage, SubscriptionManagementPage, and AuthPage to use `PageHeader`
+  - Fixed safe-area padding on OTPVerificationPage, ResetPasswordOTPPage, and ResetPasswordPage (`max(env(safe-area-inset-top), 16px)`)
+  - Eliminated all custom inline headers — every page now uses `PageHeader` or `TopHeader`
+
+- **chore: add android directory to ESLint globalIgnores**
+
+- **feat(android): configure production build and RevenueCat integration**
+  - Changed package name from `com.jhotech.smartspend.dev` to `com.jhotech.smartspend`
+  - Added release signing configuration with keystore
+  - Generated all Android adaptive icons from iOS 1024px source
+  - Configured RevenueCat Android API key for Google Play in-app purchases
+  - Added Capacitor Browser plugin dependency for OAuth
+
+- **docs(scripts): document `purchase` event in test-webhook.sh**
+
+- **feat(profile): allow anonymous Pro users to access subscription management**
+  - ProfilePage subscription card now navigates to `/profile/subscription` when user has Pro or trial, even if anonymous
+  - Added login banner on SubscriptionManagementPage for anonymous Pro/trial users inviting them to create an account
+  - i18n keys added for login banner in all 4 locales (es, en, fr, pt)
 
 ## [0.16.0] - 2026-02-07
 

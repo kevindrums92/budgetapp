@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -20,6 +20,19 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
 
   // ✅ Check Pro status
   const { isPro } = useSubscription();
+
+  // ✅ Reactive network status (triggers re-render on online/offline)
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const goOnline = () => setIsOnline(true);
+    const goOffline = () => setIsOnline(false);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+    };
+  }, []);
 
   const AvatarContent = useMemo(() => {
     if (user.avatarUrl) {
@@ -44,20 +57,23 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
     if (cloudMode === "guest") {
       return "bg-gray-400";
     }
-    if (!navigator.onLine || cloudStatus === "offline") {
+    if (!isOnline || cloudStatus === "offline") {
       return "bg-gray-400";
     }
     if (cloudStatus === "syncing") {
       return "bg-[#18B7B0]";
     }
     return "bg-green-500"; // ok
-  }, [cloudMode, cloudStatus]);
+  }, [cloudMode, cloudStatus, isOnline]);
+
+  // Safe area padding for status bar (edge-to-edge on both platforms)
+  const headerPaddingTop = 'max(env(safe-area-inset-top), 16px)';
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.30)]">
       <div
         className="mx-auto max-w-xl px-4 pb-2"
-        style={{ paddingTop: 'max(env(safe-area-inset-top), 24px)' }}
+        style={{ paddingTop: headerPaddingTop }}
       >
         <div className="flex items-start justify-between">
           {/* Left: Logo + Content */}

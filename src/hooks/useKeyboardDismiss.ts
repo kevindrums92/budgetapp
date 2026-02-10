@@ -22,10 +22,53 @@ import { useEffect } from "react";
 export function useKeyboardDismiss() {
   useEffect(() => {
     let lastFocusTime = 0;
+    let touchStartY = 0;
+    let touchStartedOnInput = false;
+
+    const SCROLL_THRESHOLD = 15; // px - minimum movement to count as a real scroll
+
+    const handleTouchStart = (e: TouchEvent) => {
+      const activeElement = document.activeElement;
+      const target = e.target as Node;
+
+      // Track touch origin for touchmove filtering
+      touchStartY = e.touches[0].clientY;
+      touchStartedOnInput =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        // Also check if touch is inside the active input (covers wrapper elements)
+        (activeElement instanceof HTMLElement && activeElement.contains(target));
+
+      // If touching an input/textarea, don't close keyboard
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      // If there's an active input and touch is outside it, close keyboard
+      if (
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement
+      ) {
+        if (!activeElement.contains(target) && activeElement !== target) {
+          requestAnimationFrame(() => {
+            (activeElement as HTMLElement).blur();
+          });
+        }
+      }
+    };
 
     // Detect user-initiated scroll (via touch)
-    const handleTouchMove = () => {
-      // Close keyboard if enough time has passed since last focus (500ms)
+    const handleTouchMove = (e: TouchEvent) => {
+      // Skip if touch started on the active input (user is repositioning cursor)
+      if (touchStartedOnInput) return;
+
+      // Only blur on real scroll (movement exceeds threshold)
+      const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+      if (deltaY < SCROLL_THRESHOLD) return;
+
       const timeSinceFocus = Date.now() - lastFocusTime;
       if (timeSinceFocus > 500) {
         const activeElement = document.activeElement;
@@ -33,7 +76,6 @@ export function useKeyboardDismiss() {
           activeElement instanceof HTMLInputElement ||
           activeElement instanceof HTMLTextAreaElement
         ) {
-          // Delay blur to not interfere with touch events
           requestAnimationFrame(() => {
             (activeElement as HTMLElement).blur();
           });
@@ -52,44 +94,16 @@ export function useKeyboardDismiss() {
       }
     };
 
-    // Close keyboard when touching outside the active input
-    const handleTouchStart = (e: TouchEvent) => {
-      const activeElement = document.activeElement;
-      const target = e.target as Node;
-
-      // If touching an input/textarea, don't close keyboard (user is focusing a new input)
-      if (
-        target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement
-      ) {
-        return;
-      }
-
-      // If there's an active input and touch is outside it, close keyboard
-      if (
-        activeElement instanceof HTMLInputElement ||
-        activeElement instanceof HTMLTextAreaElement
-      ) {
-        if (!activeElement.contains(target) && activeElement !== target) {
-          // Delay blur to allow touch/click event to complete first
-          // This prevents iOS from "stealing" the tap when dismissing keyboard
-          requestAnimationFrame(() => {
-            (activeElement as HTMLElement).blur();
-          });
-        }
-      }
-    };
-
     // Add listeners
+    window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchmove", handleTouchMove, { passive: true });
     window.addEventListener("focusin", handleFocusIn, true);
-    window.addEventListener("touchstart", handleTouchStart);
 
     // Cleanup on unmount
     return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("focusin", handleFocusIn, true);
-      window.removeEventListener("touchstart", handleTouchStart);
     };
   }, []);
 }

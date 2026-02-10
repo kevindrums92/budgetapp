@@ -12,6 +12,12 @@ import type { RecordingData } from "capacitor-voice-recorder";
 /** Maximum recording duration in seconds */
 const MAX_DURATION_SECONDS = 30;
 
+/** Result from stopping a recording */
+export type AudioRecordingResult = {
+  audioBase64: string;
+  mimeType: string;
+};
+
 /** Track whether to use native plugin or web fallback */
 let useWebFallback = false;
 
@@ -19,6 +25,8 @@ let useWebFallback = false;
 let mediaRecorder: MediaRecorder | null = null;
 let audioChunks: Blob[] = [];
 let audioStream: MediaStream | null = null;
+/** Track the mime type used by MediaRecorder */
+let recordedMimeType: string = "audio/webm";
 
 /**
  * Check if we should use the web fallback
@@ -170,6 +178,7 @@ async function startWebRecording(): Promise<void> {
     ? "audio/webm;codecs=opus"
     : "audio/webm";
 
+  recordedMimeType = mimeType;
   mediaRecorder = new MediaRecorder(audioStream, { mimeType });
 
   mediaRecorder.ondataavailable = (event) => {
@@ -182,8 +191,8 @@ async function startWebRecording(): Promise<void> {
   console.log("[audioCapture] Web recording started with mime type:", mimeType);
 }
 
-/** Stop recording and return base64 audio data */
-export async function stopRecording(): Promise<string> {
+/** Stop recording and return base64 audio data with mime type */
+export async function stopRecording(): Promise<AudioRecordingResult> {
   if (useWebFallback) {
     return stopWebRecording();
   }
@@ -196,17 +205,21 @@ export async function stopRecording(): Promise<string> {
     throw new Error("No se pudo obtener la grabación");
   }
 
+  // Native plugin on Android records AAC (.m4a), on iOS records AAC (.m4a)
+  const mimeType = result.value.mimeType || "audio/aac";
+
   console.log(
     "[audioCapture] Recording stopped, duration:",
     result.value.msDuration,
-    "ms"
+    "ms, mimeType:",
+    mimeType
   );
 
-  return result.value.recordDataBase64;
+  return { audioBase64: result.value.recordDataBase64, mimeType };
 }
 
-/** Stop web recording and return base64 audio data */
-async function stopWebRecording(): Promise<string> {
+/** Stop web recording and return base64 audio data with mime type */
+async function stopWebRecording(): Promise<AudioRecordingResult> {
   console.log("[audioCapture] Stopping web recording...");
 
   return new Promise((resolve, reject) => {
@@ -215,12 +228,14 @@ async function stopWebRecording(): Promise<string> {
       return;
     }
 
+    const mimeType = recordedMimeType;
+
     mediaRecorder.onstop = async () => {
       try {
         // Combine all chunks into a single blob
-        const audioBlob = new Blob(audioChunks, { type: mediaRecorder?.mimeType || "audio/webm" });
+        const audioBlob = new Blob(audioChunks, { type: mimeType });
 
-        console.log("[audioCapture] Web recording stopped, size:", audioBlob.size, "bytes");
+        console.log("[audioCapture] Web recording stopped, size:", audioBlob.size, "bytes, mimeType:", mimeType);
 
         // Convert to base64
         const reader = new FileReader();
@@ -237,7 +252,7 @@ async function stopWebRecording(): Promise<string> {
           mediaRecorder = null;
           audioChunks = [];
 
-          resolve(base64Data);
+          resolve({ audioBase64: base64Data, mimeType });
         };
         reader.onerror = () => {
           reject(new Error("Error al convertir audio"));

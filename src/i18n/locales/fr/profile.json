@@ -50,6 +50,11 @@
     }
   },
   "account": {
+    "guest": {
+      "sessionLabel": "Session Invité",
+      "title": "Créez votre compte",
+      "subtitle": "Vos données sont sécurisées, mais non liées."
+    },
     "syncStatus": {
       "local": "Mode Local",
       "offline": "Hors Ligne",
@@ -148,6 +153,13 @@
     },
     "privacy": {
       "title": "Politique de confidentialité"
+    }
+  },
+  "subscription": {
+    "loginBanner": {
+      "title": "Protégez votre abonnement",
+      "subtitle": "Créez un compte pour conserver votre abonnement Pro et vos données en sécurité. Si vous changez d'appareil sans compte, vous pourriez perdre l'accès.",
+      "cta": "Créer un Compte"
     }
   }
 }

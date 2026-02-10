@@ -161,6 +161,16 @@ export type BudgetState = {
   welcomeSeen?: boolean;             // First-time welcome onboarding completed
   budgetOnboardingSeen?: boolean;    // Budget module onboarding completed
   savingsGoalOnboardingSeen?: boolean; // Savings goal onboarding completed
+  // Spotlight tour flags
+  homeTourSeen?: boolean;              // Home page spotlight tour completed
+  statsTourSeen?: boolean;             // Stats page spotlight tour completed
+  addTransactionTourSeen?: boolean;    // Add transaction spotlight tour completed
+  batchReviewTourSeen?: boolean;       // Batch review spotlight tour completed
+  historyTourSeen?: boolean;           // History page spotlight tour completed
+  scheduleTourSeen?: boolean;          // Schedule config spotlight tour completed
+  scheduledBannerTourSeen?: boolean;   // Scheduled banner spotlight tour completed
+  categoriesTourSeen?: boolean;        // Categories page spotlight tour completed
+  scheduledPageTourSeen?: boolean;     // Scheduled page spotlight tour completed
   // Scheduler
   lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull

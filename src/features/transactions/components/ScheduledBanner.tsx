@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CalendarClock, ChevronRight, X } from "lucide-react";
 import type { VirtualTransaction } from "@/shared/services/scheduler.service";
 import { useCurrency } from "@/features/currency";
+import { useBudgetStore } from "@/state/budget.store";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { scheduledBannerTour } from "@/features/tour/tours/scheduledBannerTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 
 interface ScheduledBannerProps {
   virtualTransactions: VirtualTransaction[];
@@ -24,6 +28,16 @@ export default function ScheduledBanner({
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDismissConfirm, setShowDismissConfirm] = useState(false);
 
+  // Spotlight tour - only show after home tour is completed
+  const homeTourSeen = useBudgetStore((s) => s.homeTourSeen);
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("scheduledBanner");
+
+  useEffect(() => {
+    if (virtualTransactions.length > 0 && homeTourSeen) {
+      startTour();
+    }
+  }, [virtualTransactions.length, homeTourSeen, startTour]);
+
   if (virtualTransactions.length === 0) {
     return null;
   }
@@ -37,7 +51,7 @@ export default function ScheduledBanner({
 
   return (
     <>
-      <div className="mx-4 mb-5">
+      <div className="mx-4 mb-5" data-tour="home-scheduled-banner">
         <section className="bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-800 rounded-2xl p-4 shadow-sm relative overflow-hidden">
           {/* Fondo decorativo sutil */}
           <div className="absolute left-0 bottom-0 w-24 h-24 bg-violet-100/50 dark:bg-violet-800/30 rounded-full -ml-8 -mb-8 blur-xl" />
@@ -186,6 +200,8 @@ export default function ScheduledBanner({
           </div>
         </div>
       )}
+
+      <SpotlightTour config={scheduledBannerTour} isActive={isTourActive} onComplete={completeTour} />
     </>
   );
 }

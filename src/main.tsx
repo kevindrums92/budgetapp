@@ -8,7 +8,7 @@ import { registerSW } from "virtual:pwa-register";
 import { App as CapacitorApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
-import { isNative } from '@/shared/utils/platform';
+import { isNative, isAndroid } from '@/shared/utils/platform';
 
 // Load PWA elements for Capacitor web support (camera modal, etc.)
 defineCustomElements(window);
@@ -20,7 +20,20 @@ registerSW({
 // Initialize Capacitor plugins (native only)
 if (isNative()) {
   // Set initial status bar style
-  StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+  // Edge-to-edge on both platforms: status bar overlays WebView
+  // Safe area handled via CSS env(safe-area-inset-top)
+  StatusBar.setOverlaysWebView({ overlay: true }).catch((err) => {
+    console.error('[StatusBar] setOverlaysWebView error:', err);
+  });
+  StatusBar.setStyle({ style: Style.Light }).catch((err) => {
+    console.error('[StatusBar] setStyle error:', err);
+  });
+  if (isAndroid()) {
+    // Transparent status bar so app header background shows through
+    StatusBar.setBackgroundColor({ color: '#00000000' }).catch((err) => {
+      console.error('[StatusBar] setBackgroundColor error:', err);
+    });
+  }
 
   // Handle Android back button
   CapacitorApp.addListener('backButton', ({ canGoBack }) => {

@@ -50,6 +50,11 @@
     }
   },
   "account": {
+    "guest": {
+      "sessionLabel": "Guest Session",
+      "title": "Create your account",
+      "subtitle": "Your data is safe, but not linked."
+    },
     "syncStatus": {
       "local": "Local Mode",
       "offline": "Offline",
@@ -199,6 +204,11 @@
     "info": {
       "note": "Note:",
       "appleManagement": "Subscription changes and cancellations are managed through the Apple App Store. Cancellations take effect at the end of the current billing period."
+    },
+    "loginBanner": {
+      "title": "Protect your subscription",
+      "subtitle": "Create an account to keep your Pro subscription and data safe. If you change devices without an account, you could lose access.",
+      "cta": "Create Account"
     }
   }
 }

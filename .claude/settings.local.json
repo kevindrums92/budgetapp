@@ -62,7 +62,12 @@
       "Bash(deno check:*)",
       "Bash(test:*)",
       "Bash(npm run build:dev:*)",
-      "Bash(git update-index:*)"
+      "Bash(git update-index:*)",
+      "Bash(npx tsx:*)",
+      "Bash(npm run test:e2e:headed:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run verify:*)"
     ]
   }
 }

@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ChevronLeft,
   Calendar,
   Filter,
   CheckCircle2,
@@ -13,7 +12,9 @@ import {
   Search,
   Lock,
   Repeat,
+  ArrowUpDown,
 } from "lucide-react";
+import PageHeader from "@/shared/components/layout/PageHeader";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
@@ -23,12 +24,16 @@ import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
+import { historyTour } from "@/features/tour/tours/historyTour";
 import * as icons from "lucide-react";
 
 type FilterType = "all" | "expense" | "income";
 type FilterStatus = "all" | "paid" | "pending" | "planned";
 type FilterRecurring = "all" | "recurring" | "non-recurring";
 type DateRangePreset = "this-month" | "last-month" | "custom";
+type SortOrder = "date-desc" | "date-asc" | "amount-desc" | "amount-asc";
 
 // Helper para convertir kebab-case a PascalCase
 function kebabToPascal(str: string): string {
@@ -47,6 +52,13 @@ export default function HistoryPage() {
 
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
+
+  // Spotlight tour
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("history");
+
+  useEffect(() => {
+    startTour();
+  }, [startTour]);
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -68,6 +80,7 @@ export default function HistoryPage() {
   const [tempSelectedCategoryIds, setTempSelectedCategoryIds] = useState<string[]>([]);
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("date-desc");
 
   const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -202,6 +215,7 @@ export default function HistoryPage() {
           if (filters.selectedCategoryIds) setSelectedCategoryIds(filters.selectedCategoryIds);
           if (filters.minAmount) setMinAmount(filters.minAmount);
           if (filters.maxAmount) setMaxAmount(filters.maxAmount);
+          if (filters.sortOrder) setSortOrder(filters.sortOrder);
         }
       }
     } catch (error) {
@@ -229,6 +243,7 @@ export default function HistoryPage() {
         selectedCategoryIds,
         minAmount,
         maxAmount,
+        sortOrder,
       };
       localStorage.setItem("history-filters", JSON.stringify(filters));
     } catch (error) {
@@ -246,6 +261,7 @@ export default function HistoryPage() {
     selectedCategoryIds,
     minAmount,
     maxAmount,
+    sortOrder,
   ]);
 
   // Get current month for filtering
@@ -318,8 +334,22 @@ export default function HistoryPage() {
     const max = maxAmount ? parseFloat(maxAmount) : Infinity;
     result = result.filter((t) => t.amount >= min && t.amount <= max);
 
-    // Sort by date descending
-    result.sort((a, b) => b.date.localeCompare(a.date));
+    // Sort
+    switch (sortOrder) {
+      case "date-asc":
+        result.sort((a, b) => a.date.localeCompare(b.date));
+        break;
+      case "amount-desc":
+        result.sort((a, b) => b.amount - a.amount);
+        break;
+      case "amount-asc":
+        result.sort((a, b) => a.amount - b.amount);
+        break;
+      case "date-desc":
+      default:
+        result.sort((a, b) => b.date.localeCompare(a.date));
+        break;
+    }
 
     return result;
   }, [
@@ -334,6 +364,7 @@ export default function HistoryPage() {
     selectedCategoryIds,
     minAmount,
     maxAmount,
+    sortOrder,
     currentMonth,
     previousMonth,
   ]);
@@ -493,24 +524,7 @@ export default function HistoryPage() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
-      {/* Header */}
-      <header
-        className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm dark:shadow-black/30 px-4 pb-4"
-        style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
-      >
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="-ml-2 flex h-10 w-10 items-center justify-center rounded-full text-gray-900 dark:text-gray-50 active:bg-gray-100 dark:active:bg-gray-800 transition-colors"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            {t("title")}
-          </h1>
-        </div>
-      </header>
+      <PageHeader title={t("title")} />
 
       {/* Filters Section */}
       <div className="mx-auto w-full max-w-xl px-4 pt-6 pb-4">
@@ -542,7 +556,7 @@ export default function HistoryPage() {
 
         {/* Filter Pills */}
         <div className="relative">
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div data-tour="history-filters" className="flex flex-wrap gap-2 mb-4">
             {/* Date Range */}
             <button
             type="button"
@@ -681,6 +695,7 @@ export default function HistoryPage() {
             {filterRecurring === "recurring" && t("filters.recurringOnly")}
             {filterRecurring === "non-recurring" && t("filters.nonRecurring")}
           </button>
+
         </div>
       </div>
 
@@ -927,6 +942,7 @@ export default function HistoryPage() {
             </div>
           </div>
         )}
+
       </div>
 
       {/* Results Header */}
@@ -964,8 +980,24 @@ export default function HistoryPage() {
             </button>
           </div>
 
-          {/* Right Column - Balance */}
+          {/* Right Column - Sort + Balance */}
           <div className="text-right">
+            <button
+              type="button"
+              data-tour="history-sort"
+              onClick={() => {
+                const options: SortOrder[] = ["date-desc", "date-asc", "amount-desc", "amount-asc"];
+                const currentIndex = options.indexOf(sortOrder);
+                setSortOrder(options[(currentIndex + 1) % options.length]);
+              }}
+              className="mb-1 inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-gray-500 dark:text-gray-400 transition-colors active:bg-gray-100 dark:active:bg-gray-800"
+            >
+              <ArrowUpDown size={12} />
+              {sortOrder === "date-desc" && t("filters.sortDateDesc")}
+              {sortOrder === "date-asc" && t("filters.sortDateAsc")}
+              {sortOrder === "amount-desc" && t("filters.sortAmountDesc")}
+              {sortOrder === "amount-asc" && t("filters.sortAmountAsc")}
+            </button>
             <p className={`text-sm font-bold whitespace-nowrap ${
               filteredBalance >= 0
                 ? "text-emerald-600 dark:text-emerald-400"
@@ -1325,6 +1357,13 @@ export default function HistoryPage() {
         onClose={() => setShowPaywall(false)}
         trigger="history_filters"
         onSelectPlan={handleSelectPlan}
+      />
+
+      {/* Spotlight Tour */}
+      <SpotlightTour
+        config={historyTour}
+        isActive={isTourActive}
+        onComplete={completeTour}
       />
     </div>
   );

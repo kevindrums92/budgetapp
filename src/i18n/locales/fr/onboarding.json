@@ -172,12 +172,14 @@
     "note": "Vous pouvez modifier ces options depuis votre profil à tout moment"
   },
   "login": {
-    "title": "Commencez à gérer\nvos finances",
-    "subtitle": "Choisissez comment vous souhaitez commencer. Vous pouvez vous connecter ou explorer sans compte.",
-    "privacyNote": "Chiffrement de bout en bout. Avec connexion, synchronise automatiquement dans le cloud.",
+    "title": "Protégez vos données",
+    "subtitle": "Vos transactions sont synchronisées anonymement, mais si vous perdez votre téléphone ou désinstallez l'app, vous les perdrez. Connectez-vous pour les sécuriser.",
+    "privacyNote": "Chiffrement de bout en bout. Vos données financières sont privées et sécurisées.",
     "guestTitle": "Explorer en tant qu'invité",
     "guestDesc": "Sans compte, données uniquement sur cet appareil",
-    "divider": "Ou connectez-vous avec",
+    "guestContinue": "Continuer en tant qu'invité",
+    "divider": "Connectez-vous avec",
+    "continueWith": "Continuer avec",
     "google": "Google",
     "apple": "Apple",
     "emailLink": "Utiliser nom d'utilisateur et mot de passe",

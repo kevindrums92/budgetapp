@@ -50,6 +50,11 @@
     }
   },
   "account": {
+    "guest": {
+      "sessionLabel": "Sessão de Convidado",
+      "title": "Crie sua conta",
+      "subtitle": "Seus dados estão seguros, mas não vinculados."
+    },
     "syncStatus": {
       "local": "Modo Local",
       "offline": "Sem Conexão",
@@ -148,6 +153,13 @@
     },
     "privacy": {
       "title": "Política de Privacidade"
+    }
+  },
+  "subscription": {
+    "loginBanner": {
+      "title": "Proteja sua assinatura",
+      "subtitle": "Crie uma conta para manter sua assinatura Pro e seus dados seguros. Se você trocar de dispositivo sem uma conta, poderá perder o acesso.",
+      "cta": "Criar Conta"
     }
   }
 }

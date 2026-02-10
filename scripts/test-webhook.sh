@@ -8,6 +8,7 @@
 #
 # Eventos disponibles:
 #   initial_purchase  - Simula compra inicial (trial)
+#   purchase          - Simula compra inicial (pagada, sin trial)
 #   renewal           - Simula renovación de suscripción
 #   cancellation      - Simula cancelación
 #   expiration        - Simula expiración
@@ -24,6 +25,7 @@
 # Ejemplos:
 #   ./scripts/test-webhook.sh initial_purchase abc123-user-id
 #   ./scripts/test-webhook.sh initial_purchase abc123-user-id co.smartspend.annual
+#   ./scripts/test-webhook.sh purchase abc123-user-id co.smartspend.lifetime
 #   ./scripts/test-webhook.sh cancellation abc123-user-id
 #   ./scripts/test-webhook.sh test abc123-user-id
 #
@@ -41,14 +43,14 @@ set -e
 # ============================================
 
 # Tu URL de Supabase (sin trailing slash)
-#SUPABASE_URL="${SUPABASE_URL:-https://qvzxdwilplizcgybqqsx.supabase.co}" #DEV
+SUPABASE_URL="${SUPABASE_URL:-https://qvzxdwilplizcgybqqsx.supabase.co}" #DEV
 #SUPABASE_URL="${SUPABASE_URL:-https://plvuebqjwjcheyxprlmg.supabase.co}" #PROD
-SUPABASE_URL="${SUPABASE_URL:-https://plvuebqjwjcheyxprlmg.supabase.co}"
+#SUPABASE_URL="${SUPABASE_URL:-https://plvuebqjwjcheyxprlmg.supabase.co}"
 
 # El secret que configuraste con: npx supabase secrets set REVENUECAT_WEBHOOK_SECRET=...
-#WEBHOOK_SECRET="${WEBHOOK_SECRET:-pVdYvGm3pfJU+DVbF5U3d7mSI30vxItNlt9v7bVO5po=}" #DEV
+WEBHOOK_SECRET="${WEBHOOK_SECRET:-pVdYvGm3pfJU+DVbF5U3d7mSI30vxItNlt9v7bVO5po=}" #DEV
 #WEBHOOK_SECRET="${WEBHOOK_SECRET:-xYZdRTq+omYt2Wph0XYLo5zTC0qZm52dZKvV7iC5Msk=}" #PROD
-WEBHOOK_SECRET="${WEBHOOK_SECRET:-xYZdRTq+omYt2Wph0XYLo5zTC0qZm52dZKvV7iC5Msk=}" #PROD
+#WEBHOOK_SECRET="${WEBHOOK_SECRET:-xYZdRTq+omYt2Wph0XYLo5zTC0qZm52dZKvV7iC5Msk=}" #PROD
 
 
 # Producto por defecto (plan mensual)
@@ -498,7 +500,7 @@ EOF
     echo ""
     echo "Eventos disponibles:"
     echo "  initial_purchase | trial   - Compra inicial (trial 7 días)"
-    echo "  purchase                   - Compra inicial (pagada)"
+    echo "  purchase                   - Compra inicial (pagada, sin trial)"
     echo "  renewal                    - Renovación"
     echo "  cancellation | cancel      - Cancelación"
     echo "  expiration | expire        - Expiración"

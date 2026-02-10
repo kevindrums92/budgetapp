@@ -251,15 +251,18 @@ export async function parseImage(
 /**
  * Parse audio input
  * @param audioBase64 - Base64-encoded audio
+ * @param audioMimeType - MIME type of the audio (e.g., "audio/webm", "audio/aac")
  * @param historyPatterns - Optional transaction patterns from user's history for better matching
  */
 export async function parseAudio(
   audioBase64: string,
+  audioMimeType: string,
   historyPatterns?: HistoryPattern[]
 ): Promise<BatchEntryResponse> {
   return parseBatch({
     inputType: "audio",
     audioBase64,
+    audioMimeType,
     historyPatterns,
   });
 }

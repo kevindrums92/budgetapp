@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
     return (
       <div
         className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 dark:bg-gray-950 px-6"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
       >
         <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
@@ -72,7 +72,7 @@ export default function ResetPasswordPage() {
   return (
     <div
       className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
     >
       {/* Progress bar */}
       <div className="h-1 w-full bg-gray-200 dark:bg-gray-800">

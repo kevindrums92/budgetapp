@@ -9,10 +9,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Shield, User, Chrome, Apple, Loader2 } from 'lucide-react';
+import { Shield, Chrome, Apple, Loader2, User, ChevronLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useOnboarding } from '../../OnboardingContext';
 import { ONBOARDING_KEYS } from '../../utils/onboarding.constants';
+import { markOnboardingComplete } from '../../utils/onboarding.helpers';
 import { openLegalPage } from '@/shared/utils/browser.utils';
 import { signInWithOAuthInAppBrowser } from '@/shared/utils/oauth.utils';
 import { isNative } from '@/shared/utils/platform';
@@ -24,6 +25,9 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [oauthError, setOAuthError] = useState<{ message: string; isRetryable: boolean } | null>(null);
+
+  // Post-logout: user logged out explicitly and needs a way to continue as guest
+  const isPostLogout = localStorage.getItem(ONBOARDING_KEYS.LOGOUT) === 'true';
 
   // Track OAuth in progress to handle browser cancellation
   const oauthInProgress = useRef(false);
@@ -269,40 +273,6 @@ export default function LoginScreen() {
   };
 
   /**
-   * Maneja la selección de modo invitado
-   */
-  const handleGuestMode = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Guardar método de autenticación
-      setAuthMethod('guest');
-
-      // Limpiar flag de logout (el usuario eligió continuar como invitado)
-      localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
-
-      // Verificar directamente en localStorage (más confiable que el estado del contexto)
-      const onboardingCompleted = localStorage.getItem(ONBOARDING_KEYS.COMPLETED) === 'true';
-
-      if (!onboardingCompleted) {
-        // Primera vez: ir a First Config (guest mode, no cloud data to check)
-        console.log('[LoginScreen] Guest mode selected → First Config');
-        navigate('/onboarding/config/1', { replace: true });
-      } else {
-        // Returning user (logout): ir directo a app
-        console.log('[LoginScreen] Guest mode selected → App (returning user)');
-        navigate('/', { replace: true });
-      }
-    } catch (err) {
-      console.error('[LoginScreen] Error en guest mode:', err);
-      setError(t('login.errorGuest'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
    * Maneja el login con Google OAuth (uses in-app browser on native)
    */
   const handleGoogleLogin = async () => {
@@ -384,13 +354,44 @@ export default function LoginScreen() {
     }
   };
 
+  /**
+   * Guest mode: clear logout flag and go to app with anonymous session
+   * Only available after explicit logout (not during onboarding or from Settings)
+   */
+  const handleGuestMode = () => {
+    localStorage.removeItem(ONBOARDING_KEYS.LOGOUT);
+    markOnboardingComplete();
+    console.log('[LoginScreen] Guest mode selected → App (post-logout, anonymous session)');
+    navigate('/', { replace: true });
+  };
+
   return (
-    <div
-      className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
-    >
+    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+      {/* Header with safe-area + conditional back button */}
+      <header
+        className="sticky top-0 z-10 flex shrink-0 items-center bg-white dark:bg-gray-900 px-4 py-4 shadow-sm"
+        style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
+      >
+        {!isPostLogout ? (
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
+            aria-label="Volver"
+          >
+            <ChevronLeft size={24} className="text-gray-700 dark:text-gray-300" />
+          </button>
+        ) : (
+          <div className="h-10 w-10" />
+        )}
+        <h1 className="flex-1 text-center text-lg font-semibold text-gray-900 dark:text-gray-50">
+          {t('login.cta', 'Iniciar sesión')}
+        </h1>
+        <div className="h-10 w-10" />
+      </header>
+
       {/* Header con icono de seguridad */}
-      <div className="flex flex-col items-center px-6 pt-8 pb-8">
+      <div className="flex flex-col items-center px-6 pt-4 pb-8">
         <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
           <Shield size={40} className="text-white" strokeWidth={2.5} />
         </div>
@@ -407,34 +408,17 @@ export default function LoginScreen() {
       {/* Features de privacidad - Texto informativo */}
       <div className="mx-6 mb-8">
         <div className="flex items-start gap-2">
-          <Shield className="h-4 w-4 shrink-0 text-emerald-600" />
+          <Shield className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
           <p className="text-sm text-gray-600 dark:text-gray-400">
             {t('login.privacyNote')}
           </p>
         </div>
       </div>
 
-      {/* Opciones de autenticación - ORDEN SOLICITADO */}
+      {/* Opciones de autenticación */}
       <div className="flex-1 px-6 pb-8">
         <div className="space-y-3">
-          {/* 1. Botón GRANDE: Explorar como invitado */}
-          <button
-            type="button"
-            onClick={handleGuestMode}
-            disabled={loading}
-            className="flex w-full items-center gap-4 rounded-2xl bg-[#18B7B0] p-4 shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98] disabled:opacity-50"
-          >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20">
-              <User className="h-6 w-6 text-white" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-sm font-semibold text-white">{t('login.guestTitle')}</p>
-              <p className="mt-0.5 text-xs text-white/80">{t('login.guestDesc')}</p>
-            </div>
-            {loading && <Loader2 className="h-5 w-5 animate-spin text-white" />}
-          </button>
-
-          {/* 2. Separador */}
+          {/* Divider label */}
           <div className="relative py-2">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200 dark:border-gray-700" />
@@ -444,36 +428,42 @@ export default function LoginScreen() {
             </div>
           </div>
 
-          {/* 3. Grid 2 columnas: Google y Apple */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* Google OAuth */}
+          {/* Google OAuth */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            <Chrome className="h-5 w-5 text-gray-700 dark:text-gray-300 shrink-0" />
+            <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">{t('login.continueWith')} {t('login.google')}</span>
+            {loading && lastProvider.current === 'google' && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+          </button>
+
+          {/* Apple Sign In */}
+          <button
+            type="button"
+            onClick={handleAppleLogin}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-gray-900 dark:bg-gray-50 p-4 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            <Apple className="h-5 w-5 text-white dark:text-gray-900 shrink-0" />
+            <span className="text-sm font-semibold text-white dark:text-gray-900">{t('login.continueWith')} {t('login.apple')}</span>
+            {loading && lastProvider.current === 'apple' && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+          </button>
+
+          {/* Guest mode - only after explicit logout */}
+          {isPostLogout && (
             <button
               type="button"
-              onClick={handleGoogleLogin}
+              onClick={handleGuestMode}
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors active:bg-gray-100 dark:active:bg-gray-800 disabled:opacity-50"
             >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white dark:bg-gray-900 shadow-sm">
-                <Chrome className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.google')}</span>
-              {loading && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+              <User className="h-4 w-4" />
+              <span>{t('login.guestContinue')}</span>
             </button>
-
-            {/* Apple Sign In */}
-            <button
-              type="button"
-              onClick={handleAppleLogin}
-              disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] disabled:opacity-50"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black">
-                <Apple className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-50">{t('login.apple')}</span>
-            </button>
-          </div>
-
+          )}
         </div>
 
         {/* Error Message */}

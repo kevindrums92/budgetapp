@@ -170,7 +170,7 @@ export default function OTPVerificationPage() {
   return (
     <div
       className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
     >
       {/* Progress bar at top */}
       <div className="h-1 w-full bg-gray-200 dark:bg-gray-800">

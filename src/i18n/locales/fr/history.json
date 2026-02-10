@@ -34,7 +34,12 @@
     "nonRecurring": "Non récurrents",
     "cancel": "Annuler",
     "apply": "Appliquer",
-    "clear": "Effacer"
+    "clear": "Effacer",
+    "sort": "Trier",
+    "sortDateDesc": "Récents",
+    "sortDateAsc": "Anciens",
+    "sortAmountDesc": "Plus élevé",
+    "sortAmountAsc": "Plus bas"
   },
   "results": {
     "title": "Résultats ({{count}})",

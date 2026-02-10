@@ -10,6 +10,9 @@ import { X, Calendar } from "lucide-react";
 import type { Schedule, ScheduleFrequency } from "@/types/budget.types";
 import { todayISO } from "@/services/dates.service";
 import DatePicker from "@/shared/components/modals/DatePicker";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { scheduleTour } from "@/features/tour/tours/scheduleTour";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 
 type Props = {
   open: boolean;
@@ -37,6 +40,9 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
 
   // DatePicker state
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Spotlight tour
+  const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("schedule");
 
   // Sync local state when schedule prop changes (e.g., when editing existing transaction)
   useEffect(() => {
@@ -68,12 +74,13 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
     if (open) {
       setIsVisible(true);
       document.body.style.overflow = "hidden";
+      startTour();
     } else {
       const timer = setTimeout(() => setIsVisible(false), 300);
       document.body.style.overflow = "";
       return () => clearTimeout(timer);
     }
-  }, [open]);
+  }, [open, startTour]);
 
   const handleDragStart = (e: React.TouchEvent) => {
     setDragStartY(e.touches[0].clientY);
@@ -199,7 +206,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+100px)] pt-4">
           {/* Frequency */}
-              <div className="mb-6">
+              <div className="mb-6" data-tour="schedule-frequency">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("scheduleConfig.frequency.label")}
                 </label>
@@ -353,7 +360,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
               </div>
 
               {/* Info */}
-              <div className="rounded-xl bg-blue-50 dark:bg-blue-900/30 p-4">
+              <div className="rounded-xl bg-blue-50 dark:bg-blue-900/30 p-4" data-tour="schedule-info">
                 <p className="text-sm text-blue-900 dark:text-blue-100">
                   {t("scheduleConfig.info", {
                     interval: interval > 1 ? interval : "",
@@ -394,6 +401,8 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
           </div>
         </div>
       </div>
+
+      <SpotlightTour config={scheduleTour} isActive={isTourActive} onComplete={completeTour} />
 
       {/* DatePicker */}
       <DatePicker

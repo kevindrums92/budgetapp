@@ -23,6 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Deep Link for OAuth callback -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="smartspend" android:host="auth" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -46,10 +54,10 @@
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="smartspend_notifications" />
 
-        <!-- AdMob App ID (Test ID for development) -->
+        <!-- AdMob App ID (Production) -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713" />
+            android:value="ca-app-pub-1664291794679786~3525498108" />
     </application>
 
     <!-- Permissions -->

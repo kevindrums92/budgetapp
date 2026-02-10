@@ -172,12 +172,14 @@
     "note": "You can modify these options from your profile at any time"
   },
   "login": {
-    "title": "Start managing\nyour finances",
-    "subtitle": "Choose how you want to get started. You can sign in or explore without an account.",
-    "privacyNote": "End-to-end encryption. With sign in, automatically syncs to the cloud.",
+    "title": "Protect your data",
+    "subtitle": "Your transactions sync anonymously, but if you lose your phone or uninstall the app, you'll lose them. Sign in to keep them safe.",
+    "privacyNote": "End-to-end encryption. Your financial data is private and secure.",
     "guestTitle": "Explore as guest",
     "guestDesc": "No account, data only on this device",
-    "divider": "Or sign in with",
+    "guestContinue": "Continue as guest",
+    "divider": "Sign in with",
+    "continueWith": "Continue with",
     "google": "Google",
     "apple": "Apple",
     "emailLink": "Use email and password",
