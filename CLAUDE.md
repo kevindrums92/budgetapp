@@ -18,6 +18,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This ensures the user maintains full control over their git history and can review changes before they're committed.
 
+### Design System First
+**ALWAYS check Storybook before creating or modifying UI components.**
+
+Before implementing any UI change, refactor, or new feature:
+
+1. **Run `npm run storybook`** (or review the existing stories) to see what reusable components already exist
+2. **Check the `BottomSheets/`, `Layout/`, `Modals/`, `UI/` categories** — the component you need may already exist
+3. **Reuse existing components** instead of creating new ones. Common patterns already available:
+   - **Headers**: `TopHeader` (main pages), `PageHeader` (detail/form pages), `FullscreenLayout` (onboarding/wizards)
+   - **Modals**: `ConfirmDialog` (delete/confirm actions), `DatePicker` (date selection)
+   - **Bottom Sheets**: `AddActionSheet`, `CategoryPickerDrawer`, `ComparisonSheet`, `FilterStatisticsSheet`, etc.
+   - **Cards**: `BudgetCard`, `TransactionItem`, `BalanceCard`
+   - **Onboarding**: `ProgressDots`, `SlideAnimation`, `FullscreenLayout`
+   - **Gates**: `ProFeatureGate` (paywall wrapper)
+4. **If you create a new reusable component**, also create a `ComponentName.stories.tsx` file colocated with the component
+5. **Story file conventions**:
+   - Colocated: `src/features/.../ComponentName.stories.tsx` (next to the component)
+   - Show multiple variants/states (default, edge cases, error states)
+   - Use mock data from `src/stories/_mocks/data.ts`
+   - For Zustand-dependent components, use `useBudgetStore.setState()` in story decorators
+
+**Why**: Storybook is the single source of truth for our design system. Checking it first prevents duplicate components, ensures visual consistency, and saves development time.
+
 ## Related Repositories
 
 **SmartSpend Landing Page (Next.js)**:
