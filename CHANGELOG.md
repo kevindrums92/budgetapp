@@ -7,7 +7,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.3] - 2026-02-10
 
 - **fix(biometric): prevent lock screen from getting stuck on early return paths**
   - Add `setIsLocked(false)` to all early returns in `triggerBiometricAuth()` so the lock overlay is dismissed when auth is skipped (recent auth, not native, biometric unavailable)
