@@ -55,9 +55,9 @@ log "2/5 Ejecutando tests unitarios..."
 npm run test:run || error "Los tests unitarios fallaron. Corrígelos antes de continuar."
 success "Tests unitarios pasaron ✓"
 
-# log "3/5 Ejecutando tests E2E..."
-# npm run test:e2e || error "Los tests E2E fallaron. Corrígelos antes de continuar."
-# success "Tests E2E pasaron ✓"
+log "3/5 Ejecutando tests E2E..."
+npm run test:e2e || error "Los tests E2E fallaron. Corrígelos antes de continuar."
+success "Tests E2E pasaron ✓"
 
 log "4/5 Verificando que el build funciona..."
 npm run build || error "El build falló. Corrígelo antes de continuar."
@@ -100,9 +100,29 @@ npm version $VERSION_TYPE --no-git-tag-version
 NEW_VERSION=$(node -p "require('./package.json').version")
 success "Nueva versión: v$NEW_VERSION"
 
-# 2. Actualizar CHANGELOG
+# 2. Actualizar versiones nativas (iOS)
 echo ""
-log "Actualizando CHANGELOG.md automáticamente..."
+log "Actualizando versiones nativas iOS..."
+
+PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
+
+# Leer CURRENT_PROJECT_VERSION actual y sumar 1
+CURRENT_BUILD=$(grep -m1 'CURRENT_PROJECT_VERSION' "$PBXPROJ" | sed 's/[^0-9]//g')
+NEW_BUILD=$((CURRENT_BUILD + 1))
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/CURRENT_PROJECT_VERSION = $CURRENT_BUILD;/CURRENT_PROJECT_VERSION = $NEW_BUILD;/g" "$PBXPROJ"
+    sed -i '' "s/MARKETING_VERSION = [0-9]*\.[0-9]*\.[0-9]*;/MARKETING_VERSION = $NEW_VERSION;/g" "$PBXPROJ"
+else
+    sed -i "s/CURRENT_PROJECT_VERSION = $CURRENT_BUILD;/CURRENT_PROJECT_VERSION = $NEW_BUILD;/g" "$PBXPROJ"
+    sed -i "s/MARKETING_VERSION = [0-9]*\.[0-9]*\.[0-9]*;/MARKETING_VERSION = $NEW_VERSION;/g" "$PBXPROJ"
+fi
+
+success "iOS: CURRENT_PROJECT_VERSION $CURRENT_BUILD → $NEW_BUILD, MARKETING_VERSION → $NEW_VERSION"
+
+# 3. Actualizar CHANGELOG
+echo ""
+log "Actualizando CHANGELOG.md..."
 
 # Obtener fecha actual en formato YYYY-MM-DD
 RELEASE_DATE=$(date +%Y-%m-%d)
@@ -132,21 +152,21 @@ fi
 success "CHANGELOG.md actualizado: [$NEW_VERSION] - $RELEASE_DATE"
 success "Nueva sección [unreleased] creada para próximos cambios"
 
-# 3. Commit de los cambios de versión
+# 4. Commit de los cambios de versión
 echo ""
 log "Creando commit de release..."
-git add package.json package-lock.json CHANGELOG.md
+git add package.json package-lock.json CHANGELOG.md "$PBXPROJ"
 git commit -m "chore: bump version to v$NEW_VERSION
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 success "Commit creado"
 
-# 4. Push de develop
+# 5. Push de develop
 log "Pusheando cambios a develop..."
 git push origin develop || error "No se pudo pushear develop"
 success "Develop actualizado"
 
-# 5. Merge a main
+# 6. Merge a main
 echo ""
 log "Mergeando develop -> main..."
 git checkout main || error "No se pudo cambiar a main"
@@ -156,19 +176,19 @@ git merge develop --no-ff -m "chore: release v$NEW_VERSION
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>" || error "Conflicto al mergear. Resuelve los conflictos y completa el release manualmente."
 success "Merge completado"
 
-# 6. Crear tag
+# 7. Crear tag
 echo ""
 log "Creando tag v$NEW_VERSION..."
 git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
 success "Tag creado"
 
-# 7. Push de main y tags
+# 8. Push de main y tags
 log "Pusheando main y tags..."
 git push origin main || error "No se pudo pushear main"
 git push origin "v$NEW_VERSION" || error "No se pudo pushear el tag"
 success "Main y tags pusheados"
 
-# 8. Volver a develop
+# 9. Volver a develop
 echo ""
 log "Volviendo a develop..."
 git checkout develop
