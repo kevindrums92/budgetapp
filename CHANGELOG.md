@@ -12,6 +12,17 @@ All notable changes to SmartSpend will be documented in this file.
   - Remove `isLoggedIn` (user.email) guard from `BiometricGate` — now relies solely on persisted `security.biometricEnabled`
   - Show biometric toggle in ProfilePage for all native users, not just authenticated ones
 
+- **feat(sentry): add error-only Sentry integration for production monitoring**
+  - Add `@sentry/react` and `@sentry/vite-plugin` for error tracking (no performance tracing, no replay)
+  - Wrap App in `Sentry.ErrorBoundary` with fallback UI
+  - Integrate logger to auto-send errors to Sentry in production
+  - Upload source maps via Vite plugin for readable stack traces
+  - Restrict Sentry initialization to production only (skip in dev)
+
+- **perf(history): virtualize transaction list with @tanstack/react-virtual**
+  - Render only visible items (~15-20) instead of all filtered transactions (140+)
+  - Prevents DOM bloat on low-end devices
+
 - **fix(batch): improve empty state when all drafts are deleted in batch review**
   - Replace confusing "No transactions found" message with polished empty state (Trash icon, clear copy, "Entendido" button)
   - Add `onClose` prop to `TransactionPreview` so empty state closes the sheet directly
