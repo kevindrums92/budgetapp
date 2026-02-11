@@ -6,7 +6,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.2] - 2026-02-10
 
 - **fix(biometric): make Face ID/Touch ID work offline by removing dependency on user session**
   - Remove `isLoggedIn` (user.email) guard from `BiometricGate` — now relies solely on persisted `security.biometricEnabled`
