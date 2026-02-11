@@ -9,6 +9,19 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(auth): clear logout flag on SIGNED_IN to prevent login loop**
+  - After logout → guest → OAuth login, the logout flag persisted causing an infinite redirect to the login screen
+  - CloudSyncGate now clears `budget.onboarding.logout.v2` on any successful SIGNED_IN event
+
+- **fix(ui): prevent balance card amounts from wrapping on large font sizes**
+  - Dynamically shrink font size based on formatted amount length so the full number is always visible
+  - Both income and expense use the same (smallest) size for visual symmetry
+  - Add `whitespace-nowrap`, `shrink-0`, and `min-w-0` to prevent layout breaks
+
+- **test(categories): fix CategoryPickerDrawer tests after i18n and frequent categories changes**
+  - Add `react-i18next` mock with Spanish translations
+  - Add `transactions: []` to all store mocks
+
 - **feat(ui): add frequent categories section to CategoryPickerDrawer**
   - Show top 4 most-used categories (min 2 uses) as quick-select chips above the full list
   - i18n support for all picker strings (title, search, frequent, no results, new category)

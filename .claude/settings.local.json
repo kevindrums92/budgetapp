@@ -77,7 +77,8 @@
       "WebFetch(domain:betterstack.com)",
       "WebFetch(domain:axiom.co)",
       "WebFetch(domain:developers.belvo.com)",
-      "WebFetch(domain:belvo.com)"
+      "WebFetch(domain:belvo.com)",
+      "Bash(npx vitest run:*)"
     ]
   }
 }

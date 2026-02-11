@@ -11,6 +11,16 @@ type Props = {
   onFilterChange: (filter: FilterType) => void;
 };
 
+/** Returns a size rank (lower = smaller font) based on text length */
+function amountSizeRank(formatted: string): number {
+  const len = formatted.length;
+  if (len > 15) return 0;
+  if (len > 12) return 1;
+  return 2;
+}
+
+const SIZE_CLASSES = ["text-[9px]", "text-[11px]", "text-sm"] as const;
+
 export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
   const { t } = useTranslation('home');
   const { formatAmount } = useCurrency();
@@ -29,6 +39,11 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
 
     return { income, expense, balance: income - expense };
   }, [transactions, selectedMonth]);
+
+  const formattedIncome = `+${formatAmount(totals.income)}`;
+  const formattedExpense = `-${formatAmount(totals.expense)}`;
+  // Use the smallest size of both so they always look symmetrical
+  const sizeClass = SIZE_CLASSES[Math.min(amountSizeRank(formattedIncome), amountSizeRank(formattedExpense))];
 
 
   return (
@@ -64,14 +79,14 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
                     : "bg-white/10 border-white/5 hover:bg-white/15"
                 } backdrop-blur-md`}
               >
-                <div className="w-8 h-8 rounded-lg bg-teal-400/20 flex items-center justify-center text-teal-200">
+                <div className="w-8 h-8 shrink-0 rounded-lg bg-teal-400/20 flex items-center justify-center text-teal-200">
                   <TrendingUp size={16} />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <p className="text-[10px] text-teal-200 uppercase tracking-wider font-semibold opacity-80">
                     {t('balanceCard.income')}
                   </p>
-                  <p className="text-sm font-bold text-white">+{formatAmount(totals.income)}</p>
+                  <p className={`${sizeClass} font-bold text-white whitespace-nowrap`}>{formattedIncome}</p>
                 </div>
               </button>
 
@@ -85,14 +100,14 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
                     : "bg-white/10 border-white/5 hover:bg-white/15"
                 } backdrop-blur-md`}
               >
-                <div className="w-8 h-8 rounded-lg bg-rose-400/20 flex items-center justify-center text-rose-200">
+                <div className="w-8 h-8 shrink-0 rounded-lg bg-rose-400/20 flex items-center justify-center text-rose-200">
                   <TrendingDown size={16} />
                 </div>
-                <div className="text-left">
+                <div className="text-left min-w-0">
                   <p className="text-[10px] text-rose-200 uppercase tracking-wider font-semibold opacity-80">
                     {t('balanceCard.expenses')}
                   </p>
-                  <p className="text-sm font-bold text-white">-{formatAmount(totals.expense)}</p>
+                  <p className={`${sizeClass} font-bold text-white whitespace-nowrap`}>{formattedExpense}</p>
                 </div>
               </button>
             </div>

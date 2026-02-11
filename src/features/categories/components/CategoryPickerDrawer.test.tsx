@@ -8,6 +8,24 @@ import type { Category, CategoryGroup } from '@/types/budget.types';
 // Mock the budget store
 vi.mock('@/state/budget.store');
 
+// Mock react-i18next
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const translations: Record<string, string> = {
+        'picker.title': 'Categoría',
+        'picker.search': 'Buscar',
+        'picker.frequent': 'Frecuentes',
+        'picker.all': 'Todas',
+        'picker.newCategory': 'Nueva Categoría',
+        'picker.noResults': 'No se encontraron categorías',
+      };
+      return translations[key] || key;
+    },
+    i18n: { language: 'es' },
+  }),
+}));
+
 // Mock react-router-dom navigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -117,6 +135,7 @@ describe('CategoryPickerDrawer', () => {
       const state = {
         categoryDefinitions: mockCategories,
         categoryGroups: mockCategoryGroups,
+        transactions: [],
       };
       return selector(state);
     });
@@ -215,6 +234,7 @@ describe('CategoryPickerDrawer', () => {
         const state = {
           categoryDefinitions: mockCategories,
           categoryGroups: [...mockCategoryGroups, emptyGroup],
+          transactions: [],
         };
         return selector(state);
       });
@@ -483,6 +503,7 @@ describe('CategoryPickerDrawer', () => {
         const state = {
           categoryDefinitions: [],
           categoryGroups: mockCategoryGroups,
+          transactions: [],
         };
         return selector(state);
       });
@@ -509,6 +530,7 @@ describe('CategoryPickerDrawer', () => {
         const state = {
           categoryDefinitions: [noIconCategory],
           categoryGroups: mockCategoryGroups,
+          transactions: [],
         };
         return selector(state);
       });
@@ -534,6 +556,7 @@ describe('CategoryPickerDrawer', () => {
         const state = {
           categoryDefinitions: [specialCategory],
           categoryGroups: mockCategoryGroups,
+          transactions: [],
         };
         return selector(state);
       });
@@ -559,6 +582,7 @@ describe('CategoryPickerDrawer', () => {
         const state = {
           categoryDefinitions: [longNameCategory],
           categoryGroups: mockCategoryGroups,
+          transactions: [],
         };
         return selector(state);
       });
