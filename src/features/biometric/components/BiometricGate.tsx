@@ -5,8 +5,7 @@
  * Triggers OS-native biometric prompt (Face ID/Touch ID/Fingerprint) based on:
  * - Cold start (app launch)
  * - App resume after 5 minutes inactive
- * - User authentication status
- * - Biometric enabled in settings
+ * - Biometric enabled in settings (persisted in localStorage, works offline)
  *
  * Renders lock screen overlay when authentication is required.
  * Only unlocks when biometric authentication succeeds.
@@ -28,12 +27,10 @@ export default function BiometricGate() {
   const isAuthenticatingRef = useRef<boolean>(false);
   const [isLocked, setIsLocked] = useState(false);
 
-  // Get user and security state
-  const user = useBudgetStore((s) => s.user);
+  // Get security state (persisted in localStorage, available immediately on cold start)
   const security = useBudgetStore((s) => s.security);
   const updateLastAuthTimestamp = useBudgetStore((s) => s.updateLastAuthTimestamp);
 
-  const isLoggedIn = Boolean(user.email);
   const biometricEnabled = security?.biometricEnabled ?? false;
 
   // Trigger native biometric authentication directly
@@ -47,12 +44,6 @@ export default function BiometricGate() {
     // Only on native platforms
     if (!Capacitor.isNativePlatform()) {
       console.log('[BiometricGate] Not native platform, skipping');
-      return;
-    }
-
-    // Only for authenticated users
-    if (!isLoggedIn) {
-      console.log('[BiometricGate] User not logged in, skipping');
       return;
     }
 
@@ -131,7 +122,7 @@ export default function BiometricGate() {
       isMounted = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn, biometricEnabled]); // Re-run when auth state changes
+  }, [biometricEnabled]); // Re-run when biometric setting changes
 
   // App resume: Check when app comes to foreground and trigger native auth
   useEffect(() => {
@@ -165,7 +156,7 @@ export default function BiometricGate() {
       listener.then((l) => l.remove());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoggedIn, biometricEnabled]); // Re-subscribe when auth state changes
+  }, [biometricEnabled]); // Re-subscribe when biometric setting changes
 
   // Render lock screen when authentication is required
   if (!isLocked) {

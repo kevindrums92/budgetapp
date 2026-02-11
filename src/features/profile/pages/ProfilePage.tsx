@@ -623,7 +623,7 @@ export default function ProfilePage() {
               sublabel={t('menu.backupSubtitle')}
               onClick={() => navigate("/backup")}
             />
-            {isLoggedIn && Capacitor.isNativePlatform() && (
+            {Capacitor.isNativePlatform() && (
               <MenuItem
                 icon={<Fingerprint size={20} />}
                 label={t('menu.biometric')}

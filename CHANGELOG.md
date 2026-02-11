@@ -8,6 +8,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(biometric): make Face ID/Touch ID work offline by removing dependency on user session**
+  - Remove `isLoggedIn` (user.email) guard from `BiometricGate` — now relies solely on persisted `security.biometricEnabled`
+  - Show biometric toggle in ProfilePage for all native users, not just authenticated ones
+
 - **fix(batch): improve empty state when all drafts are deleted in batch review**
   - Replace confusing "No transactions found" message with polished empty state (Trash icon, clear copy, "Entendido" button)
   - Add `onClose` prop to `TransactionPreview` so empty state closes the sheet directly
