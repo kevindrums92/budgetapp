@@ -9,6 +9,9 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **test(auth): add unit test for login loop fix (logout → guest → OAuth)**
+  - Verifies `budget.onboarding.logout.v2` is cleared on SIGNED_IN to prevent redirect loop
+
 - **fix(auth): clear logout flag on SIGNED_IN to prevent login loop**
   - After logout → guest → OAuth login, the logout flag persisted causing an infinite redirect to the login screen
   - CloudSyncGate now clears `budget.onboarding.logout.v2` on any successful SIGNED_IN event
