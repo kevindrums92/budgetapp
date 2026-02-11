@@ -75,7 +75,9 @@
       "WebFetch(domain:grafana.com)",
       "WebFetch(domain:www.bugsnag.com)",
       "WebFetch(domain:betterstack.com)",
-      "WebFetch(domain:axiom.co)"
+      "WebFetch(domain:axiom.co)",
+      "WebFetch(domain:developers.belvo.com)",
+      "WebFetch(domain:belvo.com)"
     ]
   }
 }

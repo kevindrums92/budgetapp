@@ -118,9 +118,10 @@
       "cta": "Découvrir Pro"
     },
     "pro": {
-      "title": "Sauvegarde Pro Active",
+      "title": "Pro Actif",
       "subtitle": "Sauvegarde cloud + statistiques avancées + catégories illimitées + toutes les fonctionnalités premium.",
-      "status": "Tout est en ordre"
+      "status": "Tout est en ordre",
+      "cta": "Gérer l'Abonnement"
     }
   },
   "export": {

@@ -118,9 +118,10 @@
       "cta": "Descobrir Pro"
     },
     "pro": {
-      "title": "Backup Pro Ativo",
+      "title": "Pro Ativo",
       "subtitle": "Backup na nuvem + estatísticas avançadas + categorias ilimitadas + todos os recursos premium.",
-      "status": "Tudo está em ordem"
+      "status": "Tudo está em ordem",
+      "cta": "Gerenciar Assinatura"
     }
   },
   "export": {

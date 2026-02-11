@@ -63,6 +63,14 @@
       }
     }
   },
+  "picker": {
+    "title": "Categoria",
+    "search": "Buscar categoria...",
+    "frequent": "Frequentes",
+    "all": "Todas",
+    "newCategory": "Nova Categoria",
+    "noResults": "Nenhuma categoria encontrada"
+  },
   "monthDetail": {
     "transaction": "transação",
     "transactions": "transações",

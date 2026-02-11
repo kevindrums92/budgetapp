@@ -9,6 +9,14 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(ui): add frequent categories section to CategoryPickerDrawer**
+  - Show top 4 most-used categories (min 2 uses) as quick-select chips above the full list
+  - i18n support for all picker strings (title, search, frequent, no results, new category)
+
+- **feat(profile): add subscription management card for anonymous Pro users**
+  - Anonymous Pro users can now access `/profile/subscription` to manage their plan
+  - Previously only the "Create Account" banner was shown with no way to reach subscription settings
+
 ## [0.16.2] - 2026-02-10
 
 - **fix(biometric): make Face ID/Touch ID work offline by removing dependency on user session**

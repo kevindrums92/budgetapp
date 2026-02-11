@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { X, Search, Plus } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
@@ -31,8 +32,10 @@ export default function CategoryPickerDrawer({
   showNewCategoryButton = true,
 }: Props) {
   const navigate = useNavigate();
+  const { t } = useTranslation("categories");
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const categoryGroups = useBudgetStore((s) => s.categoryGroups);
+  const transactions = useBudgetStore((s) => s.transactions);
 
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
@@ -69,6 +72,25 @@ export default function CategoryPickerDrawer({
 
     return result;
   }, [filteredCategories, transactionType, categoryGroups]);
+
+  // Compute frequent categories from transaction history
+  const frequentCategories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const tx of transactions) {
+      if (tx.type === transactionType && tx.category) {
+        counts.set(tx.category, (counts.get(tx.category) || 0) + 1);
+      }
+    }
+
+    const validCatIds = new Set(filteredCategories.map((c) => c.id));
+
+    return Array.from(counts.entries())
+      .filter(([catId, count]) => count >= 2 && validCatIds.has(catId))
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([catId]) => categoryDefinitions.find((c) => c.id === catId))
+      .filter((c): c is Category => c !== undefined);
+  }, [transactions, transactionType, filteredCategories, categoryDefinitions]);
 
   // Handle open/close animation
   useEffect(() => {
@@ -238,7 +260,7 @@ export default function CategoryPickerDrawer({
 
           {/* Title and close */}
           <div className="flex items-center justify-between px-4 pb-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Categoría</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t("picker.title")}</h3>
             <button
               type="button"
               onClick={onClose}
@@ -253,7 +275,7 @@ export default function CategoryPickerDrawer({
             <div className="relative">
               <input
                 type="text"
-                placeholder="Buscar"
+                placeholder={t("picker.search")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 py-2.5 pl-4 pr-10 text-sm text-gray-900 dark:text-gray-50 outline-none focus:border-emerald-300 dark:focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/30 placeholder:text-gray-400 dark:placeholder:text-gray-500"
@@ -265,6 +287,65 @@ export default function CategoryPickerDrawer({
 
         {/* Category list */}
         <div className="flex-1 overflow-y-auto px-4">
+          {/* Frequent categories */}
+          {frequentCategories.length > 0 && !searchQuery && (
+            <div className="mb-4">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                {t("picker.frequent")}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {frequentCategories.map((cat) => {
+                  const IconComponent =
+                    icons[kebabToPascal(cat.icon) as keyof typeof icons];
+                  const isSelected = cat.id === value;
+
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => onSelect(cat.id)}
+                      onTouchStart={handleCategoryTouchStart}
+                      onTouchEnd={handleCategoryTouchEnd(cat.id)}
+                      className={`flex items-center gap-2 rounded-xl px-3 py-2.5 transition-colors ${
+                        isSelected
+                          ? "bg-emerald-50 dark:bg-emerald-900/30"
+                          : "bg-gray-100 dark:bg-gray-800"
+                      }`}
+                    >
+                      <div
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                        style={{ backgroundColor: cat.color + "20" }}
+                      >
+                        {IconComponent && (
+                          <IconComponent
+                            className="h-5 w-5"
+                            style={{ color: cat.color }}
+                          />
+                        )}
+                      </div>
+                      <span
+                        className={`truncate text-sm ${
+                          isSelected
+                            ? "font-medium text-emerald-700 dark:text-emerald-300"
+                            : "text-gray-700 dark:text-gray-300"
+                        }`}
+                      >
+                        {cat.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* "All" separator when frequent section is visible */}
+          {frequentCategories.length > 0 && !searchQuery && groupedCategories.length > 0 && (
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              {t("picker.all")}
+            </p>
+          )}
+
           {groupedCategories.map(({ group, categories }) => (
             <div key={group.id} className="mb-4">
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -318,7 +399,7 @@ export default function CategoryPickerDrawer({
 
           {filteredCategories.length === 0 && searchQuery && (
             <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-              No se encontraron categorías
+              {t("picker.noResults")}
             </p>
           )}
         </div>
@@ -332,7 +413,7 @@ export default function CategoryPickerDrawer({
               className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-emerald-200 dark:border-emerald-700 py-3 text-emerald-600 dark:text-emerald-400 transition-colors hover:border-emerald-300 dark:hover:border-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30"
             >
               <Plus className="h-5 w-5" />
-              <span className="font-medium">Nueva Categoría</span>
+              <span className="font-medium">{t("picker.newCategory")}</span>
             </button>
           </div>
         )}
