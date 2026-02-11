@@ -19,6 +19,12 @@ vi.mock('@/lib/supabaseClient', () => ({
   },
 }));
 
+// Mock network service — default to online
+const mockGetNetworkStatus = vi.fn();
+vi.mock('@/services/network.service', () => ({
+  getNetworkStatus: () => mockGetNetworkStatus(),
+}));
+
 describe('cloudState.service', () => {
   const mockUserId = 'test-user-123';
   const mockState: BudgetState = {
@@ -45,6 +51,9 @@ describe('cloudState.service', () => {
   beforeEach(() => {
     // Reset all mocks
     vi.clearAllMocks();
+
+    // Default to online
+    mockGetNetworkStatus.mockResolvedValue(true);
 
     // Setup default chain for from()
     mockFrom.mockReturnValue({

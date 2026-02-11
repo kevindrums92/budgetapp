@@ -64,6 +64,11 @@ vi.mock('@/services/cloudState.service', () => ({
   upsertCloudState: vi.fn().mockResolvedValue(undefined),
 }));
 
+// Mock network service (determineStartScreen uses it for offline-first cloud check)
+vi.mock('@/services/network.service', () => ({
+  getNetworkStatus: vi.fn().mockResolvedValue(true),
+}));
+
 // --- Helpers ---
 
 function createWrapper() {
@@ -403,10 +408,10 @@ describe('Onboarding Flow', () => {
     });
 
     it('returns "continue" when session exists but onboarding not completed', async () => {
-      mockGetSession.mockResolvedValue({
-        data: { session: { user: { id: 'user-123' } } },
-        error: null,
-      });
+      // determineStartScreen reads session from localStorage (offline-safe), not supabase.auth.getSession()
+      localStorage.setItem('sb-test-auth-token', JSON.stringify({
+        currentSession: { user: { id: 'user-123', email: 'test@test.com' } },
+      }));
 
       const result = await determineStartScreen();
       expect(result).toBe('continue');
@@ -422,11 +427,10 @@ describe('Onboarding Flow', () => {
 
     it('returns "login" for logout even if session is still active (async signOut)', async () => {
       markLogout();
-      // Session might still be "active" briefly after signOut
-      mockGetSession.mockResolvedValue({
-        data: { session: { user: { id: 'user-123' } } },
-        error: null,
-      });
+      // Session might still be "stored" briefly after signOut
+      localStorage.setItem('sb-test-auth-token', JSON.stringify({
+        currentSession: { user: { id: 'user-123', email: 'test@test.com' } },
+      }));
 
       const result = await determineStartScreen();
       // LOGOUT flag takes priority over active session

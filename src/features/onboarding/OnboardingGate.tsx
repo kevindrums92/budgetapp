@@ -8,11 +8,30 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { determineStartScreen, migrateFromLegacyWelcome, getSavedProgress } from './utils/onboarding.helpers';
 
+// Safety timeout: if determineStartScreen takes too long, default to 'app'
+// This prevents infinite loading spinners when offline with expired tokens
+const GATE_TIMEOUT_MS = 4000;
+
 export default function OnboardingGate() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
   const initialCheckDone = useRef(false);
+
+  // Safety timeout: never show loading spinner for more than GATE_TIMEOUT_MS
+  useEffect(() => {
+    if (!isChecking) return;
+
+    const timeout = setTimeout(() => {
+      if (isChecking) {
+        console.warn('[OnboardingGate] Safety timeout reached, stopping loading overlay');
+        setIsChecking(false);
+        initialCheckDone.current = true;
+      }
+    }, GATE_TIMEOUT_MS);
+
+    return () => clearTimeout(timeout);
+  }, [isChecking]);
 
   useEffect(() => {
     const checkOnboarding = async () => {

@@ -1,10 +1,28 @@
 import { supabase } from "@/lib/supabaseClient";
+import { getNetworkStatus } from "@/services/network.service";
 import type { BudgetState } from "@/types/budget.types";
 
+const SESSION_TIMEOUT_MS = 3000;
+
 async function getUserId(): Promise<string | null> {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) return null;
-  return data.session?.user?.id ?? null;
+  // OFFLINE-FIRST: Check network before calling getSession() which can hang
+  // when the JWT is expired and the device is offline
+  const isOnline = await getNetworkStatus();
+  if (!isOnline) return null;
+
+  try {
+    const result = await Promise.race([
+      supabase.auth.getSession(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("getSession timeout")), SESSION_TIMEOUT_MS)
+      ),
+    ]);
+    if (result.error) return null;
+    return result.data.session?.user?.id ?? null;
+  } catch {
+    // Timeout or error
+    return null;
+  }
 }
 
 export async function getCloudState(): Promise<BudgetState | null> {
