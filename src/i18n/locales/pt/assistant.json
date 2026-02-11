@@ -1,0 +1,46 @@
+{
+  "page": {
+    "title": "Assistente Financeiro",
+    "subtitle": "Pergunte sobre suas finanças"
+  },
+  "input": {
+    "placeholder": "Em que gastei mais este mês?",
+    "send": "Enviar"
+  },
+  "welcome": {
+    "title": "Como posso ajudar?",
+    "subtitle": "Pergunte sobre seus gastos, receitas ou orçamentos"
+  },
+  "prompts": {
+    "topCategory": "Em qual categoria gastei mais?",
+    "compare": "Comparar com o mês anterior",
+    "budgetHealth": "Como estão meus orçamentos?",
+    "savingsGoal": "Progresso das minhas metas"
+  },
+  "banner": {
+    "remaining": "{{count}} mensagens restantes hoje",
+    "upgrade": "Atualizar para Pro",
+    "pro": "Pro: Mensagens ilimitadas"
+  },
+  "typing": "Analisando suas finanças...",
+  "errors": {
+    "generic": "Algo deu errado. Tente novamente.",
+    "rateLimitFree": "Você atingiu seu limite diário gratuito.",
+    "rateLimitPro": "Você excedeu o limite de 50 mensagens diárias. Tente amanhã.",
+    "noSession": "Você precisa estar logado para usar o assistente.",
+    "timeout": "A solicitação demorou muito. Verifique sua conexão.",
+    "offline": "Sem conexão com a internet. Verifique sua rede.",
+    "retry": "Tentar novamente"
+  },
+  "upsell": {
+    "title": "Sem Limites",
+    "subtitle": "Desbloqueie todo o poder do assistente financeiro com IA",
+    "benefit1": "Perguntas ilimitadas ao assistente IA",
+    "benefit2": "Análise financeira profunda e personalizada",
+    "benefit3": "Registros com IA ilimitados",
+    "cta": "Desbloquear SmartSpend Pro"
+  },
+  "bottomBar": {
+    "label": "IA"
+  }
+}

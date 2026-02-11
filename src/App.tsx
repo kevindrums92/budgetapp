@@ -42,6 +42,9 @@ const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/C
 // Lazy load scheduled transactions page
 const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
 
+// Lazy load AI assistant page
+const AssistantPage = lazy(() => import("@/features/ai-assistant/pages/AssistantPage"));
+
 // Lazy load settings pages
 const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));
 const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSettingsPage"));
@@ -78,6 +81,7 @@ function AppFrame() {
 
   const isFormRoute =
     location.pathname === "/add" ||
+    location.pathname === "/assistant" ||
     location.pathname === "/backup" ||
     location.pathname === "/scheduled" ||
     location.pathname === "/history" ||
@@ -128,6 +132,7 @@ function AppFrame() {
               element={<AddEditTripExpensePage />}
             />
 
+            <Route path="/assistant" element={<AssistantPage />} />
             <Route path="/add" element={<AddEditTransactionPage />} />
             <Route path="/edit/:id" element={<AddEditTransactionPage />} />
             <Route path="/scheduled" element={<ScheduledPage />} />

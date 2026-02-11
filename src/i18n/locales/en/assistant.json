@@ -1,0 +1,46 @@
+{
+  "page": {
+    "title": "Financial Assistant",
+    "subtitle": "Ask about your finances"
+  },
+  "input": {
+    "placeholder": "What did I spend the most on this month?",
+    "send": "Send"
+  },
+  "welcome": {
+    "title": "How can I help you?",
+    "subtitle": "Ask me about your spending, income, or budgets"
+  },
+  "prompts": {
+    "topCategory": "What category did I spend the most on?",
+    "compare": "Compare with last month",
+    "budgetHealth": "How are my budgets doing?",
+    "savingsGoal": "Progress on my goals"
+  },
+  "banner": {
+    "remaining": "{{count}} messages remaining today",
+    "upgrade": "Upgrade to Pro",
+    "pro": "Pro: Unlimited messages"
+  },
+  "typing": "Analyzing your finances...",
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "rateLimitFree": "You've reached your free daily limit.",
+    "rateLimitPro": "You've exceeded the limit of 50 daily messages. Try again tomorrow.",
+    "noSession": "You must be signed in to use the assistant.",
+    "timeout": "The request took too long. Check your connection.",
+    "offline": "No internet connection. Check your network.",
+    "retry": "Retry"
+  },
+  "upsell": {
+    "title": "No Limits",
+    "subtitle": "Unlock the full power of the AI financial assistant",
+    "benefit1": "Unlimited AI assistant questions",
+    "benefit2": "Deep, personalized financial analysis",
+    "benefit3": "Unlimited AI-powered entries",
+    "cta": "Unlock SmartSpend Pro"
+  },
+  "bottomBar": {
+    "label": "AI"
+  }
+}

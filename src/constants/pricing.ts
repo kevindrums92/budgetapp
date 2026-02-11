@@ -7,7 +7,8 @@ export type ProFeature =
   | 'unlimited_backups'
   | 'stats_page'
   | 'export_data'
-  | 'history_filters';
+  | 'history_filters'
+  | 'unlimited_ai_assistant';
 
 export type PaywallTrigger =
   | 'onboarding'
@@ -20,7 +21,8 @@ export type PaywallTrigger =
   | 'backup_features'
   | 'settings'
   | 'upgrade_prompt' // Para CTAs generales de upgrade
-  | 'batch_entry_limit'; // Límite de IA batch entry para usuarios free
+  | 'batch_entry_limit' // Límite de IA batch entry para usuarios free
+  | 'ai_assistant_limit'; // Límite de mensajes del asistente IA para usuarios free
 
 // ==================== PRICING PLANS ====================
 
