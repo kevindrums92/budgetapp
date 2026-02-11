@@ -13,7 +13,7 @@ import { useBudgetStore } from '@/state/budget.store';
 import { DEFAULT_CATEGORIES } from '@/constants/categories/default-categories';
 import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
 import { upsertCloudState } from '@/services/cloudState.service';
-import { supabase } from '@/lib/supabaseClient';
+import { hasStoredSession } from '@/shared/utils/offlineSession';
 import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
 import ProgressDots from '../../../components/ProgressDots';
 
@@ -73,10 +73,9 @@ export default function Screen5_Complete() {
       });
     }
 
-    // ✅ CRITICAL: Push categories to cloud immediately before marking onboarding complete
-    // This ensures that if user logs out/clears localStorage, cloud data exists
-    const { data } = await supabase.auth.getSession();
-    if (data.session) {
+    // ✅ Push categories to cloud if session exists (offline-safe check)
+    // CloudSyncGate will retry later if this fails
+    if (hasStoredSession()) {
       try {
         console.log('[ConfigScreen] Pushing categories to cloud immediately');
         const getSnapshot = useBudgetStore.getState().getSnapshot;

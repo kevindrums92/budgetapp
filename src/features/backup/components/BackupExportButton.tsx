@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Download } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { createBackup, downloadBackup } from "@/features/backup/services/backup.service";
-import { supabase } from "@/lib/supabaseClient";
+import { getStoredSession } from "@/shared/utils/offlineSession";
 import { logger } from "@/shared/utils/logger";
 
 export default function BackupExportButton() {
@@ -13,9 +13,9 @@ export default function BackupExportButton() {
     setIsExporting(true);
 
     try {
-      // Get current user ID if authenticated
-      const { data } = await supabase.auth.getSession();
-      const userId = data.session?.user?.id;
+      // Get current user ID from localStorage (offline-safe, no network call)
+      const stored = getStoredSession();
+      const userId = stored?.userId;
 
       // Create backup
       const state = getSnapshot();

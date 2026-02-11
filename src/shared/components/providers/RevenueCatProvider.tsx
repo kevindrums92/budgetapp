@@ -11,12 +11,11 @@
  * 4. Update Zustand store with current subscription state
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useBudgetStore } from '@/state/budget.store';
+import { getStoredSession } from '@/shared/utils/offlineSession';
 
 export default function RevenueCatProvider({ children }: { children: React.ReactNode }) {
-  const [isInitialized, setIsInitialized] = useState(false);
-
   useEffect(() => {
     async function initializeRevenueCat() {
       try {
@@ -28,69 +27,41 @@ export default function RevenueCatProvider({ children }: { children: React.React
         // Configure SDK (anonymous mode initially)
         await configureRevenueCat();
 
-        // Link to authenticated user if session exists
+        // Link to authenticated user if session exists (offline-safe: read from localStorage)
         if (isNative()) {
           try {
-            const { supabase } = await import('@/lib/supabaseClient');
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (user) {
+            const stored = getStoredSession();
+            if (stored) {
               const { Purchases } = await import('@revenuecat/purchases-capacitor');
-              await Purchases.logIn({ appUserID: user.id });
-              console.log('[RevenueCat] Linked to user:', user.id);
+              await Purchases.logIn({ appUserID: stored.userId });
+              console.log('[RevenueCat] Linked to user:', stored.userId);
             }
           } catch (loginError) {
             console.warn('[RevenueCat] Failed to link user (non-blocking):', loginError);
           }
         }
 
-        // Fetch subscription using new service (RevenueCat → Supabase → localStorage)
+        // Fetch subscription using service (RevenueCat → Supabase → localStorage fallback)
         try {
           const { getSubscription } = await import('@/services/subscription.service');
-          const { supabase } = await import('@/lib/supabaseClient');
-          const { data: { user } } = await supabase.auth.getUser();
-
-          const subscription = await getSubscription(user?.id ?? null);
+          const stored = getStoredSession();
+          const subscription = await getSubscription(stored?.userId ?? null);
           useBudgetStore.getState().setSubscription(subscription);
         } catch (subError) {
           console.warn('[RevenueCat] Failed to fetch subscription (non-blocking):', subError);
         }
 
-        setIsInitialized(true);
         console.log('[RevenueCat] Initialization complete');
       } catch (error) {
         console.error('[RevenueCat] Initialization failed:', error);
-        // Don't block the app if RevenueCat fails to initialize
-        setIsInitialized(true);
       }
     }
 
     initializeRevenueCat();
   }, []);
 
-  // Don't render children until initialized (prevents race conditions)
-  // But also don't block forever - render after 3 seconds max
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!isInitialized) {
-        console.warn('[RevenueCat] Initialization timeout, proceeding anyway');
-        setIsInitialized(true);
-      }
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, [isInitialized]);
-
-  if (!isInitialized) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-emerald-500 dark:border-gray-700 dark:border-t-emerald-400" />
-          <p className="text-sm text-gray-500 dark:text-gray-400">Cargando...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // NEVER block children - render immediately.
+  // RevenueCat/subscription loading happens in background.
+  // This is critical for offline-first: the app must render instantly.
   return <>{children}</>;
 }
