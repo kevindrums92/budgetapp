@@ -55,3 +55,6 @@ docs/testData/*.json
 docs/sql-queries.md
 important
 supabase/.temp/cli-latest
+
+*storybook.log
+storybook-static

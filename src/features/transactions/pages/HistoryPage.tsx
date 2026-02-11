@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -473,6 +474,16 @@ export default function HistoryPage() {
 
     return income - expense;
   }, [filteredTransactions]);
+
+  // Virtualized list
+  const listParentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: filteredTransactions.length,
+    getScrollElement: () => listParentRef.current,
+    estimateSize: () => 76,
+    overscan: 5,
+  });
 
   const handleExport = async () => {
     // Check if user can export
@@ -1009,8 +1020,11 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      {/* Transactions List */}
-      <div className="flex-1 mx-auto w-full max-w-xl bg-white dark:bg-gray-900 overflow-y-auto">
+      {/* Transactions List (Virtualized) */}
+      <div
+        ref={listParentRef}
+        className="flex-1 mx-auto w-full max-w-xl bg-white dark:bg-gray-900 overflow-y-auto"
+      >
         {filteredTransactions.length === 0 ? (
           <div className="px-4 py-12 text-center">
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1018,8 +1032,15 @@ export default function HistoryPage() {
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {filteredTransactions.map((transaction) => {
+          <div
+            style={{
+              height: `${virtualizer.getTotalSize()}px`,
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            {virtualizer.getVirtualItems().map((virtualRow) => {
+              const transaction = filteredTransactions[virtualRow.index];
               const category = categoryDefinitions.find((c) => c.id === transaction.category);
               const IconComponent = category
                 ? (icons[kebabToPascal(category.icon) as keyof typeof icons] as any)
@@ -1028,9 +1049,18 @@ export default function HistoryPage() {
               return (
                 <button
                   key={transaction.id}
+                  ref={virtualizer.measureElement}
+                  data-index={virtualRow.index}
                   type="button"
                   onClick={() => navigate(`/edit/${transaction.id}`)}
-                  className="w-full flex items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-800 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 active:bg-gray-50 dark:active:bg-gray-800 transition-colors border-b border-gray-100 dark:border-gray-800"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}
                 >
                   {/* Icon */}
                   <div

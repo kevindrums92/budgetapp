@@ -6,6 +6,7 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 
 import { ThemeProvider } from "@/features/theme";
 import { CurrencyProvider } from "@/features/currency";
@@ -165,22 +166,46 @@ function AppFrame() {
   );
 }
 
+function ErrorFallback() {
+  return (
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 px-6 dark:bg-gray-950">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-sm dark:bg-gray-900">
+        <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+          Algo salió mal
+        </h2>
+        <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+          Ocurrió un error inesperado. Por favor, reinicia la aplicación.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="w-full rounded-xl bg-gray-900 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800 active:scale-[0.98] dark:bg-emerald-500 dark:hover:bg-emerald-600"
+        >
+          Reiniciar
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   return (
-    <ThemeProvider>
-      <CurrencyProvider>
-        <RevenueCatProvider>
-          <AdMobProvider>
-            <BrowserRouter>
-              <CloudSyncGate />
-              <OnboardingGate />
-              <BiometricGate />
-              <UpcomingTransactionsModal />
-              <AppFrame />
-            </BrowserRouter>
-          </AdMobProvider>
-        </RevenueCatProvider>
-      </CurrencyProvider>
-    </ThemeProvider>
+    <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
+      <ThemeProvider>
+        <CurrencyProvider>
+          <RevenueCatProvider>
+            <AdMobProvider>
+              <BrowserRouter>
+                <CloudSyncGate />
+                <OnboardingGate />
+                <BiometricGate />
+                <UpcomingTransactionsModal />
+                <AppFrame />
+              </BrowserRouter>
+            </AdMobProvider>
+          </RevenueCatProvider>
+        </CurrencyProvider>
+      </ThemeProvider>
+    </Sentry.ErrorBoundary>
   );
 }

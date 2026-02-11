@@ -54,6 +54,8 @@
     "transactionsFound": "{{count}} transactions found",
     "transactionsFound_one": "{{count}} transaction found",
     "noTransactionsFound": "No transactions found in the input",
+    "allDraftsRemoved": "You removed all transactions from the batch",
+    "allDraftsRemovedHint": "You can try again",
     "tryAgain": "Try again",
     "confidence": "Confidence",
     "needsReviewWarning": "Some transactions need review (marked with !)",
@@ -94,6 +96,7 @@
   },
   "common": {
     "cancel": "Cancel",
+    "ok": "OK",
     "back": "Back",
     "retry": "Retry",
     "save": "Save",

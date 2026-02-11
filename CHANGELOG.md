@@ -6,7 +6,41 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.2] - 2026-02-10
+
+- **fix(biometric): make Face ID/Touch ID work offline by removing dependency on user session**
+  - Remove `isLoggedIn` (user.email) guard from `BiometricGate` — now relies solely on persisted `security.biometricEnabled`
+  - Show biometric toggle in ProfilePage for all native users, not just authenticated ones
+
+- **feat(sentry): add error-only Sentry integration for production monitoring**
+  - Add `@sentry/react` and `@sentry/vite-plugin` for error tracking (no performance tracing, no replay)
+  - Wrap App in `Sentry.ErrorBoundary` with fallback UI
+  - Integrate logger to auto-send errors to Sentry in production
+  - Upload source maps via Vite plugin for readable stack traces
+  - Restrict Sentry initialization to production only (skip in dev)
+
+- **perf(history): virtualize transaction list with @tanstack/react-virtual**
+  - Render only visible items (~15-20) instead of all filtered transactions (140+)
+  - Prevents DOM bloat on low-end devices
+
+- **fix(batch): improve empty state when all drafts are deleted in batch review**
+  - Replace confusing "No transactions found" message with polished empty state (Trash icon, clear copy, "Entendido" button)
+  - Add `onClose` prop to `TransactionPreview` so empty state closes the sheet directly
+  - Add i18n keys (`allDraftsRemoved`, `allDraftsRemovedHint`, `common.ok`) in es, en, fr, pt
+
+- **fix(recurring): prevent duplicate transactions when user edits date of auto-generated recurring transaction**
+  - Change `transactionExistsForDate()` to use period-based matching instead of exact date when checking by `sourceTemplateId`
+  - Monthly schedules: match by same year-month; Yearly: same year; Weekly: within ±6 days
+  - Add 3 new test cases covering date-edit scenarios for monthly and yearly schedules
+
+- **chore(dev): add Storybook 10 setup with a11y, docs, and themes addons**
+
+- **chore(build): bump native version codes for app store submissions**
+  - Android: versionCode 3 → 4
+  - iOS: CURRENT_PROJECT_VERSION 16 → 17, MARKETING_VERSION 0.16.0 → 0.16.1
 
 ## [0.16.1] - 2026-02-09
 

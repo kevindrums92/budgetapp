@@ -54,6 +54,8 @@
     "transactionsFound": "{{count}} transações encontradas",
     "transactionsFound_one": "{{count}} transação encontrada",
     "noTransactionsFound": "Nenhuma transação encontrada no input",
+    "allDraftsRemoved": "Voce removeu todas as transacoes do lote",
+    "allDraftsRemovedHint": "Voce pode tentar novamente",
     "tryAgain": "Tentar de novo",
     "confidence": "Confiança",
     "needsReviewWarning": "Algumas transações precisam de revisão (marcadas com !)",
@@ -94,6 +96,7 @@
   },
   "common": {
     "cancel": "Cancelar",
+    "ok": "Entendido",
     "back": "Voltar",
     "retry": "Tentar novamente",
     "save": "Salvar",

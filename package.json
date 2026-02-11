@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.16.1",
+  "version": "0.16.2",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -51,7 +51,9 @@
     "diff:main": "git diff main..develop",
     "pre-release": "git checkout develop && git pull && npm run build && npm run lint && npm run test:run && npm run test:e2e",
     "git:ignore-env": "git update-index --skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements",
-    "git:track-env": "git update-index --no-skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements"
+    "git:track-env": "git update-index --no-skip-worktree capacitor.config.ts ios/App/App/Info.plist ios/App/App.xcodeproj/project.pbxproj ios/App/App/App.entitlements",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@capacitor-community/admob": "^8.0.0",
@@ -71,7 +73,10 @@
     "@fingerprintjs/fingerprintjs": "^5.0.1",
     "@ionic/pwa-elements": "^3.3.0",
     "@revenuecat/purchases-capacitor": "^12.1.0",
+    "@sentry/react": "^10.38.0",
+    "@sentry/vite-plugin": "^4.9.1",
     "@supabase/supabase-js": "^2.89.0",
+    "@tanstack/react-virtual": "^3.13.18",
     "browser-image-compression": "^2.0.2",
     "capacitor-voice-recorder": "^7.0.6",
     "embla-carousel": "^8.6.0",
@@ -89,8 +94,14 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
+    "@chromatic-com/storybook": "^5.0.1",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.57.0",
+    "@storybook/addon-a11y": "^10.2.8",
+    "@storybook/addon-docs": "^10.2.8",
+    "@storybook/addon-onboarding": "^10.2.8",
+    "@storybook/addon-themes": "^10.2.8",
+    "@storybook/react-vite": "^10.2.8",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@testing-library/user-event": "^14.6.1",
@@ -104,6 +115,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "eslint-plugin-storybook": "^10.2.8",
     "globals": "^16.5.0",
     "jsdom": "^25.0.1",
     "jsonwebtoken": "^9.0.3",
@@ -111,6 +123,7 @@
     "postcss": "^8.5.6",
     "rollup-plugin-visualizer": "^6.0.5",
     "sharp": "^0.34.5",
+    "storybook": "^10.2.8",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",

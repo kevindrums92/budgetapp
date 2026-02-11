@@ -4,7 +4,7 @@
  */
 
 import { useTranslation } from "react-i18next";
-import { RotateCcw, Loader2, Info, Receipt, Sparkles } from "lucide-react";
+import { Loader2, Info, Receipt, Sparkles, Trash2 } from "lucide-react";
 import { useCurrency } from "@/features/currency";
 import type { TransactionDraft } from "../types/batch-entry.types";
 import TransactionDraftCard from "./TransactionDraftCard";
@@ -15,6 +15,7 @@ type Props = {
   onDeleteDraft: (id: string) => void;
   onSaveAll: () => void;
   onCancel: () => void;
+  onClose: () => void;
   isSaving: boolean;
   isFullScreen?: boolean;
 };
@@ -25,6 +26,7 @@ export default function TransactionPreview({
   onDeleteDraft,
   onSaveAll,
   onCancel,
+  onClose,
   isSaving,
   isFullScreen = false,
 }: Props) {
@@ -58,17 +60,27 @@ export default function TransactionPreview({
 
   if (drafts.length === 0) {
     return (
-      <div className="flex flex-col items-center py-8">
-        <p className="mb-4 text-center text-gray-500 dark:text-gray-400">
-          {t("review.noTransactionsFound")}
+      <div className="flex flex-1 flex-col items-center justify-center px-6">
+        {/* Icon */}
+        <div className="mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+          <Trash2 size={32} className="text-gray-400 dark:text-gray-500" />
+        </div>
+
+        {/* Message */}
+        <p className="mb-2 text-center text-base font-semibold text-gray-900 dark:text-gray-50">
+          {t("review.allDraftsRemoved")}
         </p>
+        <p className="mb-8 text-center text-sm text-gray-500 dark:text-gray-400">
+          {t("review.allDraftsRemovedHint")}
+        </p>
+
+        {/* Action */}
         <button
           type="button"
-          onClick={onCancel}
-          className="flex items-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+          onClick={onClose}
+          className="w-full max-w-xs rounded-xl bg-gray-900 dark:bg-white py-3.5 text-sm font-medium text-white dark:text-gray-900 transition-all active:scale-[0.98]"
         >
-          <RotateCcw className="h-4 w-4" />
-          {t("review.tryAgain")}
+          {t("common.ok")}
         </button>
       </div>
     );

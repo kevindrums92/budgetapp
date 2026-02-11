@@ -1,7 +1,8 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import path from "path";
 import { execSync } from "child_process";
 
@@ -18,7 +19,15 @@ function getGitHash(): string {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Load ALL env vars from .env files (not just VITE_* prefixed)
+  // This makes SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT available
+  const env = loadEnv(mode, process.cwd(), "");
+
+  return {
+  build: {
+    sourcemap: true, // Required for Sentry source maps
+  },
   define: {
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version || "0.0.0"),
     __GIT_HASH__: JSON.stringify(getGitHash()),
@@ -91,5 +100,22 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,ico,png,svg,webmanifest}"],
       },
     }),
-  ],
+
+    // Sentry source maps upload (must be last plugin)
+    // Only runs when SENTRY_AUTH_TOKEN is set (in .env.local or CI/CD)
+    env.SENTRY_AUTH_TOKEN
+      ? sentryVitePlugin({
+          org: env.SENTRY_ORG,
+          project: env.SENTRY_PROJECT,
+          authToken: env.SENTRY_AUTH_TOKEN,
+          release: {
+            name: `smartspend@${process.env.npm_package_version || "0.0.0"}`,
+          },
+          sourcemaps: {
+            filesToDeleteAfterUpload: ["./dist/**/*.map"],
+          },
+        })
+      : null,
+  ].filter(Boolean),
+};
 });

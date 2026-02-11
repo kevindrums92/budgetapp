@@ -438,7 +438,7 @@ export default function ProfilePage() {
                     </span>
                     <Sparkles size={12} className="text-amber-400 animate-pulse" />
                   </div>
-                  <h4 className="text-xl font-bold text-gray-900 dark:text-white leading-none tracking-tight">
+                  <h4 className="text-l font-bold text-gray-900 dark:text-white leading-none tracking-tight">
                     {t('account.guest.title')}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
@@ -623,7 +623,7 @@ export default function ProfilePage() {
               sublabel={t('menu.backupSubtitle')}
               onClick={() => navigate("/backup")}
             />
-            {isLoggedIn && Capacitor.isNativePlatform() && (
+            {Capacitor.isNativePlatform() && (
               <MenuItem
                 icon={<Fingerprint size={20} />}
                 label={t('menu.biometric')}

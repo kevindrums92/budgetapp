@@ -1,8 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./i18n/config"; // IMPORTANT: Import before React
+import { initSentry } from "@/lib/sentry";
 import App from "./App";
 import "./index.css";
+
+// Initialize Sentry early, before any React rendering
+initSentry();
 
 import { registerSW } from "virtual:pwa-register";
 import { App as CapacitorApp } from '@capacitor/app';
