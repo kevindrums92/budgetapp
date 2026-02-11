@@ -643,6 +643,33 @@ describe('CloudSyncGate - Anonymous Auth → OAuth Transition', () => {
       );
     });
 
+    // E7: Logout → Guest → OAuth login should clear logout flag
+    it('E7: should clear logout flag on SIGNED_IN to prevent login loop', async () => {
+      // Start with anonymous session (guest mode after logout)
+      mockGetSession.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await renderAndInit();
+
+      // Simulate: user previously logged out → flag set by OnboardingGate
+      localStorage.setItem('budget.onboarding.logout.v2', 'true');
+
+      // Simulate: user goes through OAuth from guest mode
+      localStorage.setItem('budget.previousAnonUserId', ANON_USER_ID);
+      localStorage.setItem('budget.oauthTransition', Date.now().toString());
+
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await fireSignedIn(mockAuthSession);
+
+      // CRITICAL: logout flag must be cleared to prevent OnboardingGate redirect loop
+      expect(localStorage.getItem('budget.onboarding.logout.v2')).toBeNull();
+
+      // Verify: user is authenticated normally
+      expect(useBudgetStore.getState().user.email).toBe(AUTH_EMAIL);
+    });
+
     // Anonymous SIGNED_IN → cloud sync (not cleanup)
     it('should init cloud sync for anonymous SIGNED_IN without cleanup', async () => {
       // Start with no session

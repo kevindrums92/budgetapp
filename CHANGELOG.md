@@ -7,7 +7,43 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.3] - 2026-02-10
+
+- **fix(biometric): prevent lock screen from getting stuck on early return paths**
+  - Add `setIsLocked(false)` to all early returns in `triggerBiometricAuth()` so the lock overlay is dismissed when auth is skipped (recent auth, not native, biometric unavailable)
+
+- **feat(ui): redesign BalanceCard with available-balance ratio bar**
+  - Replace static income/expense grid with a visual progress bar showing remaining balance as percentage of income
+  - Compact income/expense buttons with responsive font sizing for large amounts
+  - Add `available` i18n key in all locales (es, en, fr, pt)
+  - Add `LongAmounts` Storybook story for extreme currency values
+
+- **test(auth): add unit test for login loop fix (logout → guest → OAuth)**
+  - Verifies `budget.onboarding.logout.v2` is cleared on SIGNED_IN to prevent redirect loop
+
+- **fix(auth): clear logout flag on SIGNED_IN to prevent login loop**
+  - After logout → guest → OAuth login, the logout flag persisted causing an infinite redirect to the login screen
+  - CloudSyncGate now clears `budget.onboarding.logout.v2` on any successful SIGNED_IN event
+
+- **fix(ui): prevent balance card amounts from wrapping on large font sizes**
+  - Dynamically shrink font size based on formatted amount length so the full number is always visible
+  - Both income and expense use the same (smallest) size for visual symmetry
+  - Add `whitespace-nowrap`, `shrink-0`, and `min-w-0` to prevent layout breaks
+
+- **test(categories): fix CategoryPickerDrawer tests after i18n and frequent categories changes**
+  - Add `react-i18next` mock with Spanish translations
+  - Add `transactions: []` to all store mocks
+
+- **feat(ui): add frequent categories section to CategoryPickerDrawer**
+  - Show top 4 most-used categories (min 2 uses) as quick-select chips above the full list
+  - i18n support for all picker strings (title, search, frequent, no results, new category)
+
+- **feat(profile): add subscription management card for anonymous Pro users**
+  - Anonymous Pro users can now access `/profile/subscription` to manage their plan
+  - Previously only the "Create Account" banner was shown with no way to reach subscription settings
 
 ## [0.16.2] - 2026-02-10
 

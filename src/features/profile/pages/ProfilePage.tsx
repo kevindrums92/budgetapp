@@ -456,6 +456,45 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {/* Pro Subscription Card - Anonymous Pro users need access to manage their subscription */}
+      {isPro && !isLoggedIn && cloudMode === "cloud" && (
+        <div className="px-4 pb-4">
+          <button
+            type="button"
+            onClick={() => navigate('/profile/subscription')}
+            className="w-full relative overflow-hidden rounded-2xl p-5 shadow-sm text-left active:scale-[0.99] transition-all bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-950/30 dark:via-teal-950/30 dark:to-emerald-950/30 border border-emerald-200 dark:border-emerald-800"
+          >
+            {/* Decorative gradient */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-bl-[6rem] -mr-8 -mt-8" />
+
+            <div className="flex items-center gap-4 relative z-10">
+              {/* Icon */}
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/30 dark:to-teal-500/30">
+                <Crown size={24} className="text-emerald-600 dark:text-emerald-400" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base font-bold text-gray-900 dark:text-gray-50">
+                    {t('subscriptionCard.pro.title', 'Pro Activo')}
+                  </h3>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-[10px] font-bold text-white uppercase tracking-wider">
+                    PRO
+                  </span>
+                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  {t('subscriptionCard.pro.cta', 'Administrar Suscripción')}
+                </p>
+              </div>
+
+              {/* Chevron */}
+              <ChevronRight size={20} className="shrink-0 text-emerald-500 dark:text-emerald-400" />
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* Session Inconsistency Card - Show when Pro but not logged in AND not in cloud mode (and not offline) */}
       {/* Anonymous users in cloud mode have active sessions, so this only shows for true session loss */}
       {isPro && !isLoggedIn && cloudMode !== "cloud" && cloudStatus !== "offline" && (

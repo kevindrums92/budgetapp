@@ -63,6 +63,14 @@
       }
     }
   },
+  "picker": {
+    "title": "Category",
+    "search": "Search category...",
+    "frequent": "Frequent",
+    "all": "All",
+    "newCategory": "New Category",
+    "noResults": "No categories found"
+  },
   "monthDetail": {
     "transaction": "transaction",
     "transactions": "transactions",

@@ -5,6 +5,7 @@
   "filter": "Filtrer par",
   "balanceCard": {
     "title": "Solde Disponible",
+    "available": "Disponible",
     "income": "Revenus",
     "expenses": "Dépenses"
   },

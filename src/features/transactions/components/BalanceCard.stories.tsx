@@ -45,3 +45,39 @@ export const ExpenseFilter: Story = {
       console.log("[BalanceCard] Filter changed:", filter),
   },
 };
+
+export const LongAmounts: Story = {
+  decorators: [
+    (Story) => {
+      useBudgetStore.setState({
+        selectedMonth: "2026-02",
+        transactions: [
+          {
+            id: "tx-income-long",
+            date: "2026-02-08",
+            name: "Contrato Enterprise",
+            type: "income",
+            amount: 1976532042,
+            category: "salary",
+            createdAt: 1760000000010,
+          },
+          {
+            id: "tx-expense-long",
+            date: "2026-02-09",
+            name: "Operación internacional",
+            type: "expense",
+            amount: 843602195,
+            category: "services",
+            createdAt: 1760000000020,
+          },
+        ],
+      });
+      return <Story />;
+    },
+  ],
+  args: {
+    activeFilter: "all",
+    onFilterChange: (filter) =>
+      console.log("[BalanceCard] Filter changed:", filter),
+  },
+};

@@ -734,6 +734,8 @@ export default function CloudSyncGate() {
       if (event === "SIGNED_IN") {
         // Clear OAuth transition flag — the transition completed successfully
         localStorage.removeItem('budget.oauthTransition');
+        // Clear logout flag so OnboardingGate won't redirect back to login
+        localStorage.removeItem('budget.onboarding.logout.v2');
 
         // CRITICAL: Defer all work to next tick with setTimeout(fn, 0).
         // exchangeCodeForSession() emits SIGNED_IN while holding a navigator.locks lock.

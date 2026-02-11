@@ -118,9 +118,10 @@
       "cta": "Discover Pro"
     },
     "pro": {
-      "title": "Pro Backup Active",
+      "title": "Pro Active",
       "subtitle": "Cloud backup + advanced statistics + unlimited categories + all premium features.",
-      "status": "Everything is in order"
+      "status": "Everything is in order",
+      "cta": "Manage Subscription"
     }
   },
   "export": {

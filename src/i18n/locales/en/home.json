@@ -5,6 +5,7 @@
   "filter": "Filter by",
   "balanceCard": {
     "title": "Available Balance",
+    "available": "Available",
     "income": "Income",
     "expenses": "Expenses"
   },
