@@ -44,12 +44,14 @@ export default function BiometricGate() {
     // Only on native platforms
     if (!Capacitor.isNativePlatform()) {
       console.log('[BiometricGate] Not native platform, skipping');
+      setIsLocked(false);
       return;
     }
 
     // Only if biometric is enabled in settings
     if (!biometricEnabled) {
       console.log('[BiometricGate] Biometric not enabled, skipping');
+      setIsLocked(false);
       return;
     }
 
@@ -60,6 +62,7 @@ export default function BiometricGate() {
 
     if (timeSinceLastAuth < BIOMETRIC_TIMEOUT) {
       console.log('[BiometricGate] Last auth was recent, skipping');
+      setIsLocked(false);
       return;
     }
 
@@ -70,6 +73,7 @@ export default function BiometricGate() {
 
       if (!availability.isAvailable) {
         console.log('[BiometricGate] Biometric not available, skipping');
+        setIsLocked(false);
         return;
       }
 

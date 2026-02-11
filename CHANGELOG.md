@@ -9,6 +9,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(biometric): prevent lock screen from getting stuck on early return paths**
+  - Add `setIsLocked(false)` to all early returns in `triggerBiometricAuth()` so the lock overlay is dismissed when auth is skipped (recent auth, not native, biometric unavailable)
+
+- **feat(ui): redesign BalanceCard with available-balance ratio bar**
+  - Replace static income/expense grid with a visual progress bar showing remaining balance as percentage of income
+  - Compact income/expense buttons with responsive font sizing for large amounts
+  - Add `available` i18n key in all locales (es, en, fr, pt)
+  - Add `LongAmounts` Storybook story for extreme currency values
+
 - **test(auth): add unit test for login loop fix (logout → guest → OAuth)**
   - Verifies `budget.onboarding.logout.v2` is cleared on SIGNED_IN to prevent redirect loop
 

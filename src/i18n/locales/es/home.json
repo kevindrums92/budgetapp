@@ -5,6 +5,7 @@
   "filter": "Filtrar por",
   "balanceCard": {
     "title": "Balance Disponible",
+    "available": "Disponible",
     "income": "Ingresos",
     "expenses": "Gastos"
   },
