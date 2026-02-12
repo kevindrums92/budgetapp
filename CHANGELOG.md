@@ -11,6 +11,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(auth): add session expired recovery gate**
+  - Detect when an authenticated user's session expires (refresh token rotation failure) using persisted `budget.wasAuthenticated` localStorage flag
+  - Show fullscreen blocking modal (`SessionExpiredGate`) forcing re-authentication or explicit "continue as guest"
+  - Preserve local data during session expiration — no silent data loss
+  - Support Google/Apple OAuth re-auth with last provider prioritization and email hint
+  - Add i18n translations for session namespace (es, en, pt, fr)
+
+- **test(auth): add session expired unit + e2e tests**
+  - 19 unit tests for SessionExpiredGate component (visibility, OAuth, guest mode, scroll lock, error events)
+  - 8 unit tests for CloudSyncGate session expired detection (SET/CHECK/CLEAR flags, edge cases)
+  - 5 E2E Playwright tests (modal display, guest dismissal, data preservation, blocking behavior)
+
+- **chore: add `npm run verify` step to `/ship` command**
+
 ## [0.16.4] - 2026-02-11
 
 - **fix(offline): prevent app from hanging when offline with expired session**

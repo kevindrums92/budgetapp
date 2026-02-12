@@ -253,6 +253,21 @@ export default function CloudSyncGate() {
     }
 
     if (!session) {
+      // ✅ CRITICAL: Check if an authenticated user lost their session (cold start with expired token)
+      // budget.wasAuthenticated is persisted in localStorage and survives app restarts,
+      // unlike Zustand cloudMode/user which reset to defaults on cold start.
+      const persistedWasAuthenticated = localStorage.getItem('budget.wasAuthenticated') === 'true';
+
+      if (persistedWasAuthenticated) {
+        logger.info("CloudSync", "Session expired for previously authenticated user — showing recovery modal");
+        useBudgetStore.getState().setSessionExpired(true);
+        setCloudMode("guest");
+        setCloudStatus("idle");
+        initializedRef.current = true;
+        useBudgetStore.getState().setCloudSyncReady();
+        return; // DON'T clear data, DON'T create anonymous session
+      }
+
       // HMR Protection: If we're in development and already have cloud data,
       // don't clear it - the session might just be loading slowly during HMR
       const currentMode = useBudgetStore.getState().cloudMode;
@@ -340,6 +355,13 @@ export default function CloudSyncGate() {
       avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || null,
       provider: provider as 'google' | 'apple' | null,
     });
+
+    // ✅ Persist auth flag so we can detect session loss on cold start
+    if (session.user.email && !session.user.is_anonymous) {
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', session.user.email);
+      if (provider) localStorage.setItem('budget.lastAuthProvider', provider);
+    }
 
     setCloudMode("cloud");
     console.log("[CloudSyncGate] Cloud mode set, starting sync process");
@@ -705,6 +727,18 @@ export default function CloudSyncGate() {
           localStorage.removeItem('budget.oauthTransition');
         }
 
+        // ✅ Check if this is a session expiration (not explicit logout)
+        // budget.wasAuthenticated is removed by ProfilePage BEFORE calling signOut(),
+        // so if it still exists here, the session expired on its own.
+        const persistedAuth = localStorage.getItem('budget.wasAuthenticated');
+        if (persistedAuth) {
+          console.log("[CloudSyncGate] SIGNED_OUT with wasAuthenticated flag — session expired, showing recovery modal");
+          useBudgetStore.getState().setSessionExpired(true);
+          setCloudMode("guest");
+          setCloudStatus("idle");
+          return; // DON'T clear data, DON'T create anonymous session
+        }
+
         // Deactivate push notification token before clearing data
         deactivateToken();
         cleanupPushNotifications();
@@ -784,6 +818,13 @@ export default function CloudSyncGate() {
 
         // Authenticated SIGNED_IN (real login or linkIdentity upgrade)
         console.log("[CloudSyncGate] Authenticated SIGNED_IN, re-initializing...");
+
+        // ✅ Clear session expired state — user successfully re-authenticated
+        useBudgetStore.getState().setSessionExpired(false);
+        localStorage.removeItem('budget.wasAuthenticated');
+        localStorage.removeItem('budget.lastAuthEmail');
+        localStorage.removeItem('budget.lastAuthProvider');
+
         initializedRef.current = false;
 
         setTimeout(async () => {

@@ -74,6 +74,11 @@ export default function ProfilePage() {
   // Auth actions
   async function signOut() {
     setLoading(true);
+    // Clear auth persistence flag BEFORE signOut so SIGNED_OUT handler
+    // knows this is an explicit logout (not a session expiration)
+    localStorage.removeItem('budget.wasAuthenticated');
+    localStorage.removeItem('budget.lastAuthEmail');
+    localStorage.removeItem('budget.lastAuthProvider');
     await supabase.auth.signOut();
 
     // Log out from RevenueCat (native only)
@@ -131,6 +136,11 @@ export default function ProfilePage() {
 
       // Clean up and sign out (SAME AS signOut() FUNCTION)
       console.log('[ProfilePage] Cleaning up after account deletion');
+
+      // Clear auth persistence flag BEFORE signOut (same as signOut function)
+      localStorage.removeItem('budget.wasAuthenticated');
+      localStorage.removeItem('budget.lastAuthEmail');
+      localStorage.removeItem('budget.lastAuthProvider');
 
       // 1. Sign out from Supabase (CRITICAL - clears auth session)
       await supabase.auth.signOut();
