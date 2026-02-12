@@ -78,7 +78,9 @@
       "WebFetch(domain:axiom.co)",
       "WebFetch(domain:developers.belvo.com)",
       "WebFetch(domain:belvo.com)",
-      "Bash(npx vitest run:*)"
+      "Bash(npx vitest run:*)",
+      "Bash(./android/gradlew:*)",
+      "Bash(./gradlew bundleRelease:*)"
     ]
   }
 }

@@ -120,6 +120,26 @@ fi
 
 success "iOS: CURRENT_PROJECT_VERSION $CURRENT_BUILD → $NEW_BUILD, MARKETING_VERSION → $NEW_VERSION"
 
+# 2b. Actualizar versiones nativas (Android)
+echo ""
+log "Actualizando versiones nativas Android..."
+
+GRADLE_FILE="android/app/build.gradle"
+
+# Leer versionCode actual y sumar 1
+CURRENT_VERSION_CODE=$(grep -m1 'versionCode' "$GRADLE_FILE" | sed 's/[^0-9]//g')
+NEW_VERSION_CODE=$((CURRENT_VERSION_CODE + 1))
+
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/versionCode $CURRENT_VERSION_CODE/versionCode $NEW_VERSION_CODE/" "$GRADLE_FILE"
+    sed -i '' "s/versionName \"[^\"]*\"/versionName \"$NEW_VERSION\"/" "$GRADLE_FILE"
+else
+    sed -i "s/versionCode $CURRENT_VERSION_CODE/versionCode $NEW_VERSION_CODE/" "$GRADLE_FILE"
+    sed -i "s/versionName \"[^\"]*\"/versionName \"$NEW_VERSION\"/" "$GRADLE_FILE"
+fi
+
+success "Android: versionCode $CURRENT_VERSION_CODE → $NEW_VERSION_CODE, versionName → $NEW_VERSION"
+
 # 3. Actualizar CHANGELOG
 echo ""
 log "Actualizando CHANGELOG.md..."
@@ -155,7 +175,7 @@ success "Nueva sección [unreleased] creada para próximos cambios"
 # 4. Commit de los cambios de versión
 echo ""
 log "Creando commit de release..."
-git add package.json package-lock.json CHANGELOG.md "$PBXPROJ"
+git add package.json package-lock.json CHANGELOG.md "$PBXPROJ" "$GRADLE_FILE"
 git commit -m "chore: bump version to v$NEW_VERSION
 
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
@@ -199,6 +219,25 @@ log "Volviendo a ejecutar el deploy a prod para que quede con la version actuali
 npm run ios:prod || error "El build de iOS prod falló."
 success "Build # 2 iOS prod exitoso ya estas listo para archive! ✓"
 
+# 10. Generar AAB de Android
+echo ""
+log "Generando Android App Bundle (AAB)..."
+
+log "Sincronizando Capacitor con Android..."
+npx cap sync android || error "No se pudo sincronizar Capacitor con Android"
+success "Capacitor sync completado ✓"
+
+log "Generando AAB..."
+(cd android && ./gradlew bundleRelease) || error "No se pudo generar el AAB"
+
+AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
+if [ -f "$AAB_PATH" ]; then
+    AAB_SIZE=$(du -h "$AAB_PATH" | cut -f1)
+    success "AAB generado: $AAB_PATH ($AAB_SIZE)"
+else
+    error "No se encontró el AAB en $AAB_PATH"
+fi
+
 # Resumen final
 echo ""
 echo "════════════════════════════════════════════════════════════"
@@ -209,6 +248,8 @@ echo "  📦 Versión: v$NEW_VERSION"
 echo "  🏷️  Tag: v$NEW_VERSION creado en main"
 echo "  🚀 Main actualizado y pusheado"
 echo "  💚 De vuelta en develop"
+echo "  🤖 Android: versionCode $NEW_VERSION_CODE, AAB listo en $AAB_PATH"
+echo "  🍎 iOS: Build $NEW_BUILD, listo para Archive en Xcode"
 echo ""
 echo "  Ver release: git show v$NEW_VERSION"
 echo "  Ver tag en GitHub: https://github.com/[tu-usuario]/budgetapp/releases/tag/v$NEW_VERSION"
