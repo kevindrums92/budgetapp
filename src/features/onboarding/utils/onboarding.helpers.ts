@@ -5,11 +5,16 @@
  */
 
 import { ONBOARDING_KEYS, LEGACY_WELCOME_KEY } from './onboarding.constants';
-import { supabase } from '@/lib/supabaseClient';
+import { hasStoredSession } from '@/shared/utils/offlineSession';
+import { getNetworkStatus } from '@/services/network.service';
 
 /**
  * Determina qué pantalla mostrar al iniciar la app
  * Versión standalone sin dependencia del contexto
+ *
+ * OFFLINE-FIRST: This function NEVER blocks on network calls.
+ * Session check reads from localStorage directly (not Supabase client).
+ * Cloud data check only happens when online with a timeout.
  */
 export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'login' | 'continue'> {
   // 1. Check si el onboarding ya se completó alguna vez
@@ -19,9 +24,10 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
   // 2. Check si hay progreso guardado (usuario en medio del onboarding)
   const savedProgress = getSavedProgress();
 
-  // 3. Check si hay sesión activa
-  const { data } = await supabase.auth.getSession();
-  let hasActiveSession = !!data.session;
+  // 3. Check si hay sesión activa — read from localStorage (NEVER from supabase.auth.getSession())
+  // supabase.auth.getSession() can hang for 30+ seconds offline if JWT is expired.
+  // For routing decisions, reading from localStorage is sufficient and instant.
+  let hasActiveSession = hasStoredSession();
 
   // ⚠️ CRITICAL SECURITY: Check if session is pending OTP verification
   // If session exists but OTP was never verified, invalidate it
@@ -31,7 +37,10 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
       // If pending OTP exists (regardless of age), this session is invalid
       console.warn('[determineStartScreen] ⚠️ SECURITY: Session pending OTP verification detected - invalidating session');
       localStorage.removeItem('auth.pendingOtpVerification');
-      await supabase.auth.signOut();
+      // Sign out async (fire-and-forget) — don't await to avoid blocking
+      import('@/lib/supabaseClient').then(({ supabase }) => {
+        supabase.auth.signOut().catch(() => {});
+      });
       hasActiveSession = false;
     }
   }
@@ -72,26 +81,37 @@ export async function determineStartScreen(): Promise<'app' | 'onboarding' | 'lo
 
     // ✅ IMPORTANT: Check cloud data to detect returning users who cleared localStorage
     // If cloud has user data, skip onboarding and go directly to app
-    try {
-      const { getCloudState } = await import('@/services/cloudState.service');
-      const cloudData = await getCloudState();
+    // OFFLINE-SAFE: Only attempt cloud check when online, with a 3s timeout
+    const isOnline = await getNetworkStatus();
+    if (isOnline) {
+      try {
+        const cloudCheck = import('@/services/cloudState.service').then(
+          ({ getCloudState }) => getCloudState()
+        );
+        const cloudData = await Promise.race([
+          cloudCheck,
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)),
+        ]);
 
-      if (cloudData) {
-        const hasCloudData = (cloudData.categoryDefinitions && cloudData.categoryDefinitions.length > 0) ||
-                             (cloudData.transactions && cloudData.transactions.length > 0) ||
-                             (cloudData.trips && cloudData.trips.length > 0);
+        if (cloudData) {
+          const hasCloudData = (cloudData.categoryDefinitions && cloudData.categoryDefinitions.length > 0) ||
+                               (cloudData.transactions && cloudData.transactions.length > 0) ||
+                               (cloudData.trips && cloudData.trips.length > 0);
 
-        if (hasCloudData) {
-          console.log('[determineStartScreen] → APP (cloud has data, returning user)');
-          // Mark onboarding as complete to avoid checking again
-          localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
-          localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
-          return 'app';
+          if (hasCloudData) {
+            console.log('[determineStartScreen] → APP (cloud has data, returning user)');
+            // Mark onboarding as complete to avoid checking again
+            localStorage.setItem(ONBOARDING_KEYS.COMPLETED, 'true');
+            localStorage.setItem(ONBOARDING_KEYS.TIMESTAMP, Date.now().toString());
+            return 'app';
+          }
         }
+      } catch (err) {
+        console.error('[determineStartScreen] Error checking cloud data:', err);
+        // Continue with normal flow if cloud check fails
       }
-    } catch (err) {
-      console.error('[determineStartScreen] Error checking cloud data:', err);
-      // Continue with normal flow if cloud check fails
+    } else {
+      console.log('[determineStartScreen] Offline, skipping cloud data check');
     }
 
     // Si tiene sesión pero NO completó onboarding, debe continuar con First Config

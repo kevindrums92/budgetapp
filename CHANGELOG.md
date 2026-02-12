@@ -8,7 +8,21 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.4] - 2026-02-11
+
+- **fix(offline): prevent app from hanging when offline with expired session**
+  - Replace all boot-path `supabase.auth.getSession()` calls with sync localStorage reads via new `offlineSession.ts` utility
+  - Add safety timeouts to OnboardingGate (4s), cloudState.service (3s), and CloudSyncGate (5s)
+  - Make RevenueCatProvider non-blocking (children render immediately, init happens in background)
+  - Make `determineStartScreen()` offline-safe: session from localStorage, cloud check only when online with 3s timeout
+  - Update BackupExportButton and Screen5_Complete to use `getStoredSession()` instead of network calls
+
+- **test(offline): add offline-first resilience tests (unit + e2e)**
+  - 26 unit tests covering offline session reader, boot flow, cloud service guards, timeouts, and anti-regression checks
+  - 5 E2E Playwright tests verifying app functionality when network drops (navigation, transaction creation, data persistence)
 
 ## [0.16.3] - 2026-02-10
 

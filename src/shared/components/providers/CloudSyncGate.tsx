@@ -200,9 +200,35 @@ export default function CloudSyncGate() {
       return;
     }
 
-    const { data } = await supabase.auth.getSession();
-    const session = data.session;
-    console.log("[CloudSyncGate] Session:", session ? `User ${session.user.id}` : "null");
+    // OFFLINE-FIRST: Wrap getSession() in a timeout to prevent hanging when
+    // Supabase's internal initializePromise is stuck refreshing an expired JWT.
+    // If it takes >5s, fall back to reading the stored session from localStorage.
+    let session: any = null;
+    try {
+      const result = await Promise.race([
+        supabase.auth.getSession(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("getSession timeout")), 5000)
+        ),
+      ]);
+      session = result.data.session;
+    } catch {
+      console.warn("[CloudSyncGate] getSession() timed out, reading from localStorage");
+      // Try to read raw session from localStorage as fallback
+      const storedKeys = Object.keys(localStorage).filter(
+        (key) => key.includes("sb-") && key.includes("-auth-token")
+      );
+      for (const key of storedKeys) {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(key) || "");
+          if (parsed?.currentSession) {
+            session = parsed.currentSession;
+            break;
+          }
+        } catch { /* skip */ }
+      }
+    }
+    console.log("[CloudSyncGate] Session:", session ? `User ${session.user?.id || session.user_id}` : "null");
 
     // ⚠️ CRITICAL SECURITY: Check if session is pending OTP verification
     // If user closed app without verifying OTP, sign them out
