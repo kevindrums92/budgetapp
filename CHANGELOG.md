@@ -9,7 +9,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.5] - 2026-02-12
 
 - **feat(auth): add session expired recovery gate**
   - Detect when an authenticated user's session expires (refresh token rotation failure) using persisted `budget.wasAuthenticated` localStorage flag
