@@ -1,10 +1,18 @@
 ---
-description: Stagea el cambio actual, actualiza CHANGELOG.md solo en [unreleased], commitea con nuestro estilo y hace push.
-allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git rev-parse:*), Bash(git diff --staged:*), Bash(git restore:*), Bash(git log:*), Bash(git grep:*)
+description: Verifica (lint+test+build+e2e), actualiza CHANGELOG.md solo en [unreleased], commitea con nuestro estilo y hace push.
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git rev-parse:*), Bash(git diff --staged:*), Bash(git restore:*), Bash(git log:*), Bash(git grep:*), Bash(npm run verify:*)
 argument-hint: [nota-opcional: 1 linea con lo que se hizo]
 ---
 
 # /ship
+
+## Paso 0 — Verificación obligatoria
+**ANTES de cualquier otra cosa**, ejecuta:
+- !`npm run verify`
+
+Si falla (exit code != 0), **DETENTE** y reporta el error. NO continúes con el commit ni push hasta que pase.
+
+---
 
 ## Contexto
 Rama: !`git rev-parse --abbrev-ref HEAD`

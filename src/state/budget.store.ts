@@ -202,6 +202,10 @@ type BudgetStore = BudgetState & {
   updateLastAuthTimestamp: () => void;
   getBiometricSettings: () => SecuritySettings;
 
+  // Session expired detection (in-memory only)
+  sessionExpired: boolean;
+  setSessionExpired: (v: boolean) => void;
+
   // Subscription (in-memory only, NOT part of BudgetState persistence)
   subscription: SubscriptionState | null;
   setSubscription: (sub: SubscriptionState | null) => void;
@@ -243,6 +247,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     ...hydrated,
     budgets: migratedBudgets,
     subscription: null, // In-memory only, loaded by RevenueCatProvider via subscription.service.ts
+    sessionExpired: false,
+    setSessionExpired: (v) => set({ sessionExpired: v }),
 
     cloudMode: "guest",
     cloudStatus: "idle",

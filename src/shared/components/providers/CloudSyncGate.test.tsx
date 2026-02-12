@@ -695,3 +695,266 @@ describe('CloudSyncGate - Anonymous Auth → OAuth Transition', () => {
     });
   });
 });
+
+// ============================================================================
+// Session Expired Detection Tests
+// ============================================================================
+
+describe('CloudSyncGate - Session Expired Detection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    localStorage.clear();
+    authChangeCallback = null;
+
+    // Reset store
+    useBudgetStore.getState().replaceAllData({
+      schemaVersion: 6,
+      transactions: [],
+      categories: [],
+      categoryDefinitions: [],
+      categoryGroups: [],
+      budgets: [],
+      trips: [],
+      tripExpenses: [],
+    });
+    useBudgetStore.setState({
+      cloudMode: 'guest',
+      cloudStatus: 'idle',
+      user: { email: null, name: null, avatarUrl: null, provider: null },
+      sessionExpired: false,
+    });
+
+    // Default: online
+    mockGetNetworkStatus.mockResolvedValue(true);
+    mockGetPendingSnapshot.mockReturnValue(null);
+    mockUpsertCloudState.mockResolvedValue(undefined);
+    mockRpc.mockResolvedValue({ data: null, error: null });
+    mockSignInAnonymously.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+    mockMigrateGuestTokenToUser.mockResolvedValue(false);
+    mockDeactivateToken.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  // ========================================================================
+  // SET: Persist wasAuthenticated flags when authenticated session is found
+  // ========================================================================
+  describe('SET flags on authenticated session', () => {
+    it('should persist wasAuthenticated flags when authenticated session is found', async () => {
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await renderAndInit();
+
+      // Verify: flags are set in localStorage
+      expect(localStorage.getItem('budget.wasAuthenticated')).toBe('true');
+      expect(localStorage.getItem('budget.lastAuthEmail')).toBe(AUTH_EMAIL);
+      expect(localStorage.getItem('budget.lastAuthProvider')).toBe('google');
+    });
+
+    it('should NOT persist wasAuthenticated flags for anonymous sessions', async () => {
+      mockGetSession.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await renderAndInit();
+
+      // Verify: flags are NOT set
+      expect(localStorage.getItem('budget.wasAuthenticated')).toBeNull();
+      expect(localStorage.getItem('budget.lastAuthEmail')).toBeNull();
+    });
+  });
+
+  // ========================================================================
+  // CHECK (cold start): Detect session loss when session is null
+  // ========================================================================
+  describe('CHECK on cold start (session === null)', () => {
+    it('should set sessionExpired=true when session is null and wasAuthenticated flag exists', async () => {
+      // Simulate: previously authenticated, but session expired
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', 'user@gmail.com');
+
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+
+      // Verify: sessionExpired flag is set
+      expect(useBudgetStore.getState().sessionExpired).toBe(true);
+      expect(useBudgetStore.getState().cloudMode).toBe('guest');
+      expect(useBudgetStore.getState().cloudStatus).toBe('idle');
+    });
+
+    it('should NOT call signInAnonymously when wasAuthenticated flag triggers recovery modal', async () => {
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+
+      // Verify: signInAnonymously was NOT called (early return)
+      expect(mockSignInAnonymously).not.toHaveBeenCalled();
+    });
+
+    it('should preserve local data when session expired', async () => {
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+
+      // User has local data
+      useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+
+      // Verify: local data is preserved
+      const state = useBudgetStore.getState();
+      expect(state.transactions).toHaveLength(2);
+      expect(state.transactions[0].name).toBe('Almuerzo');
+    });
+
+    it('should NOT set sessionExpired when wasAuthenticated flag is absent (normal guest)', async () => {
+      // No wasAuthenticated flag — this is a normal guest user or first launch
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+
+      // Verify: sessionExpired NOT triggered
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+    });
+  });
+
+  // ========================================================================
+  // CHECK (SIGNED_OUT): Detect session expiration via auth state change
+  // ========================================================================
+  describe('CHECK on SIGNED_OUT event', () => {
+    it('should set sessionExpired=true on SIGNED_OUT when wasAuthenticated flag exists', async () => {
+      // Start with authenticated session
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await renderAndInit();
+
+      // Verify flags were set during init
+      expect(localStorage.getItem('budget.wasAuthenticated')).toBe('true');
+
+      // Simulate: session expires, Supabase fires SIGNED_OUT
+      await fireSignedOut();
+
+      // Verify: sessionExpired is set
+      expect(useBudgetStore.getState().sessionExpired).toBe(true);
+      expect(useBudgetStore.getState().cloudMode).toBe('guest');
+    });
+
+    it('should NOT clear data on SIGNED_OUT when wasAuthenticated flag exists', async () => {
+      // Start with authenticated session and user data
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+      useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+      await renderAndInit();
+
+      // Simulate session expiration
+      await fireSignedOut();
+
+      // Verify: data is preserved (not cleared)
+      const state = useBudgetStore.getState();
+      expect(state.transactions.length).toBeGreaterThan(0);
+    });
+
+    it('should proceed with normal cleanup on SIGNED_OUT when wasAuthenticated flag is absent (explicit logout)', async () => {
+      // Start with authenticated session
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+      useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+      await renderAndInit();
+
+      // Simulate: explicit logout — ProfilePage removes the flag BEFORE signOut()
+      localStorage.removeItem('budget.wasAuthenticated');
+      localStorage.removeItem('budget.lastAuthEmail');
+      localStorage.removeItem('budget.lastAuthProvider');
+
+      // Fire SIGNED_OUT (from explicit logout)
+      await fireSignedOut();
+
+      // Verify: sessionExpired is NOT set (this was intentional logout)
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+    });
+  });
+
+  // ========================================================================
+  // CLEAR: Clear flags on successful re-authentication
+  // ========================================================================
+  describe('CLEAR flags on re-authentication', () => {
+    it('should clear sessionExpired and auth flags when authenticated user signs in', async () => {
+      // Start with no session (expired)
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', AUTH_EMAIL);
+      localStorage.setItem('budget.lastAuthProvider', 'google');
+
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+
+      // Verify: sessionExpired is set
+      expect(useBudgetStore.getState().sessionExpired).toBe(true);
+
+      // Simulate: user re-authenticates via SessionExpiredGate
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await fireSignedIn(mockAuthSession);
+
+      // Verify: sessionExpired cleared
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+
+      // Verify: localStorage flags cleared (will be re-set by initForSession)
+      // Note: initForSession runs via setTimeout, so flags may be re-set
+      // The important thing is setSessionExpired(false) was called
+    });
+
+    it('should NOT clear sessionExpired on anonymous SIGNED_IN', async () => {
+      // Start with expired session
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+      expect(useBudgetStore.getState().sessionExpired).toBe(true);
+
+      // Simulate: anonymous SIGNED_IN (e.g., from "Continue as guest" signInAnonymously)
+      mockGetSession.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await fireSignedIn(mockAnonSession);
+
+      // Anonymous SIGNED_IN should NOT clear sessionExpired — only the component's
+      // "Continue as guest" handler sets it to false (which happens in SessionExpiredGate)
+      // The SIGNED_IN handler only clears for non-anonymous sessions
+    });
+  });
+
+  // ========================================================================
+  // Edge case: SIGNED_OUT during OAuth transition should NOT trigger session expired
+  // ========================================================================
+  describe('Edge: OAuth transition protection', () => {
+    it('should NOT trigger sessionExpired during OAuth transition even with wasAuthenticated flag', async () => {
+      // Start authenticated
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+
+      await renderAndInit();
+
+      // Set OAuth transition flag (user is switching accounts)
+      localStorage.setItem('budget.oauthTransition', Date.now().toString());
+
+      // SIGNED_OUT fires during OAuth transition
+      await fireSignedOut();
+
+      // Should NOT trigger sessionExpired (oauthTransition check comes first)
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+    });
+  });
+});

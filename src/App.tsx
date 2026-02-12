@@ -59,6 +59,7 @@ import AdMobProvider from "@/shared/components/providers/AdMobProvider";
 import OnboardingFlow from "@/features/onboarding/OnboardingFlow";
 import OnboardingGate from "@/features/onboarding/OnboardingGate";
 import BiometricGate from "@/features/biometric/components/BiometricGate";
+import SessionExpiredGate from "@/features/session/components/SessionExpiredGate";
 import UpcomingTransactionsModal from "@/features/transactions/components/UpcomingTransactionsModal";
 
 // Loading fallback component
@@ -199,6 +200,7 @@ export default function App() {
                 <CloudSyncGate />
                 <OnboardingGate />
                 <BiometricGate />
+                <SessionExpiredGate />
                 <UpcomingTransactionsModal />
                 <AppFrame />
               </BrowserRouter>
