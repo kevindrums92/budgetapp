@@ -14,10 +14,12 @@
     "export": "Export your data as CSV or JSON",
     "settings": "Fully customize your experience",
     "upgrade_prompt": "Unlock advanced statistics, unlimited categories and more",
-    "batch_entry_limit": "Get 10 AI requests per hour to add transactions"
+    "batch_entry_limit": "Get 10 AI requests per hour to add transactions",
+    "ai_assistant_limit": "Get 10x more AI financial assistant questions"
   },
   "benefits": {
     "unlimitedCategories": "Unlimited categories and budgets",
+    "aiAssistant": "AI financial assistant (10x more questions)",
     "aiBatchEntry": "AI-powered transaction entry (text, voice, image)",
     "stats": "Detailed statistics and projections",
     "historyFilters": "Advanced history filters",

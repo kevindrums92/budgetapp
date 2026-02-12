@@ -14,10 +14,12 @@
     "export": "Exporte seus dados em CSV ou JSON",
     "settings": "Personalize sua experiencia ao maximo",
     "upgrade_prompt": "Desbloqueie estatisticas avancadas, categorias ilimitadas e mais",
-    "batch_entry_limit": "Obtenha 10 solicitacoes de IA por hora para adicionar transacoes"
+    "batch_entry_limit": "Obtenha 10 solicitacoes de IA por hora para adicionar transacoes",
+    "ai_assistant_limit": "Obtenha 10x mais perguntas ao assistente financeiro IA"
   },
   "benefits": {
     "unlimitedCategories": "Categorias e orcamentos ilimitados",
+    "aiAssistant": "Assistente financeiro IA (10x mais perguntas)",
     "aiBatchEntry": "Entrada de transacoes com IA (texto, voz, imagem)",
     "stats": "Estatisticas detalhadas e projecoes",
     "historyFilters": "Filtros avancados de historico",

@@ -21,7 +21,7 @@ export function useAssistant(): UseAssistantReturn {
   const [remainingMessages] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation("assistant");
   const { currency } = useCurrency();
 
   const transactions = useBudgetStore((s) => s.transactions);
@@ -86,7 +86,7 @@ export function useAssistant(): UseAssistantReturn {
           };
           setMessages((prev) => [...prev, assistantMessage]);
         } else {
-          // Handle specific error codes
+          // Map error codes to i18n keys
           const errorCode = response.error || "UNKNOWN";
           let errorKey = "errors.generic";
 
@@ -94,14 +94,15 @@ export function useAssistant(): UseAssistantReturn {
           else if (errorCode === "RATE_LIMIT_PRO") errorKey = "errors.rateLimitPro";
           else if (errorCode === "NO_SESSION") errorKey = "errors.noSession";
           else if (errorCode === "TIMEOUT") errorKey = "errors.timeout";
+          else if (errorCode === "OFFLINE") errorKey = "errors.offline";
 
           setError(errorKey);
 
-          // Add error message to chat
+          // Add translated error message to chat (never raw error strings)
           const errorMessage: Message = {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: response.message || response.error || "Error",
+            content: t(errorKey),
             timestamp: Date.now(),
             isError: true,
           };
@@ -113,7 +114,7 @@ export function useAssistant(): UseAssistantReturn {
         const errorMessage: Message = {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: "Error inesperado",
+          content: t("errors.generic"),
           timestamp: Date.now(),
           isError: true,
         };
@@ -135,6 +136,7 @@ export function useAssistant(): UseAssistantReturn {
       getBudgetHealthCheck,
       currency,
       i18n.language,
+      t,
     ],
   );
 

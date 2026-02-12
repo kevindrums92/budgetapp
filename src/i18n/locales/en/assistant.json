@@ -20,7 +20,7 @@
   "banner": {
     "remaining": "{{count}} messages remaining today",
     "upgrade": "Upgrade to Pro",
-    "pro": "Pro: Unlimited messages"
+    "pro": "Pro: 10x more messages"
   },
   "typing": "Analyzing your finances...",
   "errors": {
@@ -33,9 +33,9 @@
     "retry": "Retry"
   },
   "upsell": {
-    "title": "No Limits",
+    "title": "10x more questions",
     "subtitle": "Unlock the full power of the AI financial assistant",
-    "benefit1": "Unlimited AI assistant questions",
+    "benefit1": "10x more AI assistant questions",
     "benefit2": "Deep, personalized financial analysis",
     "benefit3": "Unlimited AI-powered entries",
     "cta": "Unlock SmartSpend Pro"

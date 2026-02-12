@@ -20,7 +20,7 @@
   "banner": {
     "remaining": "{{count}} mensagens restantes hoje",
     "upgrade": "Atualizar para Pro",
-    "pro": "Pro: Mensagens ilimitadas"
+    "pro": "Pro: 10x mais mensagens"
   },
   "typing": "Analisando suas finanças...",
   "errors": {
@@ -33,9 +33,9 @@
     "retry": "Tentar novamente"
   },
   "upsell": {
-    "title": "Sem Limites",
+    "title": "10x mais perguntas",
     "subtitle": "Desbloqueie todo o poder do assistente financeiro com IA",
-    "benefit1": "Perguntas ilimitadas ao assistente IA",
+    "benefit1": "10x mais perguntas ao assistente IA",
     "benefit2": "Análise financeira profunda e personalizada",
     "benefit3": "Registros com IA ilimitados",
     "cta": "Desbloquear SmartSpend Pro"

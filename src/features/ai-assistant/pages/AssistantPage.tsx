@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, Sparkles, Check, X } from "lucide-react";
+import { Sparkles, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
+import PageHeader from "@/shared/components/layout/PageHeader";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 import { useAssistant } from "../hooks/useAssistant";
 import ChatBubble from "../components/ChatBubble";
@@ -56,19 +57,9 @@ export default function AssistantPage() {
   return (
     <div className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white shadow-sm dark:bg-gray-900">
-        <div className="flex items-center px-4 py-4">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="mr-3 rounded-full p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            <ChevronLeft
-              size={24}
-              className="text-gray-700 dark:text-gray-300"
-            />
-          </button>
-          <div className="flex-1">
+      <PageHeader
+        title={
+          <div>
             <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("page.title")}
             </h1>
@@ -76,10 +67,10 @@ export default function AssistantPage() {
               {t("page.subtitle")}
             </p>
           </div>
-        </div>
+        }
+      />
 
-        <RateLimitBanner remaining={remainingMessages} />
-      </div>
+      <RateLimitBanner remaining={remainingMessages} />
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -102,8 +93,8 @@ export default function AssistantPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="shrink-0 bg-white px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)] dark:bg-gray-900">
+      {/* Input - sticky bottom */}
+      <div className="sticky bottom-0 shrink-0 bg-white px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:bg-gray-900">
         <ChatInput
           value={inputValue}
           onChange={setInputValue}

@@ -95,20 +95,31 @@ export async function sendAssistantMessage(
         };
       }
 
+      // Detect connection/network errors → return OFFLINE code
+      const msg = error.message || "";
+      if (
+        msg.includes("Failed to send a request") ||
+        msg.includes("Failed to fetch") ||
+        msg.includes("NetworkError") ||
+        msg.includes("net::ERR_")
+      ) {
+        return { success: false, error: "OFFLINE" };
+      }
+
       return {
         success: false,
-        error: responseBody?.error || error.message || "Error al procesar la solicitud",
+        error: responseBody?.error || "UNKNOWN",
       };
     }
 
     if (!data) {
-      return { success: false, error: "NO_RESPONSE" };
+      return { success: false, error: "UNKNOWN" };
     }
 
     if (data.success === false) {
       return {
         success: false,
-        error: data.error || "Error desconocido",
+        error: data.error || "UNKNOWN",
         message: data.message,
       };
     }
@@ -127,10 +138,21 @@ export async function sendAssistantMessage(
       return { success: false, error: "TIMEOUT" };
     }
 
+    // Detect connection/network errors in outer catch too
+    if (error instanceof Error) {
+      const msg = error.message;
+      if (
+        msg.includes("Failed to send a request") ||
+        msg.includes("Failed to fetch") ||
+        msg.includes("NetworkError") ||
+        msg.includes("net::ERR_")
+      ) {
+        console.error("[ai-assistant] Network error:", msg);
+        return { success: false, error: "OFFLINE" };
+      }
+    }
+
     console.error("[ai-assistant] Unexpected error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Error inesperado",
-    };
+    return { success: false, error: "UNKNOWN" };
   }
 }

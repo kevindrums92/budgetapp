@@ -15,6 +15,7 @@ type PaywallModalProps = {
 
 const BENEFIT_KEYS = [
   'unlimitedCategories',
+  'aiAssistant',
   'aiBatchEntry',
   'stats',
   'historyFilters',

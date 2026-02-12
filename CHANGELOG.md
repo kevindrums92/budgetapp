@@ -10,6 +10,24 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(ai-assistant): migrate to standard PageHeader + sticky chat input**
+  - Replace custom inline header with `PageHeader` component (supports ReactNode title for subtitle)
+  - Make chat input sticky at bottom with upward shadow for clear visual separation
+  - Enforce mandatory header rule in CLAUDE.md (all pages must use TopHeader or PageHeader)
+
+- **fix(ai-assistant): show friendly translated errors instead of raw Edge Function messages**
+  - Detect network errors (`Failed to send a request`, `Failed to fetch`, `NetworkError`) and map to `OFFLINE` code
+  - Map all error codes to i18n keys (`errors.offline`, `errors.timeout`, `errors.generic`) — never show raw strings in chat
+  - Add outer catch network detection for consistent offline handling
+
+- **fix(ai-assistant): replace misleading "unlimited" Pro messaging with honest "10x" multiplier**
+  - Change banner, upsell title, and benefit text from "ilimitados" to "10x más" across all 4 locales (es, en, fr, pt)
+  - Avoids hardcoding exact limits — server-side changes don't require UI updates
+
+- **feat(paywall): add AI assistant as Pro benefit in PaywallModal**
+  - Add `aiAssistant` to benefit keys list and translations in all 4 locales
+  - Add `ai_assistant_limit` subtitle translations in all 4 paywall locale files
+
 - **fix(offline): prevent app from hanging when offline with expired session**
   - Replace all boot-path `supabase.auth.getSession()` calls with sync localStorage reads via new `offlineSession.ts` utility
   - Add safety timeouts to OnboardingGate (4s), cloudState.service (3s), and CloudSyncGate (5s)
