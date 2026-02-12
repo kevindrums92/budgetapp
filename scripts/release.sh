@@ -219,9 +219,9 @@ log "Volviendo a ejecutar el deploy a prod para que quede con la version actuali
 npm run ios:prod || error "El build de iOS prod falló."
 success "Build # 2 iOS prod exitoso ya estas listo para archive! ✓"
 
-# 10. Generar AAB de Android
+# 10. Generar AAB y APK de Android
 echo ""
-log "Generando Android App Bundle (AAB)..."
+log "Generando Android App Bundle (AAB) y APK..."
 
 log "Sincronizando Capacitor con Android..."
 npx cap sync android || error "No se pudo sincronizar Capacitor con Android"
@@ -238,6 +238,17 @@ else
     error "No se encontró el AAB en $AAB_PATH"
 fi
 
+log "Generando APK de release..."
+(cd android && ./gradlew assembleRelease) || error "No se pudo generar el APK"
+
+APK_PATH="android/app/build/outputs/apk/release/app-release.apk"
+if [ -f "$APK_PATH" ]; then
+    APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+    success "APK generado: $APK_PATH ($APK_SIZE)"
+else
+    error "No se encontró el APK en $APK_PATH"
+fi
+
 # Resumen final
 echo ""
 echo "════════════════════════════════════════════════════════════"
@@ -248,7 +259,8 @@ echo "  📦 Versión: v$NEW_VERSION"
 echo "  🏷️  Tag: v$NEW_VERSION creado en main"
 echo "  🚀 Main actualizado y pusheado"
 echo "  💚 De vuelta en develop"
-echo "  🤖 Android: versionCode $NEW_VERSION_CODE, AAB listo en $AAB_PATH"
+echo "  🤖 Android AAB: $AAB_PATH ($AAB_SIZE)"
+echo "  🤖 Android APK: $APK_PATH ($APK_SIZE)"
 echo "  🍎 iOS: Build $NEW_BUILD, listo para Archive en Xcode"
 echo ""
 echo "  Ver release: git show v$NEW_VERSION"

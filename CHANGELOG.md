@@ -12,9 +12,9 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
-- **chore(release): automate Android native versioning and AAB generation**
+- **chore(release): automate Android native versioning, AAB and APK generation**
   - Add automatic `versionCode` increment and `versionName` sync in `android/app/build.gradle` during release script
-  - Generate signed AAB bundle (`bundleRelease`) automatically after iOS build
+  - Generate signed AAB bundle (`bundleRelease`) and APK (`assembleRelease`) automatically after iOS build
   - Add Gradle permission prompts to Claude settings
 
 ## [0.16.5] - 2026-02-12
