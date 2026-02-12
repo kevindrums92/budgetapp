@@ -369,6 +369,38 @@ When an anonymous user (from `signInAnonymously()`) logs in with Google/Apple, `
 
 ### Page Layouts
 
+**CRITICAL: Mandatory Header Components**
+
+Every page in the app MUST use one of the two approved header components. NEVER create custom/inline headers.
+
+| Header | When to use | Location |
+|---|---|---|
+| `TopHeader` | Main pages with bottom bar (Home, Budget, Stats, Trips) | `src/shared/components/layout/TopHeader.tsx` |
+| `PageHeader` | Detail/form pages WITHOUT bottom bar (settings, forms, subpages) | `src/shared/components/layout/PageHeader.tsx` |
+
+```tsx
+// ✅ CORRECT - Use PageHeader (supports ReactNode title for subtitles)
+<PageHeader
+  title={
+    <div>
+      <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Title</h1>
+      <p className="text-xs text-gray-500 dark:text-gray-400">Subtitle</p>
+    </div>
+  }
+  rightActions={<button>...</button>}
+/>
+
+// ❌ WRONG - Custom inline header
+<div className="sticky top-0 z-10 bg-white shadow-sm">
+  <div className="flex items-center px-4 py-4">
+    <button onClick={() => navigate(-1)}><ChevronLeft /></button>
+    <h1>Title</h1>
+  </div>
+</div>
+```
+
+**Why**: Using approved headers ensures consistent navigation, safe-area insets, dark mode, and accessibility across all pages. Custom headers lead to inconsistencies and missed edge cases.
+
 #### Full-Screen Pages (with PageHeader)
 
 Pages that use `PageHeader` component do NOT show the bottom bar. These are detail/form pages.
@@ -1575,6 +1607,9 @@ useEffect(() => {
 
 ❌ Hardcoded currency symbols (`$`) or using `formatCOP()`
 ✅ Use `useCurrency()` hook: `formatAmount()` for display, `currencyInfo.symbol` for inputs
+
+❌ Custom/inline headers (`<div className="sticky top-0 ..."><ChevronLeft />...</div>`)
+✅ ALWAYS use `PageHeader` or `TopHeader` — no exceptions
 
 ### Testing Checklist
 
