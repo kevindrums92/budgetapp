@@ -8,7 +8,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.4] - 2026-02-11
 
 - **fix(offline): prevent app from hanging when offline with expired session**
   - Replace all boot-path `supabase.auth.getSession()` calls with sync localStorage reads via new `offlineSession.ts` utility
