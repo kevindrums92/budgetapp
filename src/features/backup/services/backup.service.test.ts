@@ -60,6 +60,8 @@ describe('backup.service', () => {
     budgets: [],
     trips: [],
     tripExpenses: [],
+    debts: [],
+    debtPayments: [],
   };
 
   describe('createBackup', () => {
@@ -116,6 +118,8 @@ describe('backup.service', () => {
           },
         ],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
 
       const backup = await createBackup(stateWithMultipleEntities);
@@ -157,6 +161,8 @@ describe('backup.service', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
 
       const backup = await createBackup(emptyState);
@@ -203,6 +209,8 @@ describe('backup.service', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
 
       const backup = await createBackup(largeState);
@@ -404,6 +412,8 @@ describe('backup.service', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
       const backup = await createBackup(emptyState);
 
@@ -474,6 +484,8 @@ describe('backup.service', () => {
             createdAt: Date.now(),
           },
         ],
+        debts: [],
+        debtPayments: [],
       };
       const backup = await createBackup(complexState);
 

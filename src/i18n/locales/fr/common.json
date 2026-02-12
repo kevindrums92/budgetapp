@@ -41,7 +41,8 @@
     "home": "Accueil",
     "plan": "Plan",
     "stats": "Statistiques",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "debts": "Dettes"
   },
   "settings": {
     "title": "Paramètres",

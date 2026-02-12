@@ -58,7 +58,7 @@ export function loadState(): BudgetState | null {
       const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
       if (onboardingCompleted) {
         const initialState: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: [],
           categories: [],
           categoryDefinitions: createDefaultCategories(),
@@ -66,6 +66,8 @@ export function loadState(): BudgetState | null {
           budgets: [],
           trips: [],
           tripExpenses: [],
+          debts: [],
+          debtPayments: [],
         };
         saveState(initialState);
         return initialState;
@@ -224,6 +226,15 @@ export function loadState(): BudgetState | null {
       console.log('[Storage] Migrated v7→v8: Removed subscription from state (now in separate table)');
     }
 
+    // Migrate v8 to v9: Add debts and debtPayments arrays
+    if (parsed.schemaVersion === 8) {
+      parsed.debts = [];
+      parsed.debtPayments = [];
+      parsed.schemaVersion = 9;
+      needsSave = true;
+      console.log('[Storage] Migrated v8→v9: Added debts and debtPayments');
+    }
+
     // Always repair: Ensure all transactions have sourceTemplateId if they match a template
     // This fixes transactions that were confirmed before sourceTemplateId was added
     if (parsed.schemaVersion >= 5) {
@@ -264,6 +275,8 @@ export function loadState(): BudgetState | null {
     if (!Array.isArray(parsed.budgets)) parsed.budgets = [];
     if (!Array.isArray(parsed.trips)) parsed.trips = [];
     if (!Array.isArray(parsed.tripExpenses)) parsed.tripExpenses = [];
+    if (!Array.isArray(parsed.debts)) parsed.debts = [];
+    if (!Array.isArray(parsed.debtPayments)) parsed.debtPayments = [];
 
     // Ensure categoryGroups exists (for any edge cases)
     if (!Array.isArray(parsed.categoryGroups) || parsed.categoryGroups.length === 0) {

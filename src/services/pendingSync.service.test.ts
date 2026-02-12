@@ -31,6 +31,8 @@ describe('pendingSync.service', () => {
     budgets: [],
     trips: [],
     tripExpenses: [],
+    debts: [],
+    debtPayments: [],
   };
 
   describe('setPendingSnapshot', () => {
@@ -199,6 +201,8 @@ describe('pendingSync.service', () => {
       budgets: [],
       trips: [],
       tripExpenses: [],
+      debts: [],
+      debtPayments: [],
     };
 
     it('should store and retrieve empty snapshot', () => {

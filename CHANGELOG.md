@@ -10,6 +10,18 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(debts): add full debt payoff planner module**
+  - 7-step wizard to register debts (credit cards, personal loans, installments) with French amortization or compound interest
+  - Debt detail page with progress bar, amortization table, and payment history
+  - Payment recording with principal/interest split calculation
+  - Extra payment strategies for French amortization: "Reducir plazo" (recalculate remaining installments) and "Reducir cuota" (recalculate lower payment) — per Colombian Ley 1555/2012
+  - Delete payments with correct balance/installment reversal
+  - Debts tab in bottom bar, summary header with total debt and estimated payoff
+  - Pro gating: 2 active debts free, unlimited for Pro
+  - Full i18n (es, en, pt, fr) with dedicated `debts.json` namespace
+  - Interest service with unit tests (monthly rate, fixed payment, remaining installments, amortization projection)
+  - Thousand separators and dynamic font sizing on amount inputs
+
 - **fix(offline): prevent app from hanging when offline with expired session**
   - Replace all boot-path `supabase.auth.getSession()` calls with sync localStorage reads via new `offlineSession.ts` utility
   - Add safety timeouts to OnboardingGate (4s), cloudState.service (3s), and CloudSyncGate (5s)

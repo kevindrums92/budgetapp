@@ -282,7 +282,7 @@ export default function CloudSyncGate() {
         logger.info("CloudSync", "Authenticated user logged out, clearing local data");
         clearPendingSnapshot();
         clearState();
-        replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
+        replaceAllData({ schemaVersion: 9, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [], debts: [], debtPayments: [] });
 
         try {
           localStorage.removeItem(SEEN_KEY);
@@ -719,7 +719,7 @@ export default function CloudSyncGate() {
         });
 
         // Leave categories empty - user will recover them when logging back in
-        replaceAllData({ schemaVersion: 6, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [] });
+        replaceAllData({ schemaVersion: 9, transactions: [], categories: [], categoryDefinitions: [], categoryGroups: createDefaultCategoryGroups(), budgets: [], trips: [], tripExpenses: [], debts: [], debtPayments: [] });
 
         // Reset welcome
         try {

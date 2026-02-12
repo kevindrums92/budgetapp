@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Wallet, BarChart3, Settings } from "lucide-react";
+import { Home, Wallet, BarChart3, Landmark, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 function Tab({
@@ -46,10 +46,11 @@ export default function BottomBar() {
           "pt-3 pb-[calc(env(safe-area-inset-bottom)+10px)]",
         ].join(" ")}
       >
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-5">
           <Tab to="/" label={t("navigation.home")} icon={Home} />
           <Tab to="/plan" label={t("navigation.plan")} icon={Wallet} />
           <Tab to="/stats" label={t("navigation.stats")} icon={BarChart3} />
+          <Tab to="/debts" label={t("navigation.debts")} icon={Landmark} />
           <Tab to="/profile" label={t("navigation.settings")} icon={Settings} />
         </div>
       </div>

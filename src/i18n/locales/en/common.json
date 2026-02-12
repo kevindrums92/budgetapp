@@ -41,7 +41,8 @@
     "home": "Home",
     "plan": "Plan",
     "stats": "Stats",
-    "settings": "Settings"
+    "settings": "Settings",
+    "debts": "Debts"
   },
   "settings": {
     "title": "Settings",

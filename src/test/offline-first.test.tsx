@@ -286,6 +286,8 @@ describe('Offline-First: Core Principles', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       });
 
       expect(mockFrom).not.toHaveBeenCalled();
@@ -331,6 +333,8 @@ describe('Offline-First: Core Principles', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
         welcomeSeen: true,
       };
       localStorage.setItem('budget-state', JSON.stringify(storedState));
@@ -452,6 +456,8 @@ describe('Offline-First: Feature Availability', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
 
       saveState(testState);
@@ -504,6 +510,8 @@ describe('Offline-First: Feature Availability', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
 
       setPendingSnapshot(snapshot);

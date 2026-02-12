@@ -123,6 +123,59 @@ export type Trip = {
   createdAt: number;         // epoch ms
 };
 
+// ==================== DEBTS ====================
+
+export type DebtType = "credit_card" | "personal_loan" | "installment" | "other";
+
+export type InterestType = "compound" | "french_amortization";
+
+export type DebtStatus = "active" | "paid_off" | "archived";
+
+export type PayoffStrategy = "snowball" | "avalanche" | "custom";
+
+export type Debt = {
+  id: string;
+  name: string;
+  type: DebtType;
+  interestType: InterestType;
+  originalBalance: number;
+  currentBalance: number;
+  annualInterestRate: number;
+  minimumPayment: number;
+  categoryId?: string;
+  dueDay?: number;
+  totalInstallments?: number;
+  remainingInstallments?: number;
+  fixedInstallmentAmount?: number;
+  status: DebtStatus;
+  customPriority?: number;
+  notes?: string;
+  paidOffDate?: string;
+  createdAt: number;
+};
+
+export type DebtPayment = {
+  id: string;
+  debtId: string;
+  amount: number;
+  principalPortion: number;
+  interestPortion: number;
+  balanceAfterPayment: number;
+  date: string;
+  transactionId?: string;
+  extraStrategy?: "reduce_term" | "reduce_installment";
+  notes?: string;
+  createdAt: number;
+};
+
+export type AmortizationRow = {
+  month: number;
+  payment: number;
+  principal: number;
+  interest: number;
+  balance: number;
+};
+
 // ==================== SECURITY ====================
 
 export type SecuritySettings = {
@@ -147,7 +200,7 @@ export type SubscriptionState = {
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
@@ -157,10 +210,14 @@ export type BudgetState = {
   // Trips
   trips: Trip[];
   tripExpenses: TripExpense[];
+  // Debts
+  debts: Debt[];
+  debtPayments: DebtPayment[];
   // Onboarding flags
   welcomeSeen?: boolean;             // First-time welcome onboarding completed
   budgetOnboardingSeen?: boolean;    // Budget module onboarding completed
   savingsGoalOnboardingSeen?: boolean; // Savings goal onboarding completed
+  debtOnboardingSeen?: boolean;      // Debt planner onboarding completed
   // Spotlight tour flags
   homeTourSeen?: boolean;              // Home page spotlight tour completed
   statsTourSeen?: boolean;             // Stats page spotlight tour completed

@@ -18,6 +18,11 @@ import type {
   BudgetProgress,
   SecuritySettings,
   SubscriptionState,
+  Debt,
+  DebtPayment,
+  DebtType,
+  InterestType,
+  DebtStatus,
 } from "@/types/budget.types";
 import { TRIAL_PERIOD_DAYS } from "@/constants/pricing";
 import { loadState, saveState } from "@/services/storage.service";
@@ -25,6 +30,7 @@ import { currentMonthKey, todayISO } from "@/services/dates.service";
 import { createDefaultCategoryGroups, MISCELLANEOUS_GROUP_ID, OTHER_INCOME_GROUP_ID } from "@/constants/category-groups/default-category-groups";
 import { getBudgetsToRenew, renewRecurringBudget, validateBudgetOverlap } from "@/features/budget/services/budget.service";
 import { migrateBudgets } from "@/services/migration.service";
+import { calculateFixedPayment, calculateRemainingInstallments } from "@/features/debts/services/interest.service";
 
 type CloudStatus = "idle" | "syncing" | "ok" | "offline" | "error";
 type CloudMode = "guest" | "cloud";
@@ -72,6 +78,29 @@ type AddCategoryGroupInput = {
   name: string;
   type: TransactionType;
   color: string;
+};
+
+type AddDebtInput = {
+  name: string;
+  type: DebtType;
+  interestType: InterestType;
+  currentBalance: number;
+  annualInterestRate: number;
+  minimumPayment: number;
+  categoryId?: string;
+  dueDay?: number;
+  totalInstallments?: number;
+  fixedInstallmentAmount?: number;
+  notes?: string;
+};
+
+type AddDebtPaymentInput = {
+  debtId: string;
+  amount: number;
+  date: string;
+  extraStrategy?: "reduce_term" | "reduce_installment";
+  notes?: string;
+  createTransaction?: boolean;
 };
 
 type CreateBudgetInput = {
@@ -156,6 +185,20 @@ type BudgetStore = BudgetState & {
     totalGoals: number;
   };
 
+  // CRUD Debts
+  addDebt: (input: AddDebtInput) => string;
+  updateDebt: (id: string, patch: Partial<Omit<Debt, "id" | "createdAt">>) => void;
+  deleteDebt: (id: string) => void;
+  getDebtById: (id: string) => Debt | undefined;
+
+  // CRUD Debt Payments
+  addDebtPayment: (input: AddDebtPaymentInput) => string;
+  deleteDebtPayment: (id: string) => void;
+
+  // Debt onboarding
+  debtOnboardingSeen: boolean;
+  setDebtOnboardingSeen: (v: boolean) => void;
+
   // Landing
   welcomeSeen: boolean;
   setWelcomeSeen: (v: boolean) => void;
@@ -215,7 +258,7 @@ type BudgetStore = BudgetState & {
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 8,
+  schemaVersion: 9,
   transactions: [],
   categories: [],
   categoryDefinitions: [], // Las categorías se crean durante el onboarding
@@ -223,6 +266,8 @@ const defaultState: BudgetState = {
   budgets: [],
   trips: [],
   tripExpenses: [],
+  debts: [],
+  debtPayments: [],
   security: { biometricEnabled: false },
 };
 
@@ -453,7 +498,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
@@ -461,6 +506,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         // cache local (guest o cloud cache)
@@ -506,7 +553,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
@@ -514,6 +561,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -524,7 +573,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -532,6 +581,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -560,7 +611,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -568,6 +619,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: [trip, ...state.trips],
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -583,7 +636,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -591,6 +644,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: nextTrips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -601,15 +656,16 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,
           budgets: state.budgets,
           trips: state.trips.filter((t) => t.id !== id),
-          // También eliminar los gastos asociados al viaje
           tripExpenses: state.tripExpenses.filter((e) => e.tripId !== id),
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -637,7 +693,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -645,6 +701,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: [expense, ...state.tripExpenses],
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -660,7 +718,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -668,6 +726,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: nextExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -678,7 +738,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -686,6 +746,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses.filter((e) => e.id !== id),
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -711,7 +773,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
@@ -719,6 +781,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -736,7 +800,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -744,6 +808,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -754,7 +820,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
@@ -762,6 +828,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -789,7 +857,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -797,6 +865,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -814,7 +884,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -822,6 +892,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -846,7 +918,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -854,6 +926,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -905,7 +979,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -913,6 +987,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: [...state.budgets, newBudget],
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
           homeTourSeen: state.homeTourSeen,
@@ -968,7 +1044,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -976,6 +1052,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: nextBudgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
           homeTourSeen: state.homeTourSeen,
@@ -998,7 +1076,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteBudget: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1006,6 +1084,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets.filter((b) => b.id !== id),
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
         };
 
         saveState(next);
@@ -1021,7 +1101,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1029,6 +1109,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: nextBudgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
           homeTourSeen: state.homeTourSeen,
@@ -1080,7 +1162,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1088,6 +1170,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: nextBudgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
           homeTourSeen: state.homeTourSeen,
@@ -1192,7 +1276,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 8,
+        schemaVersion: 9,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
@@ -1200,9 +1284,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         budgets: s.budgets ?? [],
         trips: s.trips ?? [],
         tripExpenses: s.tripExpenses ?? [],
+        debts: s.debts ?? [],
+        debtPayments: s.debtPayments ?? [],
         welcomeSeen: s.welcomeSeen,
         budgetOnboardingSeen: s.budgetOnboardingSeen,
         savingsGoalOnboardingSeen: s.savingsGoalOnboardingSeen,
+        debtOnboardingSeen: s.debtOnboardingSeen,
         // NOTE: tour flags are NOT included in snapshot (local-only, per-device)
         lastSchedulerRun: s.lastSchedulerRun,
         excludedFromStats: s.excludedFromStats,
@@ -1229,7 +1316,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         const current = state.excludedFromStats ?? [];
         const isExcluded = current.includes(categoryId);
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1237,6 +1324,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           budgets: state.budgets,
           trips: state.trips,
           tripExpenses: state.tripExpenses,
+          debts: state.debts,
+          debtPayments: state.debtPayments,
           welcomeSeen: state.welcomeSeen,
           budgetOnboardingSeen: state.budgetOnboardingSeen,
           homeTourSeen: state.homeTourSeen,
@@ -1265,7 +1354,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       set((state) => {
         const next: BudgetState = {
           ...state,
-          schemaVersion: 8,
+          schemaVersion: 9,
           security: {
             biometricEnabled: !(state.security?.biometricEnabled ?? false),
             lastAuthTimestamp: state.security?.lastAuthTimestamp,
@@ -1280,7 +1369,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       set((state) => {
         const next: BudgetState = {
           ...state,
-          schemaVersion: 8,
+          schemaVersion: 9,
           security: {
             biometricEnabled: state.security?.biometricEnabled ?? false,
             lastAuthTimestamp: Date.now(),
@@ -1301,7 +1390,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       const migratedBudgets = migrateBudgets(data.budgets ?? []);
 
       // guarda como cache local (cloud cache) - subscription is NOT included (managed separately)
-      const normalizedData = { ...data, schemaVersion: 8 as const, budgets: migratedBudgets };
+      const normalizedData = { ...data, schemaVersion: 9 as const, budgets: migratedBudgets };
       saveState(normalizedData);
 
       // Sync onboarding flags to localStorage
@@ -1323,13 +1412,19 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           else localStorage.removeItem("budget.savingsGoalOnboardingSeen.v1");
         } catch { }
       }
+      if (data.debtOnboardingSeen !== undefined) {
+        try {
+          if (data.debtOnboardingSeen) localStorage.setItem("budget.debtOnboardingSeen.v1", "1");
+          else localStorage.removeItem("budget.debtOnboardingSeen.v1");
+        } catch { }
+      }
       // NOTE: tour flags are NOT synced from cloud - they are local-only per device
       // Their source of truth is individual localStorage keys (smartspend.*Tour.v1)
 
       // set explícito (NO meter funciones del store dentro)
       const current = get();
       set({
-        schemaVersion: 8,
+        schemaVersion: 9,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
@@ -1337,9 +1432,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         budgets: migratedBudgets,
         trips: data.trips ?? [],
         tripExpenses: data.tripExpenses ?? [],
+        debts: data.debts ?? [],
+        debtPayments: data.debtPayments ?? [],
         welcomeSeen: data.welcomeSeen ?? false,
         budgetOnboardingSeen: data.budgetOnboardingSeen ?? false,
         savingsGoalOnboardingSeen: data.savingsGoalOnboardingSeen ?? false,
+        debtOnboardingSeen: data.debtOnboardingSeen ?? false,
         // Tour flags preserved from local state (not from cloud data)
         homeTourSeen: current.homeTourSeen,
         statsTourSeen: current.statsTourSeen,
@@ -1355,6 +1453,282 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         security: data.security ?? { biometricEnabled: false },
         // NOTE: subscription is NOT set here (managed by RevenueCat + subscription.service.ts)
       });
+    },
+
+    // ---------- CRUD DEBTS ----------
+    addDebt: (input) => {
+      const name = input.name.trim();
+      if (!name) return "";
+      if (!Number.isFinite(input.currentBalance) || input.currentBalance <= 0) return "";
+
+      const debt: Debt = {
+        id: crypto.randomUUID(),
+        name,
+        type: input.type,
+        interestType: input.interestType,
+        originalBalance: input.currentBalance,
+        currentBalance: Math.round(input.currentBalance),
+        annualInterestRate: input.annualInterestRate,
+        minimumPayment: Math.round(input.minimumPayment),
+        categoryId: input.categoryId,
+        dueDay: input.dueDay,
+        totalInstallments: input.totalInstallments,
+        remainingInstallments: input.totalInstallments,
+        fixedInstallmentAmount: input.fixedInstallmentAmount,
+        status: "active",
+        notes: input.notes?.trim() || undefined,
+        createdAt: Date.now(),
+      };
+
+      set((state) => {
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 9,
+          debts: [debt, ...state.debts],
+        };
+        saveState(next);
+        return next;
+      });
+
+      return debt.id;
+    },
+
+    updateDebt: (id, patch) => {
+      set((state) => {
+        const nextDebts = state.debts.map((d) => {
+          if (d.id !== id) return d;
+          return { ...d, ...patch };
+        });
+
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 9,
+          debts: nextDebts,
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    deleteDebt: (id) => {
+      set((state) => {
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 9,
+          debts: state.debts.filter((d) => d.id !== id),
+          debtPayments: state.debtPayments.filter((p) => p.debtId !== id),
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    getDebtById: (id) => {
+      return get().debts.find((d) => d.id === id);
+    },
+
+    // ---------- CRUD DEBT PAYMENTS ----------
+    addDebtPayment: (input) => {
+      if (!Number.isFinite(input.amount) || input.amount <= 0) return "";
+
+      const state = get();
+      const debt = state.debts.find((d) => d.id === input.debtId);
+      if (!debt) return "";
+
+      // Calculate interest/principal split
+      const monthlyRate = Math.pow(1 + debt.annualInterestRate / 100, 1 / 12) - 1;
+      const interestPortion = Math.round(debt.currentBalance * monthlyRate);
+      const principalPortion = Math.max(0, Math.round(input.amount) - interestPortion);
+      const newBalance = Math.max(0, debt.currentBalance - principalPortion);
+
+      const payment: DebtPayment = {
+        id: crypto.randomUUID(),
+        debtId: input.debtId,
+        amount: Math.round(input.amount),
+        principalPortion,
+        interestPortion: Math.round(input.amount) - principalPortion,
+        balanceAfterPayment: newBalance,
+        date: input.date,
+        extraStrategy: input.extraStrategy,
+        notes: input.notes?.trim() || undefined,
+        createdAt: Date.now(),
+      };
+
+      // Create a transaction if requested (default: true)
+      const shouldCreateTransaction = input.createTransaction !== false;
+      let transactionId: string | undefined;
+
+      if (shouldCreateTransaction) {
+        transactionId = crypto.randomUUID();
+        const categoryId = debt.categoryId || "debt-payment";
+
+        const tx: Transaction = {
+          id: transactionId,
+          type: "expense",
+          name: `Pago: ${debt.name}`,
+          category: categoryId,
+          amount: Math.round(input.amount),
+          date: input.date,
+          notes: input.notes?.trim() || undefined,
+          createdAt: Date.now(),
+        };
+
+        payment.transactionId = transactionId;
+
+        set((state) => {
+          const nextDebts = state.debts.map((d) => {
+            if (d.id !== input.debtId) return d;
+            const updated: Debt = { ...d, currentBalance: newBalance };
+
+            if (input.extraStrategy === "reduce_term" && d.remainingInstallments) {
+              // Keep same payment, recalculate remaining installments
+              const newRemaining = newBalance > 0
+                ? calculateRemainingInstallments(newBalance, d.annualInterestRate, d.minimumPayment)
+                : 0;
+              updated.remainingInstallments = newRemaining !== null ? newRemaining : 0;
+            } else if (input.extraStrategy === "reduce_installment" && d.remainingInstallments) {
+              // One period passed, keep adjusted term, recalculate lower payment
+              const newRemaining = Math.max(0, d.remainingInstallments - 1);
+              updated.remainingInstallments = newRemaining;
+              updated.minimumPayment = newBalance > 0 && newRemaining > 0
+                ? calculateFixedPayment(newBalance, d.annualInterestRate, newRemaining)
+                : 0;
+            } else {
+              // Regular payment (no strategy): decrement installments, keep payment
+              updated.remainingInstallments = d.remainingInstallments
+                ? Math.max(0, d.remainingInstallments - 1)
+                : undefined;
+            }
+
+            if (newBalance === 0) {
+              updated.status = "paid_off";
+              updated.paidOffDate = input.date;
+            }
+            return updated;
+          });
+
+          const next: BudgetState = {
+            ...state,
+            schemaVersion: 9,
+            transactions: [tx, ...state.transactions],
+            debts: nextDebts,
+            debtPayments: [payment, ...state.debtPayments],
+          };
+          saveState(next);
+          return next;
+        });
+      } else {
+        set((state) => {
+          const nextDebts = state.debts.map((d) => {
+            if (d.id !== input.debtId) return d;
+            const updated: Debt = { ...d, currentBalance: newBalance };
+
+            if (input.extraStrategy === "reduce_term" && d.remainingInstallments) {
+              const newRemaining = newBalance > 0
+                ? calculateRemainingInstallments(newBalance, d.annualInterestRate, d.minimumPayment)
+                : 0;
+              updated.remainingInstallments = newRemaining !== null ? newRemaining : 0;
+            } else if (input.extraStrategy === "reduce_installment" && d.remainingInstallments) {
+              const newRemaining = Math.max(0, d.remainingInstallments - 1);
+              updated.remainingInstallments = newRemaining;
+              updated.minimumPayment = newBalance > 0 && newRemaining > 0
+                ? calculateFixedPayment(newBalance, d.annualInterestRate, newRemaining)
+                : 0;
+            } else {
+              updated.remainingInstallments = d.remainingInstallments
+                ? Math.max(0, d.remainingInstallments - 1)
+                : undefined;
+            }
+
+            if (newBalance === 0) {
+              updated.status = "paid_off";
+              updated.paidOffDate = input.date;
+            }
+            return updated;
+          });
+
+          const next: BudgetState = {
+            ...state,
+            schemaVersion: 9,
+            debts: nextDebts,
+            debtPayments: [payment, ...state.debtPayments],
+          };
+          saveState(next);
+          return next;
+        });
+      }
+
+      return payment.id;
+    },
+
+    deleteDebtPayment: (id) => {
+      set((state) => {
+        const payment = state.debtPayments.find((p) => p.id === id);
+        if (!payment) return state;
+
+        // Restore balance on the debt
+        const nextDebts = state.debts.map((d) => {
+          if (d.id !== payment.debtId) return d;
+          const restoredBalance = d.currentBalance + payment.principalPortion;
+          const updated: Debt = {
+            ...d,
+            currentBalance: restoredBalance,
+            status: "active" as DebtStatus,
+            paidOffDate: undefined,
+          };
+
+          if (payment.extraStrategy === "reduce_term" && d.remainingInstallments !== undefined) {
+            // Was recalculated to fewer installments. Recalculate back with restored balance.
+            const restored = calculateRemainingInstallments(
+              restoredBalance, d.annualInterestRate, d.minimumPayment
+            );
+            updated.remainingInstallments = restored !== null ? restored : d.remainingInstallments + 1;
+          } else if (payment.extraStrategy === "reduce_installment" && d.remainingInstallments !== undefined) {
+            // Was decremented by 1 and payment recalculated. Reverse both.
+            const restoredRemaining = d.remainingInstallments + 1;
+            updated.remainingInstallments = restoredRemaining;
+            updated.minimumPayment = calculateFixedPayment(
+              restoredBalance, d.annualInterestRate, restoredRemaining
+            );
+          } else {
+            // Regular payment: restore the decremented installment
+            updated.remainingInstallments = d.remainingInstallments !== undefined
+              ? d.remainingInstallments + 1
+              : undefined;
+          }
+
+          return updated;
+        });
+
+        // Also remove the linked transaction if any
+        const nextTransactions = payment.transactionId
+          ? state.transactions.filter((t) => t.id !== payment.transactionId)
+          : state.transactions;
+
+        const next: BudgetState = {
+          ...state,
+          schemaVersion: 9,
+          transactions: nextTransactions,
+          debts: nextDebts,
+          debtPayments: state.debtPayments.filter((p) => p.id !== id),
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    // Debt onboarding
+    debtOnboardingSeen: (() => {
+      try { return localStorage.getItem("budget.debtOnboardingSeen.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setDebtOnboardingSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("budget.debtOnboardingSeen.v1", "1");
+        else localStorage.removeItem("budget.debtOnboardingSeen.v1");
+      } catch { }
+      set({ debtOnboardingSeen: v });
+      saveState(get());
     },
 
     // ===== SUBSCRIPTION =====

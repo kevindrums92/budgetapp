@@ -19,6 +19,7 @@ import esNotifications from './locales/es/notifications.json';
 import esPaywall from './locales/es/paywall.json';
 import esBatch from './locales/es/batch.json';
 import esTour from './locales/es/tour.json';
+import esDebts from './locales/es/debts.json';
 
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
@@ -37,6 +38,7 @@ import enNotifications from './locales/en/notifications.json';
 import enPaywall from './locales/en/paywall.json';
 import enBatch from './locales/en/batch.json';
 import enTour from './locales/en/tour.json';
+import enDebts from './locales/en/debts.json';
 
 import ptCommon from './locales/pt/common.json';
 import ptOnboarding from './locales/pt/onboarding.json';
@@ -55,6 +57,7 @@ import ptNotifications from './locales/pt/notifications.json';
 import ptPaywall from './locales/pt/paywall.json';
 import ptBatch from './locales/pt/batch.json';
 import ptTour from './locales/pt/tour.json';
+import ptDebts from './locales/pt/debts.json';
 
 import frCommon from './locales/fr/common.json';
 import frOnboarding from './locales/fr/onboarding.json';
@@ -73,6 +76,7 @@ import frNotifications from './locales/fr/notifications.json';
 import frPaywall from './locales/fr/paywall.json';
 import frBatch from './locales/fr/batch.json';
 import frTour from './locales/fr/tour.json';
+import frDebts from './locales/fr/debts.json';
 
 const resources = {
   es: {
@@ -93,6 +97,7 @@ const resources = {
     paywall: esPaywall,
     batch: esBatch,
     tour: esTour,
+    debts: esDebts,
   },
   en: {
     common: enCommon,
@@ -112,6 +117,7 @@ const resources = {
     paywall: enPaywall,
     batch: enBatch,
     tour: enTour,
+    debts: enDebts,
   },
   pt: {
     common: ptCommon,
@@ -131,6 +137,7 @@ const resources = {
     paywall: ptPaywall,
     batch: ptBatch,
     tour: ptTour,
+    debts: ptDebts,
   },
   fr: {
     common: frCommon,
@@ -150,6 +157,7 @@ const resources = {
     paywall: frPaywall,
     batch: frBatch,
     tour: frTour,
+    debts: frDebts,
   },
 };
 
@@ -188,7 +196,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour'],
+    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour', 'debts'],
     interpolation: {
       escapeValue: false, // React already escapes
     },

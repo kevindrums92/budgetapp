@@ -78,7 +78,18 @@
       "WebFetch(domain:axiom.co)",
       "WebFetch(domain:developers.belvo.com)",
       "WebFetch(domain:belvo.com)",
-      "Bash(npx vitest run:*)"
+      "Bash(npx vitest run:*)",
+      "WebFetch(domain:www.bancolombia.com)",
+      "WebFetch(domain:www.portafolio.co)",
+      "WebFetch(domain:comunicaciones.davivienda.com)",
+      "WebFetch(domain:www.superfinanciera.gov.co)",
+      "WebFetch(domain:www.eltiempo.com)",
+      "WebFetch(domain:www.abanfin.com)",
+      "WebFetch(domain:www.davibank.com)",
+      "WebFetch(domain:www.debtpayoffplanner.com)",
+      "WebFetch(domain:www.fna.gov.co)",
+      "WebFetch(domain:www.vertex42.com)",
+      "WebFetch(domain:www.bbva.com)"
     ]
   }
 }

@@ -46,6 +46,8 @@ describe('cloudState.service', () => {
     budgets: [],
     trips: [],
     tripExpenses: [],
+    debts: [],
+    debtPayments: [],
   };
 
   beforeEach(() => {
@@ -226,6 +228,8 @@ describe('cloudState.service', () => {
             createdAt: Date.now(),
           },
         ],
+        debts: [],
+        debtPayments: [],
       };
 
       mockMaybeSingle.mockResolvedValue({
@@ -326,6 +330,8 @@ describe('cloudState.service', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
 
       mockUpsert.mockResolvedValue({
@@ -362,6 +368,8 @@ describe('cloudState.service', () => {
         budgets: [],
         trips: [],
         tripExpenses: [],
+        debts: [],
+        debtPayments: [],
       };
 
       mockUpsert.mockResolvedValue({

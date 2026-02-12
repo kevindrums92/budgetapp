@@ -5,9 +5,11 @@ export type ProFeature =
   | 'unlimited_budgets'
   | 'unlimited_scheduled'
   | 'unlimited_backups'
+  | 'unlimited_debts'
   | 'stats_page'
   | 'export_data'
-  | 'history_filters';
+  | 'history_filters'
+  | 'debt_strategies';
 
 export type PaywallTrigger =
   | 'onboarding'
@@ -20,7 +22,9 @@ export type PaywallTrigger =
   | 'backup_features'
   | 'settings'
   | 'upgrade_prompt' // Para CTAs generales de upgrade
-  | 'batch_entry_limit'; // Límite de IA batch entry para usuarios free
+  | 'batch_entry_limit' // Límite de IA batch entry para usuarios free
+  | 'debt_limit' // Límite de deudas activas para usuarios free
+  | 'debt_strategies'; // Comparador/simulador de estrategias
 
 // ==================== PRICING PLANS ====================
 
@@ -65,6 +69,7 @@ export const FREE_TIER_LIMITS = {
   totalCategories: 10,
   activeBudgets: 2,
   scheduledTransactions: 3,
+  activeDebts: 2,
 } as const;
 
 // Map count-limited ProFeatures to their corresponding FREE_TIER_LIMITS key
@@ -72,6 +77,7 @@ export const COUNT_LIMITED_FEATURES: Partial<Record<ProFeature, keyof typeof FRE
   unlimited_categories: 'totalCategories',
   unlimited_budgets: 'activeBudgets',
   unlimited_scheduled: 'scheduledTransactions',
+  unlimited_debts: 'activeDebts',
 };
 
 // Features that are boolean (on/off) — blocked entirely for free users
@@ -80,4 +86,5 @@ export const BOOLEAN_PRO_FEATURES: ProFeature[] = [
   'export_data',
   'history_filters',
   'unlimited_backups',
+  'debt_strategies',
 ];

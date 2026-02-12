@@ -1,0 +1,164 @@
+{
+  "page": {
+    "title": "Deudas",
+    "noDebts": "No tienes deudas registradas",
+    "noDebtsDescription": "Agrega tus tarjetas de crédito, préstamos o cuotas para planificar tu pago",
+    "addFirstDebt": "Agregar mi primera deuda",
+    "totalDebt": "Deuda total",
+    "estimatedFreeDate": "Libre de deudas en",
+    "activeDebts": "Deudas activas",
+    "paidOff": "Pagadas",
+    "interestPaid": "Intereses pagados"
+  },
+  "tabs": {
+    "budgets": "Presupuestos",
+    "debts": "Deudas"
+  },
+  "types": {
+    "credit_card": "Tarjeta de crédito",
+    "personal_loan": "Préstamo personal",
+    "installment": "Compra a cuotas",
+    "other": "Otro"
+  },
+  "interestTypes": {
+    "compound": "Interés compuesto (tarjetas)",
+    "french_amortization": "Cuota fija (préstamos)"
+  },
+  "form": {
+    "titleNew": "Nueva Deuda",
+    "titleEdit": "Editar Deuda",
+    "name": "Nombre",
+    "namePlaceholder": "Ej: Tarjeta Bancolombia",
+    "type": "Tipo de deuda",
+    "balance": "Saldo actual",
+    "interestRate": "Tasa de interés (EA %)",
+    "interestRateHelp": "Tasa efectiva anual. En Colombia, las tarjetas suelen tener entre 28% y 32% EA.",
+    "minimumPayment": "Pago mínimo mensual",
+    "dueDay": "Día de pago",
+    "dueDayPlaceholder": "Ej: 15",
+    "interestType": "Tipo de cálculo",
+    "remainingInstallments": "Cuotas restantes",
+    "installmentsAutoCalculated": "Calculado: {{count}} cuotas restantes con tu saldo y cuota actual",
+    "installmentsHelp": "Completa saldo, tasa y cuota mensual para calcular automáticamente",
+    "recalculate": "Recalcular",
+    "paymentAutoCalculated": "Calculado: cuota mensual de {{amount}}",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas adicionales (opcional)",
+    "save": "Guardar",
+    "delete": "Eliminar deuda",
+    "deleteConfirmTitle": "Eliminar deuda",
+    "deleteConfirmMessage": "¿Seguro que deseas eliminar \"{{name}}\"? Se perderá todo el historial de pagos.",
+    "cancel": "Cancelar"
+  },
+  "payment": {
+    "title": "Registrar Pago",
+    "amount": "Monto del pago",
+    "date": "Fecha",
+    "extraStrategy": "¿Qué quieres reducir?",
+    "reduceTerm": "Reducir plazo",
+    "reduceTermDesc": "Misma cuota, terminas antes",
+    "reduceInstallment": "Reducir cuota",
+    "reduceInstallmentDesc": "Mismo plazo, cuota más baja",
+    "principal": "Capital",
+    "interest": "Interés",
+    "breakdown": "Desglose del pago",
+    "save": "Registrar pago",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas del pago (opcional)",
+    "deleteConfirmTitle": "Eliminar pago",
+    "deleteConfirmMessage": "¿Seguro que deseas eliminar este pago de {{amount}}? Se restaurará el saldo de la deuda.",
+    "cancel": "Cancelar",
+    "delete": "Eliminar"
+  },
+  "detail": {
+    "balance": "Saldo pendiente",
+    "paid": "Pagado",
+    "interestPaid": "Interés pagado",
+    "paymentsCount": "Pagos realizados",
+    "estimatedPayoff": "Fecha estimada de pago",
+    "amortizationTable": "Tabla de amortización",
+    "paymentHistory": "Historial de pagos",
+    "noPayments": "Aún no hay pagos registrados",
+    "registerPayment": "Registrar pago",
+    "month": "Mes",
+    "paymentCol": "Pago",
+    "principalCol": "Capital",
+    "interestCol": "Interés",
+    "balanceCol": "Saldo",
+    "paidOffBadge": "Pagada",
+    "editDebt": "Editar",
+    "unpayable": "Con el pago mínimo actual no se cubre el interés mensual. Considera aumentar tu pago."
+  },
+  "celebration": {
+    "title": "¡Deuda pagada!",
+    "message": "Felicitaciones, pagaste completamente \"{{name}}\"."
+  },
+  "status": {
+    "active": "Activa",
+    "paid_off": "Pagada",
+    "archived": "Archivada"
+  },
+  "wizard": {
+    "continue": "Continuar",
+    "save": "Guardar deuda",
+    "update": "Actualizar deuda",
+    "step1": {
+      "title": "¿Cómo se llama tu deuda?",
+      "subtitle": "Dale un nombre para identificarla fácilmente",
+      "placeholder": "Ej: Tarjeta Visa, Préstamo auto..."
+    },
+    "step2": {
+      "title": "¿Qué tipo de deuda es?",
+      "subtitle": "Selecciona la categoría que mejor describe tu deuda",
+      "credit_card_desc": "Pago mínimo variable, interés sobre saldo",
+      "personal_loan_desc": "Cuotas fijas mensuales con tasa pactada",
+      "installment_desc": "Compras financiadas a cuotas (electrodomésticos, etc.)",
+      "other_desc": "Cualquier otra obligación financiera"
+    },
+    "step3": {
+      "title": "¿Cómo se calcula el interés?",
+      "subtitle": "Esto determina cómo proyectamos tu plan de pago",
+      "compound_title": "Interés compuesto",
+      "compound_desc": "El interés se suma al saldo cada mes. Típico de tarjetas de crédito.",
+      "french_title": "Cuota fija",
+      "french_desc": "Cuotas fijas que incluyen capital e interés. Típico de préstamos bancarios."
+    },
+    "step4": {
+      "title": "¿Cuál es el saldo?",
+      "subtitle": "El monto que debes actualmente",
+      "newOrExisting": "¿Es un crédito nuevo o existente?",
+      "newCredit": "Nuevo",
+      "existingCredit": "Existente",
+      "newCreditLabel": "Monto del préstamo",
+      "existingCreditLabel": "Saldo actual"
+    },
+    "step5": {
+      "title": "¿Cuál es la tasa de interés?",
+      "subtitle": "Puedes ingresarla como tasa anual o mensual",
+      "ea": "Anual (EA)",
+      "em": "Mensual (EM)",
+      "eaHelp": "Tasa efectiva anual. En Colombia, las tarjetas suelen tener entre 28% y 32% EA.",
+      "emHelp": "Tasa efectiva mensual. Se convierte automáticamente a tasa anual.",
+      "equivalentEA": "Equivale a {{rate}}% EA",
+      "equivalentEM": "Equivale a {{rate}}% mensual",
+      "skipHint": "Si no conoces la tasa, puedes dejarla en 0"
+    },
+    "step6": {
+      "title": "¿Cuánto pagas mensualmente?",
+      "titleNew": "¿A cuántas cuotas?",
+      "subtitle": "El monto mínimo que pagas cada mes",
+      "subtitleNew": "Define el plazo de tu crédito",
+      "months": "meses",
+      "calculatedPayment": "Cuota mensual estimada: {{amount}}",
+      "calculatedInstallments": "Cuotas restantes estimadas: {{count}}"
+    },
+    "step7": {
+      "title": "Detalles finales",
+      "subtitle": "Información adicional (opcional)",
+      "dueDayLabel": "Día de pago del mes",
+      "dueDayHelp": "¿Qué día del mes vence tu pago? (1-31)",
+      "notesLabel": "Notas",
+      "notesPlaceholder": "Notas adicionales sobre esta deuda"
+    }
+  }
+}

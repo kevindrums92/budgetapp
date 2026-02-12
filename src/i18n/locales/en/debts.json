@@ -1,0 +1,164 @@
+{
+  "page": {
+    "title": "Debts",
+    "noDebts": "You have no debts yet",
+    "noDebtsDescription": "Add your credit cards, loans, or installments to plan your payments",
+    "addFirstDebt": "Add my first debt",
+    "totalDebt": "Total debt",
+    "estimatedFreeDate": "Debt-free by",
+    "activeDebts": "Active debts",
+    "paidOff": "Paid off",
+    "interestPaid": "Interest paid"
+  },
+  "tabs": {
+    "budgets": "Budgets",
+    "debts": "Debts"
+  },
+  "types": {
+    "credit_card": "Credit card",
+    "personal_loan": "Personal loan",
+    "installment": "Installment purchase",
+    "other": "Other"
+  },
+  "interestTypes": {
+    "compound": "Compound interest (cards)",
+    "french_amortization": "Fixed payment (loans)"
+  },
+  "form": {
+    "titleNew": "New Debt",
+    "titleEdit": "Edit Debt",
+    "name": "Name",
+    "namePlaceholder": "E.g.: Chase Visa",
+    "type": "Debt type",
+    "balance": "Current balance",
+    "interestRate": "Interest rate (APR %)",
+    "interestRateHelp": "Annual percentage rate. Credit cards typically range from 18% to 30% APR.",
+    "minimumPayment": "Minimum monthly payment",
+    "dueDay": "Payment due day",
+    "dueDayPlaceholder": "E.g.: 15",
+    "interestType": "Calculation method",
+    "remainingInstallments": "Remaining installments",
+    "installmentsAutoCalculated": "Calculated: {{count}} installments remaining based on your balance and payment",
+    "installmentsHelp": "Fill in balance, rate, and monthly payment to auto-calculate",
+    "recalculate": "Recalculate",
+    "paymentAutoCalculated": "Calculated: monthly payment of {{amount}}",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes (optional)",
+    "save": "Save",
+    "delete": "Delete debt",
+    "deleteConfirmTitle": "Delete debt",
+    "deleteConfirmMessage": "Are you sure you want to delete \"{{name}}\"? All payment history will be lost.",
+    "cancel": "Cancel"
+  },
+  "payment": {
+    "title": "Record Payment",
+    "amount": "Payment amount",
+    "date": "Date",
+    "extraStrategy": "What do you want to reduce?",
+    "reduceTerm": "Reduce term",
+    "reduceTermDesc": "Same payment, finish sooner",
+    "reduceInstallment": "Reduce payment",
+    "reduceInstallmentDesc": "Same term, lower payment",
+    "principal": "Principal",
+    "interest": "Interest",
+    "breakdown": "Payment breakdown",
+    "save": "Record payment",
+    "notes": "Notes",
+    "notesPlaceholder": "Payment notes (optional)",
+    "deleteConfirmTitle": "Delete payment",
+    "deleteConfirmMessage": "Are you sure you want to delete this {{amount}} payment? The debt balance will be restored.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "detail": {
+    "balance": "Outstanding balance",
+    "paid": "Paid",
+    "interestPaid": "Interest paid",
+    "paymentsCount": "Payments made",
+    "estimatedPayoff": "Estimated payoff date",
+    "amortizationTable": "Amortization table",
+    "paymentHistory": "Payment history",
+    "noPayments": "No payments recorded yet",
+    "registerPayment": "Record payment",
+    "month": "Month",
+    "paymentCol": "Payment",
+    "principalCol": "Principal",
+    "interestCol": "Interest",
+    "balanceCol": "Balance",
+    "paidOffBadge": "Paid off",
+    "editDebt": "Edit",
+    "unpayable": "Your current minimum payment doesn't cover the monthly interest. Consider increasing your payment."
+  },
+  "celebration": {
+    "title": "Debt paid off!",
+    "message": "Congratulations, you've fully paid off \"{{name}}\"."
+  },
+  "status": {
+    "active": "Active",
+    "paid_off": "Paid off",
+    "archived": "Archived"
+  },
+  "wizard": {
+    "continue": "Continue",
+    "save": "Save debt",
+    "update": "Update debt",
+    "step1": {
+      "title": "What's the name of your debt?",
+      "subtitle": "Give it a name to identify it easily",
+      "placeholder": "E.g.: Chase Visa, Car loan..."
+    },
+    "step2": {
+      "title": "What type of debt is it?",
+      "subtitle": "Select the category that best describes your debt",
+      "credit_card_desc": "Variable minimum payment, interest on balance",
+      "personal_loan_desc": "Fixed monthly payments with agreed rate",
+      "installment_desc": "Financed purchases in installments (electronics, etc.)",
+      "other_desc": "Any other financial obligation"
+    },
+    "step3": {
+      "title": "How is the interest calculated?",
+      "subtitle": "This determines how we project your payment plan",
+      "compound_title": "Compound interest",
+      "compound_desc": "Interest is added to the balance each month. Typical for credit cards.",
+      "french_title": "Fixed payment",
+      "french_desc": "Fixed installments that include principal and interest. Typical for bank loans."
+    },
+    "step4": {
+      "title": "What's the balance?",
+      "subtitle": "The amount you currently owe",
+      "newOrExisting": "Is this a new or existing loan?",
+      "newCredit": "New",
+      "existingCredit": "Existing",
+      "newCreditLabel": "Loan amount",
+      "existingCreditLabel": "Current balance"
+    },
+    "step5": {
+      "title": "What's the interest rate?",
+      "subtitle": "You can enter it as an annual or monthly rate",
+      "ea": "Annual (APR)",
+      "em": "Monthly",
+      "eaHelp": "Annual percentage rate. Credit cards typically range from 18% to 30% APR.",
+      "emHelp": "Monthly effective rate. Automatically converted to annual rate.",
+      "equivalentEA": "Equivalent to {{rate}}% APR",
+      "equivalentEM": "Equivalent to {{rate}}% monthly",
+      "skipHint": "If you don't know the rate, you can leave it at 0"
+    },
+    "step6": {
+      "title": "How much do you pay monthly?",
+      "titleNew": "How many installments?",
+      "subtitle": "The minimum amount you pay each month",
+      "subtitleNew": "Define the term of your loan",
+      "months": "months",
+      "calculatedPayment": "Estimated monthly payment: {{amount}}",
+      "calculatedInstallments": "Estimated remaining installments: {{count}}"
+    },
+    "step7": {
+      "title": "Final details",
+      "subtitle": "Additional information (optional)",
+      "dueDayLabel": "Payment day of the month",
+      "dueDayHelp": "What day of the month is your payment due? (1-31)",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Additional notes about this debt"
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "page": {
+    "title": "Dívidas",
+    "noDebts": "Você não tem dívidas registradas",
+    "noDebtsDescription": "Adicione seus cartões de crédito, empréstimos ou parcelas para planejar seus pagamentos",
+    "addFirstDebt": "Adicionar minha primeira dívida",
+    "totalDebt": "Dívida total",
+    "estimatedFreeDate": "Livre de dívidas em",
+    "activeDebts": "Dívidas ativas",
+    "paidOff": "Quitadas",
+    "interestPaid": "Juros pagos"
+  },
+  "tabs": {
+    "budgets": "Orçamentos",
+    "debts": "Dívidas"
+  },
+  "types": {
+    "credit_card": "Cartão de crédito",
+    "personal_loan": "Empréstimo pessoal",
+    "installment": "Compra parcelada",
+    "other": "Outro"
+  },
+  "interestTypes": {
+    "compound": "Juros compostos (cartões)",
+    "french_amortization": "Parcela fixa (empréstimos)"
+  },
+  "form": {
+    "titleNew": "Nova Dívida",
+    "titleEdit": "Editar Dívida",
+    "name": "Nome",
+    "namePlaceholder": "Ex: Cartão Nubank",
+    "type": "Tipo de dívida",
+    "balance": "Saldo atual",
+    "interestRate": "Taxa de juros (% ao ano)",
+    "interestRateHelp": "Taxa efetiva anual. No Brasil, os cartões costumam ter entre 200% e 400% ao ano.",
+    "minimumPayment": "Pagamento mínimo mensal",
+    "dueDay": "Dia de vencimento",
+    "dueDayPlaceholder": "Ex: 15",
+    "interestType": "Tipo de cálculo",
+    "remainingInstallments": "Parcelas restantes",
+    "installmentsAutoCalculated": "Calculado: {{count}} parcelas restantes com seu saldo e parcela atual",
+    "installmentsHelp": "Preencha saldo, taxa e parcela mensal para calcular automaticamente",
+    "recalculate": "Recalcular",
+    "paymentAutoCalculated": "Calculado: parcela mensal de {{amount}}",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas adicionais (opcional)",
+    "save": "Salvar",
+    "delete": "Excluir dívida",
+    "deleteConfirmTitle": "Excluir dívida",
+    "deleteConfirmMessage": "Tem certeza que deseja excluir \"{{name}}\"? Todo o histórico de pagamentos será perdido.",
+    "cancel": "Cancelar"
+  },
+  "payment": {
+    "title": "Registrar Pagamento",
+    "amount": "Valor do pagamento",
+    "date": "Data",
+    "extraStrategy": "O que você quer reduzir?",
+    "reduceTerm": "Reduzir prazo",
+    "reduceTermDesc": "Mesma parcela, termina antes",
+    "reduceInstallment": "Reduzir parcela",
+    "reduceInstallmentDesc": "Mesmo prazo, parcela menor",
+    "principal": "Principal",
+    "interest": "Juros",
+    "breakdown": "Detalhamento do pagamento",
+    "save": "Registrar pagamento",
+    "notes": "Notas",
+    "notesPlaceholder": "Notas do pagamento (opcional)",
+    "deleteConfirmTitle": "Excluir pagamento",
+    "deleteConfirmMessage": "Tem certeza que deseja excluir este pagamento de {{amount}}? O saldo da dívida será restaurado.",
+    "cancel": "Cancelar",
+    "delete": "Excluir"
+  },
+  "detail": {
+    "balance": "Saldo pendente",
+    "paid": "Pago",
+    "interestPaid": "Juros pagos",
+    "paymentsCount": "Pagamentos realizados",
+    "estimatedPayoff": "Data estimada de quitação",
+    "amortizationTable": "Tabela de amortização",
+    "paymentHistory": "Histórico de pagamentos",
+    "noPayments": "Nenhum pagamento registrado ainda",
+    "registerPayment": "Registrar pagamento",
+    "month": "Mês",
+    "paymentCol": "Pagamento",
+    "principalCol": "Principal",
+    "interestCol": "Juros",
+    "balanceCol": "Saldo",
+    "paidOffBadge": "Quitada",
+    "editDebt": "Editar",
+    "unpayable": "Com o pagamento mínimo atual, os juros mensais não são cobertos. Considere aumentar seu pagamento."
+  },
+  "celebration": {
+    "title": "Dívida quitada!",
+    "message": "Parabéns, você quitou completamente \"{{name}}\"."
+  },
+  "status": {
+    "active": "Ativa",
+    "paid_off": "Quitada",
+    "archived": "Arquivada"
+  },
+  "wizard": {
+    "continue": "Continuar",
+    "save": "Salvar dívida",
+    "update": "Atualizar dívida",
+    "step1": {
+      "title": "Qual o nome da sua dívida?",
+      "subtitle": "Dê um nome para identificá-la facilmente",
+      "placeholder": "Ex: Cartão Nubank, Financiamento auto..."
+    },
+    "step2": {
+      "title": "Que tipo de dívida é?",
+      "subtitle": "Selecione a categoria que melhor descreve sua dívida",
+      "credit_card_desc": "Pagamento mínimo variável, juros sobre saldo",
+      "personal_loan_desc": "Parcelas fixas mensais com taxa acordada",
+      "installment_desc": "Compras financiadas em parcelas (eletrodomésticos, etc.)",
+      "other_desc": "Qualquer outra obrigação financeira"
+    },
+    "step3": {
+      "title": "Como os juros são calculados?",
+      "subtitle": "Isso determina como projetamos seu plano de pagamento",
+      "compound_title": "Juros compostos",
+      "compound_desc": "Os juros são adicionados ao saldo todo mês. Típico de cartões de crédito.",
+      "french_title": "Parcela fixa",
+      "french_desc": "Parcelas fixas que incluem capital e juros. Típico de empréstimos bancários."
+    },
+    "step4": {
+      "title": "Qual é o saldo?",
+      "subtitle": "O valor que você deve atualmente",
+      "newOrExisting": "É um crédito novo ou existente?",
+      "newCredit": "Novo",
+      "existingCredit": "Existente",
+      "newCreditLabel": "Valor do empréstimo",
+      "existingCreditLabel": "Saldo atual"
+    },
+    "step5": {
+      "title": "Qual é a taxa de juros?",
+      "subtitle": "Você pode inserir como taxa anual ou mensal",
+      "ea": "Anual (a.a.)",
+      "em": "Mensal (a.m.)",
+      "eaHelp": "Taxa efetiva anual. No Brasil, os cartões costumam ter entre 200% e 400% a.a.",
+      "emHelp": "Taxa efetiva mensal. Convertida automaticamente para taxa anual.",
+      "equivalentEA": "Equivale a {{rate}}% a.a.",
+      "equivalentEM": "Equivale a {{rate}}% a.m.",
+      "skipHint": "Se não souber a taxa, pode deixar em 0"
+    },
+    "step6": {
+      "title": "Quanto você paga por mês?",
+      "titleNew": "Em quantas parcelas?",
+      "subtitle": "O valor mínimo que você paga todo mês",
+      "subtitleNew": "Defina o prazo do seu crédito",
+      "months": "meses",
+      "calculatedPayment": "Parcela mensal estimada: {{amount}}",
+      "calculatedInstallments": "Parcelas restantes estimadas: {{count}}"
+    },
+    "step7": {
+      "title": "Detalhes finais",
+      "subtitle": "Informações adicionais (opcional)",
+      "dueDayLabel": "Dia de vencimento do mês",
+      "dueDayHelp": "Em que dia do mês vence seu pagamento? (1-31)",
+      "notesLabel": "Notas",
+      "notesPlaceholder": "Notas adicionais sobre esta dívida"
+    }
+  }
+}

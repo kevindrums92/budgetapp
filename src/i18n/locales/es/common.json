@@ -41,7 +41,8 @@
     "home": "Inicio",
     "plan": "Plan",
     "stats": "Estadísticas",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "debts": "Deudas"
   },
   "settings": {
     "title": "Configuración",

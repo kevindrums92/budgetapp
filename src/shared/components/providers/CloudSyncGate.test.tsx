@@ -175,6 +175,8 @@ const mockLocalTransactions: BudgetState = {
   budgets: [],
   trips: [],
   tripExpenses: [],
+  debts: [],
+  debtPayments: [],
 };
 
 const mockExistingCloudData: BudgetState = {
@@ -195,6 +197,8 @@ const mockExistingCloudData: BudgetState = {
   budgets: [],
   trips: [],
   tripExpenses: [],
+  debts: [],
+  debtPayments: [],
 };
 
 // ============================================================================
@@ -249,7 +253,7 @@ describe('CloudSyncGate - Anonymous Auth → OAuth Transition', () => {
 
     // Reset store
     useBudgetStore.getState().replaceAllData({
-      schemaVersion: 6,
+      schemaVersion: 9,
       transactions: [],
       categories: [],
       categoryDefinitions: [],
@@ -257,6 +261,8 @@ describe('CloudSyncGate - Anonymous Auth → OAuth Transition', () => {
       budgets: [],
       trips: [],
       tripExpenses: [],
+      debts: [],
+      debtPayments: [],
     });
     useBudgetStore.setState({
       cloudMode: 'guest',

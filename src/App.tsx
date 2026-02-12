@@ -14,9 +14,10 @@ import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 import RevenueCatProvider from "@/shared/components/providers/RevenueCatProvider";
 
-// Eager load core pages (HomePage, PlanPage)
+// Eager load core pages (HomePage, PlanPage, DebtsPage)
 import HomePage from "@/features/transactions/pages/HomePage";
 import PlanPage from "@/features/budget/pages/PlanPage";
+import DebtsPage from "@/features/debts/pages/DebtsPage";
 import AddEditTransactionPage from "@/features/transactions/pages/AddEditTransactionPage";
 import HistoryPage from "@/features/transactions/pages/HistoryPage";
 
@@ -41,6 +42,11 @@ const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/C
 
 // Lazy load scheduled transactions page
 const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
+
+// Lazy load debt pages
+const DebtDetailPage = lazy(() => import("@/features/debts/pages/DebtDetailPage"));
+const AddEditDebtPage = lazy(() => import("@/features/debts/pages/AddEditDebtPage"));
+const AddDebtPaymentPage = lazy(() => import("@/features/debts/pages/AddDebtPaymentPage"));
 
 // Lazy load settings pages
 const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));
@@ -89,7 +95,8 @@ function AppFrame() {
     location.pathname.startsWith("/settings/") ||
     location.pathname.startsWith("/legal/") ||
     location.pathname.startsWith("/profile/subscription") ||
-    location.pathname.startsWith("/onboarding");
+    location.pathname.startsWith("/onboarding") ||
+    location.pathname.startsWith("/debts/");
 
   const showMonthSelector = useMemo(() => {
     return location.pathname === "/" ||
@@ -132,6 +139,12 @@ function AppFrame() {
             <Route path="/edit/:id" element={<AddEditTransactionPage />} />
             <Route path="/scheduled" element={<ScheduledPage />} />
             <Route path="/history" element={<HistoryPage />} />
+
+            <Route path="/debts" element={<DebtsPage />} />
+            <Route path="/debts/new" element={<AddEditDebtPage />} />
+            <Route path="/debts/:id" element={<DebtDetailPage />} />
+            <Route path="/debts/:id/edit" element={<AddEditDebtPage />} />
+            <Route path="/debts/:id/payment" element={<AddDebtPaymentPage />} />
 
             <Route path="/category/new" element={<AddEditCategoryPage />} />
             <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />

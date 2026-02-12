@@ -1,0 +1,164 @@
+{
+  "page": {
+    "title": "Dettes",
+    "noDebts": "Vous n'avez aucune dette enregistrée",
+    "noDebtsDescription": "Ajoutez vos cartes de crédit, prêts ou achats en plusieurs fois pour planifier vos paiements",
+    "addFirstDebt": "Ajouter ma première dette",
+    "totalDebt": "Dette totale",
+    "estimatedFreeDate": "Libéré des dettes en",
+    "activeDebts": "Dettes actives",
+    "paidOff": "Remboursées",
+    "interestPaid": "Intérêts payés"
+  },
+  "tabs": {
+    "budgets": "Budgets",
+    "debts": "Dettes"
+  },
+  "types": {
+    "credit_card": "Carte de crédit",
+    "personal_loan": "Prêt personnel",
+    "installment": "Achat en plusieurs fois",
+    "other": "Autre"
+  },
+  "interestTypes": {
+    "compound": "Intérêts composés (cartes)",
+    "french_amortization": "Mensualité fixe (prêts)"
+  },
+  "form": {
+    "titleNew": "Nouvelle Dette",
+    "titleEdit": "Modifier la Dette",
+    "name": "Nom",
+    "namePlaceholder": "Ex : Carte BNP Paribas",
+    "type": "Type de dette",
+    "balance": "Solde actuel",
+    "interestRate": "Taux d'intérêt (TAEG %)",
+    "interestRateHelp": "Taux annuel effectif global. En France, les cartes de crédit ont généralement un TAEG entre 15% et 22%.",
+    "minimumPayment": "Paiement minimum mensuel",
+    "dueDay": "Jour de paiement",
+    "dueDayPlaceholder": "Ex : 15",
+    "interestType": "Méthode de calcul",
+    "remainingInstallments": "Mensualités restantes",
+    "installmentsAutoCalculated": "Calculé : {{count}} mensualités restantes avec votre solde et paiement actuel",
+    "installmentsHelp": "Remplissez le solde, le taux et le paiement mensuel pour calculer automatiquement",
+    "recalculate": "Recalculer",
+    "paymentAutoCalculated": "Calculé : mensualité de {{amount}}",
+    "notes": "Notes",
+    "notesPlaceholder": "Notes supplémentaires (facultatif)",
+    "save": "Enregistrer",
+    "delete": "Supprimer la dette",
+    "deleteConfirmTitle": "Supprimer la dette",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer \"{{name}}\" ? Tout l'historique des paiements sera perdu.",
+    "cancel": "Annuler"
+  },
+  "payment": {
+    "title": "Enregistrer un Paiement",
+    "amount": "Montant du paiement",
+    "date": "Date",
+    "extraStrategy": "Que souhaitez-vous réduire ?",
+    "reduceTerm": "Réduire la durée",
+    "reduceTermDesc": "Même mensualité, finir plus tôt",
+    "reduceInstallment": "Réduire la mensualité",
+    "reduceInstallmentDesc": "Même durée, mensualité plus basse",
+    "principal": "Capital",
+    "interest": "Intérêts",
+    "breakdown": "Détail du paiement",
+    "save": "Enregistrer le paiement",
+    "notes": "Notes",
+    "notesPlaceholder": "Notes du paiement (facultatif)",
+    "deleteConfirmTitle": "Supprimer le paiement",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce paiement de {{amount}} ? Le solde de la dette sera restauré.",
+    "cancel": "Annuler",
+    "delete": "Supprimer"
+  },
+  "detail": {
+    "balance": "Solde restant",
+    "paid": "Payé",
+    "interestPaid": "Intérêts payés",
+    "paymentsCount": "Paiements effectués",
+    "estimatedPayoff": "Date estimée de remboursement",
+    "amortizationTable": "Tableau d'amortissement",
+    "paymentHistory": "Historique des paiements",
+    "noPayments": "Aucun paiement enregistré pour le moment",
+    "registerPayment": "Enregistrer un paiement",
+    "month": "Mois",
+    "paymentCol": "Paiement",
+    "principalCol": "Capital",
+    "interestCol": "Intérêts",
+    "balanceCol": "Solde",
+    "paidOffBadge": "Remboursée",
+    "editDebt": "Modifier",
+    "unpayable": "Le paiement minimum actuel ne couvre pas les intérêts mensuels. Envisagez d'augmenter votre paiement."
+  },
+  "celebration": {
+    "title": "Dette remboursée !",
+    "message": "Félicitations, vous avez entièrement remboursé \"{{name}}\"."
+  },
+  "status": {
+    "active": "Active",
+    "paid_off": "Remboursée",
+    "archived": "Archivée"
+  },
+  "wizard": {
+    "continue": "Continuer",
+    "save": "Enregistrer la dette",
+    "update": "Mettre à jour la dette",
+    "step1": {
+      "title": "Comment s'appelle votre dette ?",
+      "subtitle": "Donnez-lui un nom pour l'identifier facilement",
+      "placeholder": "Ex : Carte BNP, Prêt auto..."
+    },
+    "step2": {
+      "title": "Quel type de dette est-ce ?",
+      "subtitle": "Sélectionnez la catégorie qui décrit le mieux votre dette",
+      "credit_card_desc": "Paiement minimum variable, intérêts sur le solde",
+      "personal_loan_desc": "Mensualités fixes avec taux convenu",
+      "installment_desc": "Achats financés en plusieurs fois (électroménager, etc.)",
+      "other_desc": "Toute autre obligation financière"
+    },
+    "step3": {
+      "title": "Comment les intérêts sont-ils calculés ?",
+      "subtitle": "Cela détermine comment nous projetons votre plan de remboursement",
+      "compound_title": "Intérêts composés",
+      "compound_desc": "Les intérêts s'ajoutent au solde chaque mois. Typique des cartes de crédit.",
+      "french_title": "Mensualité fixe",
+      "french_desc": "Mensualités fixes incluant capital et intérêts. Typique des prêts bancaires."
+    },
+    "step4": {
+      "title": "Quel est le solde ?",
+      "subtitle": "Le montant que vous devez actuellement",
+      "newOrExisting": "Est-ce un crédit nouveau ou existant ?",
+      "newCredit": "Nouveau",
+      "existingCredit": "Existant",
+      "newCreditLabel": "Montant du prêt",
+      "existingCreditLabel": "Solde actuel"
+    },
+    "step5": {
+      "title": "Quel est le taux d'intérêt ?",
+      "subtitle": "Vous pouvez le saisir en taux annuel ou mensuel",
+      "ea": "Annuel (TAEG)",
+      "em": "Mensuel",
+      "eaHelp": "Taux annuel effectif global. En France, les cartes ont généralement un TAEG entre 15% et 22%.",
+      "emHelp": "Taux effectif mensuel. Converti automatiquement en taux annuel.",
+      "equivalentEA": "Équivaut à {{rate}}% TAEG",
+      "equivalentEM": "Équivaut à {{rate}}% mensuel",
+      "skipHint": "Si vous ne connaissez pas le taux, laissez-le à 0"
+    },
+    "step6": {
+      "title": "Combien payez-vous par mois ?",
+      "titleNew": "En combien de mensualités ?",
+      "subtitle": "Le montant minimum que vous payez chaque mois",
+      "subtitleNew": "Définissez la durée de votre crédit",
+      "months": "mois",
+      "calculatedPayment": "Mensualité estimée : {{amount}}",
+      "calculatedInstallments": "Mensualités restantes estimées : {{count}}"
+    },
+    "step7": {
+      "title": "Derniers détails",
+      "subtitle": "Informations supplémentaires (facultatif)",
+      "dueDayLabel": "Jour de paiement du mois",
+      "dueDayHelp": "Quel jour du mois votre paiement est-il dû ? (1-31)",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Notes supplémentaires sur cette dette"
+    }
+  }
+}

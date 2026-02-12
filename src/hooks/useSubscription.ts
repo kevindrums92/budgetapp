@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useBudgetStore } from '@/state/budget.store';
 import { FREE_TIER_LIMITS, COUNT_LIMITED_FEATURES } from '@/constants/pricing';
 import type { ProFeature } from '@/constants/pricing';
-import type { SubscriptionState, Category, Budget, Transaction } from '@/types/budget.types';
+import type { SubscriptionState, Category, Budget, Transaction, Debt } from '@/types/budget.types';
 import { logger } from '@/shared/utils/logger';
 
 type SubscriptionInfo = {
@@ -31,6 +31,7 @@ function getCurrentCount(
   categoryDefinitions: Category[],
   budgets: Budget[],
   transactions: Transaction[],
+  debts: Debt[],
 ): number {
   switch (limitKey) {
     case 'totalCategories':
@@ -39,6 +40,8 @@ function getCurrentCount(
       return budgets.filter((b) => b.status === 'active').length;
     case 'scheduledTransactions':
       return transactions.filter((t) => t.schedule?.enabled).length;
+    case 'activeDebts':
+      return debts.filter((d) => d.status === 'active').length;
     default:
       return 0;
   }
@@ -49,6 +52,7 @@ export function useSubscription(): SubscriptionInfo {
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const budgets = useBudgetStore((s) => s.budgets);
   const transactions = useBudgetStore((s) => s.transactions);
+  const debts = useBudgetStore((s) => s.debts);
 
   return useMemo(() => {
     const isPro = computeIsPro(subscription);
@@ -69,7 +73,7 @@ export function useSubscription(): SubscriptionInfo {
 
       const limitKey = COUNT_LIMITED_FEATURES[feature];
       if (limitKey) {
-        const currentCount = getCurrentCount(limitKey, categoryDefinitions, budgets, transactions);
+        const currentCount = getCurrentCount(limitKey, categoryDefinitions, budgets, transactions, debts);
         logger.debug('canUseFeature', 'limitKey:', limitKey, 'currentCount:', currentCount, 'limit:', FREE_TIER_LIMITS[limitKey]);
         return currentCount < FREE_TIER_LIMITS[limitKey];
       }
@@ -86,7 +90,7 @@ export function useSubscription(): SubscriptionInfo {
       if (isPro) return null; // unlimited
       const limitKey = COUNT_LIMITED_FEATURES[feature];
       if (!limitKey) return null; // not a count-limited feature
-      const current = getCurrentCount(limitKey, categoryDefinitions, budgets, transactions);
+      const current = getCurrentCount(limitKey, categoryDefinitions, budgets, transactions, debts);
       return Math.max(0, FREE_TIER_LIMITS[limitKey] - current);
     }
 
@@ -100,5 +104,5 @@ export function useSubscription(): SubscriptionInfo {
       shouldShowPaywall,
       getRemainingCount,
     };
-  }, [subscription, categoryDefinitions, budgets, transactions]);
+  }, [subscription, categoryDefinitions, budgets, transactions, debts]);
 }
