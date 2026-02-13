@@ -12,6 +12,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(critical): prevent app crash when opening push notifications**
+  - Fixed "Importing a module script failed" error when navigating to `/scheduled` from push notifications
+  - Changed ScheduledPage from lazy load to eager load to ensure reliable module loading
+  - Resolves Sentry issue #ecf06e12 (production crash on iOS 18.7 affecting users with scheduled transactions)
+
+- **fix(notifications): separate income and expense totals in upcoming transactions push notifications**
+  - Multiple upcoming transactions now show separate totals: "Ingresos: +$X | Gastos: -$Y"
+  - Previously incorrectly summed all transaction amounts together without considering type
+  - Applied to all 4 supported languages (es, en, pt, fr)
+
 - **chore(release): automate Android native versioning, AAB and APK generation**
   - Add automatic `versionCode` increment and `versionName` sync in `android/app/build.gradle` during release script
   - Generate signed AAB bundle (`bundleRelease`) and APK (`assembleRelease`) automatically after iOS build

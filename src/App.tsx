@@ -19,6 +19,7 @@ import HomePage from "@/features/transactions/pages/HomePage";
 import PlanPage from "@/features/budget/pages/PlanPage";
 import AddEditTransactionPage from "@/features/transactions/pages/AddEditTransactionPage";
 import HistoryPage from "@/features/transactions/pages/HistoryPage";
+import ScheduledPage from "@/features/transactions/pages/ScheduledPage";
 
 // Lazy load budget detail page
 const PlanDetailPage = lazy(() => import("@/features/budget/pages/PlanDetailPage"));
@@ -38,9 +39,6 @@ const CategoriesPage = lazy(() => import("@/features/categories/pages/Categories
 const CategoryGroupsPage = lazy(() => import("@/features/categories/pages/CategoryGroupsPage"));
 const AddEditCategoryGroupPage = lazy(() => import("@/features/categories/pages/AddEditCategoryGroupPage"));
 const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/CategoryMonthDetailPage"));
-
-// Lazy load scheduled transactions page
-const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
 
 // Lazy load settings pages
 const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));

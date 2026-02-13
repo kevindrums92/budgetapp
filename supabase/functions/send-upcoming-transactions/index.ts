@@ -100,35 +100,35 @@ const TRANSLATIONS: Record<SupportedLang, {
   statusScheduled: string;
   statusPending: string;
   multipleTitle: (count: number) => string;
-  multipleBody: (total: string) => string;
+  multipleBody: (income: string, expense: string) => string;
 }> = {
   es: {
     singleTitle: (status) => `Transaccion ${status} para manana`,
     statusScheduled: 'programada',
     statusPending: 'pendiente',
     multipleTitle: (count) => `${count} transacciones para manana`,
-    multipleBody: (total) => `Total: $${total}. Toca para ver detalles.`,
+    multipleBody: (income, expense) => `Ingresos: +$${income} | Gastos: -$${expense}`,
   },
   en: {
     singleTitle: (status) => `${status} transaction for tomorrow`,
     statusScheduled: 'Scheduled',
     statusPending: 'Pending',
     multipleTitle: (count) => `${count} transactions for tomorrow`,
-    multipleBody: (total) => `Total: $${total}. Tap to see details.`,
+    multipleBody: (income, expense) => `Income: +$${income} | Expenses: -$${expense}`,
   },
   pt: {
     singleTitle: (status) => `Transacao ${status} para amanha`,
     statusScheduled: 'programada',
     statusPending: 'pendente',
     multipleTitle: (count) => `${count} transacoes para amanha`,
-    multipleBody: (total) => `Total: $${total}. Toque para ver detalhes.`,
+    multipleBody: (income, expense) => `Receitas: +$${income} | Despesas: -$${expense}`,
   },
   fr: {
     singleTitle: (status) => `Transaction ${status} pour demain`,
     statusScheduled: 'programmee',
     statusPending: 'en attente',
     multipleTitle: (count) => `${count} transactions pour demain`,
-    multipleBody: (total) => `Total : ${total} $. Appuyez pour voir les details.`,
+    multipleBody: (income, expense) => `Revenus : +${income} $ | Depenses : -${expense} $`,
   },
 };
 
@@ -257,8 +257,16 @@ serve(async (req) => {
         body = `${tx.name}: $${formatAmount(tx.amount, lang)}`;
         type = tx.status === 'scheduled' ? 'upcoming_transaction_scheduled' : 'upcoming_transaction_pending';
       } else {
+        // Separate income and expense totals
+        const incomeTotal = upcoming
+          .filter((tx: any) => tx.type === 'income')
+          .reduce((sum: number, tx: any) => sum + tx.amount, 0);
+        const expenseTotal = upcoming
+          .filter((tx: any) => tx.type === 'expense')
+          .reduce((sum: number, tx: any) => sum + tx.amount, 0);
+
         title = i18n.multipleTitle(upcoming.length);
-        body = i18n.multipleBody(formatAmount(upcoming.reduce((s: number, tx: any) => s + tx.amount, 0), lang));
+        body = i18n.multipleBody(formatAmount(incomeTotal, lang), formatAmount(expenseTotal, lang));
         type = 'upcoming_transactions_multiple';
       }
 
