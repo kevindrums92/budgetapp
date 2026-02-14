@@ -10,7 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.6] - 2026-02-14
 
 - **feat(forecasting): add expand/collapse toggle to SafeToSpend card**
   - Replaced arrow icon with question mark icon (CircleHelp) in card header
