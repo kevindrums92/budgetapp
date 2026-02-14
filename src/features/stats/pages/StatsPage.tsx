@@ -1096,6 +1096,29 @@ export default function StatsPage() {
               setShowBudgetModal(true);
             }
           }}
+          onViewBudget={() => {
+            if (selectedCategory) {
+              // Find the active budget for this category in the selected month
+              const [yearStr, monthStr] = selectedMonth.split("-");
+              const year = Number(yearStr);
+              const month = Number(monthStr);
+              const firstDay = `${selectedMonth}-01`;
+              const lastDay = `${selectedMonth}-${String(new Date(year, month, 0).getDate()).padStart(2, "0")}`;
+
+              const activeBudget = budgets.find(
+                (b) =>
+                  b.status === "active" &&
+                  b.categoryId === selectedCategory.id &&
+                  b.period.startDate <= lastDay &&
+                  b.period.endDate >= firstDay
+              );
+
+              if (activeBudget) {
+                navigate(`/plan/${activeBudget.id}`);
+                setSelectedCategory(null);
+              }
+            }
+          }}
           onViewRecords={() => {
             if (selectedCategory) {
               navigate(`/category/${selectedCategory.id}/month/${selectedMonth}`);
