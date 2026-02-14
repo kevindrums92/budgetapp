@@ -75,6 +75,11 @@
     "transaction": "transacción",
     "transactions": "transacciones",
     "empty": "No hay transacciones en esta categoría este mes",
-    "error": "Categoría no encontrada"
+    "error": "Categoría no encontrada",
+    "budgetBanner": {
+      "title": "CONTROLA TUS GASTOS",
+      "description": "Establece un límite de gasto para esta categoría y recibe alertas cuando te acerques al límite",
+      "action": "Crear límite de gasto →"
+    }
   }
 }

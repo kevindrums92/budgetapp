@@ -32,7 +32,6 @@ import ComparisonSheet from "../components/ComparisonSheet";
 import TopDaySheet from "../components/TopDaySheet";
 import DailyAverageBreakdownSheet from "../components/DailyAverageBreakdownSheet";
 import TopCategorySheet from "../components/TopCategorySheet";
-import CategoryActionSheet from "../components/CategoryActionSheet";
 import BudgetSuggestionBanner from "../components/BudgetSuggestionBanner";
 import AddEditBudgetModal from "@/features/budget/components/AddEditBudgetModal";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
@@ -119,7 +118,6 @@ export default function StatsPage() {
   const [showAllCategories, setShowAllCategories] = useState(() => {
     try { return localStorage.getItem("budget.showAllCategories") === "true"; } catch { return false; }
   });
-  const [selectedCategory, setSelectedCategory] = useState<CategoryChartItem | null>(null);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
@@ -715,7 +713,32 @@ export default function StatsPage() {
                     <button
                       key={item.id}
                       type="button"
-                      onClick={() => isPro && setSelectedCategory(item)}
+                      onClick={() => {
+                        if (!isPro) return;
+
+                        // Find active budget for this category in selected month
+                        const [yearStr, monthStr] = selectedMonth.split("-");
+                        const year = Number(yearStr);
+                        const month = Number(monthStr);
+                        const firstDay = `${selectedMonth}-01`;
+                        const lastDay = `${selectedMonth}-${String(new Date(year, month, 0).getDate()).padStart(2, "0")}`;
+
+                        const activeBudget = budgets.find(
+                          (b) =>
+                            b.status === "active" &&
+                            b.categoryId === item.id &&
+                            b.period.startDate <= lastDay &&
+                            b.period.endDate >= firstDay
+                        );
+
+                        if (activeBudget) {
+                          // Navigate to budget detail
+                          navigate(`/plan/${activeBudget.id}`);
+                        } else {
+                          // Navigate to category month detail
+                          navigate(`/category/${item.id}/month/${selectedMonth}`);
+                        }
+                      }}
                       className={`w-full flex items-center justify-between rounded-lg bg-white dark:bg-gray-900 px-3 py-2 shadow-sm transition-colors ${isPro ? 'active:bg-gray-50 dark:active:bg-gray-800 cursor-pointer' : 'cursor-default'
                         } ${isBlurred ? 'blur-sm select-none opacity-60' : ''}`}
                     >
@@ -1083,51 +1106,7 @@ export default function StatsPage() {
           excludedCategoriesCount={(excludedFromStats ?? []).length}
         />
 
-        {/* Category Action Sheet */}
-        <CategoryActionSheet
-          open={!!selectedCategory}
-          onClose={() => setSelectedCategory(null)}
-          category={selectedCategory}
-          hasBudget={selectedCategory ? budgetedCategoryIdsForMonth.has(selectedCategory.id) : false}
-          onCreateBudget={() => {
-            if (selectedCategory) {
-              sessionStorage.setItem("newCategoryId", selectedCategory.id);
-              setSelectedCategory(null);
-              setShowBudgetModal(true);
-            }
-          }}
-          onViewBudget={() => {
-            if (selectedCategory) {
-              // Find the active budget for this category in the selected month
-              const [yearStr, monthStr] = selectedMonth.split("-");
-              const year = Number(yearStr);
-              const month = Number(monthStr);
-              const firstDay = `${selectedMonth}-01`;
-              const lastDay = `${selectedMonth}-${String(new Date(year, month, 0).getDate()).padStart(2, "0")}`;
-
-              const activeBudget = budgets.find(
-                (b) =>
-                  b.status === "active" &&
-                  b.categoryId === selectedCategory.id &&
-                  b.period.startDate <= lastDay &&
-                  b.period.endDate >= firstDay
-              );
-
-              if (activeBudget) {
-                navigate(`/plan/${activeBudget.id}`);
-                setSelectedCategory(null);
-              }
-            }
-          }}
-          onViewRecords={() => {
-            if (selectedCategory) {
-              navigate(`/category/${selectedCategory.id}/month/${selectedMonth}`);
-              setSelectedCategory(null);
-            }
-          }}
-        />
-
-        {/* Add/Edit Budget Modal (from category action) */}
+        {/* Add/Edit Budget Modal */}
         <AddEditBudgetModal
           open={showBudgetModal}
           onClose={() => setShowBudgetModal(false)}

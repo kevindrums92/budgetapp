@@ -1,7 +1,7 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { icons, Repeat } from "lucide-react";
+import { icons, Repeat, Target, X } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import { useCurrency } from "@/features/currency";
@@ -27,11 +27,33 @@ export default function CategoryMonthDetailPage() {
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+  const budgets = useBudgetStore((s) => s.budgets);
+
+  const [showBudgetBanner, setShowBudgetBanner] = useState(true);
 
   // Find the category
   const category = useMemo(() => {
     return categoryDefinitions.find((c) => c.id === categoryId);
   }, [categoryDefinitions, categoryId]);
+
+  // Check if there's an active budget for this category in this month
+  const hasActiveBudget = useMemo(() => {
+    if (!categoryId || !month) return false;
+
+    const [yearStr, monthStr] = month.split("-");
+    const year = Number(yearStr);
+    const monthNum = Number(monthStr);
+    const firstDay = `${month}-01`;
+    const lastDay = `${month}-${String(new Date(year, monthNum, 0).getDate()).padStart(2, "0")}`;
+
+    return budgets.some(
+      (b) =>
+        b.status === "active" &&
+        b.categoryId === categoryId &&
+        b.period.startDate <= lastDay &&
+        b.period.endDate >= firstDay
+    );
+  }, [budgets, categoryId, month]);
 
   // Filter transactions by category and month
   const filteredTransactions = useMemo(() => {
@@ -118,6 +140,55 @@ export default function CategoryMonthDetailPage() {
           {monthLabel}
         </p>
       </div>
+
+      {/* Budget Suggestion Banner */}
+      {!hasActiveBudget && showBudgetBanner && (
+        <div className="mx-4 mt-4">
+          <div className="relative rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-100 dark:border-emerald-800/30 p-4 shadow-sm overflow-hidden">
+            {/* Decorative gradient */}
+            <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-emerald-100/40 dark:from-emerald-800/20 to-transparent" />
+
+            <div className="relative flex items-start gap-3">
+              {/* Icon */}
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-gray-800 border border-emerald-100 dark:border-emerald-800 shadow-sm">
+                <Target className="h-5 w-5 text-emerald-600 dark:text-emerald-500" />
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] uppercase tracking-wider font-bold text-emerald-600 dark:text-emerald-500 mb-0.5">
+                  {t("monthDetail.budgetBanner.title")}
+                </p>
+                <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight mb-3">
+                  {t("monthDetail.budgetBanner.description")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Set category in sessionStorage and navigate to budgets page
+                    if (categoryId) {
+                      sessionStorage.setItem("newCategoryId", categoryId);
+                      navigate("/plan");
+                    }
+                  }}
+                  className="text-xs font-semibold text-emerald-600 dark:text-emerald-500 active:scale-95 transition-all"
+                >
+                  {t("monthDetail.budgetBanner.action")}
+                </button>
+              </div>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => setShowBudgetBanner(false)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full hover:bg-emerald-100/60 dark:hover:bg-emerald-800/40 active:scale-95 transition-all"
+              >
+                <X className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 px-4 pt-4 pb-8">
         {/* Transactions List */}

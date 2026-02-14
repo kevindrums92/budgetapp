@@ -75,6 +75,11 @@
     "transaction": "transaction",
     "transactions": "transactions",
     "empty": "No transactions in this category this month",
-    "error": "Category not found"
+    "error": "Category not found",
+    "budgetBanner": {
+      "title": "CONTROL YOUR SPENDING",
+      "description": "Set a spending limit for this category and receive alerts when you approach the limit",
+      "action": "Create spending limit →"
+    }
   }
 }
