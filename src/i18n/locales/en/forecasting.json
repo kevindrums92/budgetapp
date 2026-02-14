@@ -51,10 +51,26 @@
     "noAlerts": "Your budgets are on track",
     "dailyRate": "{{amount}} / day",
     "projected": "Projected: {{amount}}",
+    "dailyTarget": "Target: {{amount}} / day",
     "urgency": {
       "high": "Urgent",
       "medium": "Warning",
-      "low": "Notice"
+      "low": "Notice",
+      "safe": "On track"
+    },
+    "detail": {
+      "title": "Alert detail",
+      "spent": "Spent",
+      "limit": "Limit",
+      "remaining": "Remaining",
+      "dailyRate": "Daily rate",
+      "projectedTotal": "Projected total",
+      "exceedDate": "Estimated exceed date",
+      "alreadyExceededDesc": "You have already exceeded this budget limit",
+      "exceedingInDesc": "At this rate, you'll exceed your budget in {{days}} days",
+      "exceedingInDesc_one": "At this rate, you'll exceed your budget in {{days}} day",
+      "safeDesc": "Your budget is on track, no overspending projected",
+      "close": "Got it"
     }
   }
 }

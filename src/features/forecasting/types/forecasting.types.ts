@@ -22,10 +22,10 @@ export type SafeToSpendBreakdown = {
 export type BudgetPrediction = {
   budgetId: string;
   categoryId: string;
-  daysUntilExceeded: number;
+  daysUntilExceeded: number; // 0 = exceeded, -1 = won't exceed, >0 = days until exceeded
   dailyBurnRate: number;
   projectedTotal: number;
   budgetLimit: number;
   currentSpent: number;
-  urgency: "high" | "medium" | "low";
+  urgency: "high" | "medium" | "low" | "safe";
 };

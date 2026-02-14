@@ -51,10 +51,26 @@
     "noAlerts": "Vos budgets sont en bonne voie",
     "dailyRate": "{{amount}} / jour",
     "projected": "Projet\u00e9 : {{amount}}",
+    "dailyTarget": "Objectif : {{amount}} / jour",
     "urgency": {
       "high": "Urgent",
       "medium": "Attention",
-      "low": "Avis"
+      "low": "Avis",
+      "safe": "En ordre"
+    },
+    "detail": {
+      "title": "D\u00e9tail de l'alerte",
+      "spent": "D\u00e9pens\u00e9",
+      "limit": "Limite",
+      "remaining": "Restant",
+      "dailyRate": "Rythme quotidien",
+      "projectedTotal": "Total projet\u00e9",
+      "exceedDate": "Date estim\u00e9e de d\u00e9passement",
+      "alreadyExceededDesc": "Vous avez d\u00e9j\u00e0 d\u00e9pass\u00e9 la limite de ce budget",
+      "exceedingInDesc": "\u00c0 ce rythme, vous d\u00e9passerez votre budget dans {{days}} jours",
+      "exceedingInDesc_one": "\u00c0 ce rythme, vous d\u00e9passerez votre budget dans {{days}} jour",
+      "safeDesc": "Votre budget est en bonne voie, aucun d\u00e9passement pr\u00e9vu",
+      "close": "Compris"
     }
   }
 }

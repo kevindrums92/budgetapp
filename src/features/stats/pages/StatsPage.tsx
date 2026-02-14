@@ -191,8 +191,11 @@ export default function StatsPage() {
   }, [budgets, selectedMonth]);
 
   // Smart budget suggestion: top category without recurring txs and without existing budget
+  // Only show for the current month — suggesting a limit for a past month has no value
   const budgetSuggestion = useMemo(() => {
-    if (!isPro || categoryChartData.length === 0) return null;
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    if (!isPro || categoryChartData.length === 0 || selectedMonth !== currentMonthKey) return null;
 
     for (const cat of categoryChartData) {
       // Skip if any active budget covers this category for the selected month

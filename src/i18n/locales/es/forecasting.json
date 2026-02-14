@@ -51,10 +51,26 @@
     "noAlerts": "Tus presupuestos van bien",
     "dailyRate": "{{amount}} / d\u00eda",
     "projected": "Proyectado: {{amount}}",
+    "dailyTarget": "Meta: {{amount}} / d\u00eda",
     "urgency": {
       "high": "Urgente",
       "medium": "Atenci\u00f3n",
-      "low": "Aviso"
+      "low": "Aviso",
+      "safe": "Bien"
+    },
+    "detail": {
+      "title": "Detalle de alerta",
+      "spent": "Gastado",
+      "limit": "L\u00edmite",
+      "remaining": "Restante",
+      "dailyRate": "Ritmo diario",
+      "projectedTotal": "Proyectado al final",
+      "exceedDate": "Fecha estimada de exceso",
+      "alreadyExceededDesc": "Ya superaste el l\u00edmite de este presupuesto",
+      "exceedingInDesc": "A este ritmo, exceder\u00e1s tu presupuesto en {{days}} d\u00edas",
+      "exceedingInDesc_one": "A este ritmo, exceder\u00e1s tu presupuesto en {{days}} d\u00eda",
+      "safeDesc": "Tu presupuesto va bien, no se proyecta que excedas el l\u00edmite",
+      "close": "Entendido"
     }
   }
 }

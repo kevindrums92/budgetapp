@@ -12,6 +12,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(forecasting): add budget burn rate analysis detail sheet**
+  - New `BudgetAlertDetailSheet` bottom sheet component with drag-to-close showing detailed burn rate metrics
+  - Display spent, limit, remaining, daily burn rate, projected total, and estimated exceed date
+  - Integrated into `PlanDetailPage` with clickable analysis button (for all active limit budgets in current period)
+  - New `getBudgetAnalysis()` service function returning predictions for all active budgets (not just at-risk ones)
+  - Support for "safe" urgency level in addition to high/medium/low
+  - Color-coded urgency badges and icons (red=high, yellow=medium, orange=low, green=safe)
+  - i18n translations for detail sheet (spent, limit, remaining, dailyRate, projectedTotal, exceedDate, descriptions)
+
 - **feat(stats): add SafeToSpend, Future Balance projection, and Budget Alerts to Stats**
   - SafeToSpend card on Home page showing available money after bills and budget reserves
   - Future Balance 90-day projection chart with weighted moving averages and scheduled transactions

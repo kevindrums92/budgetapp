@@ -9,9 +9,10 @@ import type { BudgetPrediction } from "../types/forecasting.types";
 
 type Props = {
   prediction: BudgetPrediction;
+  onClick?: () => void;
 };
 
-export default function BudgetAlertCard({ prediction }: Props) {
+export default function BudgetAlertCard({ prediction, onClick }: Props) {
   const { t } = useTranslation("forecasting");
   const { formatAmount } = useCurrency();
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -44,6 +45,12 @@ export default function BudgetAlertCard({ prediction }: Props) {
       badge: "bg-orange-500",
       text: "text-orange-700 dark:text-orange-300",
     },
+    safe: {
+      bg: "bg-emerald-50 dark:bg-emerald-900/20",
+      border: "border-emerald-200 dark:border-emerald-800/50",
+      badge: "bg-emerald-500",
+      text: "text-emerald-700 dark:text-emerald-300",
+    },
   };
 
   const colors = urgencyColors[prediction.urgency];
@@ -52,8 +59,10 @@ export default function BudgetAlertCard({ prediction }: Props) {
   );
 
   return (
-    <div
-      className={`rounded-2xl ${colors.bg} border ${colors.border} p-4 transition-all`}
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full rounded-2xl ${colors.bg} border ${colors.border} p-4 transition-all active:scale-[0.98] text-left`}
     >
       <div className="flex items-start gap-3">
         {/* Category icon */}
@@ -126,6 +135,6 @@ export default function BudgetAlertCard({ prediction }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }

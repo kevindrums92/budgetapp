@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Budget, Transaction } from '@/types/budget.types';
 
 /**
@@ -6,6 +6,7 @@ import type { Budget, Transaction } from '@/types/budget.types';
  * The logic determines:
  * 1. Which category IDs have budgets covering a given month (period overlap)
  * 2. Which category to suggest for budget creation (top spend, not recurring, no existing budget)
+ * 3. Only suggest for the current month (not past/future months)
  */
 
 type CategoryChartItem = {
@@ -32,6 +33,11 @@ function getBudgetedCategoryIdsForMonth(budgets: Budget[], selectedMonth: string
   );
 }
 
+function getCurrentMonthKey(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
 function getBudgetSuggestion(
   isPro: boolean,
   categoryChartData: CategoryChartItem[],
@@ -39,7 +45,7 @@ function getBudgetSuggestion(
   transactions: Transaction[],
   selectedMonth: string
 ): CategoryChartItem | null {
-  if (!isPro || categoryChartData.length === 0) return null;
+  if (!isPro || categoryChartData.length === 0 || selectedMonth !== getCurrentMonthKey()) return null;
 
   for (const cat of categoryChartData) {
     if (budgetedCategoryIdsForMonth.has(cat.id)) continue;
@@ -96,6 +102,16 @@ function makeTransaction(
     ...(opts?.sourceTemplateId ? { sourceTemplateId: opts.sourceTemplateId } : {}),
   };
 }
+
+// Fix "today" to 2026-02-15 so getCurrentMonthKey() returns '2026-02'
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-02-15T12:00:00'));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 const chartData: CategoryChartItem[] = [
   { id: 'cat-rest', name: 'Restaurantes', icon: 'utensils', color: '#EF4444', value: 450000 },
@@ -308,6 +324,37 @@ describe('getBudgetSuggestion', () => {
     const result = getBudgetSuggestion(true, chartData, new Set(), [], '2026-02');
 
     // 0 transactions → recurringRatio = 0 → 0 <= 0.5 → allowed
+    expect(result).not.toBeNull();
+    expect(result!.id).toBe('cat-rest');
+  });
+
+  it('should return null for a past month', () => {
+    const transactions = [
+      makeTransaction('cat-rest', '2026-01-10'),
+    ];
+
+    // January is a past month (today is Feb 15, 2026)
+    const result = getBudgetSuggestion(true, chartData, new Set(), transactions, '2026-01');
+    expect(result).toBeNull();
+  });
+
+  it('should return null for a future month', () => {
+    const transactions = [
+      makeTransaction('cat-rest', '2026-03-10'),
+    ];
+
+    // March is a future month
+    const result = getBudgetSuggestion(true, chartData, new Set(), transactions, '2026-03');
+    expect(result).toBeNull();
+  });
+
+  it('should return suggestion for the current month', () => {
+    const transactions = [
+      makeTransaction('cat-rest', '2026-02-10'),
+    ];
+
+    // February is the current month
+    const result = getBudgetSuggestion(true, chartData, new Set(), transactions, '2026-02');
     expect(result).not.toBeNull();
     expect(result!.id).toBe('cat-rest');
   });

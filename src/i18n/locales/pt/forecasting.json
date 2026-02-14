@@ -51,10 +51,26 @@
     "noAlerts": "Seus or\u00e7amentos est\u00e3o em dia",
     "dailyRate": "{{amount}} / dia",
     "projected": "Projetado: {{amount}}",
+    "dailyTarget": "Meta: {{amount}} / dia",
     "urgency": {
       "high": "Urgente",
       "medium": "Aten\u00e7\u00e3o",
-      "low": "Aviso"
+      "low": "Aviso",
+      "safe": "Em dia"
+    },
+    "detail": {
+      "title": "Detalhe do alerta",
+      "spent": "Gasto",
+      "limit": "Limite",
+      "remaining": "Restante",
+      "dailyRate": "Ritmo di\u00e1rio",
+      "projectedTotal": "Projetado ao final",
+      "exceedDate": "Data estimada de excesso",
+      "alreadyExceededDesc": "Voc\u00ea j\u00e1 ultrapassou o limite deste or\u00e7amento",
+      "exceedingInDesc": "Neste ritmo, voc\u00ea exceder\u00e1 seu or\u00e7amento em {{days}} dias",
+      "exceedingInDesc_one": "Neste ritmo, voc\u00ea exceder\u00e1 seu or\u00e7amento em {{days}} dia",
+      "safeDesc": "Seu or\u00e7amento est\u00e1 em dia, n\u00e3o h\u00e1 proje\u00e7\u00e3o de excesso",
+      "close": "Entendido"
     }
   }
 }

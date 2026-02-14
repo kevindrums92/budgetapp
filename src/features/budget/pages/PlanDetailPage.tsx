@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
-import { icons, Calendar, Trash2 } from "lucide-react";
+import { icons, Trash2, TrendingDown } from "lucide-react";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import AddEditBudgetModal from "@/features/budget/components/AddEditBudgetModal";
+import BudgetAlertDetailSheet from "@/features/forecasting/components/BudgetAlertDetailSheet";
+import { getBudgetAnalysis } from "@/features/forecasting/services/budgetPrediction.service";
 
 export default function PlanDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { formatAmount } = useCurrency();
+  const { t } = useTranslation("forecasting");
 
   const store = useBudgetStore();
   const getBudgetProgress = store.getBudgetProgress;
@@ -20,6 +24,7 @@ export default function PlanDetailPage() {
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
   // Get budget progress
   const progress = useMemo(() => {
@@ -91,6 +96,12 @@ export default function PlanDetailPage() {
       };
     }
   }, [progress]);
+
+  // Burn rate analysis (only for active limit budgets in current period)
+  const budgetAnalysis = useMemo(() => {
+    if (!progress) return null;
+    return getBudgetAnalysis(progress.budget, transactions);
+  }, [progress, transactions]);
 
   // Redirect if budget not found
   useEffect(() => {
@@ -181,15 +192,24 @@ export default function PlanDetailPage() {
             <h1 className="mb-1 text-center text-xl font-bold text-gray-900 dark:text-gray-50">
               {category.name}
             </h1>
-            <div className="mb-4 flex items-center justify-center gap-2">
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-                {budget.type === "limit" ? "Límite de Gasto" : "Meta de Ahorro"}
+            <div className="mb-4 text-center">
+              <div className="flex items-center justify-center gap-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {budget.type === "limit" ? "Límite de Gasto" : "Meta de Ahorro"}
+                </p>
+                {isCompletedBudget && (
+                  <span className="rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    Completado
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                {formatDate(budget.period.startDate)} – {formatDate(budget.period.endDate)}
+                {!intelligentMetrics.isCompleted
+                  ? ` · ${intelligentMetrics.daysRemaining} días restantes`
+                  : ` · ${intelligentMetrics.totalDays} días`
+                }
               </p>
-              {isCompletedBudget && (
-                <span className="rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-400">
-                  Completado
-                </span>
-              )}
             </div>
 
             {/* Progress */}
@@ -252,45 +272,50 @@ export default function PlanDetailPage() {
             )}
           </div>
 
-          {/* Intelligent Metrics Cards */}
-          <div className="mb-6 grid grid-cols-2 gap-3">
-            {/* Metric 1 */}
-            <div className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
-                <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          {/* Burn Rate Analysis Link */}
+          {budgetAnalysis && (
+            <div className="mb-6">
+              <button
+                type="button"
+                onClick={() => setShowAnalysis(true)}
+                className="w-full flex items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm transition-colors active:bg-gray-50 dark:active:bg-gray-800"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${
+                    budgetAnalysis.urgency === "safe"
+                      ? "bg-emerald-500/10 dark:bg-emerald-500/20"
+                      : budgetAnalysis.urgency === "high"
+                        ? "bg-red-500/10 dark:bg-red-500/20"
+                        : "bg-orange-500/10 dark:bg-orange-500/20"
+                  }`}>
+                    <TrendingDown size={18} className={
+                      budgetAnalysis.urgency === "safe"
+                        ? "text-emerald-500"
+                        : budgetAnalysis.urgency === "high"
+                          ? "text-red-500"
+                          : "text-orange-500"
+                    } />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                      {t("budgetAlerts.dailyRate", { amount: formatAmount(budgetAnalysis.dailyBurnRate) })}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {intelligentMetrics && !intelligentMetrics.isCompleted && intelligentMetrics.dailySuggestion > 0
+                        ? t("budgetAlerts.dailyTarget", { amount: formatAmount(intelligentMetrics.dailySuggestion) })
+                        : budgetAnalysis.daysUntilExceeded === 0
+                          ? t("budgetAlerts.alreadyExceeded")
+                          : t("budgetAlerts.projected", { amount: formatAmount(budgetAnalysis.projectedTotal) })
+                      }
+                    </p>
+                  </div>
+                </div>
+                <svg className="h-5 w-5 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-              </div>
-              <p className="mb-1 text-xs text-gray-500 dark:text-gray-400">
-                {intelligentMetrics.isCompleted
-                  ? budget.type === "limit" ? "Promedio Diario" : "Promedio de Ahorro"
-                  : budget.type === "limit" ? "Sugerencia Diaria" : "Aporte diario sugerido"
-                }
-              </p>
-              <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
-                {intelligentMetrics.isCompleted
-                  ? formatAmount(intelligentMetrics.dailyAverage)
-                  : formatAmount(intelligentMetrics.dailySuggestion)
-                }
-              </p>
+              </button>
             </div>
-
-            {/* Metric 2 */}
-            <div className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm">
-              <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800">
-                <Calendar className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              </div>
-              <p className="mb-1 text-xs text-gray-500 dark:text-gray-400">
-                {intelligentMetrics.isCompleted ? "Duración" : "Días restantes"}
-              </p>
-              <p className="text-base font-semibold text-gray-900 dark:text-gray-50">
-                {intelligentMetrics.isCompleted
-                  ? `${intelligentMetrics.totalDays} días`
-                  : `${intelligentMetrics.daysRemaining} días`
-                }
-              </p>
-            </div>
-          </div>
+          )}
 
           {/* Recent Activity */}
           <div className="mb-6">
@@ -362,6 +387,13 @@ export default function PlanDetailPage() {
           budgetId={id}
         />
       )}
+
+      {/* Burn Rate Analysis Sheet */}
+      <BudgetAlertDetailSheet
+        open={showAnalysis}
+        onClose={() => setShowAnalysis(false)}
+        prediction={budgetAnalysis}
+      />
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (

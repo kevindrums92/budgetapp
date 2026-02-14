@@ -1,10 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getAllBudgetPredictions } from "../services/budgetPrediction.service";
 import BudgetAlertCard from "./BudgetAlertCard";
+import BudgetAlertDetailSheet from "./BudgetAlertDetailSheet";
+import type { BudgetPrediction } from "../types/forecasting.types";
 
 export default function BudgetAlertsSection() {
   const { t } = useTranslation("forecasting");
@@ -12,6 +14,8 @@ export default function BudgetAlertsSection() {
   const transactions = useBudgetStore((s) => s.transactions);
   const budgets = useBudgetStore((s) => s.budgets);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
+  const [selectedPrediction, setSelectedPrediction] =
+    useState<BudgetPrediction | null>(null);
 
   const predictions = useMemo(() => {
     // Alerts only make sense for the current month (burn rate predictions)
@@ -35,9 +39,19 @@ export default function BudgetAlertsSection() {
 
       <div className="space-y-3">
         {predictions.slice(0, 3).map((prediction) => (
-          <BudgetAlertCard key={prediction.budgetId} prediction={prediction} />
+          <BudgetAlertCard
+            key={prediction.budgetId}
+            prediction={prediction}
+            onClick={() => setSelectedPrediction(prediction)}
+          />
         ))}
       </div>
+
+      <BudgetAlertDetailSheet
+        open={!!selectedPrediction}
+        onClose={() => setSelectedPrediction(null)}
+        prediction={selectedPrediction}
+      />
     </div>
   );
 }
