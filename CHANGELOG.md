@@ -12,6 +12,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(privacy): add privacy mode to hide sensitive financial data**
+  - Eye/EyeOff toggle button in TopHeader (replaces unused notification bell)
+  - Censors amounts in BalanceCard (balance, income, expense) when enabled
+  - Censors amounts in SafeToSpendCard (available, daily budget) when enabled
+  - Censored format: `$ -----` (currency symbol + dashes)
+  - Default state: visible (privacy mode OFF)
+  - Persists across sessions via localStorage (`app_privacy_mode` key)
+  - Multi-currency support (works with COP, USD, GTQ, EUR, etc.)
+  - 18 unit tests + 11 E2E tests for complete coverage
+
 - **feat(forecasting): add budget burn rate analysis detail sheet**
   - New `BudgetAlertDetailSheet` bottom sheet component with drag-to-close showing detailed burn rate metrics
   - Display spent, limit, remaining, daily burn rate, projected total, and estimated exceed date

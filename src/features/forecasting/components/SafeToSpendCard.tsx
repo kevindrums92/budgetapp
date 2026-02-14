@@ -3,6 +3,7 @@ import { Wallet, ChevronRight, Calculator, EyeOff, AlertTriangle } from "lucide-
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
+import { usePrivacy } from "@/features/privacy";
 import { calculateSafeToSpend } from "../services/safeToSpend.service";
 import SafeToSpendBreakdownSheet from "./SafeToSpendBreakdownSheet";
 
@@ -12,7 +13,8 @@ type Props = {
 
 export default function SafeToSpendCard({ onDismiss }: Props) {
   const { t } = useTranslation("forecasting");
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { formatWithPrivacy } = usePrivacy();
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   const transactions = useBudgetStore((s) => s.transactions);
@@ -42,6 +44,15 @@ export default function SafeToSpendCard({ onDismiss }: Props) {
   }, [data.safeToSpend, selectedMonth]);
 
   const isPositive = data.safeToSpend >= 0;
+
+  // Format amounts with privacy
+  const safeToSpendFormatted = formatWithPrivacy(
+    formatAmount(Math.abs(data.safeToSpend)),
+    currencyInfo.symbol
+  );
+  const dailyBudgetFormatted = dailyBudgetInfo
+    ? formatWithPrivacy(formatAmount(dailyBudgetInfo.dailyBudget), currencyInfo.symbol)
+    : null;
 
   return (
     <>
@@ -80,7 +91,7 @@ export default function SafeToSpendCard({ onDismiss }: Props) {
                 : "text-red-600 dark:text-red-400"
             }`}
           >
-            {isPositive ? "" : "- "}{formatAmount(Math.abs(data.safeToSpend))}
+            {isPositive ? "" : "- "}{safeToSpendFormatted}
           </p>
 
           {/* Footer: daily budget info OR deficit hint + Hide button */}
@@ -94,7 +105,7 @@ export default function SafeToSpendCard({ onDismiss }: Props) {
                 <div className="flex flex-1 items-center gap-2">
                   <Calculator size={14} className="text-gray-400 dark:text-gray-500 shrink-0" />
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {t("safeToSpend.dailyBudget", { amount: formatAmount(dailyBudgetInfo.dailyBudget) })}
+                    {t("safeToSpend.dailyBudget", { amount: dailyBudgetFormatted })}
                     {" · "}
                     {t("safeToSpend.daysRemaining", { count: dailyBudgetInfo.daysRemaining })}
                   </p>

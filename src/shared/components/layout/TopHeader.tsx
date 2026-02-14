@@ -3,8 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useHeaderActions } from "@/shared/contexts/headerActions.context";
+import { usePrivacy } from "@/features/privacy";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
-import { User, Bell } from "lucide-react";
+import { User, Eye, EyeOff } from "lucide-react";
 
 type Props = {
   showMonthSelector?: boolean;
@@ -21,6 +22,9 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
 
   // ✅ Check Pro status
   const { isPro } = useSubscription();
+
+  // ✅ Privacy mode
+  const { privacyMode, togglePrivacyMode } = usePrivacy();
 
   // ✅ Reactive network status (triggers re-render on online/offline)
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -111,21 +115,22 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
             )}
           </div>
 
-          {/* Right: Notification Bell + Avatar - only show in default mode */}
+          {/* Right: Privacy Toggle + Avatar - only show in default mode */}
           {!isProfilePage && (
             <div className="flex items-center gap-3">
-              {/* Page-specific action or default notification bell */}
+              {/* Page-specific action or default privacy toggle */}
               {headerAction ?? (
                 <button
                   type="button"
-                  onClick={() => {
-                    // TODO: Implement notifications functionality
-                    console.log('[TopHeader] Notifications clicked - TODO');
-                  }}
+                  onClick={togglePrivacyMode}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
-                  aria-label="Notificaciones"
+                  aria-label={privacyMode ? "Mostrar montos" : "Ocultar montos"}
                 >
-                  <Bell size={20} className="text-gray-600 dark:text-gray-400" />
+                  {privacyMode ? (
+                    <EyeOff size={20} className="text-gray-600 dark:text-gray-400" />
+                  ) : (
+                    <Eye size={20} className="text-gray-600 dark:text-gray-400" />
+                  )}
                 </button>
               )}
 

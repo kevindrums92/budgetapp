@@ -10,6 +10,7 @@ import * as Sentry from "@sentry/react";
 
 import { ThemeProvider } from "@/features/theme";
 import { CurrencyProvider } from "@/features/currency";
+import { PrivacyProvider } from "@/features/privacy";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 import { HeaderActionsProvider } from "@/shared/contexts/headerActions.context";
@@ -193,20 +194,22 @@ export default function App() {
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <ThemeProvider>
         <CurrencyProvider>
-          <RevenueCatProvider>
-            <AdMobProvider>
-              <BrowserRouter>
-                <HeaderActionsProvider>
-                  <CloudSyncGate />
-                  <OnboardingGate />
-                  <BiometricGate />
-                  <SessionExpiredGate />
-                  <UpcomingTransactionsModal />
-                  <AppFrame />
-                </HeaderActionsProvider>
-              </BrowserRouter>
-            </AdMobProvider>
-          </RevenueCatProvider>
+          <PrivacyProvider>
+            <RevenueCatProvider>
+              <AdMobProvider>
+                <BrowserRouter>
+                  <HeaderActionsProvider>
+                    <CloudSyncGate />
+                    <OnboardingGate />
+                    <BiometricGate />
+                    <SessionExpiredGate />
+                    <UpcomingTransactionsModal />
+                    <AppFrame />
+                  </HeaderActionsProvider>
+                </BrowserRouter>
+              </AdMobProvider>
+            </RevenueCatProvider>
+          </PrivacyProvider>
         </CurrencyProvider>
       </ThemeProvider>
     </Sentry.ErrorBoundary>
