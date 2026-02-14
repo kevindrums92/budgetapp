@@ -224,7 +224,7 @@ export default function HomePage() {
 
           {/* Safe to Spend + Daily Budget merged banner */}
           {!isSmartBannerPermanentlyHidden && !hideSmartBannerSession && (
-            <SafeToSpendCard onDismiss={() => setShowSmartBannerConfirm(true)} />
+            <SafeToSpendCard />
           )}
 
           {/* Push Notification Banner */}

@@ -14,6 +14,8 @@
     "daysRemaining": "{{count}} days left",
     "daysRemaining_one": "{{count}} day left",
     "hide": "Hide",
+    "showLess": "Show less",
+    "showMore": "Show more",
     "deficit": "Monthly Deficit",
     "deficitHint": "Your spending exceeds your income"
   },

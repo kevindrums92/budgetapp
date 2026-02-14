@@ -12,6 +12,19 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(forecasting): add expand/collapse toggle to SafeToSpend card**
+  - Replaced arrow icon with question mark icon (CircleHelp) in card header
+  - Added "Ver menos" / "Ver más" toggle button to collapse/expand card
+  - Collapsed view shows only daily budget line with "Ver más" button
+  - Expanded view shows full card with breakdown button and "Ver menos" button
+  - Default state: expanded, persists across sessions via localStorage
+  - Added i18n translations for "showLess" and "showMore" in 4 languages (es, en, fr, pt)
+
+- **feat(forecasting): add drag-to-close gesture to SafeToSpend breakdown sheet**
+  - Implemented touch and mouse drag handlers for bottom sheet
+  - 30% drag threshold to trigger close action
+  - Smooth drag animations with transition states
+
 - **feat(privacy): add privacy mode to hide sensitive financial data**
   - Eye/EyeOff toggle button in TopHeader (replaces unused notification bell)
   - Censors amounts in BalanceCard (balance, income, expense) when enabled

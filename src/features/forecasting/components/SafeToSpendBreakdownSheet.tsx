@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Minus, Receipt, PiggyBank, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/features/currency";
@@ -11,6 +11,7 @@ type Props = {
 };
 
 const SHEET_HEIGHT = 520;
+const DRAG_THRESHOLD = 0.3;
 
 export default function SafeToSpendBreakdownSheet({
   open,
@@ -21,6 +22,10 @@ export default function SafeToSpendBreakdownSheet({
   const { formatAmount } = useCurrency();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const startYRef = useRef(0);
 
   useEffect(() => {
     if (open) {
@@ -45,11 +50,90 @@ export default function SafeToSpendBreakdownSheet({
     };
   }, [open]);
 
+  // Drag handlers
+  const handleDragStart = useCallback((clientY: number) => {
+    setIsDragging(true);
+    startYRef.current = clientY;
+  }, []);
+
+  const handleDragMove = useCallback(
+    (clientY: number) => {
+      if (!isDragging) return;
+
+      const diff = clientY - startYRef.current;
+      if (diff > 0) {
+        setDragOffset(Math.min(diff, SHEET_HEIGHT));
+      } else {
+        setDragOffset(0);
+      }
+    },
+    [isDragging]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    if (!isDragging) return;
+
+    setIsDragging(false);
+
+    if (dragOffset > SHEET_HEIGHT * DRAG_THRESHOLD) {
+      onClose();
+    }
+
+    setDragOffset(0);
+  }, [isDragging, dragOffset, onClose]);
+
+  // Touch handlers
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      handleDragStart(e.touches[0].clientY);
+    },
+    [handleDragStart]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      handleDragMove(e.touches[0].clientY);
+    },
+    [handleDragMove]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    handleDragEnd();
+  }, [handleDragEnd]);
+
+  // Mouse handlers
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      handleDragStart(e.clientY);
+    },
+    [handleDragStart]
+  );
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      handleDragMove(e.clientY);
+    };
+
+    const handleMouseUp = () => {
+      handleDragEnd();
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, handleDragMove, handleDragEnd]);
+
   if (!isVisible) return null;
 
   const isPositive = data.safeToSpend >= 0;
   const backdropOpacity = isAnimating ? 0.5 : 0;
-  const sheetTranslate = isAnimating ? 0 : SHEET_HEIGHT;
+  const sheetTranslate = isAnimating ? dragOffset : SHEET_HEIGHT;
 
   return (
     <div className="fixed inset-0 z-[70]">
@@ -64,11 +148,18 @@ export default function SafeToSpendBreakdownSheet({
 
       {/* Sheet */}
       <div
+        ref={sheetRef}
         className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
         style={{
           transform: `translateY(${sheetTranslate}px)`,
-          transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: isDragging
+            ? "none"
+            : "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
       >
         {/* Drag handle */}
         <div className="flex justify-center py-3">
