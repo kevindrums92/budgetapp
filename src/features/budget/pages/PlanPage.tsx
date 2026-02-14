@@ -6,6 +6,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import BudgetOnboardingWizard from "@/features/budget/components/BudgetOnboardingWizard";
 import BudgetCard from "@/features/budget/components/BudgetCard";
 import AddEditBudgetModal from "@/features/budget/components/AddEditBudgetModal";
+import BudgetAlertsSection from "@/features/forecasting/components/BudgetAlertsSection";
 
 type BudgetTab = "active" | "completed";
 
@@ -145,6 +146,9 @@ export default function PlanPage() {
               </button>
             </div>
           )}
+
+          {/* Budget Alert Predictions */}
+          {activeTab === "active" && <BudgetAlertsSection />}
 
           {/* Health Check Section (only show when activeTab is "active") */}
           {activeTab === "active" && (healthCheck.exceededLimits > 0 || healthCheck.totalGoals > 0) && (

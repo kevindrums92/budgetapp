@@ -1,0 +1,78 @@
+{
+  "safeToSpend": {
+    "title": "Seguro para Gastar",
+    "subtitle": "Dispon\u00edvel este m\u00eas",
+    "afterBills": "Ap\u00f3s contas e or\u00e7amentos",
+    "breakdown": "Detalhamento",
+    "currentBalance": "Saldo do m\u00eas",
+    "upcomingBills": "Contas a pagar",
+    "budgetReserves": "Reservas de or\u00e7amento",
+    "result": "Seguro para gastar",
+    "noBills": "Sem contas pendentes",
+    "close": "Fechar",
+    "dailyBudget": "{{amount}} / dia",
+    "daysRemaining": "{{count}} dias restantes",
+    "daysRemaining_one": "{{count}} dia restante",
+    "hide": "Ocultar",
+    "showLess": "Ver menos",
+    "showMore": "Ver mais",
+    "deficit": "Déficit do mês",
+    "deficitHint": "Seus gastos superam sua renda"
+  },
+  "futureBalance": {
+    "title": "Saldo Futuro",
+    "subtitle": "Proje\u00e7\u00e3o de {{days}} dias",
+    "projected": "Projetado em {{days}}d",
+    "today": "Hoje",
+    "notEnoughData": "Adicione mais transa\u00e7\u00f5es para ver proje\u00e7\u00f5es",
+    "needsMonths": "Precisamos de pelo menos 1 m\u00eas de dados",
+    "disclaimer": "Baseado no seu hist\u00f3rico de gastos, n\u00e3o inclui limites de or\u00e7amento",
+    "info": {
+      "title": "Como \u00e9 calculado",
+      "currentBalance": "Saldo atual",
+      "currentBalanceDesc": "Soma de todas as suas receitas menos despesas at\u00e9 hoje.",
+      "weightedAverage": "M\u00e9dias ponderadas",
+      "weightedAverageDesc": "Calculamos sua m\u00e9dia de receitas e despesas dos \u00faltimos 3 meses, dando mais peso aos meses recentes.",
+      "weights": "M\u00eas mais recente \u00d73, anterior \u00d72, 2 meses atr\u00e1s \u00d71",
+      "scheduled": "Transa\u00e7\u00f5es programadas",
+      "scheduledDesc": "Se voc\u00ea tem despesas ou receitas recorrentes (aluguel, sal\u00e1rio, etc.), elas s\u00e3o inclu\u00eddas conforme sua frequ\u00eancia.",
+      "projection": "Proje\u00e7\u00e3o",
+      "projectionDesc": "Para cada ponto (30, 60, 90 dias) somamos as receitas estimadas e subtra\u00edmos as despesas estimadas do seu saldo atual.",
+      "colors": "Cores",
+      "colorGreen": "Verde: saldo seguro (acima de 20% da sua renda)",
+      "colorYellow": "Amarelo: precau\u00e7\u00e3o (entre 0 e 20%)",
+      "colorRed": "Vermelho: saldo negativo",
+      "close": "Entendido"
+    }
+  },
+  "budgetAlerts": {
+    "title": "Alertas de Or\u00e7amento",
+    "exceedingIn": "Exceder\u00e1 em {{days}} dias",
+    "exceedingIn_one": "Exceder\u00e1 em {{days}} dia",
+    "alreadyExceeded": "Or\u00e7amento excedido",
+    "noAlerts": "Seus or\u00e7amentos est\u00e3o em dia",
+    "dailyRate": "{{amount}} / dia",
+    "projected": "Projetado: {{amount}}",
+    "dailyTarget": "Meta: {{amount}} / dia",
+    "urgency": {
+      "high": "Urgente",
+      "medium": "Aten\u00e7\u00e3o",
+      "low": "Aviso",
+      "safe": "Em dia"
+    },
+    "detail": {
+      "title": "Detalhe do alerta",
+      "spent": "Gasto",
+      "limit": "Limite",
+      "remaining": "Restante",
+      "dailyRate": "Ritmo di\u00e1rio",
+      "projectedTotal": "Projetado ao final",
+      "exceedDate": "Data estimada de excesso",
+      "alreadyExceededDesc": "Voc\u00ea j\u00e1 ultrapassou o limite deste or\u00e7amento",
+      "exceedingInDesc": "Neste ritmo, voc\u00ea exceder\u00e1 seu or\u00e7amento em {{days}} dias",
+      "exceedingInDesc_one": "Neste ritmo, voc\u00ea exceder\u00e1 seu or\u00e7amento em {{days}} dia",
+      "safeDesc": "Seu or\u00e7amento est\u00e1 em dia, n\u00e3o h\u00e1 proje\u00e7\u00e3o de excesso",
+      "close": "Entendido"
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "safeToSpend": {
+    "title": "Seguro para Gastar",
+    "subtitle": "Disponible este mes",
+    "afterBills": "Descontando cuentas y presupuestos",
+    "breakdown": "Desglose",
+    "currentBalance": "Balance del mes",
+    "upcomingBills": "Cuentas por pagar",
+    "budgetReserves": "Reservas de presupuesto",
+    "result": "Seguro para gastar",
+    "noBills": "No hay cuentas pendientes",
+    "close": "Cerrar",
+    "dailyBudget": "{{amount}} / día",
+    "daysRemaining": "{{count}} días restantes",
+    "daysRemaining_one": "{{count}} día restante",
+    "hide": "Ocultar",
+    "showLess": "Ver menos",
+    "showMore": "Ver más",
+    "deficit": "Déficit del mes",
+    "deficitHint": "Tus gastos superan tus ingresos"
+  },
+  "futureBalance": {
+    "title": "Balance Futuro",
+    "subtitle": "Proyecci\u00f3n a {{days}} d\u00edas",
+    "projected": "Proyectado en {{days}}d",
+    "today": "Hoy",
+    "notEnoughData": "Agrega m\u00e1s transacciones para ver proyecciones",
+    "needsMonths": "Necesitamos al menos 1 mes de datos",
+    "disclaimer": "Basado en tu historial de gastos, no incluye l\u00edmites de presupuesto",
+    "info": {
+      "title": "C\u00f3mo se calcula",
+      "currentBalance": "Saldo actual",
+      "currentBalanceDesc": "Suma de todos tus ingresos menos tus gastos hasta hoy.",
+      "weightedAverage": "Promedios ponderados",
+      "weightedAverageDesc": "Calculamos tu promedio de ingresos y gastos de los \u00faltimos 3 meses, dando m\u00e1s peso a los meses recientes.",
+      "weights": "Mes m\u00e1s reciente \u00d73, anterior \u00d72, hace 2 meses \u00d71",
+      "scheduled": "Transacciones programadas",
+      "scheduledDesc": "Si tienes gastos o ingresos recurrentes (renta, salario, etc.), se incluyen seg\u00fan su frecuencia.",
+      "projection": "Proyecci\u00f3n",
+      "projectionDesc": "Para cada punto (30, 60, 90 d\u00edas) sumamos los ingresos estimados y restamos los gastos estimados a tu saldo actual.",
+      "colors": "Colores",
+      "colorGreen": "Verde: saldo seguro (mayor al 20% de tus ingresos)",
+      "colorYellow": "Amarillo: precauci\u00f3n (entre 0 y 20%)",
+      "colorRed": "Rojo: saldo negativo",
+      "close": "Entendido"
+    }
+  },
+  "budgetAlerts": {
+    "title": "Alertas de Presupuesto",
+    "exceedingIn": "Exceder\u00e1 en {{days}} d\u00edas",
+    "exceedingIn_one": "Exceder\u00e1 en {{days}} d\u00eda",
+    "alreadyExceeded": "Presupuesto excedido",
+    "noAlerts": "Tus presupuestos van bien",
+    "dailyRate": "{{amount}} / d\u00eda",
+    "projected": "Proyectado: {{amount}}",
+    "dailyTarget": "Meta: {{amount}} / d\u00eda",
+    "urgency": {
+      "high": "Urgente",
+      "medium": "Atenci\u00f3n",
+      "low": "Aviso",
+      "safe": "Bien"
+    },
+    "detail": {
+      "title": "Detalle de alerta",
+      "spent": "Gastado",
+      "limit": "L\u00edmite",
+      "remaining": "Restante",
+      "dailyRate": "Ritmo diario",
+      "projectedTotal": "Proyectado al final",
+      "exceedDate": "Fecha estimada de exceso",
+      "alreadyExceededDesc": "Ya superaste el l\u00edmite de este presupuesto",
+      "exceedingInDesc": "A este ritmo, exceder\u00e1s tu presupuesto en {{days}} d\u00edas",
+      "exceedingInDesc_one": "A este ritmo, exceder\u00e1s tu presupuesto en {{days}} d\u00eda",
+      "safeDesc": "Tu presupuesto va bien, no se proyecta que excedas el l\u00edmite",
+      "close": "Entendido"
+    }
+  }
+}

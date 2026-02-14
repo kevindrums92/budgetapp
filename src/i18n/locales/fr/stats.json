@@ -59,7 +59,25 @@
     "title": "Dépenses par Catégorie",
     "spent": "dépensé",
     "noData": "Aucune dépense ce mois-ci",
-    "viewAllPro": "Voir toutes les catégories"
+    "viewAllPro": "Voir toutes les catégories",
+    "viewAll": "Voir toutes",
+    "viewLess": "Voir moins",
+    "suggestion": {
+      "title": "Contrôler les dépenses \"{{category}}\" ?",
+      "subtitle": "Vous avez dépensé {{amount}} ce mois-ci",
+      "cta": "Créer une limite",
+      "dismissTitle": "Masquer la suggestion",
+      "dismissMessage": "Comment souhaitez-vous masquer cette suggestion ?",
+      "dismissMonth": "Masquer ce mois-ci",
+      "dismissOnce": "Juste cette fois",
+      "dismissCancel": "Annuler"
+    },
+    "actions": {
+      "createBudget": "Créer un budget",
+      "viewBudget": "Voir le budget",
+      "viewRecords": "Voir les registres",
+      "cancel": "Annuler"
+    }
   },
   "incomeVsExpenses": {
     "title": "Revenus vs Dépenses",
@@ -93,5 +111,17 @@
     "unlockAdvancedStats": "Débloquez les statistiques avancées",
     "unlockTrends": "Débloquez l'analyse des tendances",
     "viewAllStats": "Voir toutes les statistiques"
+  },
+  "layout": {
+    "editLayout": "Modifier la disposition",
+    "done": "Terminé",
+    "editBanner": "Réorganisez les sections à votre goût",
+    "sections": {
+      "quickStats": "Vue Rapide",
+      "donutChart": "Dépenses par Catégorie",
+      "barChart": "Revenus vs Dépenses",
+      "trendChart": "Tendance des Dépenses",
+      "futureBalance": "Projection de Solde"
+    }
   }
 }

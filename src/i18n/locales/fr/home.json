@@ -37,8 +37,8 @@
     "remaining_one": "Il reste {{count}} jour au mois",
     "couldSpend": "Vous pourriez dépenser {{amount}} / jour"
   },
-  "hideDailyBudget": {
-    "title": "Masquer le budget quotidien",
+  "hideSmartBanner": {
+    "title": "Masquer la bannière",
     "message": "Comment voulez-vous masquer cette bannière ?",
     "neverShow": "Ne plus afficher",
     "hideOnce": "Seulement cette fois",

@@ -12,6 +12,61 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(forecasting): add expand/collapse toggle to SafeToSpend card**
+  - Replaced arrow icon with question mark icon (CircleHelp) in card header
+  - Added "Ver menos" / "Ver más" toggle button to collapse/expand card
+  - Collapsed view shows only daily budget line with "Ver más" button
+  - Expanded view shows full card with breakdown button and "Ver menos" button
+  - Default state: expanded, persists across sessions via localStorage
+  - Added i18n translations for "showLess" and "showMore" in 4 languages (es, en, fr, pt)
+
+- **feat(forecasting): add drag-to-close gesture to SafeToSpend breakdown sheet**
+  - Implemented touch and mouse drag handlers for bottom sheet
+  - 30% drag threshold to trigger close action
+  - Smooth drag animations with transition states
+
+- **feat(privacy): add privacy mode to hide sensitive financial data**
+  - Eye/EyeOff toggle button in TopHeader (replaces unused notification bell)
+  - Censors amounts in BalanceCard (balance, income, expense) when enabled
+  - Censors amounts in SafeToSpendCard (available, daily budget) when enabled
+  - Censored format: `$ -----` (currency symbol + dashes)
+  - Default state: visible (privacy mode OFF)
+  - Persists across sessions via localStorage (`app_privacy_mode` key)
+  - Multi-currency support (works with COP, USD, GTQ, EUR, etc.)
+  - 18 unit tests + 11 E2E tests for complete coverage
+
+- **feat(forecasting): add budget burn rate analysis detail sheet**
+  - New `BudgetAlertDetailSheet` bottom sheet component with drag-to-close showing detailed burn rate metrics
+  - Display spent, limit, remaining, daily burn rate, projected total, and estimated exceed date
+  - Integrated into `PlanDetailPage` with clickable analysis button (for all active limit budgets in current period)
+  - New `getBudgetAnalysis()` service function returning predictions for all active budgets (not just at-risk ones)
+  - Support for "safe" urgency level in addition to high/medium/low
+  - Color-coded urgency badges and icons (red=high, yellow=medium, orange=low, green=safe)
+  - i18n translations for detail sheet (spent, limit, remaining, dailyRate, projectedTotal, exceedDate, descriptions)
+
+- **feat(stats): add SafeToSpend, Future Balance projection, and Budget Alerts to Stats**
+  - SafeToSpend card on Home page showing available money after bills and budget reserves
+  - Future Balance 90-day projection chart with weighted moving averages and scheduled transactions
+  - Budget Alerts section predicting when budgets will be exceeded (burn rate analysis with urgency levels)
+  - Customizable Stats page with drag-to-reorder sections via dnd-kit
+  - Smart budget suggestion banner recommending limits for top non-recurring expense categories (Pro only)
+  - Category action bottom sheet with "Create budget" / "View budget" / "View records" options
+  - Future Balance chart disclaimer clarifying projection is based on history, not budget limits
+  - i18n support for forecasting namespace (es, en, pt, fr)
+
+- **fix(budget): fix UTC date comparison bug in PlanDetailPage**
+  - Annual budgets now correctly show transactions from all months (not just recent ones)
+  - Changed Date object comparisons to string comparisons to avoid UTC timezone offset issues
+
+- **test(forecasting): add comprehensive unit tests for forecasting services**
+  - 30 tests for forecasting.service (weighted averages, balance calculation, zones, projections)
+  - 18 tests for safeToSpend.service (formula, upcoming bills, budget reserves, past/future months)
+  - 19 tests for budgetPrediction.service (exceeded detection, urgency levels, sorting, filtering)
+  - 17 tests for BudgetSuggestionBanner component (rendering, dismiss flow, localStorage isolation)
+  - 22 tests for CategoryActionSheet component (actions, scroll locking, accessibility)
+  - 20 tests for budget suggestion logic (period overlap, recurring detection, Pro-only)
+  - 10 tests for PlanDetailPage date filtering (boundary precision, no UTC issues, sort order)
+
 - **fix(critical): prevent app crash when opening push notifications**
   - Fixed "Importing a module script failed" error when navigating to `/scheduled` from push notifications
   - Changed ScheduledPage from lazy load to eager load to ensure reliable module loading

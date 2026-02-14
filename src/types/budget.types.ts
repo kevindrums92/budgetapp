@@ -176,6 +176,7 @@ export type BudgetState = {
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull
   // Stats preferences
   excludedFromStats?: string[]; // Category IDs excluded from all stats calculations
+  statsLayout?: string[];      // Section order for stats page (e.g. ['quickStats', 'donutChart', ...])
   // Security
   security?: SecuritySettings;       // Biometric authentication settings
   // NOTE: Subscription is NO LONGER part of BudgetState (as of v2.0)

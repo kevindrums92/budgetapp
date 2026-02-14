@@ -1,0 +1,78 @@
+{
+  "safeToSpend": {
+    "title": "Budget Disponible",
+    "subtitle": "Disponible ce mois",
+    "afterBills": "Apr\u00e8s factures et budgets",
+    "breakdown": "D\u00e9tail",
+    "currentBalance": "Solde du mois",
+    "upcomingBills": "Factures \u00e0 venir",
+    "budgetReserves": "R\u00e9serves de budget",
+    "result": "Budget disponible",
+    "noBills": "Aucune facture \u00e0 venir",
+    "close": "Fermer",
+    "dailyBudget": "{{amount}} / jour",
+    "daysRemaining": "{{count}} jours restants",
+    "daysRemaining_one": "{{count}} jour restant",
+    "hide": "Masquer",
+    "showLess": "Voir moins",
+    "showMore": "Voir plus",
+    "deficit": "Déficit du mois",
+    "deficitHint": "Vos dépenses dépassent vos revenus"
+  },
+  "futureBalance": {
+    "title": "Solde Futur",
+    "subtitle": "Projection \u00e0 {{days}} jours",
+    "projected": "Projet\u00e9 dans {{days}}j",
+    "today": "Aujourd'hui",
+    "notEnoughData": "Ajoutez plus de transactions pour voir les projections",
+    "needsMonths": "Nous avons besoin d'au moins 1 mois de donn\u00e9es",
+    "disclaimer": "Bas\u00e9 sur votre historique de d\u00e9penses, n'inclut pas les limites de budget",
+    "info": {
+      "title": "Comment c'est calcul\u00e9",
+      "currentBalance": "Solde actuel",
+      "currentBalanceDesc": "Somme de tous vos revenus moins vos d\u00e9penses jusqu'\u00e0 aujourd'hui.",
+      "weightedAverage": "Moyennes pond\u00e9r\u00e9es",
+      "weightedAverageDesc": "Nous calculons votre moyenne de revenus et de d\u00e9penses des 3 derniers mois, en donnant plus de poids aux mois r\u00e9cents.",
+      "weights": "Mois le plus r\u00e9cent \u00d73, pr\u00e9c\u00e9dent \u00d72, il y a 2 mois \u00d71",
+      "scheduled": "Transactions programm\u00e9es",
+      "scheduledDesc": "Si vous avez des d\u00e9penses ou des revenus r\u00e9currents (loyer, salaire, etc.), ils sont inclus selon leur fr\u00e9quence.",
+      "projection": "Projection",
+      "projectionDesc": "Pour chaque point (30, 60, 90 jours) nous ajoutons les revenus estim\u00e9s et soustrayons les d\u00e9penses estim\u00e9es de votre solde actuel.",
+      "colors": "Couleurs",
+      "colorGreen": "Vert : solde s\u00fbr (sup\u00e9rieur \u00e0 20% de vos revenus)",
+      "colorYellow": "Jaune : prudence (entre 0 et 20%)",
+      "colorRed": "Rouge : solde n\u00e9gatif",
+      "close": "Compris"
+    }
+  },
+  "budgetAlerts": {
+    "title": "Alertes de Budget",
+    "exceedingIn": "D\u00e9passement dans {{days}} jours",
+    "exceedingIn_one": "D\u00e9passement dans {{days}} jour",
+    "alreadyExceeded": "Budget d\u00e9pass\u00e9",
+    "noAlerts": "Vos budgets sont en bonne voie",
+    "dailyRate": "{{amount}} / jour",
+    "projected": "Projet\u00e9 : {{amount}}",
+    "dailyTarget": "Objectif : {{amount}} / jour",
+    "urgency": {
+      "high": "Urgent",
+      "medium": "Attention",
+      "low": "Avis",
+      "safe": "En ordre"
+    },
+    "detail": {
+      "title": "D\u00e9tail de l'alerte",
+      "spent": "D\u00e9pens\u00e9",
+      "limit": "Limite",
+      "remaining": "Restant",
+      "dailyRate": "Rythme quotidien",
+      "projectedTotal": "Total projet\u00e9",
+      "exceedDate": "Date estim\u00e9e de d\u00e9passement",
+      "alreadyExceededDesc": "Vous avez d\u00e9j\u00e0 d\u00e9pass\u00e9 la limite de ce budget",
+      "exceedingInDesc": "\u00c0 ce rythme, vous d\u00e9passerez votre budget dans {{days}} jours",
+      "exceedingInDesc_one": "\u00c0 ce rythme, vous d\u00e9passerez votre budget dans {{days}} jour",
+      "safeDesc": "Votre budget est en bonne voie, aucun d\u00e9passement pr\u00e9vu",
+      "close": "Compris"
+    }
+  }
+}

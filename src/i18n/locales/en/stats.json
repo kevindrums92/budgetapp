@@ -59,7 +59,25 @@
     "title": "Expenses by Category",
     "spent": "spent",
     "noData": "No expenses this month",
-    "viewAllPro": "View all categories"
+    "viewAllPro": "View all categories",
+    "viewAll": "View all",
+    "viewLess": "View less",
+    "suggestion": {
+      "title": "Control spending on \"{{category}}\"?",
+      "subtitle": "You spent {{amount}} this month",
+      "cta": "Create limit",
+      "dismissTitle": "Hide suggestion",
+      "dismissMessage": "How do you want to hide this suggestion?",
+      "dismissMonth": "Hide this month",
+      "dismissOnce": "Just this once",
+      "dismissCancel": "Cancel"
+    },
+    "actions": {
+      "createBudget": "Create budget",
+      "viewBudget": "View budget",
+      "viewRecords": "View records",
+      "cancel": "Cancel"
+    }
   },
   "incomeVsExpenses": {
     "title": "Income vs Expenses",
@@ -93,5 +111,17 @@
     "unlockAdvancedStats": "Unlock advanced statistics",
     "unlockTrends": "Unlock trend analysis",
     "viewAllStats": "View all statistics"
+  },
+  "layout": {
+    "editLayout": "Edit layout",
+    "done": "Done",
+    "editBanner": "Reorder sections to your liking",
+    "sections": {
+      "quickStats": "Quick View",
+      "donutChart": "Expenses by Category",
+      "barChart": "Income vs Expenses",
+      "trendChart": "Expense Trend",
+      "futureBalance": "Balance Projection"
+    }
   }
 }

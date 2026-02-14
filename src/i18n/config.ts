@@ -20,6 +20,7 @@ import esPaywall from './locales/es/paywall.json';
 import esBatch from './locales/es/batch.json';
 import esTour from './locales/es/tour.json';
 import esSession from './locales/es/session.json';
+import esForecasting from './locales/es/forecasting.json';
 
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
@@ -39,6 +40,7 @@ import enPaywall from './locales/en/paywall.json';
 import enBatch from './locales/en/batch.json';
 import enTour from './locales/en/tour.json';
 import enSession from './locales/en/session.json';
+import enForecasting from './locales/en/forecasting.json';
 
 import ptCommon from './locales/pt/common.json';
 import ptOnboarding from './locales/pt/onboarding.json';
@@ -58,6 +60,7 @@ import ptPaywall from './locales/pt/paywall.json';
 import ptBatch from './locales/pt/batch.json';
 import ptTour from './locales/pt/tour.json';
 import ptSession from './locales/pt/session.json';
+import ptForecasting from './locales/pt/forecasting.json';
 
 import frCommon from './locales/fr/common.json';
 import frOnboarding from './locales/fr/onboarding.json';
@@ -77,6 +80,7 @@ import frPaywall from './locales/fr/paywall.json';
 import frBatch from './locales/fr/batch.json';
 import frTour from './locales/fr/tour.json';
 import frSession from './locales/fr/session.json';
+import frForecasting from './locales/fr/forecasting.json';
 
 const resources = {
   es: {
@@ -98,6 +102,7 @@ const resources = {
     batch: esBatch,
     tour: esTour,
     session: esSession,
+    forecasting: esForecasting,
   },
   en: {
     common: enCommon,
@@ -118,6 +123,7 @@ const resources = {
     batch: enBatch,
     tour: enTour,
     session: enSession,
+    forecasting: enForecasting,
   },
   pt: {
     common: ptCommon,
@@ -138,6 +144,7 @@ const resources = {
     batch: ptBatch,
     tour: ptTour,
     session: ptSession,
+    forecasting: ptForecasting,
   },
   fr: {
     common: frCommon,
@@ -158,6 +165,7 @@ const resources = {
     batch: frBatch,
     tour: frTour,
     session: frSession,
+    forecasting: frForecasting,
   },
 };
 
@@ -196,7 +204,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour', 'session'],
+    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour', 'session', 'forecasting'],
     interpolation: {
       escapeValue: false, // React already escapes
     },
