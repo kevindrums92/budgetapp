@@ -59,7 +59,25 @@
     "title": "Despesas por Categoria",
     "spent": "gasto",
     "noData": "Não há despesas este mês",
-    "viewAllPro": "Ver todas as categorias"
+    "viewAllPro": "Ver todas as categorias",
+    "viewAll": "Ver todas",
+    "viewLess": "Ver menos",
+    "suggestion": {
+      "title": "Controlar gastos em \"{{category}}\"?",
+      "subtitle": "Você gastou {{amount}} este mês",
+      "cta": "Criar limite",
+      "dismissTitle": "Ocultar sugestão",
+      "dismissMessage": "Como você deseja ocultar esta sugestão?",
+      "dismissMonth": "Ocultar este mês",
+      "dismissOnce": "Apenas desta vez",
+      "dismissCancel": "Cancelar"
+    },
+    "actions": {
+      "createBudget": "Criar orçamento",
+      "viewBudget": "Ver orçamento",
+      "viewRecords": "Ver registros",
+      "cancel": "Cancelar"
+    }
   },
   "incomeVsExpenses": {
     "title": "Receitas vs Despesas",
@@ -93,5 +111,17 @@
     "unlockAdvancedStats": "Desbloqueie estatísticas avançadas",
     "unlockTrends": "Desbloqueie análise de tendências",
     "viewAllStats": "Ver todas as estatísticas"
+  },
+  "layout": {
+    "editLayout": "Editar layout",
+    "done": "Pronto",
+    "editBanner": "Reordene as seções como preferir",
+    "sections": {
+      "quickStats": "Vista Rápida",
+      "donutChart": "Despesas por Categoria",
+      "barChart": "Receitas vs Despesas",
+      "trendChart": "Tendência de Despesas",
+      "futureBalance": "Projeção de Saldo"
+    }
   }
 }

@@ -10,8 +10,10 @@ import * as Sentry from "@sentry/react";
 
 import { ThemeProvider } from "@/features/theme";
 import { CurrencyProvider } from "@/features/currency";
+import { PrivacyProvider } from "@/features/privacy";
 import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
+import { HeaderActionsProvider } from "@/shared/contexts/headerActions.context";
 import RevenueCatProvider from "@/shared/components/providers/RevenueCatProvider";
 
 // Eager load core pages (HomePage, PlanPage)
@@ -19,6 +21,7 @@ import HomePage from "@/features/transactions/pages/HomePage";
 import PlanPage from "@/features/budget/pages/PlanPage";
 import AddEditTransactionPage from "@/features/transactions/pages/AddEditTransactionPage";
 import HistoryPage from "@/features/transactions/pages/HistoryPage";
+import ScheduledPage from "@/features/transactions/pages/ScheduledPage";
 
 // Lazy load budget detail page
 const PlanDetailPage = lazy(() => import("@/features/budget/pages/PlanDetailPage"));
@@ -38,9 +41,6 @@ const CategoriesPage = lazy(() => import("@/features/categories/pages/Categories
 const CategoryGroupsPage = lazy(() => import("@/features/categories/pages/CategoryGroupsPage"));
 const AddEditCategoryGroupPage = lazy(() => import("@/features/categories/pages/AddEditCategoryGroupPage"));
 const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/CategoryMonthDetailPage"));
-
-// Lazy load scheduled transactions page
-const ScheduledPage = lazy(() => import("@/features/transactions/pages/ScheduledPage"));
 
 // Lazy load settings pages
 const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));
@@ -194,18 +194,22 @@ export default function App() {
     <Sentry.ErrorBoundary fallback={<ErrorFallback />}>
       <ThemeProvider>
         <CurrencyProvider>
-          <RevenueCatProvider>
-            <AdMobProvider>
-              <BrowserRouter>
-                <CloudSyncGate />
-                <OnboardingGate />
-                <BiometricGate />
-                <SessionExpiredGate />
-                <UpcomingTransactionsModal />
-                <AppFrame />
-              </BrowserRouter>
-            </AdMobProvider>
-          </RevenueCatProvider>
+          <PrivacyProvider>
+            <RevenueCatProvider>
+              <AdMobProvider>
+                <BrowserRouter>
+                  <HeaderActionsProvider>
+                    <CloudSyncGate />
+                    <OnboardingGate />
+                    <BiometricGate />
+                    <SessionExpiredGate />
+                    <UpcomingTransactionsModal />
+                    <AppFrame />
+                  </HeaderActionsProvider>
+                </BrowserRouter>
+              </AdMobProvider>
+            </RevenueCatProvider>
+          </PrivacyProvider>
         </CurrencyProvider>
       </ThemeProvider>
     </Sentry.ErrorBoundary>

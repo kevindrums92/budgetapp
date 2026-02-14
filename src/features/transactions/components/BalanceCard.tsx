@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
+import { usePrivacy } from "@/features/privacy";
 
 type FilterType = "all" | "income" | "expense";
 
@@ -20,7 +21,8 @@ function amountSizeClass(text: string): string {
 
 export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
   const { t } = useTranslation('home');
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { formatWithPrivacy } = usePrivacy();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
 
@@ -43,8 +45,9 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
   const availablePercent = availableRatio * 100;
   const roundedAvailablePercent = Math.round(availablePercent);
   const showDivider = availablePercent > 1 && availablePercent < 99;
-  const incomeLabel = `+${formatAmount(totals.income)}`;
-  const expenseLabel = `-${formatAmount(totals.expense)}`;
+  const incomeLabel = formatWithPrivacy(`+${formatAmount(totals.income)}`, currencyInfo.symbol);
+  const expenseLabel = formatWithPrivacy(`-${formatAmount(totals.expense)}`, currencyInfo.symbol);
+  const balanceFormatted = formatWithPrivacy(formatAmount(totals.balance), currencyInfo.symbol);
 
   return (
     <div className="bg-gray-50 dark:bg-gray-950">
@@ -62,7 +65,7 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
 
             {/* Balance Amount */}
             <div className="mb-3.5">
-              <span className="text-4xl font-bold tracking-tight">{formatAmount(totals.balance)}</span>
+              <span className="text-4xl font-bold tracking-tight">{balanceFormatted}</span>
             </div>
 
             {/* Income vs Expense — Ratio Bar */}

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Plus, X, Calculator, ChevronRight, Bell, Eye, EyeOff } from "lucide-react";
+import { Plus, X, ChevronRight, Bell, Eye, EyeOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import BalanceCard from "@/features/transactions/components/BalanceCard";
@@ -10,19 +10,18 @@ import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 import { homeTour } from "@/features/tour/tours/homeTour";
 import { useBudgetStore } from "@/state/budget.store";
-import { useCurrency } from "@/features/currency";
 import { generateVirtualTransactions, generatePastDueTransactions, materializeTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 import { todayISO } from "@/services/dates.service";
 import { requestPermissions, checkPermissionStatus } from "@/services/pushNotification.service";
 import { shouldShowBanner, recordDismiss, markAsEnabled } from "@/services/pushBannerTracking.service";
+import SafeToSpendCard from "@/features/forecasting/components/SafeToSpendCard";
 
 export default function HomePage() {
   const { t } = useTranslation('home');
-  const { formatAmount } = useCurrency();
   const navigate = useNavigate();
   const [addSheetOpen, setAddSheetOpen] = useState(false);
-  const [hideDailyBudgetSession, setHideDailyBudgetSession] = useState(false);
-  const [showDailyBudgetConfirm, setShowDailyBudgetConfirm] = useState(false);
+  const [hideSmartBannerSession, setHideSmartBannerSession] = useState(false);
+  const [showSmartBannerConfirm, setShowSmartBannerConfirm] = useState(false);
   const [hideScheduledBannerSession, setHideScheduledBannerSession] = useState(false);
   const [showPushBanner, setShowPushBanner] = useState(false);
   const [isEnablingPush, setIsEnablingPush] = useState(false);
@@ -34,9 +33,9 @@ export default function HomePage() {
   // Spotlight tour
   const { isActive: isTourActive, startTour, completeTour } = useSpotlightTour("home");
 
-  // Check if daily budget banner is permanently hidden
-  const isDailyBudgetPermanentlyHidden = useMemo(() => {
-    return localStorage.getItem("budget.hideDailyBudgetBanner") === "1";
+  // Check if smart banner is permanently hidden
+  const isSmartBannerPermanentlyHidden = useMemo(() => {
+    return localStorage.getItem("budget.hideSmartBanner") === "1";
   }, []);
 
   // Get list of months where scheduled banner is hidden
@@ -164,38 +163,6 @@ export default function HomePage() {
   // Check if user has at least 1 transaction (any month) - used to show nav buttons
   const hasAnyTransactions = transactions.length > 0;
 
-  // Calculate daily budget based on current balance
-  const dailyBudgetInfo = useMemo(() => {
-    let income = 0;
-    let expense = 0;
-
-    for (const t of transactions) {
-      if (t.date.slice(0, 7) !== selectedMonth) continue;
-      if (t.type === "income") income += t.amount;
-      else expense += t.amount;
-    }
-
-    const balance = income - expense;
-
-    // Daily budget calculation
-    const [year, month] = selectedMonth.split("-").map(Number);
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const today = new Date();
-    const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
-    const isCurrentMonth = selectedMonth === currentMonthKey;
-
-    if (!isCurrentMonth) return null;
-
-    const currentDay = today.getDate();
-    const daysRemaining = daysInMonth - currentDay;
-
-    if (daysRemaining <= 0) return null;
-
-    const dailyBudget = balance / daysRemaining;
-
-    return { dailyBudget, daysRemaining };
-  }, [transactions, selectedMonth]);
-
   // Register all virtual transactions at once
   const handleRegisterAllScheduled = () => {
     virtualTransactionsForMonth.forEach((vt) => {
@@ -255,37 +222,9 @@ export default function HomePage() {
         <>
           <BalanceCard activeFilter={filterType} onFilterChange={setFilterType} />
 
-          {/* Daily Budget Banner */}
-          {dailyBudgetInfo &&
-            dailyBudgetInfo.dailyBudget > 0 &&
-            !isDailyBudgetPermanentlyHidden &&
-            !hideDailyBudgetSession && (
-            <div className="mx-auto max-w-xl px-4 mt-6">
-              <section className="bg-teal-50 dark:bg-teal-900/30 border border-teal-100/50 dark:border-teal-800/50 rounded-2xl p-4 flex items-center justify-between shadow-sm relative overflow-hidden transition-all duration-300">
-                <div className="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-teal-100/40 dark:from-teal-800/20 to-transparent" />
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-10 h-10 rounded-full bg-white dark:bg-gray-800 text-[#18B7B0] flex items-center justify-center shadow-sm border border-teal-50 dark:border-teal-800 shrink-0">
-                    <Calculator size={20} strokeWidth={2} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wider font-bold text-[#18B7B0] mb-0.5">
-                      {t('dailyBudget.remaining', { count: dailyBudgetInfo.daysRemaining })}
-                    </p>
-                    <p className="text-sm text-gray-700 dark:text-gray-200 font-medium leading-tight">
-                      {t('dailyBudget.couldSpend', { amount: formatAmount(dailyBudgetInfo.dailyBudget) })}
-                    </p>
-                  </div>
-                </div>
-                {/* Close button */}
-                <button
-                  type="button"
-                  onClick={() => setShowDailyBudgetConfirm(true)}
-                  className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full hover:bg-teal-100/60 dark:hover:bg-teal-800/40 active:scale-95 transition-all z-10"
-                >
-                  <X className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                </button>
-              </section>
-            </div>
+          {/* Safe to Spend + Daily Budget merged banner */}
+          {!isSmartBannerPermanentlyHidden && !hideSmartBannerSession && (
+            <SafeToSpendCard />
           )}
 
           {/* Push Notification Banner */}
@@ -404,22 +343,22 @@ export default function HomePage() {
         onClose={() => setAddSheetOpen(false)}
       />
 
-      {/* Daily Budget Dismiss Confirmation Modal */}
-      {showDailyBudgetConfirm && (
+      {/* Smart Banner Dismiss Confirmation Modal */}
+      {showSmartBannerConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 dark:bg-black/70"
-            onClick={() => setShowDailyBudgetConfirm(false)}
+            onClick={() => setShowSmartBannerConfirm(false)}
           />
 
           {/* Modal Card */}
           <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t('hideDailyBudget.title')}
+              {t('hideSmartBanner.title')}
             </h3>
             <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
-              {t('hideDailyBudget.message')}
+              {t('hideSmartBanner.message')}
             </p>
 
             {/* Actions */}
@@ -427,31 +366,30 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={() => {
-                  localStorage.setItem("budget.hideDailyBudgetBanner", "1");
-                  setShowDailyBudgetConfirm(false);
-                  // Force re-render by navigating to same page
+                  localStorage.setItem("budget.hideSmartBanner", "1");
+                  setShowSmartBannerConfirm(false);
                   window.location.reload();
                 }}
                 className="w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
               >
-                {t('hideDailyBudget.neverShow')}
+                {t('hideSmartBanner.neverShow')}
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  setHideDailyBudgetSession(true);
-                  setShowDailyBudgetConfirm(false);
+                  setHideSmartBannerSession(true);
+                  setShowSmartBannerConfirm(false);
                 }}
                 className="w-full rounded-xl bg-emerald-500 dark:bg-emerald-600 py-3 text-sm font-medium text-white hover:bg-emerald-600 dark:hover:bg-emerald-500"
               >
-                {t('hideDailyBudget.hideOnce')}
+                {t('hideSmartBanner.hideOnce')}
               </button>
               <button
                 type="button"
-                onClick={() => setShowDailyBudgetConfirm(false)}
+                onClick={() => setShowSmartBannerConfirm(false)}
                 className="w-full rounded-xl py-3 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               >
-                {t('hideDailyBudget.cancel')}
+                {t('hideSmartBanner.cancel')}
               </button>
             </div>
           </div>
