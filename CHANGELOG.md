@@ -12,6 +12,29 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(stats): add SafeToSpend, Future Balance projection, and Budget Alerts to Stats**
+  - SafeToSpend card on Home page showing available money after bills and budget reserves
+  - Future Balance 90-day projection chart with weighted moving averages and scheduled transactions
+  - Budget Alerts section predicting when budgets will be exceeded (burn rate analysis with urgency levels)
+  - Customizable Stats page with drag-to-reorder sections via dnd-kit
+  - Smart budget suggestion banner recommending limits for top non-recurring expense categories (Pro only)
+  - Category action bottom sheet with "Create budget" / "View budget" / "View records" options
+  - Future Balance chart disclaimer clarifying projection is based on history, not budget limits
+  - i18n support for forecasting namespace (es, en, pt, fr)
+
+- **fix(budget): fix UTC date comparison bug in PlanDetailPage**
+  - Annual budgets now correctly show transactions from all months (not just recent ones)
+  - Changed Date object comparisons to string comparisons to avoid UTC timezone offset issues
+
+- **test(forecasting): add comprehensive unit tests for forecasting services**
+  - 30 tests for forecasting.service (weighted averages, balance calculation, zones, projections)
+  - 18 tests for safeToSpend.service (formula, upcoming bills, budget reserves, past/future months)
+  - 19 tests for budgetPrediction.service (exceeded detection, urgency levels, sorting, filtering)
+  - 17 tests for BudgetSuggestionBanner component (rendering, dismiss flow, localStorage isolation)
+  - 22 tests for CategoryActionSheet component (actions, scroll locking, accessibility)
+  - 20 tests for budget suggestion logic (period overlap, recurring detection, Pro-only)
+  - 10 tests for PlanDetailPage date filtering (boundary precision, no UTC issues, sort order)
+
 - **fix(critical): prevent app crash when opening push notifications**
   - Fixed "Importing a module script failed" error when navigating to `/scheduled` from push notifications
   - Changed ScheduledPage from lazy load to eager load to ensure reliable module loading

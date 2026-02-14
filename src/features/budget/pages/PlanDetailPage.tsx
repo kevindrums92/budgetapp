@@ -16,6 +16,7 @@ export default function PlanDetailPage() {
   const getBudgetProgress = store.getBudgetProgress;
   const deleteBudget = store.deleteBudget;
   const transactions = store.transactions;
+  const budgets = store.budgets;
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -24,7 +25,8 @@ export default function PlanDetailPage() {
   const progress = useMemo(() => {
     if (!id) return null;
     return getBudgetProgress(id);
-  }, [id, getBudgetProgress]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- budgets triggers recompute when budget is edited/deleted
+  }, [id, getBudgetProgress, budgets]);
 
   // Filter transactions for this budget's category within the period
   const relevantTransactions = useMemo(() => {
@@ -36,13 +38,9 @@ export default function PlanDetailPage() {
         if (progress.budget.type === "limit" && tx.type !== "expense") return false;
         if (progress.budget.type === "goal" && tx.type !== "expense") return false;
 
-        const txDate = new Date(tx.date);
-        const startDate = new Date(progress.budget.period.startDate);
-        const endDate = new Date(progress.budget.period.endDate);
-
-        return txDate >= startDate && txDate <= endDate;
+        return tx.date >= progress.budget.period.startDate && tx.date <= progress.budget.period.endDate;
       })
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      .sort((a, b) => b.date.localeCompare(a.date));
   }, [transactions, progress]);
 
   // Calculate intelligent metrics

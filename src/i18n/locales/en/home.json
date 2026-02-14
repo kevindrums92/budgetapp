@@ -37,8 +37,8 @@
     "remaining_one": "{{count}} day left this month",
     "couldSpend": "You could spend {{amount}} / day"
   },
-  "hideDailyBudget": {
-    "title": "Hide daily budget",
+  "hideSmartBanner": {
+    "title": "Hide banner",
     "message": "How do you want to hide this banner?",
     "neverShow": "Never show again",
     "hideOnce": "Just this once",

@@ -195,7 +195,9 @@ type BudgetStore = BudgetState & {
 
   // Stats preferences
   excludedFromStats: string[];
+  statsLayout: string[] | undefined;
   toggleCategoryFromStats: (categoryId: string) => void;
+  setStatsLayout: (layout: string[]) => void;
 
   // Security
   toggleBiometricAuth: () => void;
@@ -1212,6 +1214,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         // NOTE: tour flags are NOT included in snapshot (local-only, per-device)
         lastSchedulerRun: s.lastSchedulerRun,
         excludedFromStats: s.excludedFromStats,
+        statsLayout: s.statsLayout,
         security: s.security,
         // NOTE: subscription is NOT included in snapshot (managed by RevenueCat + Supabase)
       };
@@ -1230,6 +1233,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     // Stats preferences
     excludedFromStats: hydrated.excludedFromStats ?? [],
+    statsLayout: hydrated.statsLayout,
     toggleCategoryFromStats: (categoryId) => {
       set((state) => {
         const current = state.excludedFromStats ?? [];
@@ -1259,11 +1263,16 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           excludedFromStats: isExcluded
             ? current.filter((id) => id !== categoryId)
             : [...current, categoryId],
+          statsLayout: state.statsLayout,
           security: state.security,
         };
         saveState(next);
         return next;
       });
+    },
+    setStatsLayout: (layout) => {
+      set({ statsLayout: layout });
+      saveState(get());
     },
 
     // Security
@@ -1358,6 +1367,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         scheduledPageTourSeen: current.scheduledPageTourSeen,
         lastSchedulerRun: data.lastSchedulerRun,
         excludedFromStats: data.excludedFromStats ?? [],
+        statsLayout: data.statsLayout ?? current.statsLayout,
         security: data.security ?? { biometricEnabled: false },
         // NOTE: subscription is NOT set here (managed by RevenueCat + subscription.service.ts)
       });

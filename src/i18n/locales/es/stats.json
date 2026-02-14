@@ -59,7 +59,25 @@
     "title": "Gastos por Categoría",
     "spent": "gastado",
     "noData": "No hay gastos este mes",
-    "viewAllPro": "Ver todas las categorías"
+    "viewAllPro": "Ver todas las categorías",
+    "viewAll": "Ver todas",
+    "viewLess": "Ver menos",
+    "suggestion": {
+      "title": "¿Controlar gastos en \"{{category}}\"?",
+      "subtitle": "Gastaste {{amount}} este mes",
+      "cta": "Crear límite",
+      "dismissTitle": "Ocultar sugerencia",
+      "dismissMessage": "¿Cómo quieres ocultar esta sugerencia?",
+      "dismissMonth": "Ocultar este mes",
+      "dismissOnce": "Solo por esta vez",
+      "dismissCancel": "Cancelar"
+    },
+    "actions": {
+      "createBudget": "Crear presupuesto",
+      "viewBudget": "Ver presupuesto",
+      "viewRecords": "Ver registros",
+      "cancel": "Cancelar"
+    }
   },
   "incomeVsExpenses": {
     "title": "Ingresos vs Gastos",
@@ -93,5 +111,17 @@
     "unlockAdvancedStats": "Desbloquea estadísticas avanzadas",
     "unlockTrends": "Desbloquea análisis de tendencias",
     "viewAllStats": "Ver todas las estadísticas"
+  },
+  "layout": {
+    "editLayout": "Editar diseño",
+    "done": "Listo",
+    "editBanner": "Reordena las secciones a tu gusto",
+    "sections": {
+      "quickStats": "Vista Rápida",
+      "donutChart": "Gastos por Categoría",
+      "barChart": "Ingresos vs Gastos",
+      "trendChart": "Tendencia de Gastos",
+      "futureBalance": "Proyección de Balance"
+    }
   }
 }

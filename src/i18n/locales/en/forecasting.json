@@ -1,0 +1,60 @@
+{
+  "safeToSpend": {
+    "title": "Safe to Spend",
+    "subtitle": "Available this month",
+    "afterBills": "After bills and budgets",
+    "breakdown": "Breakdown",
+    "currentBalance": "Monthly balance",
+    "upcomingBills": "Upcoming bills",
+    "budgetReserves": "Budget reserves",
+    "result": "Safe to spend",
+    "noBills": "No upcoming bills",
+    "close": "Close",
+    "dailyBudget": "{{amount}} / day",
+    "daysRemaining": "{{count}} days left",
+    "daysRemaining_one": "{{count}} day left",
+    "hide": "Hide",
+    "deficit": "Monthly Deficit",
+    "deficitHint": "Your spending exceeds your income"
+  },
+  "futureBalance": {
+    "title": "Future Balance",
+    "subtitle": "{{days}}-day projection",
+    "projected": "Projected in {{days}}d",
+    "today": "Today",
+    "notEnoughData": "Add more transactions to see projections",
+    "needsMonths": "We need at least 1 month of data",
+    "disclaimer": "Based on your spending history, does not include budget limits",
+    "info": {
+      "title": "How it's calculated",
+      "currentBalance": "Current balance",
+      "currentBalanceDesc": "Sum of all your income minus expenses up to today.",
+      "weightedAverage": "Weighted averages",
+      "weightedAverageDesc": "We calculate your average income and expenses from the last 3 months, giving more weight to recent months.",
+      "weights": "Most recent month \u00d73, previous \u00d72, 2 months ago \u00d71",
+      "scheduled": "Scheduled transactions",
+      "scheduledDesc": "If you have recurring expenses or income (rent, salary, etc.), they are included based on their frequency.",
+      "projection": "Projection",
+      "projectionDesc": "For each point (30, 60, 90 days) we add estimated income and subtract estimated expenses from your current balance.",
+      "colors": "Colors",
+      "colorGreen": "Green: safe balance (above 20% of your income)",
+      "colorYellow": "Yellow: caution (between 0 and 20%)",
+      "colorRed": "Red: negative balance",
+      "close": "Got it"
+    }
+  },
+  "budgetAlerts": {
+    "title": "Budget Alerts",
+    "exceedingIn": "Exceeding in {{days}} days",
+    "exceedingIn_one": "Exceeding in {{days}} day",
+    "alreadyExceeded": "Budget exceeded",
+    "noAlerts": "Your budgets are on track",
+    "dailyRate": "{{amount}} / day",
+    "projected": "Projected: {{amount}}",
+    "urgency": {
+      "high": "Urgent",
+      "medium": "Warning",
+      "low": "Notice"
+    }
+  }
+}
