@@ -12,7 +12,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.8] - 2026-02-15
 
 - **fix(subscription): keep Pro access when opening app offline after inactivity**
   - Skip localStorage cache expiration check when device is offline so Pro users retain access
