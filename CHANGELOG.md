@@ -11,7 +11,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.7] - 2026-02-14
 
 - **fix(sync): add silent retry and resilience when Supabase is down**
   - Add 30s silent retry interval for pending snapshots when cloud status is "error"
