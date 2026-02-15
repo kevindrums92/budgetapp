@@ -85,7 +85,18 @@ describe('cloudState.service', () => {
   });
 
   describe('getCloudState', () => {
-    it('should return null when user is not authenticated', async () => {
+    it('should throw when user is not authenticated and online (Supabase may be unavailable)', async () => {
+      mockGetSession.mockResolvedValue({
+        data: { session: null },
+        error: null,
+      });
+
+      await expect(getCloudState()).rejects.toThrow('Could not get user session');
+      expect(mockFrom).not.toHaveBeenCalled();
+    });
+
+    it('should return null when user is not authenticated and offline', async () => {
+      mockGetNetworkStatus.mockResolvedValue(false);
       mockGetSession.mockResolvedValue({
         data: { session: null },
         error: null,
@@ -97,15 +108,13 @@ describe('cloudState.service', () => {
       expect(mockFrom).not.toHaveBeenCalled();
     });
 
-    it('should return null when getSession returns error', async () => {
+    it('should throw when getSession returns error and online', async () => {
       mockGetSession.mockResolvedValue({
         data: { session: null },
         error: new Error('Auth error'),
       });
 
-      const result = await getCloudState();
-
-      expect(result).toBeNull();
+      await expect(getCloudState()).rejects.toThrow('Could not get user session');
       expect(mockFrom).not.toHaveBeenCalled();
     });
 
@@ -475,7 +484,7 @@ describe('cloudState.service', () => {
       expect(mockUpsert).toHaveBeenCalledTimes(2);
     });
 
-    it('should handle logout scenario: no state access after session ends', async () => {
+    it('should handle logout scenario: throws after session ends (online)', async () => {
       // First, user is authenticated
       mockMaybeSingle.mockResolvedValue({
         data: { state: mockState },
@@ -485,14 +494,13 @@ describe('cloudState.service', () => {
       const state1 = await getCloudState();
       expect(state1).toEqual(mockState);
 
-      // Then user logs out
+      // Then user logs out (session null while online → Supabase unavailable scenario)
       mockGetSession.mockResolvedValue({
         data: { session: null },
         error: null,
       });
 
-      const state2 = await getCloudState();
-      expect(state2).toBeNull();
+      await expect(getCloudState()).rejects.toThrow('Could not get user session');
     });
   });
 });

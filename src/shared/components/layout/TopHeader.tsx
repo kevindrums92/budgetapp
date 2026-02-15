@@ -68,6 +68,9 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
     if (cloudStatus === "syncing") {
       return "bg-[#18B7B0]";
     }
+    if (cloudStatus === "error") {
+      return "bg-amber-400";
+    }
     return "bg-green-500"; // ok
   }, [cloudMode, cloudStatus, isOnline]);
 

@@ -291,7 +291,7 @@ describe('Offline-First: Core Principles', () => {
       expect(mockFrom).not.toHaveBeenCalled();
     });
 
-    it('should timeout getSession() after 3s if it hangs (online but stuck)', async () => {
+    it('should timeout getSession() after 3s if it hangs (online but stuck) and throw', async () => {
       simulateOnline();
       // Simulate getSession() hanging (e.g., Supabase init stuck refreshing token)
       mockGetSession.mockImplementation(() => new Promise(() => {}));
@@ -299,10 +299,11 @@ describe('Offline-First: Core Principles', () => {
       const { getCloudState } = await import('@/services/cloudState.service');
 
       const start = Date.now();
-      const result = await getCloudState();
+      // When online but can't get session, throws instead of returning null
+      // (prevents false "ok" status in CloudSyncGate)
+      await expect(getCloudState()).rejects.toThrow('Could not get user session');
       const elapsed = Date.now() - start;
 
-      expect(result).toBeNull();
       // Should resolve within timeout + small buffer, not hang forever
       expect(elapsed).toBeLessThan(5000);
       expect(elapsed).toBeGreaterThanOrEqual(2500); // At least ~3s timeout

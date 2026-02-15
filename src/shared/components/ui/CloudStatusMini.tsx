@@ -18,6 +18,10 @@ export default function CloudStatusMini() {
       return { text: "Sincronizando", dot: "bg-[#18B7B0]", textClass: "text-gray-600" };
     }
 
+    if (status === "error") {
+      return { text: "online", dot: "bg-amber-400", textClass: "text-gray-600" };
+    }
+
     // ok por defecto
     return { text: "online", dot: "bg-green-500", textClass: "text-gray-600" };
   }, [mode, status]);

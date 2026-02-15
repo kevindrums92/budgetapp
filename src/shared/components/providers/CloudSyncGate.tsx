@@ -26,13 +26,22 @@ const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
 const SYNC_LOCK_TIMEOUT = 5000; // 5 seconds
 
-function isNetworkError(err: unknown) {
-  const msg = String((err as any)?.message ?? err ?? "");
+function isNetworkOrServerError(err: unknown) {
+  const msg = String((err as any)?.message ?? err ?? "").toLowerCase();
+  const status = (err as any)?.status ?? (err as any)?.statusCode ?? 0;
   return (
     !navigator.onLine ||
-    msg.includes("Failed to fetch") ||
-    msg.includes("ERR_NAME_NOT_RESOLVED") ||
-    msg.includes("NetworkError")
+    msg.includes("failed to fetch") ||
+    msg.includes("err_name_not_resolved") ||
+    msg.includes("networkerror") ||
+    msg.includes("internal server error") ||
+    msg.includes("bad gateway") ||
+    msg.includes("service unavailable") ||
+    msg.includes("gateway timeout") ||
+    msg.includes("timeout") ||
+    msg.includes("econnrefused") ||
+    msg.includes("econnreset") ||
+    (typeof status === "number" && status >= 500 && status < 600)
   );
 }
 
@@ -126,7 +135,7 @@ export default function CloudSyncGate() {
       setCloudStatus("ok");
     } catch (err) {
       logger.error("CloudSync", "Push failed:", err);
-      setCloudStatus(isNetworkError(err) ? "offline" : "error");
+      setCloudStatus(isNetworkOrServerError(err) ? "offline" : "error");
       setPendingSnapshot(snapshot);
     }
   }
@@ -658,7 +667,7 @@ export default function CloudSyncGate() {
       });
     } catch (err) {
       logger.error("CloudSync", "Init failed:", err);
-      setCloudStatus(isNetworkError(err) ? "offline" : "error");
+      setCloudStatus(isNetworkOrServerError(err) ? "offline" : "error");
       // dejamos pendiente el snapshot actual para reintentar
       setPendingSnapshot(getSnapshot());
       initializedRef.current = true;
@@ -705,6 +714,25 @@ export default function CloudSyncGate() {
     return () => {
       removeListener();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Silent retry: periodically push pending snapshot when status is "error"
+  // (Supabase is down but internet is available — onOnline listener won't fire)
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      const { cloudMode, cloudStatus } = useBudgetStore.getState();
+      if (cloudMode !== "cloud" || !initializedRef.current) return;
+      if (cloudStatus !== "error") return;
+
+      const pending = getPendingSnapshot();
+      if (!pending) return;
+
+      logger.info("CloudSync", "Retry: attempting to push pending snapshot...");
+      await pushSnapshot(pending);
+    }, 30_000);
+
+    return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -13,6 +13,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sync): add silent retry and resilience when Supabase is down**
+  - Add 30s silent retry interval for pending snapshots when cloud status is "error"
+  - Expand `isNetworkOrServerError()` to detect HTTP 5xx, timeouts, and connection errors from Supabase
+  - Show subtle amber dot indicator (instead of misleading green) when sync has errors
+  - Prevent false "ok" status in `getCloudState()` when online but auth is unavailable
+  - Update tests to reflect new error-throwing behavior for unavailable sessions
+
 - **fix(budget): translate budget type labels using i18n**
   - Replaced hardcoded Spanish text ("Límite de gasto" / "Meta de ahorro") in BudgetCard with `t("types.limit")` / `t("types.goal")`
   - Labels now properly translate across all 4 languages (ES, EN, FR, PT)

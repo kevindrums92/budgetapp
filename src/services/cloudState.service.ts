@@ -26,8 +26,16 @@ async function getUserId(): Promise<string | null> {
 }
 
 export async function getCloudState(): Promise<BudgetState | null> {
+  const isOnline = await getNetworkStatus();
   const userId = await getUserId();
-  if (!userId) return null;
+
+  if (!userId) {
+    // If online but couldn't get userId, Supabase auth is likely unavailable
+    if (isOnline) {
+      throw new Error("Could not get user session (Supabase may be unavailable)");
+    }
+    return null; // Truly offline — returning null is correct
+  }
 
   const { data, error } = await supabase
     .from("user_state")
