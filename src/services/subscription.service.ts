@@ -21,6 +21,7 @@ import type { SubscriptionState } from '@/types/budget.types';
 import { getCustomerInfo as getRevenueCatCustomerInfo } from './revenuecat.service';
 import { PRICING_PLANS } from '@/constants/pricing';
 import { Capacitor } from '@capacitor/core';
+import { getNetworkStatus } from '@/services/network.service';
 
 // ===================================================
 // TYPES
@@ -69,16 +70,19 @@ function saveSubscriptionToLocalStorage(subscription: SubscriptionState | null):
 
 /**
  * Loads subscription from localStorage
+ *
+ * @param skipExpirationCheck - When true, returns cached subscription even if expired.
+ *   Used when offline so Pro users keep access until we can verify online.
  */
-function loadSubscriptionFromLocalStorage(): SubscriptionState | null {
+function loadSubscriptionFromLocalStorage(skipExpirationCheck = false): SubscriptionState | null {
   try {
     const stored = localStorage.getItem(SUBSCRIPTION_STORAGE_KEY);
     if (!stored) return null;
 
     const subscription: SubscriptionState = JSON.parse(stored);
 
-    // Validate expiration
-    if (subscription.expiresAt && new Date(subscription.expiresAt) < new Date()) {
+    // Validate expiration (skip when offline to keep Pro access)
+    if (!skipExpirationCheck && subscription.expiresAt && new Date(subscription.expiresAt) < new Date()) {
       console.log('[Subscription] Cached subscription expired');
       return null;
     }
@@ -288,9 +292,12 @@ export async function getSubscription(
   }
 
   // Strategy 3: Fall back to localStorage (offline)
-  const cachedSubscription = loadSubscriptionFromLocalStorage();
+  // If offline, trust cache regardless of expiration so Pro users keep access
+  // until we can verify online (on reconnect, RevenueCatProvider will re-check)
+  const isOnline = await getNetworkStatus();
+  const cachedSubscription = loadSubscriptionFromLocalStorage(!isOnline);
   if (cachedSubscription) {
-    console.log('[Subscription] Using cached subscription from localStorage');
+    console.log(`[Subscription] Using cached subscription from localStorage (offline: ${!isOnline})`);
     return cachedSubscription;
   }
 

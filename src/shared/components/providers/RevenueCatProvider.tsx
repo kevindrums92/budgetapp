@@ -14,6 +14,7 @@
 import { useEffect } from 'react';
 import { useBudgetStore } from '@/state/budget.store';
 import { getStoredSession } from '@/shared/utils/offlineSession';
+import { addNetworkListener } from '@/services/network.service';
 
 export default function RevenueCatProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -58,6 +59,27 @@ export default function RevenueCatProvider({ children }: { children: React.React
     }
 
     initializeRevenueCat();
+  }, []);
+
+  // Re-verify subscription when network reconnects (e.g., app opened offline with cached Pro,
+  // then user gets internet — we need to confirm the subscription is still active)
+  useEffect(() => {
+    const removeListener = addNetworkListener(async (isOnline) => {
+      if (!isOnline) return;
+
+      console.log('[RevenueCat] Network reconnected, refreshing subscription...');
+      try {
+        const { getSubscription } = await import('@/services/subscription.service');
+        const stored = getStoredSession();
+        const subscription = await getSubscription(stored?.userId ?? null);
+        useBudgetStore.getState().setSubscription(subscription);
+        console.log('[RevenueCat] Subscription refreshed after reconnect:', subscription?.status ?? 'free');
+      } catch (error) {
+        console.warn('[RevenueCat] Failed to refresh subscription on reconnect:', error);
+      }
+    });
+
+    return removeListener;
   }, []);
 
   // NEVER block children - render immediately.

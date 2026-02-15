@@ -14,6 +14,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(subscription): keep Pro access when opening app offline after inactivity**
+  - Skip localStorage cache expiration check when device is offline so Pro users retain access
+  - Add network reconnection listener in RevenueCatProvider to re-verify subscription when internet returns
+  - Prevents Pro users from seeing Free mode when opening app without connectivity
+
 ## [0.16.7] - 2026-02-14
 
 - **fix(sync): add silent retry and resilience when Supabase is down**
