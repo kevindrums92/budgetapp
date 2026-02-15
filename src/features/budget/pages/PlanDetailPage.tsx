@@ -26,6 +26,11 @@ export default function PlanDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
 
+  // Scroll to top when entering page or when budget ID changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   // Get budget progress
   const progress = useMemo(() => {
     if (!id) return null;

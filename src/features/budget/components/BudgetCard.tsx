@@ -1,5 +1,6 @@
 import { Repeat } from "lucide-react";
 import { icons } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { BudgetProgress } from "@/types/budget.types";
 import { useCurrency } from "@/features/currency";
 import { kebabToPascal } from "@/shared/utils/string.utils";
@@ -13,6 +14,7 @@ export default function BudgetCard({
   progress,
   onClick,
 }: BudgetCardProps) {
+  const { t } = useTranslation("budget");
   const { formatAmount } = useCurrency();
 
   const { budget, category, spent, saved, percentage, remaining, isExceeded, isCompleted } = progress;
@@ -178,7 +180,7 @@ export default function BudgetCard({
             )}
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {budget.type === "limit" ? "Límite de gasto" : "Meta de ahorro"}
+            {budget.type === "limit" ? t("types.limit") : t("types.goal")}
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500">
             {formatPeriodDates()}

@@ -75,6 +75,11 @@
     "transaction": "transaction",
     "transactions": "transactions",
     "empty": "Aucune transaction dans cette catégorie ce mois-ci",
-    "error": "Catégorie introuvable"
+    "error": "Catégorie introuvable",
+    "budgetBanner": {
+      "title": "CONTRÔLEZ VOS DÉPENSES",
+      "description": "Définissez une limite de dépenses pour cette catégorie et recevez des alertes lorsque vous approchez de la limite",
+      "action": "Créer une limite de dépenses →"
+    }
   }
 }

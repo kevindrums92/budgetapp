@@ -9,6 +9,7 @@ type Props = {
   category: { id: string; name: string; icon: string; color: string } | null;
   hasBudget: boolean;
   onCreateBudget: () => void;
+  onViewBudget: () => void;
   onViewRecords: () => void;
 };
 
@@ -20,6 +21,7 @@ export default function CategoryActionSheet({
   category,
   hasBudget,
   onCreateBudget,
+  onViewBudget,
   onViewRecords,
 }: Props) {
   const { t } = useTranslation("stats");
@@ -105,7 +107,7 @@ export default function CategoryActionSheet({
             {/* Create / View Budget */}
             <button
               type="button"
-              onClick={hasBudget ? onViewRecords : onCreateBudget}
+              onClick={hasBudget ? onViewBudget : onCreateBudget}
               className="flex w-full items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-3 transition-all active:scale-[0.98] active:bg-gray-100 dark:active:bg-gray-800"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">

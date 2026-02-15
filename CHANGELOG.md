@@ -11,7 +11,36 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.7] - 2026-02-14
+
+- **fix(sync): add silent retry and resilience when Supabase is down**
+  - Add 30s silent retry interval for pending snapshots when cloud status is "error"
+  - Expand `isNetworkOrServerError()` to detect HTTP 5xx, timeouts, and connection errors from Supabase
+  - Show subtle amber dot indicator (instead of misleading green) when sync has errors
+  - Prevent false "ok" status in `getCloudState()` when online but auth is unavailable
+  - Update tests to reflect new error-throwing behavior for unavailable sessions
+
+- **fix(budget): translate budget type labels using i18n**
+  - Replaced hardcoded Spanish text ("Límite de gasto" / "Meta de ahorro") in BudgetCard with `t("types.limit")` / `t("types.goal")`
+  - Labels now properly translate across all 4 languages (ES, EN, FR, PT)
+
+- **feat(stats): add direct navigation from Stats category to budget detail or category month view**
+  - Clicking a category in Stats navigates to `/plan/{budgetId}` if active budget exists, or `/category/{id}/month/{month}` otherwise
+  - Removed CategoryActionSheet bottom sheet in favor of direct navigation
+
+- **feat(categories): add budget suggestion banner to CategoryMonthDetailPage**
+  - Shows a dismissable banner when no active budget exists for the category/month
+  - Banner action navigates to /plan with pre-selected category via sessionStorage
+  - i18n translations for banner in all 4 languages (ES, EN, FR, PT)
+
+- **test: add comprehensive unit and E2E tests for budget flow**
+  - BudgetCard.test.tsx (16 tests): translation, rendering, edge cases
+  - CategoryMonthDetailPage.test.tsx (12 tests): banner visibility, actions, budget detection
+  - StatsPage.test.tsx (11 tests): navigation logic, budget detection, leap years
+  - 10-category-budget-flow.spec.ts (6 E2E scenarios, skipped pending timing fixes)
 
 ## [0.16.6] - 2026-02-14
 

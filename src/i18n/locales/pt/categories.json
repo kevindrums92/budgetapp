@@ -75,6 +75,11 @@
     "transaction": "transação",
     "transactions": "transações",
     "empty": "Não há transações nesta categoria este mês",
-    "error": "Categoria não encontrada"
+    "error": "Categoria não encontrada",
+    "budgetBanner": {
+      "title": "CONTROLE SEUS GASTOS",
+      "description": "Defina um limite de gastos para esta categoria e receba alertas quando se aproximar do limite",
+      "action": "Criar limite de gastos →"
+    }
   }
 }

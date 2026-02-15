@@ -37,6 +37,7 @@ describe('CategoryActionSheet', () => {
     category: mockCategory,
     hasBudget: false,
     onCreateBudget: vi.fn(),
+    onViewBudget: vi.fn(),
     onViewRecords: vi.fn(),
   };
 
@@ -135,17 +136,17 @@ describe('CategoryActionSheet', () => {
       expect(screen.queryByText('Create budget')).not.toBeInTheDocument();
     });
 
-    it('should call onViewRecords when "View budget" is clicked (has budget)', async () => {
-      const onViewRecords = vi.fn();
-      render(<CategoryActionSheet {...defaultProps} hasBudget={true} onViewRecords={onViewRecords} />, { wrapper: Wrapper });
+    it('should call onViewBudget when "View budget" is clicked (has budget)', async () => {
+      const onViewBudget = vi.fn();
+      render(<CategoryActionSheet {...defaultProps} hasBudget={true} onViewBudget={onViewBudget} />, { wrapper: Wrapper });
 
       await waitFor(() => {
         expect(screen.getByText('View budget')).toBeInTheDocument();
       });
 
-      // When hasBudget, the first button calls onViewRecords
+      // When hasBudget, the first button calls onViewBudget
       fireEvent.click(screen.getByText('View budget'));
-      expect(onViewRecords).toHaveBeenCalledTimes(1);
+      expect(onViewBudget).toHaveBeenCalledTimes(1);
     });
   });
 
