@@ -21,8 +21,6 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { useBudgetStore } from "@/state/budget.store";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useCurrency } from "@/features/currency";
-import { useSubscription } from "@/hooks/useSubscription";
-import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { useHeaderActions } from "@/shared/contexts/headerActions.context";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import FutureBalanceChart from "@/features/forecasting/components/FutureBalanceChart";
@@ -34,7 +32,6 @@ import DailyAverageBreakdownSheet from "../components/DailyAverageBreakdownSheet
 import TopCategorySheet from "../components/TopCategorySheet";
 import BudgetSuggestionBanner from "../components/BudgetSuggestionBanner";
 import AddEditBudgetModal from "@/features/budget/components/AddEditBudgetModal";
-import PaywallModal from "@/shared/components/modals/PaywallModal";
 import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 import { statsTour } from "@/features/tour/tours/statsTour";
@@ -114,14 +111,12 @@ export default function StatsPage() {
   const [showDailyAverageBreakdownModal, setShowDailyAverageBreakdownModal] = useState(false);
   const [showTopDayModal, setShowTopDayModal] = useState(false);
   const [showTopCategoryModal, setShowTopCategoryModal] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(() => {
     try { return localStorage.getItem("budget.showAllCategories") === "true"; } catch { return false; }
   });
   const [showBudgetModal, setShowBudgetModal] = useState(false);
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
-  const { isPro } = useSubscription();
 
   // Current layout (from store or default)
   const currentLayout = useMemo(() => {
@@ -137,11 +132,6 @@ export default function StatsPage() {
   useEffect(() => {
     startTour();
   }, [startTour]);
-
-  // Paywall purchase handler
-  const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
-  });
 
   // Donut chart data (expenses by category for selected month)
   const categoryChartData = useMemo<CategoryChartItem[]>(() => {
@@ -193,7 +183,7 @@ export default function StatsPage() {
   const budgetSuggestion = useMemo(() => {
     const now = new Date();
     const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-    if (!isPro || categoryChartData.length === 0 || selectedMonth !== currentMonthKey) return null;
+    if (categoryChartData.length === 0 || selectedMonth !== currentMonthKey) return null;
 
     for (const cat of categoryChartData) {
       // Skip if any active budget covers this category for the selected month
@@ -210,7 +200,7 @@ export default function StatsPage() {
       if (recurringRatio <= 0.5) return cat;
     }
     return null;
-  }, [isPro, categoryChartData, budgetedCategoryIdsForMonth, transactions, selectedMonth]);
+  }, [categoryChartData, budgetedCategoryIdsForMonth, transactions, selectedMonth]);
 
   // Bar chart data (income vs expenses for last 6 months ending at selected month)
   const monthlyData = useMemo<MonthlyData[]>(() => {
@@ -508,22 +498,14 @@ export default function StatsPage() {
             </h3>
             <button
               type="button"
-              onClick={() => isPro ? setShowDailyAverageModal(true) : setShowPaywall(true)}
-              className={`relative flex items-center gap-2 rounded-lg px-3 py-2 transition-colors active:scale-95 ${isPro
-                  ? 'bg-[#18B7B0] hover:bg-[#16a39d]'
-                  : 'bg-gray-300 dark:bg-gray-700'
-                }`}
+              onClick={() => setShowDailyAverageModal(true)}
+              className="relative flex items-center gap-2 rounded-lg px-3 py-2 transition-colors active:scale-95 bg-[#18B7B0] hover:bg-[#16a39d]"
             >
-              {isPro ? (
-                <SlidersHorizontal className="h-4 w-4 text-white" />
-              ) : (
-                <icons.Lock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              )}
-              <span className={`text-xs font-medium ${isPro ? 'text-white' : 'text-gray-600 dark:text-gray-400'
-                }`}>
+              <SlidersHorizontal className="h-4 w-4 text-white" />
+              <span className="text-xs font-medium text-white">
                 {t('statsFilter.customize')}
               </span>
-              {isPro && (excludedFromStats ?? []).length > 0 && (
+              {(excludedFromStats ?? []).length > 0 && (
                 <div className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white px-1.5">
                   <span className="text-[10px] font-bold text-[#18B7B0]">
                     {(excludedFromStats ?? []).length}
@@ -540,19 +522,15 @@ export default function StatsPage() {
             {/* Daily Average */}
             <button
               type="button"
-              onClick={() => isPro ? setShowDailyAverageBreakdownModal(true) : setShowPaywall(true)}
-              className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
-                } cursor-pointer`}
+              onClick={() => setShowDailyAverageBreakdownModal(true)}
+              className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
             >
               <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
                 <DollarSign className="h-5 w-5 text-blue-500" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.dailyAverage')}</p>
-                {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
-              </div>
-              <p className={`mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50 ${!isPro ? 'blur-sm select-none' : ''}`}>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.dailyAverage')}</p>
+              <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">
                 {formatAmount(quickStats.dailyAverage)}
               </p>
             </button>
@@ -561,9 +539,8 @@ export default function StatsPage() {
             {quickStats.topCategory && (
               <button
                 type="button"
-                onClick={() => isPro ? setShowTopCategoryModal(true) : setShowPaywall(true)}
-                className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
-                  } cursor-pointer`}
+                onClick={() => setShowTopCategoryModal(true)}
+                className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
               >
                 <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
                 {(() => {
@@ -585,11 +562,8 @@ export default function StatsPage() {
                     )
                   );
                 })()}
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topCategory')}</p>
-                  {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
-                </div>
-                <p className={`mt-1 text-sm font-medium text-gray-900 dark:text-gray-50 truncate ${!isPro ? 'blur-sm select-none' : ''}`}>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topCategory')}</p>
+                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-50 truncate">
                   {quickStats.topCategory.name}
                 </p>
               </button>
@@ -599,38 +573,30 @@ export default function StatsPage() {
             {quickStats.topDayName && (
               <button
                 type="button"
-                onClick={() => isPro ? setShowTopDayModal(true) : setShowPaywall(true)}
-                className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
-                  } cursor-pointer`}
+                onClick={() => setShowTopDayModal(true)}
+                className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
               >
                 <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
                   <Calendar className="h-5 w-5 text-purple-500" />
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topDay')}</p>
-                  {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
-                </div>
-                <p className={`mt-1 text-sm font-medium text-gray-900 dark:text-gray-50 ${!isPro ? 'blur-sm select-none' : ''}`}>{quickStats.topDayName}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.topDay')}</p>
+                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-50">{quickStats.topDayName}</p>
               </button>
             )}
 
             {/* Month Comparison */}
             <button
               type="button"
-              onClick={() => isPro ? setShowComparisonModal(true) : setShowPaywall(true)}
-              className={`rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative ${isPro ? 'hover:bg-gray-50 dark:hover:bg-gray-800' : ''
-                } cursor-pointer`}
+              onClick={() => setShowComparisonModal(true)}
+              className="rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm text-left transition-colors active:scale-[0.98] relative hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
             >
               <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-gray-300 dark:text-gray-600" />
               <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-orange-500/10">
                 <TrendingUp className="h-5 w-5 text-orange-500" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.monthComparison')}</p>
-                {!isPro && <icons.Lock className="h-3 w-3 text-gray-400 dark:text-gray-500" />}
-              </div>
-              <div className={`mt-1 flex items-center gap-1 ${!isPro ? 'blur-sm select-none' : ''}`}>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('quickStats.monthComparison')}</p>
+              <div className="mt-1 flex items-center gap-1">
                 {quickStats.monthDiff > 0 ? (
                   <AlertCircle className="h-4 w-4 text-red-500 dark:text-red-400" />
                 ) : quickStats.monthDiff < 0 ? (
@@ -704,18 +670,15 @@ export default function StatsPage() {
             {/* Legend */}
             <div className="mt-4 relative">
               <div className="space-y-2">
-                {categoryChartData.slice(0, isPro ? (showAllCategories ? undefined : 4) : 6).map((item, index) => {
+                {categoryChartData.slice(0, showAllCategories ? undefined : 4).map((item) => {
                   const IconComponent =
                     icons[kebabToPascal(item.icon) as keyof typeof icons];
-                  const isBlurred = !isPro && index >= 3; // Blur categories from 4th onwards for Lite users
 
                   return (
                     <button
                       key={item.id}
                       type="button"
                       onClick={() => {
-                        if (!isPro) return;
-
                         // Find active budget for this category in selected month
                         const [yearStr, monthStr] = selectedMonth.split("-");
                         const year = Number(yearStr);
@@ -739,8 +702,7 @@ export default function StatsPage() {
                           navigate(`/category/${item.id}/month/${selectedMonth}`);
                         }
                       }}
-                      className={`w-full flex items-center justify-between rounded-lg bg-white dark:bg-gray-900 px-3 py-2 shadow-sm transition-colors ${isPro ? 'active:bg-gray-50 dark:active:bg-gray-800 cursor-pointer' : 'cursor-default'
-                        } ${isBlurred ? 'blur-sm select-none opacity-60' : ''}`}
+                      className="w-full flex items-center justify-between rounded-lg bg-white dark:bg-gray-900 px-3 py-2 shadow-sm transition-colors active:bg-gray-50 dark:active:bg-gray-800 cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
                         <span
@@ -782,8 +744,8 @@ export default function StatsPage() {
                 />
               )}
 
-              {/* "View all / View less" toggle for Pro users */}
-              {isPro && categoryChartData.length > 4 && (
+              {/* "View all / View less" toggle */}
+              {categoryChartData.length > 4 && (
                 <button
                   type="button"
                   onClick={() => setShowAllCategories((prev) => {
@@ -797,19 +759,6 @@ export default function StatsPage() {
                 </button>
               )}
 
-              {/* Floating "View all categories" button overlaid on blurred categories */}
-              {!isPro && categoryChartData.length > 3 && (
-                <div className="absolute left-0 right-0 flex justify-center pointer-events-none" style={{ top: '95%', transform: 'translateY(-50%)' }}>
-                  <button
-                    type="button"
-                    onClick={() => setShowPaywall(true)}
-                    className="pointer-events-auto flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 dark:text-gray-200 text-xs font-semibold py-2 px-4 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
-                  >
-                    <icons.Lock size={13} className="text-gray-300" />
-                    <span>{t('expensesByCategory.viewAllPro')}</span>
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -828,8 +777,7 @@ export default function StatsPage() {
             <p>{t('incomeVsExpenses.noData')}</p>
           </div>
         ) : (
-          <div className="relative rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-            <div className={!isPro ? 'blur-md pointer-events-none select-none' : ''}>
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={monthlyData} barGap={2}>
                   <XAxis
@@ -877,26 +825,6 @@ export default function StatsPage() {
                   <span className="text-sm text-gray-600 dark:text-gray-400">{t('incomeVsExpenses.expenses')}</span>
                 </div>
               </div>
-            </div>
-
-            {/* Overlay for Lite users */}
-            {!isPro && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center px-4">
-                  <p className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
-                    {t('overlay.unlockAdvancedStats')}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowPaywall(true)}
-                    className="mx-auto flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 dark:text-gray-200 text-xs font-semibold py-2 px-4 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
-                  >
-                    <icons.Lock size={13} className="text-gray-300" />
-                    <span>{t('overlay.viewAllStats')}</span>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -914,8 +842,7 @@ export default function StatsPage() {
             <p>{t('expenseTrend.noData')}</p>
           </div>
         ) : (
-          <div className="relative rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
-            <div className={!isPro ? 'blur-md pointer-events-none select-none' : ''}>
+          <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={trendData}>
                   <XAxis
@@ -947,52 +874,14 @@ export default function StatsPage() {
                   />
                 </LineChart>
               </ResponsiveContainer>
-            </div>
-
-            {/* Overlay for Lite users */}
-            {!isPro && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center px-4">
-                  <p className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
-                    {t('overlay.unlockTrends')}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowPaywall(true)}
-                    className="mx-auto flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 dark:text-gray-200 text-xs font-semibold py-2 px-4 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
-                  >
-                    <icons.Lock size={13} className="text-gray-300" />
-                    <span>{t('overlay.viewAllStats')}</span>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
     ),
 
     futureBalance: (
-      <div key="futureBalance" className="relative">
-        {isPro ? (
-          <FutureBalanceChart days={90} />
-        ) : (
-          <div className="relative">
-            <div className="blur-md pointer-events-none select-none">
-              <FutureBalanceChart days={90} />
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <button
-                type="button"
-                onClick={() => setShowPaywall(true)}
-                className="flex items-center gap-2 bg-gray-800 dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 text-gray-100 dark:text-gray-200 text-xs font-semibold py-2 px-4 rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
-              >
-                <icons.Lock size={13} className="text-gray-300" />
-                <span>{t('overlay.viewAllStats')}</span>
-              </button>
-            </div>
-          </div>
-        )}
+      <div key="futureBalance">
+        <FutureBalanceChart days={90} />
       </div>
     ),
   };
@@ -1112,14 +1001,6 @@ export default function StatsPage() {
           onClose={() => setShowBudgetModal(false)}
         />
       </main>
-
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        trigger="stats_page"
-        onSelectPlan={handleSelectPlan}
-      />
 
       {/* Spotlight Tour */}
       <SpotlightTour

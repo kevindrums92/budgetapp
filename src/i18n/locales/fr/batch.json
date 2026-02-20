@@ -102,5 +102,14 @@
     "save": "Enregistrer",
     "processing": "Traitement...",
     "error": "Erreur"
+  },
+  "rewards": {
+    "watchAdTitle": "Utilisation quotidienne epuisee",
+    "watchAdSubtitle": "Votre utilisation gratuite d'aujourd'hui a ete utilisee",
+    "watchAdButton": "Regarder une pub pour debloquer",
+    "upgradeToPro": "Passer Pro - Sans limites",
+    "adFailed": "Impossible de charger la pub. Reessayez plus tard.",
+    "adCompleted": "Debloque! Vous pouvez continuer.",
+    "loadingAd": "Chargement de la pub..."
   }
 }

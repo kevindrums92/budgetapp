@@ -1,9 +1,5 @@
-import { useState } from "react";
-import { Download, RefreshCw, Cloud, Lock } from "lucide-react";
-import { useSubscription } from "@/hooks/useSubscription";
-import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
+import { Download, RefreshCw, Cloud } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import PaywallModal from "@/shared/components/modals/PaywallModal";
 
 export type BackupMethod = "manual" | "local" | "cloud";
 
@@ -21,15 +17,7 @@ type Props = {
  */
 export default function BackupMethodSelector({ onSelect }: Props) {
   const user = useBudgetStore((s) => s.user);
-  const { canUseFeature } = useSubscription();
   const isCloudDisabled = !user.email;
-  const isProBackupLocked = !canUseFeature('unlimited_backups');
-
-  // Paywall state
-  const [showPaywall, setShowPaywall] = useState(false);
-  const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
-  });
 
   return (
     <div className="space-y-6">
@@ -74,36 +62,16 @@ export default function BackupMethodSelector({ onSelect }: Props) {
         {/* Local Auto-Backup */}
         <button
           type="button"
-          onClick={() => {
-            if (isProBackupLocked) {
-              setShowPaywall(true);
-            } else {
-              onSelect("local");
-            }
-          }}
-          className={`w-full rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm border-2 border-transparent text-left transition-all ${
-            isProBackupLocked
-              ? "opacity-60 cursor-not-allowed"
-              : "hover:border-emerald-500 dark:hover:border-emerald-400 active:scale-[0.98]"
-          }`}
+          onClick={() => onSelect("local")}
+          className="w-full rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm border-2 border-transparent hover:border-emerald-500 dark:hover:border-emerald-400 active:scale-[0.98] text-left transition-all"
         >
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/30 relative">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/30">
               <RefreshCw className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-              {isProBackupLocked && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gray-900/70 dark:bg-gray-950/70">
-                  <Lock className="h-5 w-5 text-white" />
-                </div>
-              )}
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-1 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-1">
                 🔄 Automático Local
-                {isProBackupLocked && (
-                  <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
-                    PRO
-                  </span>
-                )}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                 Backups automáticos cada 24 horas
@@ -115,49 +83,30 @@ export default function BackupMethodSelector({ onSelect }: Props) {
               </ul>
             </div>
           </div>
-          {isProBackupLocked && (
-            <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 rounded-lg px-3 py-2">
-              🔒 Desbloquea backups automáticos con Pro
-            </p>
-          )}
         </button>
 
         {/* Cloud Backup */}
         <button
           type="button"
           onClick={() => {
-            if (isProBackupLocked) {
-              setShowPaywall(true);
-            } else if (!isCloudDisabled) {
+            if (!isCloudDisabled) {
               onSelect("cloud");
             }
           }}
-          disabled={isCloudDisabled && !isProBackupLocked}
+          disabled={isCloudDisabled}
           className={`w-full rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm border-2 border-transparent text-left transition-all ${
-            isCloudDisabled && !isProBackupLocked
+            isCloudDisabled
               ? "opacity-50 cursor-not-allowed"
-              : isProBackupLocked
-              ? "opacity-60 cursor-not-allowed"
               : "hover:border-emerald-500 dark:hover:border-emerald-400 active:scale-[0.98]"
           }`}
         >
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-900/30 relative">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 dark:bg-sky-900/30">
               <Cloud className="h-6 w-6 text-sky-600 dark:text-sky-400" />
-              {isProBackupLocked && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gray-900/70 dark:bg-gray-950/70">
-                  <Lock className="h-5 w-5 text-white" />
-                </div>
-              )}
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-1 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-1">
                 ☁️ En la Nube
-                {isProBackupLocked && (
-                  <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
-                    PRO
-                  </span>
-                )}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                 Backups semanales en Supabase
@@ -169,15 +118,11 @@ export default function BackupMethodSelector({ onSelect }: Props) {
               </ul>
             </div>
           </div>
-          {isProBackupLocked ? (
-            <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 rounded-lg px-3 py-2">
-              🔒 Desbloquea backups en la nube con Pro
-            </p>
-          ) : isCloudDisabled ? (
+          {isCloudDisabled && (
             <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 rounded-lg px-3 py-2">
               💡 Inicia sesión para usar backups en la nube
             </p>
-          ) : null}
+          )}
         </button>
       </div>
 
@@ -186,13 +131,6 @@ export default function BackupMethodSelector({ onSelect }: Props) {
         Puedes cambiar de método en cualquier momento
       </p>
 
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        trigger="backup_features"
-        onSelectPlan={handleSelectPlan}
-      />
     </div>
   );
 }

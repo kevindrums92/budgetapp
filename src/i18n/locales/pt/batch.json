@@ -102,5 +102,14 @@
     "save": "Salvar",
     "processing": "Processando...",
     "error": "Erro"
+  },
+  "rewards": {
+    "watchAdTitle": "Uso diario esgotado",
+    "watchAdSubtitle": "Seu uso gratuito de hoje foi utilizado",
+    "watchAdButton": "Assistir anuncio para desbloquear",
+    "upgradeToPro": "Seja Pro - Sem limites",
+    "adFailed": "Nao foi possivel carregar o anuncio. Tente novamente.",
+    "adCompleted": "Desbloqueado! Voce pode continuar.",
+    "loadingAd": "Carregando anuncio..."
   }
 }

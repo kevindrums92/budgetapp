@@ -3,17 +3,49 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
-
-
-
-
-
-
-
-
-
-
 ## [unreleased] - {relase date}
+
+## [0.16.9] - 2026-02-20
+
+- **fix(ui): disable text selection globally for native app feel**
+  - Add `user-select: none` on all elements to prevent accidental text highlighting
+  - Re-enable selection only on `<input>`, `<textarea>`, and `contenteditable` elements
+
+- **fix(history): accent-insensitive search in history filters**
+  - Searching "cafe" now matches "café", "nono" matches "ñoño", etc.
+  - Uses Unicode NFD normalization to strip diacritics before comparing
+
+- **feat(privacy): apply privacy mode to budget plan cards and alert predictions**
+  - BudgetCard now censors all monetary values (spent, saved, budget amount, status messages)
+  - BudgetAlertCard now censors prediction amounts when privacy mode is active
+
+- **feat(freemium): restructure to free-with-ads model**
+  - All features now unlocked for free users (remove ProFeatureGate, blur overlays, lock icons)
+  - Pro subscription = ad-free experience + unlimited AI batch entries
+  - Update PaywallModal copy to emphasize ad-free + unlimited AI value prop
+  - Update rate limits: 5 AI uses/day free (was 3), 100/day Pro (was 50)
+
+- **feat(ads): add rewarded video flow for extra AI uses**
+  - Free users can watch a rewarded ad to earn +1 AI batch use when daily limit is reached
+  - Integrated in BatchEntrySheet with "watch ad" prompt on limit hit
+
+- **feat(ads): add banner ads on non-bottom-bar pages**
+  - Banner appears on all pages with PageHeader (settings, history, categories, etc.)
+  - Smart show/hide: hidden on form pages with save buttons, during bottom sheet modals, and for Pro users
+  - Added bottom padding on all banner-showing pages to prevent content overlap
+  - Production ad unit IDs configured for iOS and Android
+
+- **fix(budget): show all transactions in plan detail**
+  - Remove `.slice(0, 10)` limit that capped displayed transactions at 10
+  - Rename section from "Actividad Reciente" to "Movimientos (N)" showing full count
+
+- **fix(ads): implement App Tracking Transparency dialog for iOS (Guideline 2.1)**
+  - Add `requestTrackingIfNeeded()` using built-in `@capacitor-community/admob` ATT methods
+  - Show ATT permission dialog before AdMob initialization so iOS knows consent status
+  - Users who accept get personalized ads; users who decline still see contextual ads
+
+- **fix(subscription): use in-app browser for App Store subscription management (Guideline 4.0)**
+  - Replace `window.open()` with `openUrl()` in SubscriptionManagementPage
 
 ## [0.16.8] - 2026-02-15
 

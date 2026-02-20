@@ -103,9 +103,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'monthly',
         subscription: { status: 'active', type: 'monthly', trialEndsAt: null, expiresAt: null, lastChecked: new Date().toISOString() },
-        canUseFeature: vi.fn(() => true),
-        shouldShowPaywall: vi.fn(() => false),
-        getRemainingCount: vi.fn(() => null),
       });
 
       Object.defineProperty(window.navigator, 'onLine', {
@@ -141,9 +138,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'monthly',
         subscription: { status: 'active', type: 'monthly', trialEndsAt: null, expiresAt: null, lastChecked: new Date().toISOString() },
-        canUseFeature: vi.fn(() => true),
-        shouldShowPaywall: vi.fn(() => false),
-        getRemainingCount: vi.fn(() => null),
       });
 
       Object.defineProperty(window.navigator, 'onLine', {
@@ -176,9 +170,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'free',
         subscription: null,
-        canUseFeature: vi.fn(() => false),
-        shouldShowPaywall: vi.fn(() => true),
-        getRemainingCount: vi.fn(() => 0),
       });
 
       renderProfilePage();
@@ -206,9 +197,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'monthly',
         subscription: { status: 'active', type: 'monthly', trialEndsAt: null, expiresAt: null, lastChecked: new Date().toISOString() },
-        canUseFeature: vi.fn(() => true),
-        shouldShowPaywall: vi.fn(() => false),
-        getRemainingCount: vi.fn(() => null),
       });
     });
 
@@ -281,9 +269,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'free',
         subscription: null,
-        canUseFeature: vi.fn(() => false),
-        shouldShowPaywall: vi.fn(() => true),
-        getRemainingCount: vi.fn(() => 0),
       });
 
       renderProfilePage();
@@ -313,9 +298,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'monthly',
         subscription: { status: 'active', type: 'monthly', trialEndsAt: null, expiresAt: null, lastChecked: new Date().toISOString() },
-        canUseFeature: vi.fn(() => true),
-        shouldShowPaywall: vi.fn(() => false),
-        getRemainingCount: vi.fn(() => null),
       });
     });
 
@@ -382,9 +364,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'free',
         subscription: null,
-        canUseFeature: vi.fn(() => false),
-        shouldShowPaywall: vi.fn(() => true),
-        getRemainingCount: vi.fn(() => 0),
       });
 
       renderProfilePage();
@@ -415,9 +394,6 @@ describe('ProfilePage - Offline UX', () => {
         trialEndsAt: null,
         subscriptionType: 'monthly',
         subscription: { status: 'active', type: 'monthly', trialEndsAt: null, expiresAt: null, lastChecked: new Date().toISOString() },
-        canUseFeature: vi.fn(() => true),
-        shouldShowPaywall: vi.fn(() => false),
-        getRemainingCount: vi.fn(() => null),
       });
 
       Object.defineProperty(window.navigator, 'onLine', {

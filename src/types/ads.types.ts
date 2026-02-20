@@ -18,6 +18,8 @@ export interface AdConfig {
   interstitialAdUnitId: string;
   /** Rewarded Video Ad Unit ID */
   rewardedAdUnitId: string;
+  /** Banner Ad Unit ID */
+  bannerAdUnitId: string;
   /** Whether to use test ads (development) */
   useTestAds: boolean;
 }

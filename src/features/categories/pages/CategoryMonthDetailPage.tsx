@@ -100,7 +100,7 @@ export default function CategoryMonthDetailPage() {
     return (
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <PageHeader title="Error" />
-        <div className="flex-1 px-4 pt-6 pb-8">
+        <div className="flex-1 px-4 pt-6 pb-20">
           <p className="text-sm text-gray-500 dark:text-gray-400">{t("monthDetail.error")}</p>
         </div>
       </div>
@@ -190,7 +190,7 @@ export default function CategoryMonthDetailPage() {
         </div>
       )}
 
-      <div className="flex-1 px-4 pt-4 pb-8">
+      <div className="flex-1 px-4 pt-4 pb-20">
         {/* Transactions List */}
         <div className="space-y-2">
           {filteredTransactions.length === 0 ? (

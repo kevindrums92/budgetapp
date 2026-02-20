@@ -3,12 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
-import { useSubscription } from "@/hooks/useSubscription";
-import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
-import { Plus, MapPin, Calendar, Plane, Download, Lock } from "lucide-react";
+import { Plus, MapPin, Calendar, Plane, Download } from "lucide-react";
 import type { Trip } from "@/types/budget.types";
 import ConfirmDialog from "@/shared/components/modals/ConfirmDialog";
-import PaywallModal from "@/shared/components/modals/PaywallModal";
 import RowMenu from "@/shared/components/ui/RowMenu";
 import { exportTripsToCSV } from "@/shared/services/export.service";
 
@@ -28,12 +25,6 @@ export default function TripsPage() {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [tripToDelete, setTripToDelete] = useState<Trip | null>(null);
-  const [showPaywall, setShowPaywall] = useState(false);
-
-  const { canUseFeature } = useSubscription();
-  const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
-  });
 
   const STATUS_LABELS: Record<Trip["status"], string> = {
     planning: t('labels.planning'),
@@ -69,12 +60,6 @@ export default function TripsPage() {
 
   async function handleExportTrips() {
     if (trips.length === 0) return;
-
-    // Check if user can export
-    if (!canUseFeature('export_data')) {
-      setShowPaywall(true);
-      return;
-    }
 
     try {
       // Add spent amount to each trip
@@ -168,26 +153,10 @@ export default function TripsPage() {
             <button
               type="button"
               onClick={handleExportTrips}
-              className={`flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium shadow-sm transition-colors mt-6 ${
-                !canUseFeature('export_data')
-                  ? 'text-gray-500 opacity-60'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-4 text-sm font-medium shadow-sm transition-colors mt-6 text-gray-700 hover:bg-gray-50"
             >
-              {!canUseFeature('export_data') ? (
-                <>
-                  <Lock className="h-5 w-5" />
-                  {t('export')}
-                  <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
-                    PRO
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Download className="h-5 w-5" />
-                  {t('export')}
-                </>
-              )}
+              <Download className="h-5 w-5" />
+              {t('export')}
             </button>
           )}
 
@@ -241,13 +210,6 @@ export default function TripsPage() {
         }}
       />
 
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        trigger="export"
-        onSelectPlan={handleSelectPlan}
-      />
     </div>
   );
 }

@@ -4,13 +4,10 @@
  */
 
 import { useState } from 'react';
-import { FileDown, FileText, FolderOpen, Target, Download, Lock } from 'lucide-react';
+import { FileDown, FileText, FolderOpen, Target, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useBudgetStore } from '@/state/budget.store';
-import { useSubscription } from '@/hooks/useSubscription';
-import { usePaywallPurchase } from '@/hooks/usePaywallPurchase';
 import PageHeader from '@/shared/components/layout/PageHeader';
-import PaywallModal from '@/shared/components/modals/PaywallModal';
 import {
   exportTransactionsToCSV,
   exportCategoriesToCSV,
@@ -30,24 +27,12 @@ type ExportOption = {
 export default function ExportCSVPage() {
   const { t } = useTranslation('profile');
   const [exporting, setExporting] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const budgets = useBudgetStore((s) => s.budgets);
 
-  const { canUseFeature } = useSubscription();
-  const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
-  });
-
   const handleExport = async (exportFn: () => Promise<void>) => {
-    // Check if user can export
-    if (!canUseFeature('export_data')) {
-      setShowPaywall(true);
-      return;
-    }
-
     setExporting(true);
     try {
       await exportFn();
@@ -130,54 +115,32 @@ export default function ExportCSVPage() {
               option.id === 'budgets' ? budgets.length :
               transactions.length + categoryDefinitions.length + budgets.length;
 
-            const isLocked = !canUseFeature('export_data');
-
             return (
               <button
                 key={option.id}
                 type="button"
                 onClick={() => handleExport(option.action)}
                 disabled={exporting}
-                className={`w-full rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm transition-all disabled:cursor-not-allowed ${
-                  isLocked
-                    ? 'opacity-60'
-                    : 'hover:shadow-md active:scale-[0.98] disabled:opacity-50'
-                }`}
+                className="w-full rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm transition-all disabled:cursor-not-allowed hover:shadow-md active:scale-[0.98] disabled:opacity-50"
               >
                 <div className="flex items-center gap-4">
                   {/* Icon */}
-                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${option.color} relative`}>
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${option.color}`}>
                     <Icon className="h-6 w-6" strokeWidth={2} />
-                    {isLocked && (
-                      <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-gray-900/70 dark:bg-gray-950/70">
-                        <Lock className="h-5 w-5 text-white" />
-                      </div>
-                    )}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 text-left">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-                        {t(option.titleKey)}
-                      </p>
-                      {isLocked && (
-                        <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
-                          PRO
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-0.5">
+                      {t(option.titleKey)}
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {t(option.descriptionKey)} • {itemCount} {t('export.items', 'elementos')}
                     </p>
                   </div>
 
-                  {/* Download icon or lock */}
-                  {isLocked ? (
-                    <Lock className="h-5 w-5 text-amber-500 shrink-0" />
-                  ) : (
-                    <FileDown className="h-5 w-5 text-gray-400 dark:text-gray-500 shrink-0" />
-                  )}
+                  {/* Download icon */}
+                  <FileDown className="h-5 w-5 text-gray-400 dark:text-gray-500 shrink-0" />
                 </div>
               </button>
             );
@@ -185,13 +148,6 @@ export default function ExportCSVPage() {
         </div>
       </div>
 
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        trigger="export"
-        onSelectPlan={handleSelectPlan}
-      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { initializeAdMob, checkAndResetSession, prepareInterstitial } from '@/services/ads.service';
+import { requestTrackingIfNeeded, initializeAdMob, checkAndResetSession, prepareInterstitial, prepareRewardedVideo } from '@/services/ads.service';
 import { useSubscription } from '@/hooks/useSubscription';
 
 /**
@@ -20,7 +20,10 @@ export default function AdMobProvider({ children }: { children: React.ReactNode 
       try {
         console.log('[AdMobProvider] Initializing AdMob SDK...');
 
-        // Initialize AdMob SDK
+        // Request ATT authorization before initializing AdMob (iOS 14.5+)
+        await requestTrackingIfNeeded();
+
+        // Initialize AdMob SDK (reads ATT status automatically)
         await initializeAdMob();
 
         // Check and reset session if needed (after 24 hours)
@@ -28,6 +31,9 @@ export default function AdMobProvider({ children }: { children: React.ReactNode 
 
         // Preload first interstitial ad
         await prepareInterstitial();
+
+        // Preload rewarded video ad (for batch entry free tier)
+        await prepareRewardedVideo();
 
         console.log('[AdMobProvider] AdMob SDK initialized successfully');
       } catch (error) {

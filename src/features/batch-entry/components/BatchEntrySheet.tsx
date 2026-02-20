@@ -5,10 +5,14 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Sparkles, WifiOff, X, Check } from "lucide-react";
+import { Sparkles, WifiOff, X } from "lucide-react";
 import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
 import { useBudgetStore } from "@/state/budget.store";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
+import { useSubscription } from "@/hooks/useSubscription";
+import { todayISO } from "@/services/dates.service";
+import { showRewardedVideo, isRewardedVideoReady } from "@/services/ads.service";
+import { isNative } from "@/shared/utils/platform";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 import type { Category } from "@/types/budget.types";
 import type { BatchInputType, TransactionDraft } from "../types/batch-entry.types";
@@ -150,6 +154,11 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const transactions = useBudgetStore((s) => s.transactions);
+  const { isPro } = useSubscription();
+  const [showRewardedModal, setShowRewardedModal] = useState(false);
+  const [isLoadingReward, setIsLoadingReward] = useState(false);
+  const [rewardedWasConsumed, setRewardedWasConsumed] = useState(false);
+  const pendingSubmitRef = useRef<(() => Promise<void>) | null>(null);
 
   // Extract patterns from user's transaction history for better AI matching
   const historyPatterns: HistoryPattern[] = useMemo(() => {
@@ -248,6 +257,24 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
     }
   }, [open, initialInputType]);
 
+  // Show rewarded video modal when server-side rate limit is hit (only if ad is available)
+  useEffect(() => {
+    if (flowState === "error" && error === "RATE_LIMIT_FREE" && !showRewardedModal && !showPaywall) {
+      if (rewardedWasConsumed) {
+        // User already watched a video but server still rejected (stale rate limit).
+        // Don't re-prompt - the inline error message will show instead.
+        return;
+      }
+      if (isNative() && isRewardedVideoReady()) {
+        // Ad is loaded - show the modal with "watch ad" option
+        setShowRewardedModal(true);
+      } else {
+        // No ad available - show paywall as the only upgrade path
+        setShowPaywall(true);
+      }
+    }
+  }, [flowState, error, showRewardedModal, showPaywall, rewardedWasConsumed]);
+
   // Handle open/close animation
   useEffect(() => {
     if (open) {
@@ -266,6 +293,9 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
         setConfidence(0);
         setRawInterpretation("");
         setError(null);
+        setShowRewardedModal(false);
+        setRewardedWasConsumed(false);
+        pendingSubmitRef.current = null;
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -340,6 +370,51 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
     };
   }, [isDragging, handleDragMove, handleDragEnd]);
 
+  // --- Daily usage tracking ---
+
+  const BATCH_DAILY_KEY_PREFIX = "budget.batchDailyCount.";
+
+  function getBatchDailyCount(): number {
+    const key = BATCH_DAILY_KEY_PREFIX + todayISO();
+    return parseInt(localStorage.getItem(key) || "0", 10);
+  }
+
+  function incrementBatchDailyCount(): void {
+    const key = BATCH_DAILY_KEY_PREFIX + todayISO();
+    const current = getBatchDailyCount();
+    localStorage.setItem(key, String(current + 1));
+  }
+
+  // --- Rewarded video gatekeeper ---
+
+  const checkAndProceed = useCallback(async (submitFn: () => Promise<void>) => {
+    // Pro users always proceed
+    if (isPro) {
+      await submitFn();
+      return;
+    }
+
+    const dailyCount = getBatchDailyCount();
+
+    if (dailyCount === 0) {
+      // First request of the day: free
+      await submitFn();
+      return;
+    }
+
+    // 2nd+ request: need rewarded video or Pro
+    // If on native and ad is loaded, show the rewarded modal
+    // If ad is not available, let the user through (server cap protects against abuse)
+    if (isNative() && isRewardedVideoReady()) {
+      pendingSubmitRef.current = submitFn;
+      setShowRewardedModal(true);
+      return;
+    }
+
+    // No ad available (web, or ad failed to load) - proceed and rely on server-side rate limit
+    await submitFn();
+  }, [isPro]);
+
   // --- Flow handlers ---
 
   const handleSelectInputType = (type: BatchInputType) => {
@@ -349,72 +424,81 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
   };
 
   const handleTextSubmit = async (text: string) => {
-    setFlowState("processing");
-    try {
-      const result = await parseText(text, historyPatterns);
-      if (result.success && result.transactions.length > 0) {
-        const interpretation = result.rawInterpretation || "";
-        setRawInterpretation(interpretation);
-        // Process AI results and apply history-based improvements
-        let processedDrafts = processAIResults(result.transactions, interpretation);
-        processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
-        setDrafts(processedDrafts);
-        setConfidence(result.confidence);
-        setFlowState("preview");
-      } else {
-        setError(result.error || "No se encontraron transacciones");
+    await checkAndProceed(async () => {
+      setFlowState("processing");
+      try {
+        const result = await parseText(text, historyPatterns);
+        if (result.success && result.transactions.length > 0) {
+          const interpretation = result.rawInterpretation || "";
+          setRawInterpretation(interpretation);
+          // Process AI results and apply history-based improvements
+          let processedDrafts = processAIResults(result.transactions, interpretation);
+          processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          setDrafts(processedDrafts);
+          setConfidence(result.confidence);
+          setFlowState("preview");
+          incrementBatchDailyCount();
+        } else {
+          setError(result.error || "No se encontraron transacciones");
+          setFlowState("error");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error inesperado");
         setFlowState("error");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
-      setFlowState("error");
-    }
+    });
   };
 
   const handleImageCapture = async (imageBase64: string) => {
-    setFlowState("processing");
-    try {
-      const result = await parseImage(imageBase64, historyPatterns);
-      if (result.success && result.transactions.length > 0) {
-        const interpretation = result.rawInterpretation || "";
-        setRawInterpretation(interpretation);
-        // Process AI results and apply history-based improvements
-        let processedDrafts = processAIResults(result.transactions, interpretation);
-        processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
-        setDrafts(processedDrafts);
-        setConfidence(result.confidence);
-        setFlowState("preview");
-      } else {
-        setError(result.error || "No se encontraron transacciones");
+    await checkAndProceed(async () => {
+      setFlowState("processing");
+      try {
+        const result = await parseImage(imageBase64, historyPatterns);
+        if (result.success && result.transactions.length > 0) {
+          const interpretation = result.rawInterpretation || "";
+          setRawInterpretation(interpretation);
+          // Process AI results and apply history-based improvements
+          let processedDrafts = processAIResults(result.transactions, interpretation);
+          processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          setDrafts(processedDrafts);
+          setConfidence(result.confidence);
+          setFlowState("preview");
+          incrementBatchDailyCount();
+        } else {
+          setError(result.error || "No se encontraron transacciones");
+          setFlowState("error");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error inesperado");
         setFlowState("error");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
-      setFlowState("error");
-    }
+    });
   };
 
   const handleAudioCapture = async (audioBase64: string, mimeType: string) => {
-    setFlowState("processing");
-    try {
-      const result = await parseAudio(audioBase64, mimeType, historyPatterns);
-      if (result.success && result.transactions.length > 0) {
-        const interpretation = result.rawInterpretation || "";
-        setRawInterpretation(interpretation);
-        // Process AI results and apply history-based improvements
-        let processedDrafts = processAIResults(result.transactions, interpretation);
-        processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
-        setDrafts(processedDrafts);
-        setConfidence(result.confidence);
-        setFlowState("preview");
-      } else {
-        setError(result.error || "No se encontraron transacciones");
+    await checkAndProceed(async () => {
+      setFlowState("processing");
+      try {
+        const result = await parseAudio(audioBase64, mimeType, historyPatterns);
+        if (result.success && result.transactions.length > 0) {
+          const interpretation = result.rawInterpretation || "";
+          setRawInterpretation(interpretation);
+          // Process AI results and apply history-based improvements
+          let processedDrafts = processAIResults(result.transactions, interpretation);
+          processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          setDrafts(processedDrafts);
+          setConfidence(result.confidence);
+          setFlowState("preview");
+          incrementBatchDailyCount();
+        } else {
+          setError(result.error || "No se encontraron transacciones");
+          setFlowState("error");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Error inesperado");
         setFlowState("error");
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error inesperado");
-      setFlowState("error");
-    }
+    });
   };
 
   const handleCancel = () => {
@@ -487,6 +571,37 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
     }
   };
 
+  const handleWatchRewardedVideo = async () => {
+    setIsLoadingReward(true);
+    try {
+      const reward = await showRewardedVideo();
+      if (reward) {
+        // User watched the full video - mark so we don't re-prompt on server 429
+        setRewardedWasConsumed(true);
+        setShowRewardedModal(false);
+        if (pendingSubmitRef.current) {
+          await pendingSubmitRef.current();
+          pendingSubmitRef.current = null;
+        }
+      } else {
+        // User cancelled - do nothing, keep modal open
+        console.log("[BatchEntrySheet] Rewarded video cancelled");
+      }
+    } catch (err) {
+      // Ad failed to load/show (no inventory, network error, App Store review, etc.)
+      // Graceful fallback: unlock the request anyway so the user isn't blocked
+      setRewardedWasConsumed(true);
+      console.warn("[BatchEntrySheet] Rewarded video unavailable, granting free use:", err);
+      setShowRewardedModal(false);
+      if (pendingSubmitRef.current) {
+        await pendingSubmitRef.current();
+        pendingSubmitRef.current = null;
+      }
+    } finally {
+      setIsLoadingReward(false);
+    }
+  };
+
   // --- Render ---
 
   if (!isVisible) return null;
@@ -544,14 +659,15 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
 
     // Error state
     if (flowState === "error") {
-      // Free user rate limit - modal is rendered separately below
-      if (error === "RATE_LIMIT_FREE") {
+      // Free user rate limit - modal is triggered via useEffect
+      if (error === "RATE_LIMIT_FREE" && !rewardedWasConsumed) {
         return null;
       }
 
       // Translate error codes to user-friendly messages
       const getErrorMessage = () => {
         if (!error) return t("errors.generic");
+        if (error === "RATE_LIMIT_FREE") return t("errors.rateLimitFree", { defaultValue: "Has alcanzado el límite diario. Intenta de nuevo mañana o hazte Pro." });
         if (error === "RATE_LIMIT_PRO") return t("errors.rateLimitPro");
         if (error === "TIMEOUT") return t("errors.timeout");
         if (error === "NO_RESPONSE") return t("errors.noResponse");
@@ -674,7 +790,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
           isFullScreen
             ? "inset-0 flex flex-col bg-gray-100 dark:bg-gray-950"
             : "inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900"
-        } ${flowState === "error" && error === "RATE_LIMIT_FREE" ? "!hidden" : ""}`}
+        } ${showRewardedModal ? "!hidden" : ""}`}
         style={{
           transform: isFullScreen
             ? `translateY(${isAnimating ? 0 : window.innerHeight}px)`
@@ -722,16 +838,22 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
         </div>
       </div>
 
-      {/* Rate limit upsell modal for free users */}
-      {flowState === "error" && error === "RATE_LIMIT_FREE" && !showPaywall && (
+      {/* Rewarded video / upgrade modal for free users */}
+      {showRewardedModal && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60" onClick={onClose} />
+          <div className="absolute inset-0 bg-black/60" onClick={() => {
+            setShowRewardedModal(false);
+            pendingSubmitRef.current = null;
+          }} />
 
           <div className="relative mx-6 w-full max-w-sm overflow-hidden rounded-3xl bg-gradient-to-b from-gray-800 to-gray-900 p-6 shadow-2xl">
             {/* Close button */}
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => {
+                setShowRewardedModal(false);
+                pendingSubmitRef.current = null;
+              }}
               className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all active:scale-95"
             >
               <X size={16} className="text-gray-400" />
@@ -746,41 +868,41 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
 
             {/* Title */}
             <h3 className="mb-2 text-center text-xl font-extrabold tracking-tight text-white">
-              Sin Límites
+              {t("rewards.watchAdTitle")}
             </h3>
 
             {/* Subtitle */}
             <p className="mb-6 text-center text-sm leading-relaxed text-gray-400">
-              No dejes que nada te detenga. Desbloquea registros con IA ilimitados y obtén el control total.
+              {t("rewards.watchAdSubtitle")}
             </p>
 
-            {/* Benefits */}
-            <div className="mb-6 space-y-3">
-              <div className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#18B7B0]/20">
-                  <Check size={14} className="text-[#18B7B0]" strokeWidth={3} />
-                </div>
-                <span className="text-sm font-medium text-gray-200">
-                  Registros con IA ilimitados
-                </span>
-              </div>
-              <div className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#18B7B0]/20">
-                  <Check size={14} className="text-[#18B7B0]" strokeWidth={3} />
-                </div>
-                <span className="text-sm font-medium text-gray-200">
-                  Escaneo de recibos inteligente
-                </span>
-              </div>
-            </div>
+            {/* Watch ad button (only when ad is loaded and on native) */}
+            {isNative() && isRewardedVideoReady() && (
+              <button
+                type="button"
+                onClick={handleWatchRewardedVideo}
+                disabled={isLoadingReward}
+                className="mb-3 w-full rounded-2xl bg-white py-4 text-base font-bold text-gray-900 shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
+              >
+                {isLoadingReward ? t("rewards.loadingAd") : t("rewards.watchAdButton")}
+              </button>
+            )}
 
-            {/* CTA */}
+            {/* Upgrade to Pro button */}
             <button
               type="button"
-              onClick={() => setShowPaywall(true)}
-              className="w-full rounded-2xl bg-white py-4 text-base font-bold text-gray-900 shadow-lg transition-all active:scale-[0.98]"
+              onClick={() => {
+                setShowRewardedModal(false);
+                pendingSubmitRef.current = null;
+                setShowPaywall(true);
+              }}
+              className={`w-full rounded-2xl py-4 text-base font-bold transition-all active:scale-[0.98] ${
+                isNative()
+                  ? "bg-white/10 text-white"
+                  : "bg-white text-gray-900 shadow-lg"
+              }`}
             >
-              Prueba Gratis por 7 Días
+              {t("rewards.upgradeToPro")}
             </button>
           </div>
         </div>

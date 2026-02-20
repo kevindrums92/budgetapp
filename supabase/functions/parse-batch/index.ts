@@ -81,10 +81,10 @@ function getRateLimiter(plan: UserPlan) {
     });
   }
 
-  // Free plan: 2 requests per day
+  // Free plan: 20 requests per day (anti-abuse cap; client gates via rewarded video after 1st use)
   return new Ratelimit({
     redis,
-    limiter: Ratelimit.slidingWindow(2, "1 d"),
+    limiter: Ratelimit.slidingWindow(20, "1 d"),
     analytics: true,
     prefix: "smartspend:batch:free",
   });

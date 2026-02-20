@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
-import { useSubscription } from "@/hooks/useSubscription";
 import { getAllBudgetPredictions } from "../services/budgetPrediction.service";
 import BudgetAlertCard from "./BudgetAlertCard";
 import BudgetAlertDetailSheet from "./BudgetAlertDetailSheet";
@@ -10,7 +9,6 @@ import type { BudgetPrediction } from "../types/forecasting.types";
 
 export default function BudgetAlertsSection() {
   const { t } = useTranslation("forecasting");
-  const { isPro } = useSubscription();
   const transactions = useBudgetStore((s) => s.transactions);
   const budgets = useBudgetStore((s) => s.budgets);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
@@ -25,8 +23,7 @@ export default function BudgetAlertsSection() {
     return getAllBudgetPredictions(budgets, transactions);
   }, [budgets, transactions, selectedMonth]);
 
-  // Don't render anything if no alerts or not Pro
-  if (!isPro || predictions.length === 0) return null;
+  if (predictions.length === 0) return null;
 
   return (
     <div className="mb-4">

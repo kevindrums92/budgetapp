@@ -14,13 +14,8 @@ type PaywallModalProps = {
 };
 
 const BENEFIT_KEYS = [
-  'unlimitedCategories',
-  'aiBatchEntry',
-  'stats',
-  'historyFilters',
-  'export',
-  'scheduled',
   'adFree',
+  'aiBatchEntry',
 ] as const;
 
 export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: PaywallModalProps) {

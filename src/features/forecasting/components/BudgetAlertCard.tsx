@@ -3,6 +3,7 @@ import { AlertTriangle, TrendingDown } from "lucide-react";
 import { icons } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/features/currency";
+import { usePrivacy } from "@/features/privacy";
 import { useBudgetStore } from "@/state/budget.store";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 import type { BudgetPrediction } from "../types/forecasting.types";
@@ -14,7 +15,9 @@ type Props = {
 
 export default function BudgetAlertCard({ prediction, onClick }: Props) {
   const { t } = useTranslation("forecasting");
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { formatWithPrivacy } = usePrivacy();
+  const fmt = (v: number) => formatWithPrivacy(formatAmount(v), currencyInfo.symbol);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
 
   const category = useMemo(
@@ -126,8 +129,8 @@ export default function BudgetAlertCard({ prediction, onClick }: Props) {
           {/* Amount info */}
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {formatAmount(prediction.currentSpent)} /{" "}
-              {formatAmount(prediction.budgetLimit)}
+              {fmt(prediction.currentSpent)} /{" "}
+              {fmt(prediction.budgetLimit)}
             </span>
             <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
               {percentage}%

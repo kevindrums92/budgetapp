@@ -102,5 +102,14 @@
     "save": "Save",
     "processing": "Processing...",
     "error": "Error"
+  },
+  "rewards": {
+    "watchAdTitle": "Daily free use spent",
+    "watchAdSubtitle": "Your free daily use has been spent",
+    "watchAdButton": "Watch ad to unlock",
+    "upgradeToPro": "Go Pro - No limits",
+    "adFailed": "Could not load ad. Try again later.",
+    "adCompleted": "Unlocked! You can continue.",
+    "loadingAd": "Loading ad..."
   }
 }

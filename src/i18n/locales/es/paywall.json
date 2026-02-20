@@ -1,29 +1,15 @@
 {
   "title": "Desbloquea SmartSpend Pro",
   "subtitle": {
-    "generic": "Lleva tus finanzas al siguiente nivel",
-    "onboarding": "Comienza con 7 dias gratis de todas las funciones",
-    "category_limit": "Has alcanzado el limite de categorias personalizadas",
-    "budget_limit": "Has alcanzado el limite de presupuestos activos",
-    "scheduled_limit": "Has alcanzado el limite de transacciones programadas",
-    "stats_page": "Accede a estadisticas detalladas de tus finanzas",
-    "stats_trends": "Desbloquea tendencias y analisis historico",
-    "cloud_sync": "Sincroniza tus datos en la nube de forma segura",
-    "push_notifications": "Recibe alertas inteligentes de tus finanzas",
-    "history_filters": "Filtra tu historial por estado, categoria y mas",
-    "export": "Exporta tus datos en CSV o JSON",
+    "generic": "Disfruta una experiencia sin anuncios y registros con IA ilimitados",
+    "onboarding": "Comienza con 7 dias gratis sin anuncios y con IA ilimitada",
     "settings": "Personaliza tu experiencia al maximo",
-    "upgrade_prompt": "Desbloquea estadisticas avanzadas, categorias ilimitadas y mas",
-    "batch_entry_limit": "Obtén 10 solicitudes de IA por hora para agregar transacciones"
+    "upgrade_prompt": "Elimina los anuncios y desbloquea registros con IA ilimitados",
+    "batch_entry_limit": "Desbloquea registros con IA ilimitados y elimina los anuncios"
   },
   "benefits": {
-    "unlimitedCategories": "Categorias y presupuestos ilimitados",
-    "aiBatchEntry": "Entrada de movimientos con IA (texto, audio, imagen)",
-    "stats": "Estadisticas detalladas y proyecciones",
-    "historyFilters": "Filtros avanzados de historial",
-    "export": "Exportacion de datos CSV y JSON",
-    "scheduled": "Transacciones programadas ilimitadas",
-    "adFree": "Experiencia 100% libre de anuncios"
+    "adFree": "Experiencia 100% libre de anuncios",
+    "aiBatchEntry": "Registros con IA ilimitados (texto, audio, imagen)"
   },
   "plans": {
     "monthly": "Mensual",
@@ -51,8 +37,7 @@
   },
   "gate": {
     "locked": "Funcion Pro",
-    "unlock": "Desbloquear",
-    "limitReached": "Limite alcanzado ({{current}}/{{max}})"
+    "unlock": "Desbloquear"
   },
   "legal": {
     "text": "Al continuar, aceptas nuestros",

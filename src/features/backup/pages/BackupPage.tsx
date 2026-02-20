@@ -54,7 +54,7 @@ export default function BackupPage() {
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <PageHeader title={t("title")} />
 
-        <div className="flex-1 px-4 pt-6 pb-8">
+        <div className="flex-1 px-4 pt-6 pb-20">
           <BackupMethodSelector
             onSelect={handleSelectMethod}
           />
@@ -100,7 +100,7 @@ export default function BackupPage() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-4 pt-6 pb-8">
+      <div className="flex-1 px-4 pt-6 pb-20">
         {/* Manual Backup Tab */}
         {selectedMethod === "manual" && (
           <div className="space-y-6">
