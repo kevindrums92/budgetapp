@@ -3,7 +3,14 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.10] - 2026-02-20
+
+- **fix(paywall): add auto-renewal disclaimer for Apple Guideline 3.1.2**
+  - Display subscription auto-renewal terms below legal links in PaywallModal
+  - Add `autoRenew` i18n key in all 4 languages (es, en, fr, pt)
 
 ## [0.16.9] - 2026-02-20
 
