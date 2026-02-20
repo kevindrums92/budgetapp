@@ -230,6 +230,11 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
           </button>.
         </p>
 
+        {/* Auto-renewal disclaimer - Required by Apple Guideline 3.1.2 */}
+        <p className="mt-3 px-2 text-center text-[10px] leading-relaxed text-gray-400 dark:text-gray-500">
+          {t('legal.autoRenew')}
+        </p>
+
         {/* Restore purchases */}
         <button
           type="button"

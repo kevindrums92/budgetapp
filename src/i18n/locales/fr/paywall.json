@@ -43,6 +43,7 @@
     "text": "En continuant, vous acceptez nos",
     "terms": "Conditions d'utilisation",
     "and": "et",
-    "privacy": "Politique de confidentialite"
+    "privacy": "Politique de confidentialite",
+    "autoRenew": "Le paiement sera debite de votre compte Apple ID lors de la confirmation de l'achat. L'abonnement se renouvelle automatiquement sauf s'il est annule avant la fin de la periode en cours. Vous pouvez gerer et annuler vos abonnements dans les reglages de votre compte App Store."
   }
 }
