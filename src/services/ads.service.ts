@@ -46,6 +46,27 @@ let frequencyConfig: AdFrequencyConfig = DEFAULT_FREQUENCY_CONFIG;
 let currentSession: AdSession | null = null;
 
 /**
+ * Request App Tracking Transparency authorization (iOS 14.5+)
+ * Must be called BEFORE AdMob.initialize() so AdMob knows the consent status.
+ * On Android/web this is a no-op.
+ */
+export async function requestTrackingIfNeeded(): Promise<void> {
+  try {
+    const { status } = await AdMob.trackingAuthorizationStatus();
+
+    if (status === 'notDetermined') {
+      await AdMob.requestTrackingAuthorization();
+    }
+
+    const finalStatus = await AdMob.trackingAuthorizationStatus();
+    console.log('[AdMob] Tracking authorization status:', finalStatus.status);
+  } catch {
+    // On Android/web, ATT is not available — that's expected
+    console.log('[AdMob] Tracking authorization not available (non-iOS)');
+  }
+}
+
+/**
  * Initialize AdMob SDK
  * Must be called on app startup (before showing ads)
  */

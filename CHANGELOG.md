@@ -2,18 +2,15 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
-
-
-
-
-
-
-
-
-
-
-
 ## [unreleased] - {relase date}
+
+- **fix(ads): implement App Tracking Transparency dialog for iOS (Guideline 2.1)**
+  - Add `requestTrackingIfNeeded()` using built-in `@capacitor-community/admob` ATT methods
+  - Show ATT permission dialog before AdMob initialization so iOS knows consent status
+  - Users who accept get personalized ads; users who decline still see contextual ads
+
+- **fix(subscription): use in-app browser for App Store subscription management (Guideline 4.0)**
+  - Replace `window.open()` with `openUrl()` in SubscriptionManagementPage
 
 ## [0.16.8] - 2026-02-15
 

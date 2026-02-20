@@ -20,6 +20,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { isNative } from "@/shared/utils/platform";
+import { openUrl } from "@/shared/utils/browser.utils";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 import PageHeader from "@/shared/components/layout/PageHeader";
 
@@ -114,10 +115,10 @@ export default function SubscriptionManagementPage() {
   }
 
   // Handle manage in App Store
-  function handleManageInAppStore() {
+  async function handleManageInAppStore() {
     if (isNative()) {
-      // Open App Store subscriptions management
-      window.open("https://apps.apple.com/account/subscriptions", "_blank");
+      // Open App Store subscriptions management (in-app browser)
+      await openUrl("https://apps.apple.com/account/subscriptions");
     } else {
       setRestoreMessage({ type: 'error', text: t("subscription.messages.manageOnlyMobile") });
     }
