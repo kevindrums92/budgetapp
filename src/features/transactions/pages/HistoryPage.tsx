@@ -294,10 +294,11 @@ export default function HistoryPage() {
       result = result.filter((t) => t.date >= customStartDate && t.date <= customEndDate);
     }
 
-    // Search filter (by name/description)
+    // Search filter (by name/description) — accent-insensitive
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((t) => t.name.toLowerCase().includes(query));
+      const strip = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const query = strip(searchQuery);
+      result = result.filter((t) => strip(t.name).includes(query));
     }
 
     // Type filter
@@ -385,10 +386,11 @@ export default function HistoryPage() {
       result = result.filter((t) => t.date >= customStartDate && t.date <= customEndDate);
     }
 
-    // Search filter (by name/description)
+    // Search filter (by name/description) — accent-insensitive
     if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((t) => t.name.toLowerCase().includes(query));
+      const strip = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      const query = strip(searchQuery);
+      result = result.filter((t) => strip(t.name).includes(query));
     }
 
     // Type filter

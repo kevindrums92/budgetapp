@@ -8,6 +8,10 @@ All notable changes to SmartSpend will be documented in this file.
   - Add `user-select: none` on all elements to prevent accidental text highlighting
   - Re-enable selection only on `<input>`, `<textarea>`, and `contenteditable` elements
 
+- **fix(history): accent-insensitive search in history filters**
+  - Searching "cafe" now matches "café", "nono" matches "ñoño", etc.
+  - Uses Unicode NFD normalization to strip diacritics before comparing
+
 - **feat(freemium): restructure to free-with-ads model**
   - All features now unlocked for free users (remove ProFeatureGate, blur overlays, lock icons)
   - Pro subscription = ad-free experience + unlimited AI batch entries
