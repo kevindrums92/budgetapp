@@ -2,7 +2,10 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.9] - 2026-02-20
 
 - **fix(ui): disable text selection globally for native app feel**
   - Add `user-select: none` on all elements to prevent accidental text highlighting
