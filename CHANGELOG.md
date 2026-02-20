@@ -12,6 +12,10 @@ All notable changes to SmartSpend will be documented in this file.
   - Searching "cafe" now matches "café", "nono" matches "ñoño", etc.
   - Uses Unicode NFD normalization to strip diacritics before comparing
 
+- **feat(privacy): apply privacy mode to budget plan cards and alert predictions**
+  - BudgetCard now censors all monetary values (spent, saved, budget amount, status messages)
+  - BudgetAlertCard now censors prediction amounts when privacy mode is active
+
 - **feat(freemium): restructure to free-with-ads model**
   - All features now unlocked for free users (remove ProFeatureGate, blur overlays, lock icons)
   - Pro subscription = ad-free experience + unlimited AI batch entries

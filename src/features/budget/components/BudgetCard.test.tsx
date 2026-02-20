@@ -23,6 +23,16 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/features/currency', () => ({
   useCurrency: () => ({
     formatAmount: (amount: number) => `$ ${amount.toLocaleString()}`,
+    currencyInfo: { symbol: '$', code: 'COP' },
+  }),
+}));
+
+// Mock usePrivacy
+vi.mock('@/features/privacy', () => ({
+  usePrivacy: () => ({
+    privacyMode: false,
+    togglePrivacyMode: vi.fn(),
+    formatWithPrivacy: (formatted: string) => formatted,
   }),
 }));
 

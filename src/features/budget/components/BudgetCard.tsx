@@ -3,6 +3,7 @@ import { icons } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { BudgetProgress } from "@/types/budget.types";
 import { useCurrency } from "@/features/currency";
+import { usePrivacy } from "@/features/privacy";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
 type BudgetCardProps = {
@@ -15,7 +16,9 @@ export default function BudgetCard({
   onClick,
 }: BudgetCardProps) {
   const { t } = useTranslation("budget");
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { formatWithPrivacy } = usePrivacy();
+  const fmt = (v: number) => formatWithPrivacy(formatAmount(v), currencyInfo.symbol);
 
   const { budget, category, spent, saved, percentage, remaining, isExceeded, isCompleted } = progress;
 
@@ -50,10 +53,10 @@ export default function BudgetCard({
                   : "text-gray-900 dark:text-gray-50"
               }`}
             >
-              {formatAmount(spent)}
+              {fmt(spent)}
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              / {formatAmount(budget.amount)}
+              / {fmt(budget.amount)}
             </span>
           </div>
         </>
@@ -63,10 +66,10 @@ export default function BudgetCard({
         <>
           <div className="flex items-baseline gap-1">
             <span className="text-lg font-semibold text-teal-700 dark:text-teal-400">
-              {formatAmount(saved)}
+              {fmt(saved)}
             </span>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              / {formatAmount(budget.amount)}
+              / {fmt(budget.amount)}
             </span>
           </div>
         </>
@@ -99,7 +102,7 @@ export default function BudgetCard({
       if (isExceeded) {
         return (
           <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-            Excedido por {formatAmount(Math.abs(remaining))}
+            Excedido por {fmt(Math.abs(remaining))}
           </p>
         );
       } else if (isCompletedBudget) {
@@ -107,13 +110,13 @@ export default function BudgetCard({
         const savedPercentage = budget.amount > 0 ? Math.round((savedAmount / budget.amount) * 100) : 0;
         return (
           <p className="mt-1 text-xs text-teal-600 dark:text-teal-400">
-            ✓ Límite respetado · Ahorraste {formatAmount(savedAmount)} ({savedPercentage}%)
+            ✓ Límite respetado · Ahorraste {fmt(savedAmount)} ({savedPercentage}%)
           </p>
         );
       } else if (remaining > 0) {
         return (
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Te quedan {formatAmount(remaining)}
+            Te quedan {fmt(remaining)}
           </p>
         );
       }
@@ -123,7 +126,7 @@ export default function BudgetCard({
         if (surplus > 0) {
           return (
             <p className="mt-1 text-xs text-teal-600 dark:text-teal-400">
-              ¡Meta alcanzada! 🎉 · Superaste por {formatAmount(surplus)}
+              ¡Meta alcanzada! 🎉 · Superaste por {fmt(surplus)}
             </p>
           );
         }
@@ -137,13 +140,13 @@ export default function BudgetCard({
         const shortfall = budget.amount - saved;
         return (
           <p className="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
-            Meta no alcanzada · Lograste {achievedPercentage}% · Faltaron {formatAmount(shortfall)}
+            Meta no alcanzada · Lograste {achievedPercentage}% · Faltaron {fmt(shortfall)}
           </p>
         );
       } else {
         return (
           <p className="mt-1 text-xs text-teal-600 dark:text-teal-400">
-            ¡Faltan {formatAmount(remaining)}!
+            ¡Faltan {fmt(remaining)}!
           </p>
         );
       }
