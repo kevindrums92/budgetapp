@@ -3,11 +3,8 @@ import { X, DollarSign, Calendar, Repeat, ChevronRight, ShieldAlert, Target, ico
 import type { BudgetPeriod, BudgetType } from "@/types/budget.types";
 import { useBudgetStore } from "@/state/budget.store";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
-import { useSubscription } from "@/hooks/useSubscription";
-import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import PeriodPickerModal from "./PeriodPickerModal";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
-import PaywallModal from "@/shared/components/modals/PaywallModal";
 import { getCurrentMonth } from "../utils/period.utils";
 import { formatNumberWithThousands, parseFormattedNumber } from "@/shared/utils/number.utils";
 import { kebabToPascal } from "@/shared/utils/string.utils";
@@ -30,8 +27,6 @@ export default function AddEditBudgetModal({
   const isEdit = !!existingBudget;
   const savingsGoalOnboardingSeen = store.savingsGoalOnboardingSeen;
   const setSavingsGoalOnboardingSeen = store.setSavingsGoalOnboardingSeen;
-  const { canUseFeature } = useSubscription();
-
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
 
@@ -49,12 +44,6 @@ export default function AddEditBudgetModal({
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
-
-  const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
-  });
-
   // Load budget data when opening in edit mode
   useEffect(() => {
     if (open && existingBudget) {
@@ -178,12 +167,6 @@ export default function AddEditBudgetModal({
       });
       onClose();
     } else {
-      // Check budget limit for new budgets
-      if (!canUseFeature('unlimited_budgets')) {
-        setShowPaywall(true);
-        return;
-      }
-
       // Create new budget
       const budgetId = store.createBudget({
         categoryId,
@@ -725,13 +708,6 @@ export default function AddEditBudgetModal({
         </div>
       )}
 
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        trigger="budget_limit"
-        onSelectPlan={handleSelectPlan}
-      />
     </>
   );
 }

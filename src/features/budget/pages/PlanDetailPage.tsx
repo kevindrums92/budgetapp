@@ -179,7 +179,7 @@ export default function PlanDetailPage() {
         />
 
         {/* Content */}
-        <div className="flex-1 px-4 pt-6 pb-8">
+        <div className="flex-1 px-4 pt-6 pb-20">
           {/* Hero Card */}
           <div className="mb-6 rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm">
             {/* Icon + Name */}
@@ -325,7 +325,7 @@ export default function PlanDetailPage() {
           {/* Recent Activity */}
           <div className="mb-6">
             <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
-              Actividad Reciente
+              Movimientos ({relevantTransactions.length})
             </h3>
 
             {relevantTransactions.length === 0 ? (
@@ -336,7 +336,7 @@ export default function PlanDetailPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                {relevantTransactions.slice(0, 10).map((tx) => (
+                {relevantTransactions.map((tx) => (
                   <button
                     key={tx.id}
                     type="button"

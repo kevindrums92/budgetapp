@@ -176,7 +176,7 @@ export default function NotificationSettingsPage() {
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <PageHeader title={t('title')} />
 
-        <div className="flex-1 px-4 pt-6 pb-8">
+        <div className="flex-1 px-4 pt-6 pb-20">
           <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm text-center">
             <Bell className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" />
             <h2 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
@@ -197,7 +197,7 @@ export default function NotificationSettingsPage() {
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <PageHeader title={t('title')} />
 
-        <div className="flex-1 px-4 pt-6 pb-8">
+        <div className="flex-1 px-4 pt-6 pb-20">
           <div className="rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-sm">
             <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-teal-50 dark:bg-teal-950">
               <Bell className="h-8 w-8 text-teal-500 dark:text-teal-400" />
@@ -235,7 +235,7 @@ export default function NotificationSettingsPage() {
       <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
         <PageHeader title={t('title')} />
 
-        <div className="flex-1 px-4 pt-6 pb-8">
+        <div className="flex-1 px-4 pt-6 pb-20">
           <div className="animate-pulse space-y-4">
             <div className="h-24 rounded-2xl bg-gray-200 dark:bg-gray-800" />
             <div className="h-24 rounded-2xl bg-gray-200 dark:bg-gray-800" />
@@ -258,7 +258,7 @@ export default function NotificationSettingsPage() {
         }
       />
 
-      <div className="flex-1 px-4 pt-6 pb-8 space-y-4">
+      <div className="flex-1 px-4 pt-6 pb-20 space-y-4">
         {/* Transacciones programadas */}
         <div className="rounded-2xl bg-white dark:bg-gray-900 p-4 shadow-sm">
           <div className="flex items-center gap-3">

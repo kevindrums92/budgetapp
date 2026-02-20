@@ -11,7 +11,6 @@ import {
   X,
   Check,
   Search,
-  Lock,
   Repeat,
   ArrowUpDown,
 } from "lucide-react";
@@ -19,12 +18,12 @@ import PageHeader from "@/shared/components/layout/PageHeader";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
-import { useSubscription } from "@/hooks/useSubscription";
-import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { todayISO } from "@/services/dates.service";
+import { showBanner, hideBanner } from "@/services/ads.service";
+import { isNative } from "@/shared/utils/platform";
+import { useSubscription } from "@/hooks/useSubscription";
 import DatePicker from "@/shared/components/modals/DatePicker";
-import PaywallModal from "@/shared/components/modals/PaywallModal";
 import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 import { historyTour } from "@/features/tour/tours/historyTour";
@@ -49,8 +48,7 @@ export default function HistoryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { formatAmount } = useCurrency();
-  const { canUseFeature } = useSubscription();
-
+  const { isPro } = useSubscription();
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
 
@@ -63,12 +61,6 @@ export default function HistoryPage() {
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
-
-  // Paywall state
-  const [showPaywall, setShowPaywall] = useState(false);
-  const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
-  });
 
   const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>("this-month");
   const [customStartDate, setCustomStartDate] = useState(todayISO());
@@ -130,6 +122,16 @@ export default function HistoryPage() {
       document.body.style.overflow = "";
     };
   }, [showCategoryModal]);
+
+  // Hide banner ad when category filter modal is open (prevents overlap)
+  useEffect(() => {
+    if (!isNative() || isPro) return;
+    if (showCategoryModal) {
+      hideBanner();
+    } else {
+      showBanner();
+    }
+  }, [showCategoryModal, isPro]);
 
   // Category modal drag handlers
   const handleCategoryDragStart = useCallback((clientY: number) => {
@@ -486,12 +488,6 @@ export default function HistoryPage() {
   });
 
   const handleExport = async () => {
-    // Check if user can export
-    if (!canUseFeature('export_data')) {
-      setShowPaywall(true);
-      return;
-    }
-
     if (filteredTransactions.length === 0) {
       alert(t("export.noTransactions", { ns: "home" }));
       return;
@@ -603,26 +599,14 @@ export default function HistoryPage() {
           {/* Status */}
           <button
             type="button"
-            onClick={() => {
-              if (!canUseFeature('history_filters')) {
-                setShowPaywall(true);
-              } else {
-                setExpandedFilter(expandedFilter === "status" ? null : "status");
-              }
-            }}
+            onClick={() => setExpandedFilter(expandedFilter === "status" ? null : "status")}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              !canUseFeature('history_filters')
-                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
-                : expandedFilter === "status" || filterStatus !== "all"
+              expandedFilter === "status" || filterStatus !== "all"
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            {!canUseFeature('history_filters') ? (
-              <Lock size={14} />
-            ) : (
-              <CheckCircle2 size={14} />
-            )}
+            <CheckCircle2 size={14} />
             {filterStatus === "all" && t("filters.status")}
             {filterStatus === "paid" && t("filters.paid")}
             {filterStatus === "pending" && t("filters.pendingStatus")}
@@ -632,26 +616,14 @@ export default function HistoryPage() {
           {/* Category */}
           <button
             type="button"
-            onClick={() => {
-              if (!canUseFeature('history_filters')) {
-                setShowPaywall(true);
-              } else {
-                handleOpenCategoryModal();
-              }
-            }}
+            onClick={() => handleOpenCategoryModal()}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              !canUseFeature('history_filters')
-                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
-                : selectedCategoryIds.length > 0
+              selectedCategoryIds.length > 0
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            {!canUseFeature('history_filters') ? (
-              <Lock size={14} />
-            ) : (
-              <Tag size={14} />
-            )}
+            <Tag size={14} />
             {selectedCategoryIds.length === 0 && t("filters.category")}
             {selectedCategoryIds.length === 1 && (categoryDefinitions.find((c) => c.id === selectedCategoryIds[0])?.name || t("filters.category"))}
             {selectedCategoryIds.length > 1 && t("filters.categories", { count: selectedCategoryIds.length })}
@@ -660,48 +632,27 @@ export default function HistoryPage() {
           {/* Monto */}
           <button
             type="button"
-            onClick={() => {
-              if (!canUseFeature('history_filters')) {
-                setShowPaywall(true);
-              } else {
-                setExpandedFilter(expandedFilter === "amount" ? null : "amount");
-              }
-            }}
+            onClick={() => setExpandedFilter(expandedFilter === "amount" ? null : "amount")}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              !canUseFeature('history_filters')
-                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
-                : expandedFilter === "amount" || minAmount || maxAmount
+              expandedFilter === "amount" || minAmount || maxAmount
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            {!canUseFeature('history_filters') && <Lock size={14} />}
             {t("filters.amount")}
           </button>
 
           {/* Recurrentes */}
           <button
             type="button"
-            onClick={() => {
-              if (!canUseFeature('history_filters')) {
-                setShowPaywall(true);
-              } else {
-                setExpandedFilter(expandedFilter === "recurring" ? null : "recurring");
-              }
-            }}
+            onClick={() => setExpandedFilter(expandedFilter === "recurring" ? null : "recurring")}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium transition-all ${
-              !canUseFeature('history_filters')
-                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 opacity-60"
-                : expandedFilter === "recurring" || filterRecurring !== "all"
+              expandedFilter === "recurring" || filterRecurring !== "all"
                 ? "bg-[#18B7B0] text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
-            {!canUseFeature('history_filters') ? (
-              <Lock size={14} />
-            ) : (
-              <Repeat size={14} />
-            )}
+            <Repeat size={14} />
             {filterRecurring === "all" && t("filters.recurring")}
             {filterRecurring === "recurring" && t("filters.recurringOnly")}
             {filterRecurring === "non-recurring" && t("filters.nonRecurring")}
@@ -968,26 +919,10 @@ export default function HistoryPage() {
               type="button"
               onClick={handleExport}
               disabled={filteredTransactions.length === 0}
-              className={`flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed ${
-                !canUseFeature('export_data')
-                  ? 'text-gray-500'
-                  : 'text-[#18B7B0] hover:text-[#159d97]'
-              }`}
+              className="flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed text-[#18B7B0] hover:text-[#159d97]"
             >
-              {!canUseFeature('export_data') ? (
-                <>
-                  <Lock size={16} />
-                  {t("results.exportCSV")}
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-gradient-to-r from-yellow-400 to-amber-500 text-gray-900">
-                    PRO
-                  </span>
-                </>
-              ) : (
-                <>
-                  <Download size={16} />
-                  {t("results.exportCSV")}
-                </>
-              )}
+              <Download size={16} />
+              {t("results.exportCSV")}
             </button>
           </div>
 
@@ -1023,7 +958,7 @@ export default function HistoryPage() {
       {/* Transactions List (Virtualized) */}
       <div
         ref={listParentRef}
-        className="flex-1 mx-auto w-full max-w-xl bg-white dark:bg-gray-900 overflow-y-auto"
+        className="flex-1 mx-auto w-full max-w-xl bg-white dark:bg-gray-900 overflow-y-auto pb-16"
       >
         {filteredTransactions.length === 0 ? (
           <div className="px-4 py-12 text-center">
@@ -1379,14 +1314,6 @@ export default function HistoryPage() {
         onClose={() => setShowEndDatePicker(false)}
         value={customEndDate}
         onChange={setCustomEndDate}
-      />
-
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        trigger="history_filters"
-        onSelectPlan={handleSelectPlan}
       />
 
       {/* Spotlight Tour */}

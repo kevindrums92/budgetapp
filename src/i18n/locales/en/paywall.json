@@ -1,29 +1,15 @@
 {
   "title": "Unlock SmartSpend Pro",
   "subtitle": {
-    "generic": "Take your finances to the next level",
-    "onboarding": "Start with 7 free days of all features",
-    "category_limit": "You've reached the custom categories limit",
-    "budget_limit": "You've reached the active budgets limit",
-    "scheduled_limit": "You've reached the scheduled transactions limit",
-    "stats_page": "Access detailed financial statistics",
-    "stats_trends": "Unlock trends and historical analysis",
-    "cloud_sync": "Securely sync your data to the cloud",
-    "push_notifications": "Get smart financial alerts",
-    "history_filters": "Filter your history by status, category and more",
-    "export": "Export your data as CSV or JSON",
+    "generic": "Enjoy an ad-free experience with unlimited AI-powered entries",
+    "onboarding": "Start with 7 free days of ad-free and unlimited AI",
     "settings": "Fully customize your experience",
-    "upgrade_prompt": "Unlock advanced statistics, unlimited categories and more",
-    "batch_entry_limit": "Get 10 AI requests per hour to add transactions"
+    "upgrade_prompt": "Remove ads and unlock unlimited AI-powered entries",
+    "batch_entry_limit": "Unlock unlimited AI-powered entries and remove ads"
   },
   "benefits": {
-    "unlimitedCategories": "Unlimited categories and budgets",
-    "aiBatchEntry": "AI-powered transaction entry (text, voice, image)",
-    "stats": "Detailed statistics and projections",
-    "historyFilters": "Advanced history filters",
-    "export": "CSV and JSON data export",
-    "scheduled": "Unlimited scheduled transactions",
-    "adFree": "100% ad-free experience"
+    "adFree": "100% ad-free experience",
+    "aiBatchEntry": "Unlimited AI-powered entries (text, voice, image)"
   },
   "plans": {
     "monthly": "Monthly",
@@ -51,8 +37,7 @@
   },
   "gate": {
     "locked": "Pro Feature",
-    "unlock": "Unlock",
-    "limitReached": "Limit reached ({{current}}/{{max}})"
+    "unlock": "Unlock"
   },
   "legal": {
     "text": "By continuing, you agree to our",

@@ -21,7 +21,7 @@ export default function LanguageSettingsPage() {
       <PageHeader title={t('preferences.language.label')} />
 
       {/* Content */}
-      <div className="flex-1 px-4 pt-6 pb-8">
+      <div className="flex-1 px-4 pt-6 pb-20">
         <div className="space-y-2">
           {languages.map((lang) => {
             const isSelected = currentLanguage === lang.code;

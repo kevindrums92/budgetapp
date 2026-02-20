@@ -132,7 +132,7 @@ export default function CurrencySettingsPage() {
       </div>
 
       {/* Currency List */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-8">
+      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-20">
         {groupedCurrencies ? (
           // Mostrar agrupado por región
           <>

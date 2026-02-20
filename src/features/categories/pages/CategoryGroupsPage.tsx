@@ -73,7 +73,7 @@ export default function CategoryGroupsPage() {
       </div>
 
       {/* Groups List */}
-      <div className="flex-1 px-4 py-2">
+      <div className="flex-1 px-4 py-2 pb-20">
         <div className="space-y-2">
           {filteredGroups.map((group) => (
             <button

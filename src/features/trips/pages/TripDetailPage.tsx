@@ -99,7 +99,7 @@ export default function TripDetailPage() {
         onBack={() => navigate("/trips")}
       />
 
-      <div className="flex-1 px-4 pt-6 pb-8">
+      <div className="flex-1 px-4 pt-6 pb-20">
         {/* Budget summary */}
         <div className="rounded-xl bg-white p-4 shadow-sm mb-6">
           {/* Progress */}

@@ -24,26 +24,52 @@ const DEFAULT_FREQUENCY_CONFIG: AdFrequencyConfig = {
 };
 
 /**
- * AdMob configuration (iOS and Android)
- * Production Ad Unit IDs
+ * Google's official test ad unit IDs
+ * These always serve test ads regardless of app publication status.
+ * https://developers.google.com/admob/ios/test-ads
+ * https://developers.google.com/admob/android/test-ads
  */
+const TEST_AD_IDS: Record<'ios' | 'android', { interstitial: string; rewarded: string; banner: string }> = {
+  ios: {
+    interstitial: 'ca-app-pub-3940256099942544/4411468910',
+    rewarded: 'ca-app-pub-3940256099942544/1712485313',
+    banner: 'ca-app-pub-3940256099942544/2934735716',
+  },
+  android: {
+    interstitial: 'ca-app-pub-3940256099942544/1033173712',
+    rewarded: 'ca-app-pub-3940256099942544/5224354917',
+    banner: 'ca-app-pub-3940256099942544/6300978111',
+  },
+};
+
+/**
+ * AdMob configuration (iOS and Android)
+ * When useTestAds is true, Google's demo ad unit IDs are used instead of production IDs.
+ * Set useTestAds to false before submitting to App Store / Play Store.
+ */
+const USE_TEST_ADS = false;
+
 const AD_CONFIG: Record<'ios' | 'android', AdConfig> = {
   ios: {
     appId: 'ca-app-pub-1664291794679786~7314308108',
-    interstitialAdUnitId: 'ca-app-pub-1664291794679786/7310438677',
-    rewardedAdUnitId: 'ca-app-pub-1664291794679786/4381023000',
-    useTestAds: false,
+    interstitialAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.ios.interstitial : 'ca-app-pub-1664291794679786/7310438677',
+    rewardedAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.ios.rewarded : 'ca-app-pub-1664291794679786/4381023000',
+    bannerAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.ios.banner : 'ca-app-pub-1664291794679786/4688144765',
+    useTestAds: USE_TEST_ADS,
   },
   android: {
     appId: 'ca-app-pub-1664291794679786~3525498108',
-    interstitialAdUnitId: 'ca-app-pub-1664291794679786/3166405455',
-    rewardedAdUnitId: 'ca-app-pub-1664291794679786/1853323788',
-    useTestAds: false,
+    interstitialAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.android.interstitial : 'ca-app-pub-1664291794679786/3166405455',
+    rewardedAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.android.rewarded : 'ca-app-pub-1664291794679786/1853323788',
+    bannerAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.android.banner : 'ca-app-pub-1664291794679786/4688144765',
+    useTestAds: USE_TEST_ADS,
   },
 };
 
 let frequencyConfig: AdFrequencyConfig = DEFAULT_FREQUENCY_CONFIG;
 let currentSession: AdSession | null = null;
+let rewardedVideoLoaded = false;
+let isBannerVisible = false;
 
 /**
  * Request App Tracking Transparency authorization (iOS 14.5+)
@@ -76,7 +102,7 @@ export async function initializeAdMob(): Promise<void> {
     const config = AD_CONFIG[platform];
 
     await AdMob.initialize({
-      testingDevices: config.useTestAds ? ['290f243bf9a3bd79a754a7fc31512dda'] : undefined,
+      testingDevices: config.useTestAds ? ['b4325c96d038416804e1035b0c62f193'] : undefined,
       initializeForTesting: config.useTestAds,
     });
 
@@ -269,56 +295,76 @@ export async function prepareRewardedVideo(): Promise<void> {
       adId: config.rewardedAdUnitId,
     });
 
+    rewardedVideoLoaded = true;
     console.log('[AdMob] Rewarded video ad prepared');
   } catch (error) {
+    rewardedVideoLoaded = false;
     console.error('[AdMob] Failed to prepare rewarded video:', error);
   }
 }
 
 /**
- * Show rewarded video ad (always allowed, user-initiated)
- * @returns Reward item if user completed the video, null otherwise
+ * Check if a rewarded video ad is loaded and ready to show.
+ * Use this to decide whether to show the "watch ad" button.
  */
-export async function showRewardedVideo(): Promise<AdMobRewardItem | null> {
-  try {
-    const result = await AdMob.showRewardVideoAd();
-
-    console.log('[AdMob] Rewarded video result:', result);
-
-    // Preload next rewarded video
-    prepareRewardedVideo();
-
-    return result as AdMobRewardItem | null;
-  } catch (error) {
-    console.error('[AdMob] Failed to show rewarded video:', error);
-    return null;
-  }
+export function isRewardedVideoReady(): boolean {
+  return rewardedVideoLoaded;
 }
 
 /**
- * Show banner ad at bottom of screen
+ * Show rewarded video ad (always allowed, user-initiated)
+ * @returns Reward item if user completed the video, null if user dismissed
+ * @throws Error if ad failed to load/show (no inventory, not ready, network error)
+ */
+export async function showRewardedVideo(): Promise<AdMobRewardItem | null> {
+  rewardedVideoLoaded = false;
+
+  const result = await AdMob.showRewardVideoAd();
+
+  console.log('[AdMob] Rewarded video result:', result);
+
+  // Preload next rewarded video
+  prepareRewardedVideo();
+
+  return result as AdMobRewardItem | null;
+}
+
+/**
+ * Show banner ad at bottom of screen.
+ * Includes deduplication — calling when already showing is a no-op.
  */
 export async function showBanner(): Promise<void> {
+  if (isBannerVisible) return;
+
   try {
+    const platform = getPlatform();
+    const config = AD_CONFIG[platform];
+
     const options: BannerAdOptions = {
-      adId: 'ca-app-pub-1664291794679786/4688144765', // Production Banner ID
+      adId: config.bannerAdUnitId,
       adSize: BannerAdSize.ADAPTIVE_BANNER,
       position: BannerAdPosition.BOTTOM_CENTER,
       margin: 0,
+      isTesting: config.useTestAds,
     };
 
     await AdMob.showBanner(options);
+    isBannerVisible = true;
+    console.log('[AdMob] Banner ad shown');
   } catch (error) {
     console.error('[AdMob] Failed to show banner:', error);
   }
 }
 
 /**
- * Hide banner ad
+ * Hide banner ad (keeps it in memory for fast resume)
  */
 export async function hideBanner(): Promise<void> {
+  if (!isBannerVisible) return;
+
   try {
     await AdMob.hideBanner();
+    isBannerVisible = false;
     console.log('[AdMob] Banner ad hidden');
   } catch (error) {
     console.error('[AdMob] Failed to hide banner:', error);
@@ -326,11 +372,12 @@ export async function hideBanner(): Promise<void> {
 }
 
 /**
- * Remove banner ad
+ * Remove banner ad completely (frees memory)
  */
 export async function removeBanner(): Promise<void> {
   try {
     await AdMob.removeBanner();
+    isBannerVisible = false;
     console.log('[AdMob] Banner ad removed');
   } catch (error) {
     console.error('[AdMob] Failed to remove banner:', error);

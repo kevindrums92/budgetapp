@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { requestTrackingIfNeeded, initializeAdMob, checkAndResetSession, prepareInterstitial } from '@/services/ads.service';
+import { requestTrackingIfNeeded, initializeAdMob, checkAndResetSession, prepareInterstitial, prepareRewardedVideo } from '@/services/ads.service';
 import { useSubscription } from '@/hooks/useSubscription';
 
 /**
@@ -31,6 +31,9 @@ export default function AdMobProvider({ children }: { children: React.ReactNode 
 
         // Preload first interstitial ad
         await prepareInterstitial();
+
+        // Preload rewarded video ad (for batch entry free tier)
+        await prepareRewardedVideo();
 
         console.log('[AdMobProvider] AdMob SDK initialized successfully');
       } catch (error) {

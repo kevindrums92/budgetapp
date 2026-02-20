@@ -594,7 +594,7 @@ export default function ProfilePage() {
                   {t('subscriptionCard.free.title', 'Lleva tus Finanzas al Siguiente Nivel')}
                 </h3>
                 <p className="mb-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {t('subscriptionCard.free.subtitle', 'Desbloquea estadísticas avanzadas, categorías y presupuestos ilimitados, filtros poderosos y una experiencia sin anuncios.')}
+                  {t('subscriptionCard.free.subtitle', 'Elimina los anuncios y desbloquea registros con IA ilimitados.')}
                 </p>
                 <button
                   type="button"

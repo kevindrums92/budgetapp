@@ -130,8 +130,7 @@ export default function SubscriptionManagementPage() {
 
       {/* Content */}
       <div
-        className="flex-1 px-4 pt-6"
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 32px)' }}
+        className="flex-1 px-4 pt-6 pb-20"
       >
         {/* Current Plan Card */}
         <div className="mb-6 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-6 shadow-lg text-white">

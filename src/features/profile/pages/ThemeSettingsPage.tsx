@@ -31,7 +31,7 @@ export default function ThemeSettingsPage() {
       <PageHeader title={t('preferences.theme.label')} />
 
       {/* Content */}
-      <div className="flex-1 px-4 pt-6 pb-8">
+      <div className="flex-1 px-4 pt-6 pb-20">
         <div className="space-y-2">
           {THEME_OPTIONS.map((option) => {
             const Icon = option.icon;

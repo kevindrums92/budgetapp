@@ -1,29 +1,15 @@
 {
   "title": "Debloquez SmartSpend Pro",
   "subtitle": {
-    "generic": "Amenez vos finances au niveau superieur",
-    "onboarding": "Commencez avec 7 jours gratuits de toutes les fonctionnalites",
-    "category_limit": "Vous avez atteint la limite de categories personnalisees",
-    "budget_limit": "Vous avez atteint la limite de budgets actifs",
-    "scheduled_limit": "Vous avez atteint la limite de transactions programmees",
-    "stats_page": "Accedez a des statistiques financieres detaillees",
-    "stats_trends": "Debloquez les tendances et l'analyse historique",
-    "cloud_sync": "Synchronisez vos donnees dans le cloud en toute securite",
-    "push_notifications": "Recevez des alertes financieres intelligentes",
-    "history_filters": "Filtrez votre historique par statut, categorie et plus",
-    "export": "Exportez vos donnees en CSV ou JSON",
+    "generic": "Profitez d'une experience sans publicite avec des saisies IA illimitees",
+    "onboarding": "Commencez avec 7 jours gratuits sans publicite et avec IA illimitee",
     "settings": "Personnalisez votre experience au maximum",
-    "upgrade_prompt": "Debloquez les statistiques avancees, categories illimitees et plus",
-    "batch_entry_limit": "Obtenez 10 requetes IA par heure pour ajouter des transactions"
+    "upgrade_prompt": "Supprimez les publicites et debloquez les saisies IA illimitees",
+    "batch_entry_limit": "Debloquez les saisies IA illimitees et supprimez les publicites"
   },
   "benefits": {
-    "unlimitedCategories": "Categories et budgets illimites",
-    "aiBatchEntry": "Saisie de transactions par IA (texte, voix, image)",
-    "stats": "Statistiques detaillees et projections",
-    "historyFilters": "Filtres avances de l'historique",
-    "export": "Exportation de donnees CSV et JSON",
-    "scheduled": "Transactions programmees illimitees",
-    "adFree": "Experience 100% sans publicite"
+    "adFree": "Experience 100% sans publicite",
+    "aiBatchEntry": "Saisies IA illimitees (texte, voix, image)"
   },
   "plans": {
     "monthly": "Mensuel",
@@ -51,8 +37,7 @@
   },
   "gate": {
     "locked": "Fonction Pro",
-    "unlock": "Debloquer",
-    "limitReached": "Limite atteinte ({{current}}/{{max}})"
+    "unlock": "Debloquer"
   },
   "legal": {
     "text": "En continuant, vous acceptez nos",

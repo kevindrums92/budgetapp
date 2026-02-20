@@ -5,14 +5,11 @@ import { ChevronDown, Trash2 } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
-import { useSubscription } from "@/hooks/useSubscription";
-import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/categories/category-icons";
 import { DEFAULT_CATEGORY_COLOR } from "@/constants/categories/category-colors";
 import type { TransactionType } from "@/types/budget.types";
 import IconColorPicker from "@/features/categories/components/IconColorPicker";
 import PageHeader from "@/shared/components/layout/PageHeader";
-import PaywallModal from "@/shared/components/modals/PaywallModal";
 import { kebabToPascal } from "@/shared/utils/string.utils";
 
 export default function AddEditCategoryPage() {
@@ -31,13 +28,6 @@ export default function AddEditCategoryPage() {
   const updateCategory = useBudgetStore((s) => s.updateCategory);
   const deleteCategory = useBudgetStore((s) => s.deleteCategory);
 
-  const { canUseFeature, isPro, isTrialing } = useSubscription();
-
-  // Debug logs
-  console.log('[AddEditCategoryPage] isPro:', isPro);
-  console.log('[AddEditCategoryPage] isTrialing:', isTrialing);
-  console.log('[AddEditCategoryPage] canUseFeature(unlimited_categories):', canUseFeature('unlimited_categories'));
-
   // Form state
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(DEFAULT_CATEGORY_ICON);
@@ -51,11 +41,6 @@ export default function AddEditCategoryPage() {
   const [showIconColorPicker, setShowIconColorPicker] = useState(false);
   const [showGroupPicker, setShowGroupPicker] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [showPaywall, setShowPaywall] = useState(false);
-
-  const { handleSelectPlan } = usePaywallPurchase({
-    onSuccess: () => setShowPaywall(false),
-  });
 
   // Reset scroll to top on mount
   useEffect(() => {
@@ -103,12 +88,6 @@ export default function AddEditCategoryPage() {
       updateCategory(id, { name: name.trim(), icon, color, type, groupId });
       navigate(-1);
     } else {
-      // Check category limit for new categories
-      if (!canUseFeature('unlimited_categories')) {
-        setShowPaywall(true);
-        return;
-      }
-
       const newId = addCategory({ name: name.trim(), icon, color, type, groupId });
       // If coming from any form that needs the new category, store it in session storage
       if (returnTo && newId) {
@@ -322,13 +301,6 @@ export default function AddEditCategoryPage() {
         </div>
       )}
 
-      {/* Paywall Modal */}
-      <PaywallModal
-        open={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        trigger="category_limit"
-        onSelectPlan={handleSelectPlan}
-      />
     </div>
   );
 }

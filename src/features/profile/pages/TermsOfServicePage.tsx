@@ -15,7 +15,7 @@ export default function TermsOfServicePage() {
     <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
       <PageHeader title={t('terms.title', 'Términos de Servicio')} />
 
-      <div className="flex-1 px-4 pt-6 pb-8">
+      <div className="flex-1 px-4 pt-6 pb-20">
         <div className="mx-auto max-w-2xl">
           {/* Icon */}
           <div className="mb-6 flex justify-center">
