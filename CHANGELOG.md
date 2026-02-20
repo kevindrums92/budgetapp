@@ -4,11 +4,6 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
-- **chore(ios): add separate dev build configuration**
-  - Change bundle ID to `com.jhotech.smartspend.dev` and app name to "SmartSpend Dev"
-  - Use `smartspend-dev` URL scheme and development APS environment
-  - Use separate dev app icon to distinguish builds on device
-
 - **fix(ui): disable text selection globally for native app feel**
   - Add `user-select: none` on all elements to prevent accidental text highlighting
   - Re-enable selection only on `<input>`, `<textarea>`, and `contenteditable` elements
