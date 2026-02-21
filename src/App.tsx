@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, useCallback } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -64,6 +64,8 @@ import OnboardingGate from "@/features/onboarding/OnboardingGate";
 import BiometricGate from "@/features/biometric/components/BiometricGate";
 import SessionExpiredGate from "@/features/session/components/SessionExpiredGate";
 import UpcomingTransactionsModal from "@/features/transactions/components/UpcomingTransactionsModal";
+import PaywallModal from "@/shared/components/modals/PaywallModal";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 
 // Loading fallback component
 function PageLoader() {
@@ -198,6 +200,42 @@ function AppFrame() {
   );
 }
 
+/**
+ * Listens for `redeem-promo-code` custom event (dispatched from deep link handler in main.tsx)
+ * and opens the PaywallModal with the promo code pre-filled.
+ */
+function PromoCodeRedeemer() {
+  const [promoCode, setPromoCode] = useState<string | null>(null);
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setPromoCode(null),
+  });
+
+  const handleEvent = useCallback((e: Event) => {
+    const code = (e as CustomEvent).detail?.code;
+    if (code) {
+      console.log('[PromoCodeRedeemer] Opening paywall with promo code:', code);
+      setPromoCode(code);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('redeem-promo-code', handleEvent);
+    return () => window.removeEventListener('redeem-promo-code', handleEvent);
+  }, [handleEvent]);
+
+  if (!promoCode) return null;
+
+  return (
+    <PaywallModal
+      open={true}
+      onClose={() => setPromoCode(null)}
+      trigger="upgrade_prompt"
+      onSelectPlan={handleSelectPlan}
+      initialPromoCode={promoCode}
+    />
+  );
+}
+
 function ErrorFallback() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 px-6 dark:bg-gray-950">
@@ -235,6 +273,7 @@ export default function App() {
                     <BiometricGate />
                     <SessionExpiredGate />
                     <UpcomingTransactionsModal />
+                    <PromoCodeRedeemer />
                     <AppFrame />
                   </HeaderActionsProvider>
                 </BrowserRouter>

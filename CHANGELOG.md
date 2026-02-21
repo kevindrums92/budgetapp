@@ -6,6 +6,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(promo): add promotional code redemption system**
+  - Create `promo_codes` and `promo_redemptions` Supabase tables with RLS
+  - Add `redeem-promo` Edge Function with JWT auth, rate limiting, and atomic redemption
+  - Add PromoCodeSheet bottom sheet UI with success/error states
+  - Add "I have a promo code" link in PaywallModal with `initialPromoCode` prop
+  - Support monthly, annual, and lifetime promo codes with dynamic `expires_at`
+  - Add deep link handler (`smartspend://redeem?code=XXXX`) in main.tsx
+  - Add `PromoCodeRedeemer` component in App.tsx for deep link event handling
+  - Fix subscription.service.ts: check Supabase for active lifetime when RevenueCat returns expired
+  - Add `isPromo` flag to SubscriptionState for promo/gift subscription detection
+  - Show "Expires" instead of "Renews" for promo subs in SubscriptionManagementPage
+  - Hide price and "Manage in App Store" for promo subscriptions
+  - Add promo code i18n translations in all 4 languages (es, en, fr, pt)
+
 - **docs: update all documentation with freemium + ads + banner changes**
   - FEATURES.md: rewrite monetization section (free-with-ads model, 3 ad formats, rewarded video, rate limits 100/day Pro), update budget detail to "Movimientos completos", remove paywall integration from filters
   - APP_REVIEW_FIXES.md: mark all 7 issues as resolved, update version to v0.16.10

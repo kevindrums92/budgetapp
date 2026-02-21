@@ -80,7 +80,8 @@
       "WebFetch(domain:belvo.com)",
       "Bash(npx vitest run:*)",
       "Bash(./android/gradlew:*)",
-      "Bash(./gradlew bundleRelease:*)"
+      "Bash(./gradlew bundleRelease:*)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

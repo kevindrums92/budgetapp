@@ -142,6 +142,7 @@ export type SubscriptionState = {
   trialEndsAt: string | null;    // ISO 8601
   expiresAt: string | null;      // ISO 8601
   lastChecked: string;           // ISO 8601
+  isPromo?: boolean;             // true for promo/gift subs (no auto-renewal)
 };
 
 // ==================== STATE ====================

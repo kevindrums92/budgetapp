@@ -48,9 +48,28 @@ if (isNative()) {
     }
   });
 
-  // Handle OAuth deep link callback (smartspend://auth/callback?...)
+  // Handle deep links (OAuth callbacks, promo code redemption)
   CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
     console.log('[DeepLink] Received URL:', url);
+
+    // Check if this is a promo code redemption link (smartspend://redeem?code=XXXX)
+    if (url.includes('/redeem') || url.includes('redeem?')) {
+      try {
+        const urlObj = new URL(url);
+        const code = urlObj.searchParams.get('code');
+        if (code) {
+          console.log('[DeepLink] Promo code redemption:', code);
+          window.dispatchEvent(new CustomEvent('redeem-promo-code', {
+            detail: { code: code.trim().toUpperCase() },
+          }));
+        } else {
+          console.warn('[DeepLink] Redeem link missing code parameter');
+        }
+      } catch (err) {
+        console.error('[DeepLink] Error parsing redeem URL:', err);
+      }
+      return;
+    }
 
     // Check if this is an OAuth callback
     if (url.includes('auth/callback') || url.includes('code=') || url.includes('access_token')) {
