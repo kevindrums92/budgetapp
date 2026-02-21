@@ -195,9 +195,10 @@ Después de procesar el input, el usuario revisa y edita las transacciones extra
 ### Rate Limiting y Control de Uso
 
 - **Free Tier**: 5 requests/día por usuario
-- **Pro Tier**: 50 requests/día por usuario
+- **Pro Tier**: 100 requests/día por usuario
+- **Rewarded Video**: Free users pueden ver un anuncio rewarded para ganar +1 uso adicional al alcanzar el límite
 - **Rate limit check** antes de procesar
-- **Modal de upsell** al alcanzar el límite (muestra PaywallModal)
+- **Modal de upsell** al alcanzar el límite (muestra PaywallModal o opción de rewarded ad)
 - **Upstash Redis** para tracking de uso
 - Headers de rate limit en respuesta:
   - `X-RateLimit-Limit`
@@ -464,7 +465,7 @@ export type BatchEntryResponse = {
 - **Vista completa** del presupuesto individual
 - **Progreso visual** con barra de estado y porcentaje
 - **Métricas contextuales** según estado (activo/completado)
-- **Actividad reciente**: Lista de transacciones relacionadas
+- **Movimientos completos**: Lista de TODAS las transacciones del período (sin límite), con contador total
 - **Edición bloqueada** para presupuestos completados
 - **Eliminación con confirmación** y advertencia especial para completados
 
@@ -599,12 +600,10 @@ export type BatchEntryResponse = {
 - **Dark mode** completo en todos los filtros
 - **i18n** en 4 idiomas (es, en, fr, pt)
 
-### Paywall Integration
-- **Filtros básicos gratuitos**: Fecha, Tipo
-- **Filtros PRO**: Estado, Categoría, Monto, Recurrentes
-- **Lock icon** en chips de features PRO
-- **Paywall modal** al intentar usar filtros bloqueados
-- Integrado con RevenueCat para verificación de suscripción
+### Acceso a Filtros
+- **Todos los filtros desbloqueados** para usuarios free y Pro
+- Filtros disponibles: Fecha, Tipo, Estado, Categoría, Monto, Recurrentes
+- Sin lock icons ni paywalls en filtros (modelo free-with-ads)
 
 ---
 
@@ -804,62 +803,92 @@ Suite completa en `CloudSyncGate.test.tsx`:
 
 ## 💰 Monetización y Suscripciones
 
+### Modelo Freemium (Free-with-Ads)
+
+**Filosofía**: Todas las features están desbloqueadas para todos los usuarios. Pro = experiencia sin anuncios + AI ilimitado.
+
+- **Free Tier**:
+  - Todas las features desbloqueadas (stats, filtros, exportar CSV, categorías ilimitadas, etc.)
+  - Banner ads en páginas sin bottom bar
+  - Interstitial ads entre acciones (crear/editar transacciones)
+  - 5 usos de AI batch entry por día (+ rewarded video para +1 extra)
+- **Pro Tier**:
+  - Sin anuncios (banner, interstitial, rewarded)
+  - 100 usos de AI batch entry por día
+  - Soporte prioritario
+
 ### RevenueCat Integration
 - **Gestión de suscripciones Pro** con RevenueCat SDK
 - **Planes disponibles**:
-  - Free: Funcionalidad completa con anuncios
-  - Pro Monthly: Sin anuncios, soporte premium
-  - Pro Yearly: Sin anuncios, mejor precio anual
-- **Feature gating**: Sistema de permisos por suscripción
+  - Pro Monthly: $4.99/mes con 7 días free trial
+  - Pro Yearly: $34.99/año con 7 días free trial
+  - Pro Lifetime: $89.99 pago único
 - **Subscription status**: Sincronización automática del estado Pro
-- **Trial period**: Período de prueba para nuevos usuarios
 - **Cross-platform**: Suscripciones compartidas entre iOS y Android
 - **RevenueCatProvider**: Context API para gestión de suscripción
 - **useSubscription hook**: Hook personalizado con:
-  - `isPro`: Estado de suscripción actual
+  - `isPro`: Estado de suscripción actual (true para active, trialing, lifetime)
   - `isTrialing`: Indica si está en período de prueba
-  - `canUseFeature()`: Verificación de acceso a features
-  - `shouldShowPaywall()`: Determina si mostrar paywall
+- **PaywallModal**: Modal de suscripción con:
+  - Beneficios: sin anuncios, AI ilimitado
+  - Selector de plan (mensual/anual/lifetime)
+  - Links a Terms of Service y Privacy Policy
+  - Disclaimer de auto-renovación (requerido por Apple Guideline 3.1.2)
+  - Botón "Restaurar compras"
 
 ### Sistema de Anuncios (AdMob)
-- **Solo usuarios free**: Pro users nunca ven anuncios
-- **Interstitial ads**: Anuncios de pantalla completa entre acciones
-- **Plataformas soportadas**: iOS y Android (no web)
 
-### Características del Sistema de Ads
-- **Control de frecuencia inteligente**:
-  - Máximo 1 anuncio cada 3 minutos
-  - Máximo 5 anuncios por sesión
+**3 formatos de anuncios, todos solo para usuarios Free:**
+
+#### 1. Banner Ads
+- **Ubicación**: Todas las páginas con `PageHeader` (sin bottom bar)
+- **Posición**: `BOTTOM_CENTER` con adaptive banner size
+- **Gestión centralizada** en `AppFrame` (App.tsx) usando `isFormRoute`
+- **Smart show/hide**:
+  - Se oculta en páginas con botón fijo de guardado (`/add`, `/edit/*`, `/category/new`, etc.)
+  - Se oculta durante bottom sheets (ej: category filter en History)
+  - Se oculta para usuarios Pro
+  - Se oculta en onboarding
+  - No se muestra en web
+- **Deduplicación**: Flag `isBannerVisible` previene banners duplicados
+- **Padding**: Todas las páginas con banner tienen `pb-20` para evitar overlap de contenido
+- **Páginas excluidas** (`isNoBannerRoute`): `/add`, `/edit/*`, `/category/new`, `/category/*/edit`, `/category-group/new`, `/category-group/*/edit`, `/trips/*/new|edit|expense/*`, `/onboarding`
+
+#### 2. Interstitial Ads
+- **Trigger**: Después de crear o editar transacciones
+- **Control de frecuencia**:
+  - Máximo 1 cada 3 minutos
+  - Máximo 5 por sesión
   - Delay inicial de 2 minutos después de abrir la app
   - Sistema basado en acciones (muestra ad cada 3 acciones)
 - **Session management** con persistencia en localStorage
-- **Reset automático** de sesión después de 24 horas
-- **Placement types**:
-  - `after_transaction_create`: Después de crear transacción
-  - `after_transaction_edit`: Después de editar transacción
-- **AdMobProvider**: Inicialización automática del SDK en app startup
 - **Preload strategy**: Carga del siguiente ad en background
-- **Platform detection**: Auto-detección de iOS/Android
+
+#### 3. Rewarded Video Ads
+- **Propósito**: Permitir a usuarios free ganar +1 uso de AI batch entry
+- **Flujo**: Al alcanzar límite de 5/día → opción de ver rewarded ad → +1 uso temporal
+- **Integración**: En `BatchEntrySheet` con prompt contextual
 
 ### Configuración de AdMob
-- **Production Ad Unit IDs** configurados para ambas plataformas
-- **iOS Configuration**:
-  - App ID en Info.plist (GADApplicationIdentifier)
-  - NSUserTrackingUsageDescription para ATT compliance
-- **Android Configuration**:
-  - App ID en AndroidManifest.xml
-  - Permisos de internet configurados
-- **Test mode**: Sistema de test devices para desarrollo
-- **Error handling**: Gestión de errores de carga y display
 
-### Tracking y Métricas
-- **Action tracking**: Contador de acciones del usuario
-- **Session stats**: Estadísticas de sesión disponibles
-  - Ads mostrados en sesión actual
-  - Tiempo desde último ad
-  - Tiempo desde inicio de sesión
-- **Console logging**: Debug completo de operaciones de ads
-- **Ad types**: Soporte para Interstitial, Rewarded, y Banner ads
+- **`USE_TEST_ADS` flag**: Toggle único en `ads.service.ts` para alternar entre test y producción
+- **Test Ad IDs** (Google official):
+  - iOS Banner: `ca-app-pub-3940256099942544/2934735716`
+  - iOS Interstitial: `ca-app-pub-3940256099942544/4411468910`
+  - iOS Rewarded: `ca-app-pub-3940256099942544/1712485313`
+  - Android Banner: `ca-app-pub-3940256099942544/6300978111`
+  - Android Interstitial: `ca-app-pub-3940256099942544/1033173712`
+  - Android Rewarded: `ca-app-pub-3940256099942544/5224354917`
+- **Production Ad Unit IDs** configurados para ambas plataformas en `AD_CONFIG`
+- **ATT (App Tracking Transparency)**: Diálogo de permisos antes de inicializar AdMob
+- **AdMobProvider**: Inicialización automática del SDK en app startup con ATT
+- **Platform detection**: Auto-detección de iOS/Android, no muestra ads en web
+
+### Archivos Clave de Ads
+- `src/services/ads.service.ts` - Lógica central: show/hide/remove para banner, interstitial, rewarded
+- `src/types/ads.types.ts` - Tipos: `AdConfig` con `bannerAdUnitId`, `interstitialAdUnitId`, `rewardedAdUnitId`
+- `src/shared/components/providers/AdMobProvider.tsx` - Inicialización SDK + ATT
+- `src/App.tsx` (AppFrame) - Banner show/hide centralizado por ruta
 
 ---
 
@@ -1173,6 +1202,6 @@ Ver [ROADMAP.md](ROADMAP.md) para features planeados:
 
 ## 📄 Versión Actual
 
-**Versión**: 0.15.2 (latest release)
+**Versión**: 0.16.10 (latest release)
 
 Para historial completo de cambios, ver [CHANGELOG.md](../CHANGELOG.md)

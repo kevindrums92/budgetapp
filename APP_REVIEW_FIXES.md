@@ -1,8 +1,10 @@
-# 🔄 App Review Fixes - v0.14.5 → v0.15.0
+# 🔄 App Review Fixes - v0.14.5 → v0.16.10
 
 Submission ID: `0fbfa572-e8c5-468b-83ad-fa34251f396d`
 Review Date: February 04, 2026
 Device: iPad Air 11-inch (M3) - iPadOS 26.2.1
+
+> **Status as of v0.16.10**: All 7 issues resolved. ATT dialog implemented, in-app browser for OAuth, auto-renewal disclaimer in PaywallModal, delete account, legal links, IAP configured.
 
 ---
 
@@ -684,18 +686,18 @@ npx cap sync
 
 ## 🚀 ORDEN RECOMENDADO DE IMPLEMENTACIÓN
 
-### Fase 1 - Fixes críticos (hacer primero):
+### Fase 1 - Fixes críticos (hacer primero): ✅ COMPLETADO
 1. ✅ [ISSUE #1] Configurar RevenueCat correctamente (IAP error)
-2. ✅ [ISSUE #3] Crear Terms/Privacy públicos + agregar links en PaywallModal
+2. ✅ [ISSUE #3] Crear Terms/Privacy públicos + agregar links en PaywallModal + disclaimer auto-renovación (Guideline 3.1.2)
 3. ✅ [ISSUE #2] Eliminar promotional images de IAPs
 
-### Fase 2 - Fixes importantes:
+### Fase 2 - Fixes importantes: ✅ COMPLETADO
 4. ✅ [ISSUE #6] Implementar Delete Account
-5. ✅ [ISSUE #7] Verificar/actualizar App Privacy (ATT)
+5. ✅ [ISSUE #7] ATT dialog implementado con `@capacitor-community/admob` built-in methods
 
-### Fase 3 - UX improvements (puede ser para siguiente versión si urge aprobar):
-6. ✅ [ISSUE #4] Permitir IAP sin registro (guest mode)
-7. ✅ [ISSUE #5] Safari View Controller para OAuth
+### Fase 3 - UX improvements: ✅ COMPLETADO
+6. ✅ [ISSUE #4] Permitir IAP sin registro (guest mode) - anonymous auth con RevenueCat
+7. ✅ [ISSUE #5] Safari View Controller para OAuth - `signInWithOAuthInAppBrowser()` utility
 
 ---
 

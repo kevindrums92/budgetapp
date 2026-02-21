@@ -6,6 +6,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **docs: update all documentation with freemium + ads + banner changes**
+  - FEATURES.md: rewrite monetization section (free-with-ads model, 3 ad formats, rewarded video, rate limits 100/day Pro), update budget detail to "Movimientos completos", remove paywall integration from filters
+  - APP_REVIEW_FIXES.md: mark all 7 issues as resolved, update version to v0.16.10
+  - ARCHITECTURE.md: update ads.service.ts docs with banner/interstitial/rewarded details and ATT
+  - CLAUDE.md: remove deleted ProFeatureGate reference
+
 ## [0.16.10] - 2026-02-20
 
 - **fix(paywall): add auto-renewal disclaimer for Apple Guideline 3.1.2**
