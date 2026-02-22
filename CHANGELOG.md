@@ -4,7 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.11] - 2026-02-22
 
 - **refactor(budget): convert plan form to full-screen page and period picker to bottom sheet**
   - Replace centered modal form (step 1) with full-screen layout using `PageHeader`, hero amount input, and iOS-style grouped settings list
