@@ -47,6 +47,7 @@ export default function SubscriptionManagementPage() {
   const isLifetime = currentPlan === 'lifetime';
   const isActive = subscription?.status === 'active' || subscription?.status === 'trialing';
   const expiresAt = subscription?.expiresAt;
+  const isPromo = subscription?.isPromo ?? false;
 
   // Get plan pricing info
   const planInfo = currentPlan === 'monthly' ? PRICING_PLANS.monthly
@@ -190,12 +191,12 @@ export default function SubscriptionManagementPage() {
             </div>
           )}
 
-          {/* Renewal date */}
+          {/* Renewal / Expiration date */}
           {expiresAt && !isLifetime && (
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={18} />
               <span className="text-sm">
-                {isTrialing ? t("subscription.trialEnds") : t("subscription.renews")}: {formatDate(expiresAt)}
+                {isTrialing ? t("subscription.trialEnds") : isPromo ? t("subscription.expires") : t("subscription.renews")}: {formatDate(expiresAt)}
               </span>
             </div>
           )}
@@ -210,8 +211,8 @@ export default function SubscriptionManagementPage() {
             </div>
           )}
 
-          {/* Price */}
-          {planInfo && (
+          {/* Price - hide for promo/gift subs */}
+          {planInfo && !isPromo && (
             <div className="flex items-center gap-2">
               <DollarSign size={18} />
               <span className="text-sm">
@@ -360,8 +361,8 @@ export default function SubscriptionManagementPage() {
               </div>
             </button>
 
-            {/* Manage in App Store */}
-            {isPro && (
+            {/* Manage in App Store - hide for promo/gift subs (no store subscription to manage) */}
+            {isPro && !isPromo && (
               <button
                 type="button"
                 onClick={handleManageInAppStore}

@@ -39,6 +39,24 @@
     "locked": "Funcao Pro",
     "unlock": "Desbloquear"
   },
+  "promoCode": {
+    "title": "Codigo Promocional",
+    "placeholder": "Insira seu codigo",
+    "redeem": "Resgatar",
+    "redeeming": "Resgatando...",
+    "success": "Codigo resgatado com sucesso. Voce agora e Pro!",
+    "link": "Tenho um codigo promocional",
+    "error": {
+      "invalid": "Codigo invalido",
+      "expired": "Este codigo expirou",
+      "used": "Este codigo ja foi utilizado",
+      "alreadyRedeemed": "Voce ja resgatou este codigo",
+      "alreadyPro": "Voce ja tem uma assinatura Pro vitalicia",
+      "rateLimit": "Muitas tentativas. Aguarde um momento",
+      "noSession": "Voce precisa fazer login para resgatar um codigo",
+      "generic": "Falha ao resgatar. Tente novamente"
+    }
+  },
   "legal": {
     "text": "Ao continuar, voce concorda com nossos",
     "terms": "Termos de Servico",

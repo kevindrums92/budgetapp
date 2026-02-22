@@ -54,9 +54,7 @@ test.describe('Transaction Management', () => {
     await page.waitForTimeout(500);
 
     // Click "Gasto Manual" (Manual Expense) button
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
 
     // Wait for transaction form
@@ -116,9 +114,7 @@ test.describe('Transaction Management', () => {
     await page.waitForTimeout(500);
 
     // Click "Ingreso Manual" (Manual Income) button
-    const addIncomeButton = page.locator('button').filter({
-      hasText: /ingreso manual|manual income/i,
-    });
+    const addIncomeButton = page.locator('[data-testid="add-income-button"]');
     await addIncomeButton.click();
 
     // Wait for form (already on income tab)
@@ -173,9 +169,7 @@ test.describe('Transaction Management', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
@@ -251,9 +245,7 @@ test.describe('Transaction Management', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
@@ -325,9 +317,7 @@ test.describe('Transaction Management', () => {
     await page.waitForTimeout(500);
 
     // Click "Gasto Manual" (Manual Expense) button
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
 
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
@@ -387,9 +377,7 @@ test.describe('Transaction Management', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
@@ -445,9 +433,7 @@ test.describe('Transaction Management', () => {
     await page.waitForTimeout(500);
 
     // Click "Gasto Manual"
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
@@ -518,9 +504,7 @@ test.describe('Transaction Management', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 

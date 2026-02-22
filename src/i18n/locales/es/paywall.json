@@ -39,6 +39,24 @@
     "locked": "Funcion Pro",
     "unlock": "Desbloquear"
   },
+  "promoCode": {
+    "title": "Codigo Promocional",
+    "placeholder": "Ingresa tu codigo",
+    "redeem": "Canjear",
+    "redeeming": "Canjeando...",
+    "success": "Codigo canjeado exitosamente. Ya eres Pro!",
+    "link": "Tengo un codigo promocional",
+    "error": {
+      "invalid": "Codigo no valido",
+      "expired": "Este codigo ha expirado",
+      "used": "Este codigo ya fue utilizado",
+      "alreadyRedeemed": "Ya canjeaste este codigo",
+      "alreadyPro": "Ya tienes una suscripcion Pro de por vida",
+      "rateLimit": "Demasiados intentos. Espera un momento",
+      "noSession": "Debes iniciar sesion para canjear un codigo",
+      "generic": "Error al canjear. Intenta de nuevo"
+    }
+  },
   "legal": {
     "text": "Al continuar, aceptas nuestros",
     "terms": "Terminos de Servicio",

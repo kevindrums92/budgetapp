@@ -59,6 +59,7 @@
     "tryAgain": "Tentar de novo",
     "confidence": "Confiança",
     "needsReviewWarning": "Algumas transações precisam de revisão (marcadas com !)",
+    "dateOutOfMonth": "Algumas datas não são deste mês.",
     "fixCategory": "{{count}} transações sem categoria. Atribua uma categoria ou remova.",
     "fixCategory_one": "{{count}} transação sem categoria. Atribua uma categoria ou remova.",
     "fixAmount": "{{count}} transações sem valor. Adicione o valor ou remova.",
@@ -79,7 +80,9 @@
     "missingCategoryAndAmount": "Você deve adicionar valor e categoria",
     "changeCategory": "Categoria",
     "changeAmount": "Valor",
-    "deleteFromBatch": "Remover do lote"
+    "deleteFromBatch": "Remover do lote",
+    "expense": "Despesa",
+    "income": "Receita"
   },
   "errors": {
     "generic": "Algo deu errado. Verifique sua conexão e tente novamente.",
@@ -102,6 +105,17 @@
     "save": "Salvar",
     "processing": "Processando...",
     "error": "Erro"
+  },
+  "assistant": {
+    "title": "Assistente IA",
+    "greeting": "Oi, o que vamos registrar hoje?",
+    "greetingSubtitle": "Digite, dite ou envie uma foto dos seus recibos. Eu extrairei os dados e os organizarei.",
+    "inputPlaceholder": "Digite suas despesas...",
+    "example1": "\"Gastei R$50 no almoço e R$30 no uber\"",
+    "example1Value": "Gastei R$50 no almoço e R$30 no uber",
+    "example2": "Escanear um recibo ou fatura",
+    "example3": "Ditar minhas despesas do dia",
+    "tip": "Dica: Mencione valor e descrição para melhores resultados"
   },
   "rewards": {
     "watchAdTitle": "Uso diario esgotado",

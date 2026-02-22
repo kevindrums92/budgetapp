@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Check, Crown } from 'lucide-react';
+import { X, Check, Crown, Gift } from 'lucide-react';
 import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
 import PricingCard from './PricingCard';
+import PromoCodeSheet from './PromoCodeSheet';
 import type { PricingPlanKey, PaywallTrigger } from '@/constants/pricing';
 import { openLegalPage } from '@/shared/utils/browser.utils';
 
@@ -11,6 +12,7 @@ type PaywallModalProps = {
   onClose: () => void;
   trigger: PaywallTrigger;
   onSelectPlan?: (planId: string) => void;
+  initialPromoCode?: string;
 };
 
 const BENEFIT_KEYS = [
@@ -18,27 +20,33 @@ const BENEFIT_KEYS = [
   'aiBatchEntry',
 ] as const;
 
-export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: PaywallModalProps) {
+export default function PaywallModal({ open, onClose, trigger, onSelectPlan, initialPromoCode = '' }: PaywallModalProps) {
   const { t, i18n } = useTranslation('paywall');
   const [selectedPlan, setSelectedPlan] = useState<PricingPlanKey>('annual');
   const [isVisible, setIsVisible] = useState(false);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPromoSheet, setShowPromoSheet] = useState(false);
 
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
       requestAnimationFrame(() => setIsVisible(true));
+      // Auto-open promo sheet if initialPromoCode is provided (deep link)
+      if (initialPromoCode) {
+        setShowPromoSheet(true);
+      }
     } else {
       setIsVisible(false);
       document.body.style.overflow = '';
       setIsPurchasing(false); // Reset on close
       setError(null); // Clear error on close
+      setShowPromoSheet(false);
     }
     return () => {
       document.body.style.overflow = '';
     };
-  }, [open]);
+  }, [open, initialPromoCode]);
 
   if (!open) return null;
 
@@ -244,7 +252,29 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan }: P
         >
           {isPurchasing ? 'Restaurando...' : t('cta.restore')}
         </button>
+
+        {/* Promo code link */}
+        <button
+          type="button"
+          onClick={() => setShowPromoSheet(true)}
+          disabled={isPurchasing}
+          className="mt-1 flex w-full items-center justify-center gap-1.5 py-2 text-center text-xs text-[#18B7B0] transition-colors active:text-[#18B7B0]/70 disabled:opacity-50"
+        >
+          <Gift size={14} />
+          {t('promoCode.link')}
+        </button>
       </FullscreenLayout>
+
+      {/* Promo Code Bottom Sheet */}
+      <PromoCodeSheet
+        open={showPromoSheet}
+        onClose={() => setShowPromoSheet(false)}
+        onSuccess={() => {
+          setShowPromoSheet(false);
+          onClose();
+        }}
+        initialCode={initialPromoCode}
+      />
     </div>
   );
 }

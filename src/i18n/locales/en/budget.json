@@ -35,9 +35,9 @@
     "question": "What do you want to do?",
     "subtitle": "Choose the type of plan you want to create",
     "controlSpending": "Control spending",
-    "controlSpendingDescription": "Set a maximum limit for a category. We'll notify you if you exceed it.",
+    "controlSpendingDescription": "Set a maximum limit for a category",
     "saveForGoal": "Save for a goal",
-    "saveForGoalDescription": "Create a savings goal. You'll track contributions until you complete it."
+    "saveForGoalDescription": "Track contributions toward a goal"
   },
   "goalOnboarding": {
     "title": "Savings Goals",

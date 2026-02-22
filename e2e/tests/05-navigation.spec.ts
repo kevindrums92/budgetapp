@@ -84,9 +84,7 @@ test.describe('Navigation & Tabs', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    const addExpenseButton = page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    });
+    const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
     await addExpenseButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
@@ -132,9 +130,7 @@ test.describe('Navigation & Tabs', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    await page.locator('button').filter({
-      hasText: /gasto manual|manual expense/i,
-    }).click();
+    await page.locator('[data-testid="add-expense-button"]').click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
     // Verify we're on the form (header says "Nuevo Gasto")

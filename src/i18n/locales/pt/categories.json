@@ -69,7 +69,11 @@
     "frequent": "Frequentes",
     "all": "Todas",
     "newCategory": "Nova Categoria",
-    "noResults": "Nenhuma categoria encontrada"
+    "noResults": "Nenhuma categoria encontrada",
+    "switchToIncome": "Selecionar uma destas mudará o registro para receita",
+    "switchToExpense": "Selecionar uma destas mudará o registro para despesa",
+    "incomeCategories": "Categorias de receita",
+    "expenseCategories": "Categorias de despesa"
   },
   "monthDetail": {
     "transaction": "transação",

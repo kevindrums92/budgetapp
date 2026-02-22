@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
-import { X, DollarSign, Calendar, Repeat, ChevronRight, ShieldAlert, Target, icons } from "lucide-react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { Calendar, Repeat, ChevronRight, ShieldAlert, Target, Trash2, icons } from "lucide-react";
 import type { BudgetPeriod, BudgetType } from "@/types/budget.types";
 import { useBudgetStore } from "@/state/budget.store";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
+import { useCurrency } from "@/features/currency";
 import PeriodPickerModal from "./PeriodPickerModal";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
+import PageHeader from "@/shared/components/layout/PageHeader";
 import { getCurrentMonth } from "../utils/period.utils";
 import { formatNumberWithThousands, parseFormattedNumber } from "@/shared/utils/number.utils";
 import { kebabToPascal } from "@/shared/utils/string.utils";
@@ -29,6 +31,8 @@ export default function AddEditBudgetModal({
   const setSavingsGoalOnboardingSeen = store.setSavingsGoalOnboardingSeen;
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
+  const { currencyInfo } = useCurrency();
+  const amountInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [step, setStep] = useState(0); // 0 = type selector, 1 = form, 2 = goal onboarding
@@ -39,11 +43,85 @@ export default function AddEditBudgetModal({
   const [isRecurring, setIsRecurring] = useState(false);
 
   // UI state
-  const [isVisible, setIsVisible] = useState(false);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const [showPeriodPicker, setShowPeriodPicker] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Bottom sheet state (for step 0 type selector)
+  const SELECTOR_SHEET_HEIGHT = 260;
+  const SHEET_DRAG_THRESHOLD = 0.3;
+  const [sheetAnimating, setSheetAnimating] = useState(false);
+  const [sheetDragOffset, setSheetDragOffset] = useState(0);
+  const [sheetDragging, setSheetDragging] = useState(false);
+  const sheetStartYRef = useRef(0);
+
+  // Sheet drag handlers
+  const handleSheetDragStart = useCallback((clientY: number) => {
+    setSheetDragging(true);
+    sheetStartYRef.current = clientY;
+  }, []);
+
+  const handleSheetDragMove = useCallback(
+    (clientY: number) => {
+      if (!sheetDragging) return;
+      const diff = clientY - sheetStartYRef.current;
+      if (diff > 0) {
+        setSheetDragOffset(Math.min(diff, SELECTOR_SHEET_HEIGHT));
+      } else {
+        setSheetDragOffset(0);
+      }
+    },
+    [sheetDragging]
+  );
+
+  const handleSheetDragEnd = useCallback(() => {
+    if (!sheetDragging) return;
+    setSheetDragging(false);
+    if (sheetDragOffset > SELECTOR_SHEET_HEIGHT * SHEET_DRAG_THRESHOLD) {
+      onClose();
+    }
+    setSheetDragOffset(0);
+  }, [sheetDragging, sheetDragOffset, onClose]);
+
+  const handleSheetTouchStart = useCallback(
+    (e: React.TouchEvent) => handleSheetDragStart(e.touches[0].clientY),
+    [handleSheetDragStart]
+  );
+  const handleSheetTouchMove = useCallback(
+    (e: React.TouchEvent) => handleSheetDragMove(e.touches[0].clientY),
+    [handleSheetDragMove]
+  );
+  const handleSheetTouchEnd = useCallback(() => handleSheetDragEnd(), [handleSheetDragEnd]);
+
+  const handleSheetMouseDown = useCallback(
+    (e: React.MouseEvent) => handleSheetDragStart(e.clientY),
+    [handleSheetDragStart]
+  );
+
+  useEffect(() => {
+    if (!sheetDragging) return;
+    const handleMouseMove = (e: MouseEvent) => handleSheetDragMove(e.clientY);
+    const handleMouseUp = () => handleSheetDragEnd();
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [sheetDragging, handleSheetDragMove, handleSheetDragEnd]);
+
+  // Sheet animation effect
+  useEffect(() => {
+    if (open && step === 0) {
+      const timer = setTimeout(() => setSheetAnimating(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setSheetAnimating(false);
+      setSheetDragOffset(0);
+    }
+  }, [open, step]);
+
   // Load budget data when opening in edit mode
   useEffect(() => {
     if (open && existingBudget) {
@@ -83,15 +161,6 @@ export default function AddEditBudgetModal({
     }
   }, [open, budgetId, existingBudget]);
 
-  // Animation entrance
-  useEffect(() => {
-    if (open) {
-      requestAnimationFrame(() => setIsVisible(true));
-    } else {
-      setIsVisible(false);
-    }
-  }, [open]);
-
   // Lock body scroll
   useEffect(() => {
     if (open) {
@@ -103,6 +172,21 @@ export default function AddEditBudgetModal({
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  // Format amount with thousands separator for display (must be before early return)
+  const displayAmount = useMemo(() => {
+    if (!amount) return "";
+    const raw = parseFormattedNumber(amount).toString();
+    return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }, [amount]);
+
+  // Dynamic font size based on amount length
+  const amountFontSize = useMemo(() => {
+    const len = displayAmount.length;
+    if (len <= 8) return "text-[56px]";
+    if (len <= 11) return "text-[44px]";
+    return "text-[36px]";
+  }, [displayAmount]);
 
   if (!open) return null;
 
@@ -193,11 +277,7 @@ export default function AddEditBudgetModal({
   };
 
   const handleBack = () => {
-    if (step === 1 && !isEdit) {
-      setStep(0);
-    } else {
-      onClose();
-    }
+    onClose();
   };
 
   // Step 2: Savings Goal Onboarding (Full Screen)
@@ -302,97 +382,98 @@ export default function AddEditBudgetModal({
     );
   }
 
-  // Step 0: Type Selector
+  // Step 0: Type Selector (iOS-style bottom sheet)
   if (step === 0) {
+    const sheetTranslate = sheetAnimating ? sheetDragOffset : SELECTOR_SHEET_HEIGHT;
+    const backdropOpacity = sheetAnimating
+      ? Math.max(0, 1 - sheetDragOffset / SELECTOR_SHEET_HEIGHT) * 0.4
+      : 0;
+
     return (
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-        onClick={onClose}
-      >
+      <div className="fixed inset-0 z-[70]">
+        {/* Backdrop */}
+        <button
+          type="button"
+          className="absolute inset-0 bg-black"
+          onClick={onClose}
+          aria-label="Cerrar"
+          style={{
+            opacity: backdropOpacity,
+            transition: sheetDragging ? "none" : "opacity 300ms ease-out",
+          }}
+        />
+
+        {/* Sheet */}
         <div
-          className={`relative mx-4 w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 shadow-2xl transform transition-all duration-200 ${
-            isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
-          onClick={(e) => e.stopPropagation()}
+          className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
+          style={{
+            transform: `translateY(${sheetTranslate}px)`,
+            transition: sheetDragging
+              ? "none"
+              : "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+          }}
         >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t("typeSelector.title")}
-            </h3>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              <X size={20} className="text-gray-500 dark:text-gray-400" />
-            </button>
+          {/* Drag handle */}
+          <div
+            className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
+            onTouchStart={handleSheetTouchStart}
+            onTouchMove={handleSheetTouchMove}
+            onTouchEnd={handleSheetTouchEnd}
+            onMouseDown={handleSheetMouseDown}
+          >
+            <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
           </div>
 
           {/* Content */}
-          <div className="px-6 py-8">
-            <h4 className="text-base font-semibold text-gray-900 dark:text-gray-50 mb-2 text-center">
-              {t("typeSelector.question")}
-            </h4>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
-              {t("typeSelector.subtitle")}
-            </p>
+          <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+            {/* Title */}
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t("typeSelector.title")}
+            </h3>
 
-            <div className="space-y-3">
-              {/* Opción: Límite de Gasto */}
+            {/* Grouped card - iOS style */}
+            <div className="overflow-hidden rounded-2xl bg-gray-50 dark:bg-gray-800">
+              {/* Option 1: Control Spending */}
               <button
                 type="button"
                 onClick={() => handleSelectType("limit")}
-                className="w-full rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm border-2 border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all active:scale-[0.98] text-left"
+                className="flex w-full items-center gap-3.5 px-4 py-4 text-left transition-colors active:bg-gray-100 dark:active:bg-gray-700"
               >
-                <div className="flex items-start gap-4">
-                  {/* Icon */}
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
-                    <ShieldAlert className="h-6 w-6 text-red-600 dark:text-red-400" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1">
-                    <h5 className="font-semibold text-gray-900 dark:text-gray-50 mb-1">
-                      {t("typeSelector.controlSpending")}
-                    </h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {t("typeSelector.controlSpendingDescription")}
-                    </p>
-                  </div>
-
-                  {/* Chevron */}
-                  <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500 shrink-0" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                  <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />
                 </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-semibold text-gray-900 dark:text-gray-50">
+                    {t("typeSelector.controlSpending")}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("typeSelector.controlSpendingDescription")}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
               </button>
 
-              {/* Opción: Meta de Ahorro */}
+              {/* Divider */}
+              <div className="ml-[60px] border-t border-gray-200 dark:border-gray-700" />
+
+              {/* Option 2: Save for Goal */}
               <button
                 type="button"
                 onClick={() => handleSelectType("goal")}
-                className="w-full rounded-xl bg-white dark:bg-gray-800 p-6 shadow-sm border-2 border-gray-200 dark:border-gray-700 hover:border-teal-300 dark:hover:border-teal-700 hover:bg-teal-50 dark:hover:bg-teal-950/20 transition-all active:scale-[0.98] text-left"
+                className="flex w-full items-center gap-3.5 px-4 py-4 text-left transition-colors active:bg-gray-100 dark:active:bg-gray-700"
               >
-                <div className="flex items-start gap-4">
-                  {/* Icon */}
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-100 dark:bg-teal-900/30">
-                    <Target className="h-6 w-6 text-teal-600 dark:text-teal-400" />
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1">
-                    <h5 className="font-semibold text-gray-900 dark:text-gray-50 mb-1">
-                      {t("typeSelector.saveForGoal")}
-                    </h5>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {t("typeSelector.saveForGoalDescription")}
-                    </p>
-                  </div>
-
-                  {/* Chevron */}
-                  <ChevronRight className="h-5 w-5 text-gray-400 dark:text-gray-500 shrink-0" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-100 dark:bg-teal-900/30">
+                  <Target className="h-5 w-5 text-teal-600 dark:text-teal-400" />
                 </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-semibold text-gray-900 dark:text-gray-50">
+                    {t("typeSelector.saveForGoal")}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("typeSelector.saveForGoalDescription")}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
               </button>
             </div>
           </div>
@@ -401,137 +482,58 @@ export default function AddEditBudgetModal({
     );
   }
 
-  // Step 1: Form
+  // Step 1: Full-Screen Form
+  const formTitle = isEdit
+    ? t("modal.titleEdit")
+    : budgetType === "limit"
+    ? t("types.newLimit")
+    : t("types.newGoal");
+
   return (
     <>
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-        onClick={onClose}
-      >
-        <div
-          className={`relative mx-4 w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 shadow-2xl transform transition-all duration-200 overflow-hidden ${
-            isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-4">
-            <div className="flex items-center gap-3">
-              {!isEdit && (
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <ChevronRight size={20} className="text-gray-500 dark:text-gray-400 rotate-180" />
-                </button>
-              )}
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {isEdit ? t("modal.titleEdit") : budgetType === "limit" ? t("types.newLimit") : t("types.newGoal")}
-              </h3>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              <X size={20} className="text-gray-500 dark:text-gray-400" />
-            </button>
-          </div>
-
-          {/* Content - Scrollable */}
-          <div className="max-h-[70vh] overflow-y-auto px-6 py-6 space-y-4">
-            {/* Type Badge (only show in edit mode or after selection) */}
-            {budgetType && (
-              <div className="flex items-center gap-2 pb-2">
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
-                  budgetType === "limit"
-                    ? "bg-red-100 dark:bg-red-900/30"
-                    : "bg-teal-100 dark:bg-teal-900/30"
-                }`}>
-                  {budgetType === "limit" ? (
-                    <>
-                      <ShieldAlert size={14} className="text-red-600 dark:text-red-400" />
-                      <span className="text-xs font-medium text-red-700 dark:text-red-400">
-                        {t("types.limit")}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Target size={14} className="text-teal-600 dark:text-teal-400" />
-                      <span className="text-xs font-medium text-teal-700 dark:text-teal-400">
-                        {t("types.goal")}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Category */}
-            <div>
-              <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                {t("modal.category")}
-              </label>
+      <div className="fixed inset-0 z-[85] flex flex-col bg-white dark:bg-gray-950">
+        {/* Header */}
+        <PageHeader
+          title={formTitle}
+          onBack={handleBack}
+          rightActions={
+            isEdit ? (
               <button
                 type="button"
-                onClick={() => setShowCategoryPicker(true)}
-                className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="rounded-full p-2 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
               >
-                {selectedCategory ? (
-                  <>
-                    {/* Category Icon */}
-                    <div
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                      style={{ backgroundColor: selectedCategory.color + "20" }}
-                    >
-                      {(() => {
-                        const IconComponent = icons[kebabToPascal(selectedCategory.icon) as keyof typeof icons];
-                        return IconComponent ? (
-                          <IconComponent className="h-5 w-5" style={{ color: selectedCategory.color }} />
-                        ) : null;
-                      })()}
-                    </div>
-                    {/* Category Name */}
-                    <span className="flex-1 font-medium text-gray-900 dark:text-gray-50">
-                      {selectedCategory.name}
-                    </span>
-                    <ChevronRight size={20} className="text-gray-400 dark:text-gray-500 shrink-0" />
-                  </>
-                ) : (
-                  <>
-                    <span className="flex-1 text-gray-400 dark:text-gray-500">
-                      {t("modal.selectCategory")}
-                    </span>
-                    <ChevronRight size={20} className="text-gray-400 dark:text-gray-500 shrink-0" />
-                  </>
-                )}
+                <Trash2 className="h-5 w-5 text-red-500" />
               </button>
-            </div>
+            ) : undefined
+          }
+        />
 
-            {/* Amount */}
-            <div>
-              <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                {budgetType === "limit" ? "Límite máximo" : "Meta a alcanzar"}
-              </label>
-              <div className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800 p-4">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto pb-40">
+          {/* Hero Amount Section */}
+          <div className="mx-auto max-w-xl px-4 pt-8 pb-6">
+            <div className="text-center">
+              <p className={`mb-2 text-sm font-medium ${
+                budgetType === "limit"
+                  ? "text-gray-500 dark:text-gray-400"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}>
+                {budgetType === "limit" ? t("modal.limitMaxAmount") : t("modal.goalTargetAmount")}
+              </p>
+              <div className="flex items-center justify-center px-4">
+                <span className={`${amountFontSize} font-semibold tracking-tight ${
                   budgetType === "limit"
-                    ? "bg-red-100 dark:bg-red-900/30"
-                    : "bg-teal-100 dark:bg-teal-900/30"
+                    ? "text-gray-900 dark:text-gray-50"
+                    : "text-teal-600 dark:text-teal-400"
                 }`}>
-                  <DollarSign className={`h-5 w-5 ${
-                    budgetType === "limit"
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-teal-600 dark:text-teal-400"
-                  }`} />
-                </div>
+                  {currencyInfo.symbol}
+                </span>
                 <input
+                  ref={amountInputRef}
                   type="text"
                   inputMode="numeric"
-                  value={amount}
+                  value={displayAmount}
                   onChange={(e) => {
                     const cleaned = e.target.value.replace(/[^0-9]/g, "");
                     if (cleaned) {
@@ -541,173 +543,212 @@ export default function AddEditBudgetModal({
                     }
                   }}
                   placeholder="0"
-                  className="flex-1 border-0 bg-transparent p-0 text-base font-medium text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0"
+                  className={`w-auto min-w-[60px] flex-1 border-0 bg-transparent p-0 text-center ${amountFontSize} font-semibold tracking-tight placeholder:text-gray-300 dark:placeholder:text-gray-600 focus:outline-none focus:ring-0 ${
+                    budgetType === "limit"
+                      ? "text-gray-900 dark:text-gray-50"
+                      : "text-teal-600 dark:text-teal-400"
+                  }`}
                 />
               </div>
             </div>
+          </div>
 
-            {/* Period */}
-            <div>
-              <label className="mb-2 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                {t("modal.period")}
-              </label>
+          {/* Settings - iOS Grouped List */}
+          <div className="mx-auto max-w-xl px-4">
+            <div className="overflow-hidden rounded-2xl bg-gray-50 dark:bg-gray-900">
+              {/* Category */}
+              <button
+                type="button"
+                onClick={() => setShowCategoryPicker(true)}
+                className="flex w-full items-center gap-3.5 px-4 py-4 text-left transition-colors active:bg-gray-100 dark:active:bg-gray-800"
+              >
+                {selectedCategory ? (
+                  <div
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                    style={{ backgroundColor: selectedCategory.color + "20" }}
+                  >
+                    {(() => {
+                      const IconComponent = icons[kebabToPascal(selectedCategory.icon) as keyof typeof icons];
+                      return IconComponent ? (
+                        <IconComponent className="h-5 w-5" style={{ color: selectedCategory.color }} />
+                      ) : null;
+                    })()}
+                  </div>
+                ) : (
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                    budgetType === "limit"
+                      ? "bg-red-100 dark:bg-red-900/30"
+                      : "bg-teal-100 dark:bg-teal-900/30"
+                  }`}>
+                    {budgetType === "limit" ? (
+                      <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    ) : (
+                      <Target className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                    )}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("modal.category")}
+                  </p>
+                  <p className="text-[15px] font-medium text-gray-900 dark:text-gray-50">
+                    {selectedCategory?.name || t("modal.selectCategory")}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
+              </button>
+
+              {/* Divider */}
+              <div className="ml-[60px] border-t border-gray-200 dark:border-gray-800" />
+
+              {/* Period */}
               <button
                 type="button"
                 onClick={() => setShowPeriodPicker(true)}
-                className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="flex w-full items-center gap-3.5 px-4 py-4 text-left transition-colors active:bg-gray-100 dark:active:bg-gray-800"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                    <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                      {getPeriodLabel()}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {formatDate(period.startDate)} - {formatDate(period.endDate)}
-                    </p>
-                  </div>
-                  <ChevronRight size={20} className="text-gray-400 dark:text-gray-500 shrink-0" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                  <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("modal.period")}
+                  </p>
+                  <p className="text-[15px] font-medium text-gray-900 dark:text-gray-50">
+                    {getPeriodLabel()}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {formatDate(period.startDate)} - {formatDate(period.endDate)}
+                  </p>
+                </div>
+                <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500" />
               </button>
-            </div>
 
-            {/* Recurring */}
-            <div>
+              {/* Divider */}
+              <div className="ml-[60px] border-t border-gray-200 dark:border-gray-800" />
+
+              {/* Recurring */}
               <button
                 type="button"
                 onClick={() => setIsRecurring(!isRecurring)}
-                className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="flex w-full items-center gap-3.5 px-4 py-4 text-left transition-colors active:bg-gray-100 dark:active:bg-gray-800"
               >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
-                    <Repeat className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                      {t("modal.recurring")}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t("modal.recurringDescription")}
-                    </p>
-                  </div>
-                  <div
-                    className={`relative h-6 w-11 shrink-0 rounded-full transition-all duration-200 ${
-                      isRecurring ? "bg-emerald-500" : "bg-gray-300 dark:bg-gray-600"
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+                  <Repeat className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[15px] font-medium text-gray-900 dark:text-gray-50">
+                    {t("modal.recurring")}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {t("modal.recurringDescription")}
+                  </p>
+                </div>
+                <div
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition-all duration-200 ${
+                    isRecurring ? "bg-emerald-500" : "bg-gray-300 dark:bg-gray-600"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
+                      isRecurring ? "translate-x-5" : "translate-x-0"
                     }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ${
-                        isRecurring ? "translate-x-5" : "translate-x-0"
-                      }`}
-                    />
-                  </div>
+                  />
                 </div>
               </button>
             </div>
 
             {/* Error Message */}
             {errorMessage && (
-              <div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-4 border border-red-200 dark:border-red-800">
+              <div className="mt-4 rounded-xl bg-red-50 dark:bg-red-950/30 p-4 border border-red-200 dark:border-red-800">
                 <p className="text-sm text-red-700 dark:text-red-400">
                   {errorMessage}
                 </p>
               </div>
             )}
           </div>
-
-          {/* Footer */}
-          <div className="border-t border-gray-200 dark:border-gray-800 px-6 py-4 space-y-3">
-            {/* Save Button */}
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={!canSave}
-              className={`w-full rounded-xl py-3 text-sm font-semibold text-white transition-colors ${
-                budgetType === "limit"
-                  ? "bg-red-500 hover:bg-red-600 disabled:bg-gray-300"
-                  : "bg-teal-500 hover:bg-teal-600 disabled:bg-gray-300"
-              } dark:disabled:bg-gray-700`}
-            >
-              {t("modal.save")}
-            </button>
-
-            {/* Delete Button (only in edit mode) */}
-            {isEdit && (
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="w-full rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-              >
-                {t("modal.delete")}
-              </button>
-            )}
-          </div>
         </div>
-      </div>
 
-      {/* Category Picker Drawer */}
-      <CategoryPickerDrawer
-        open={showCategoryPicker}
-        onClose={() => setShowCategoryPicker(false)}
-        value={categoryId}
-        onSelect={(id) => {
-          setCategoryId(id);
-          setShowCategoryPicker(false);
-        }}
-        transactionType="expense"
-        onNavigateToNewCategory={() => {
-          // Modal will stay in memory and reopen when returning
-          setShowCategoryPicker(false);
-        }}
-      />
+        {/* Fixed Bottom Button */}
+        <div
+          className="shrink-0 bg-white dark:bg-gray-950 px-4"
+          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}
+        >
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!canSave}
+            className={`w-full rounded-2xl py-4 text-base font-semibold text-white transition-all active:scale-[0.98] disabled:opacity-40 ${
+              budgetType === "limit"
+                ? "bg-emerald-500 hover:bg-emerald-600"
+                : "bg-teal-500 hover:bg-teal-600"
+            }`}
+          >
+            {t("modal.save")}
+          </button>
+        </div>
 
-      {/* Period Picker Modal */}
-      <PeriodPickerModal
-        open={showPeriodPicker}
-        onClose={() => setShowPeriodPicker(false)}
-        value={period}
-        onChange={(newPeriod) => {
-          setPeriod(newPeriod);
-          setShowPeriodPicker(false);
-        }}
-      />
+        {/* Category Picker Drawer */}
+        <CategoryPickerDrawer
+          open={showCategoryPicker}
+          onClose={() => setShowCategoryPicker(false)}
+          value={categoryId}
+          onSelect={(id) => {
+            setCategoryId(id);
+            setShowCategoryPicker(false);
+          }}
+          transactionType="expense"
+          onNavigateToNewCategory={() => {
+            // Modal will stay in memory and reopen when returning
+            setShowCategoryPicker(false);
+          }}
+        />
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowDeleteConfirm(false)}
-          />
-          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-              {t("modal.deleteConfirmTitle")}
-            </h3>
-            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
-              {t("modal.deleteConfirmMessage")}
-            </p>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-              >
-                {t("modal.cancel")}
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
-              >
-                {t("modal.delete")}
-              </button>
+        {/* Period Picker Modal */}
+        <PeriodPickerModal
+          open={showPeriodPicker}
+          onClose={() => setShowPeriodPicker(false)}
+          value={period}
+          onChange={(newPeriod) => {
+            setPeriod(newPeriod);
+            setShowPeriodPicker(false);
+          }}
+        />
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 z-[90] flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setShowDeleteConfirm(false)}
+            />
+            <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+              <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+                {t("modal.deleteConfirmTitle")}
+              </h3>
+              <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+                {t("modal.deleteConfirmMessage")}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                >
+                  {t("modal.cancel")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-medium text-white hover:bg-red-600"
+                >
+                  {t("modal.delete")}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-
+        )}
+      </div>
     </>
   );
 }

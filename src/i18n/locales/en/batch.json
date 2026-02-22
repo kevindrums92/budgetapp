@@ -59,6 +59,7 @@
     "tryAgain": "Try again",
     "confidence": "Confidence",
     "needsReviewWarning": "Some transactions need review (marked with !)",
+    "dateOutOfMonth": "Some dates are not from this month.",
     "fixCategory": "{{count}} transactions without category. Assign a category or remove them.",
     "fixCategory_one": "{{count}} transaction without category. Assign a category or remove it.",
     "fixAmount": "{{count}} transactions without amount. Add the amount or remove them.",
@@ -79,7 +80,9 @@
     "missingCategoryAndAmount": "You must add amount and category",
     "changeCategory": "Category",
     "changeAmount": "Amount",
-    "deleteFromBatch": "Remove from batch"
+    "deleteFromBatch": "Remove from batch",
+    "expense": "Expense",
+    "income": "Income"
   },
   "errors": {
     "generic": "Something went wrong. Check your connection and try again.",
@@ -102,6 +105,17 @@
     "save": "Save",
     "processing": "Processing...",
     "error": "Error"
+  },
+  "assistant": {
+    "title": "AI Assistant",
+    "greeting": "Hi, what shall we log today?",
+    "greetingSubtitle": "Type, dictate or send a photo of your receipts. I'll extract the data and organize it.",
+    "inputPlaceholder": "Type your expenses...",
+    "example1": "\"I spent $50 on lunch and $30 on taxi\"",
+    "example1Value": "I spent $50 on lunch and $30 on taxi",
+    "example2": "Scan a receipt or invoice",
+    "example3": "Dictate my expenses for the day",
+    "tip": "Tip: Mention amount and description for best results"
   },
   "rewards": {
     "watchAdTitle": "Daily free use spent",

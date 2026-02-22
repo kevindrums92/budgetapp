@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import type { BudgetPeriod, BudgetPeriodType } from "@/types/budget.types";
 import { getCurrentWeek, getCurrentMonth, getCurrentQuarter, getCurrentYear } from "../utils/period.utils";
 import DatePicker from "@/shared/components/modals/DatePicker";
@@ -12,6 +11,8 @@ type PeriodPickerModalProps = {
   value: BudgetPeriod | null;
   onChange: (period: BudgetPeriod) => void;
 };
+
+const DRAG_THRESHOLD = 0.3;
 
 export default function PeriodPickerModal({
   open,
@@ -28,7 +29,13 @@ export default function PeriodPickerModal({
     { value: "year", label: t("periodPicker.year") },
     { value: "custom", label: t("periodPicker.custom") },
   ];
+
   const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startYRef = useRef(0);
+
   const [selectedType, setSelectedType] = useState<BudgetPeriodType>(
     value?.type || "month"
   );
@@ -41,16 +48,26 @@ export default function PeriodPickerModal({
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
-  // Animation entrance
+  // Dynamic sheet height based on whether custom dates are shown
+  const SHEET_HEIGHT = selectedType === "custom" ? 520 : 340;
+
+  // Handle open/close animation
   useEffect(() => {
     if (open) {
-      requestAnimationFrame(() => setIsVisible(true));
+      setIsVisible(true);
+      const timer = setTimeout(() => setIsAnimating(true), 10);
+      return () => clearTimeout(timer);
     } else {
-      setIsVisible(false);
+      setIsAnimating(false);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        setDragOffset(0);
+      }, 300);
+      return () => clearTimeout(timer);
     }
   }, [open]);
 
-  // Lock body scroll - ensure it stays locked even after DatePicker closes
+  // Lock body scroll
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -65,7 +82,6 @@ export default function PeriodPickerModal({
   // Re-lock body scroll when DatePickers close
   useEffect(() => {
     if (open && !showStartDatePicker && !showEndDatePicker) {
-      // Small delay to ensure DatePicker cleanup has run
       const timer = setTimeout(() => {
         document.body.style.overflow = "hidden";
       }, 50);
@@ -73,7 +89,64 @@ export default function PeriodPickerModal({
     }
   }, [open, showStartDatePicker, showEndDatePicker]);
 
-  if (!open) return null;
+  // Drag handlers
+  const handleDragStart = useCallback((clientY: number) => {
+    setIsDragging(true);
+    startYRef.current = clientY;
+  }, []);
+
+  const handleDragMove = useCallback(
+    (clientY: number) => {
+      if (!isDragging) return;
+      const diff = clientY - startYRef.current;
+      if (diff > 0) {
+        setDragOffset(Math.min(diff, SHEET_HEIGHT));
+      } else {
+        setDragOffset(0);
+      }
+    },
+    [isDragging, SHEET_HEIGHT]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    if (dragOffset > SHEET_HEIGHT * DRAG_THRESHOLD) {
+      onClose();
+    }
+    setDragOffset(0);
+  }, [isDragging, dragOffset, onClose, SHEET_HEIGHT]);
+
+  // Touch events
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => handleDragStart(e.touches[0].clientY),
+    [handleDragStart]
+  );
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => handleDragMove(e.touches[0].clientY),
+    [handleDragMove]
+  );
+  const handleTouchEnd = useCallback(() => handleDragEnd(), [handleDragEnd]);
+
+  // Mouse events for desktop
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => handleDragStart(e.clientY),
+    [handleDragStart]
+  );
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => handleDragMove(e.clientY);
+    const handleMouseUp = () => handleDragEnd();
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, handleDragMove, handleDragEnd]);
+
+  if (!isVisible) return null;
 
   const handleTypeChange = (type: BudgetPeriodType) => {
     setSelectedType(type);
@@ -96,9 +169,7 @@ export default function PeriodPickerModal({
         period = getCurrentYear();
         break;
       case "custom":
-        // Validate custom dates
         if (customStartDate > customEndDate) {
-          alert("La fecha de inicio no puede ser posterior a la fecha de fin");
           return;
         }
         period = {
@@ -128,135 +199,154 @@ export default function PeriodPickerModal({
     switch (selectedType) {
       case "week": {
         const week = getCurrentWeek();
-        return `${formatDate(week.startDate)} - ${formatDate(week.endDate)}`;
+        return `${formatDate(week.startDate)} – ${formatDate(week.endDate)}`;
       }
       case "month": {
         const month = getCurrentMonth();
-        return `${formatDate(month.startDate)} - ${formatDate(month.endDate)}`;
+        return `${formatDate(month.startDate)} – ${formatDate(month.endDate)}`;
       }
       case "quarter": {
         const quarter = getCurrentQuarter();
-        return `${formatDate(quarter.startDate)} - ${formatDate(quarter.endDate)}`;
+        return `${formatDate(quarter.startDate)} – ${formatDate(quarter.endDate)}`;
       }
       case "year": {
         const year = getCurrentYear();
-        return `${formatDate(year.startDate)} - ${formatDate(year.endDate)}`;
+        return `${formatDate(year.startDate)} – ${formatDate(year.endDate)}`;
       }
       case "custom":
-        return `${formatDate(customStartDate)} - ${formatDate(customEndDate)}`;
+        return `${formatDate(customStartDate)} – ${formatDate(customEndDate)}`;
     }
   };
 
+  const sheetTranslate = isAnimating ? dragOffset : SHEET_HEIGHT;
+  const backdropOpacity = isAnimating
+    ? Math.max(0, 1 - dragOffset / SHEET_HEIGHT) * 0.4
+    : 0;
+
   return (
     <>
-      <div
-        className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-200 ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-        onClick={onClose}
-      >
+      <div className="fixed inset-0 z-[70]">
+        {/* Backdrop */}
+        <button
+          type="button"
+          className="absolute inset-0 bg-black"
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            opacity: backdropOpacity,
+            transition: isDragging ? "none" : "opacity 300ms ease-out",
+          }}
+        />
+
+        {/* Sheet */}
         <div
-          className={`relative mx-4 w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-2xl transform transition-all duration-200 ${
-            isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
-          }`}
-          onClick={(e) => e.stopPropagation()}
+          className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-white dark:bg-gray-900 shadow-2xl"
+          style={{
+            transform: `translateY(${sheetTranslate}px)`,
+            transition: isDragging
+              ? "none"
+              : "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+          }}
         >
-        {/* Header */}
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            {t("periodPicker.title")}
-          </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          {/* Drag handle */}
+          <div
+            className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleMouseDown}
           >
-            <X size={20} className="text-gray-500 dark:text-gray-400" />
-          </button>
-        </div>
+            <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
+          </div>
 
-        {/* Period Type Grid */}
-        <div className="mb-4 grid grid-cols-3 gap-2">
-          {PERIOD_TYPES.map((periodType) => (
-            <button
-              key={periodType.value}
-              type="button"
-              onClick={() => handleTypeChange(periodType.value)}
-              className={`rounded-xl py-3 text-sm font-medium transition-colors ${
-                selectedType === periodType.value
-                  ? "bg-emerald-500 text-white"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`}
-            >
-              {periodType.label}
-            </button>
-          ))}
-        </div>
+          {/* Content */}
+          <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+            {/* Title */}
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t("periodPicker.title")}
+            </h3>
 
-        {/* Custom Date Inputs (only show if custom type selected) */}
-        {selectedType === "custom" && (
-          <div className="mb-4 space-y-3">
-            {/* Start Date */}
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                {t("periodPicker.startDate")}
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowStartDatePicker(true)}
-                className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-3 text-left text-sm text-gray-900 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                {formatDate(customStartDate)}
-              </button>
+            {/* Period Type Pills */}
+            <div className="mb-4 flex flex-wrap gap-2">
+              {PERIOD_TYPES.map((periodType) => (
+                <button
+                  key={periodType.value}
+                  type="button"
+                  onClick={() => handleTypeChange(periodType.value)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    selectedType === periodType.value
+                      ? "bg-emerald-500 text-white"
+                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 active:bg-gray-200 dark:active:bg-gray-700"
+                  }`}
+                >
+                  {periodType.label}
+                </button>
+              ))}
             </div>
 
-            {/* End Date */}
-            <div>
-              <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                {t("periodPicker.endDate")}
-              </label>
+            {/* Custom Date Inputs */}
+            {selectedType === "custom" && (
+              <div className="mb-4 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setShowStartDatePicker(true)}
+                  className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-3 text-left transition-colors active:bg-gray-100 dark:active:bg-gray-700"
+                >
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+                    {t("periodPicker.startDate")}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                    {formatDate(customStartDate)}
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowEndDatePicker(true)}
+                  className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-3 text-left transition-colors active:bg-gray-100 dark:active:bg-gray-700"
+                >
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+                    {t("periodPicker.endDate")}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                    {formatDate(customEndDate)}
+                  </p>
+                </button>
+              </div>
+            )}
+
+            {/* Period Preview */}
+            <div className="mb-5 rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">
+                {t("periodPicker.selectedPeriod")}
+              </p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                {getPeriodPreview()}
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setShowEndDatePicker(true)}
-                className="w-full rounded-xl bg-gray-50 dark:bg-gray-800 p-3 text-left text-sm text-gray-900 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={onClose}
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 active:bg-gray-200 dark:active:bg-gray-700 transition-colors"
               >
-                {formatDate(customEndDate)}
+                {t("modal.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white active:bg-emerald-600 transition-colors"
+              >
+                {t("periodPicker.select")}
               </button>
             </div>
           </div>
-        )}
-
-        {/* Period Preview */}
-        <div className="mb-6 rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
-          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-            {t("periodPicker.selectedPeriod")}
-          </p>
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-            {getPeriodPreview()}
-          </p>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-          >
-            {t("modal.cancel")}
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="flex-1 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600 transition-colors"
-          >
-            {t("periodPicker.select")}
-          </button>
         </div>
       </div>
-      </div>
 
-      {/* DatePicker modals - Rendered outside backdrop to prevent event propagation */}
+      {/* DatePicker modals - Rendered outside sheet z-context */}
       {showStartDatePicker && (
         <DatePicker
           open={showStartDatePicker}

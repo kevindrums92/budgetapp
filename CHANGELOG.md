@@ -4,7 +4,51 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.11] - 2026-02-22
+
+- **refactor(budget): convert plan form to full-screen page and period picker to bottom sheet**
+  - Replace centered modal form (step 1) with full-screen layout using `PageHeader`, hero amount input, and iOS-style grouped settings list
+  - Convert `PeriodPickerModal` from centered dialog to draggable bottom sheet with swipe-to-dismiss
+  - Change limit save button to emerald-500 matching transaction save style
+  - Back button in form now closes entirely instead of returning to type selector
+  - Add missing i18n keys (`types`, `goalOnboarding`, `modal.*`) for fr and pt locales
+
+- **feat(batch-entry): migrate AI batch entry to full-screen assistant page (`/assistant`)**
+  - Replace modal-based `BatchEntrySheet` with dedicated full-screen `AssistantPage` at `/assistant`
+  - Add `ChatInputBar` component with unified text/voice/photo input (like WhatsApp/ChatGPT)
+  - Extract all business logic into `useBatchEntry` hook (flow state, rate limiting, AI processing, category mapping)
+  - Add welcome idle state with example suggestion chips and tip chip
+  - Support URL params `?mode=text|audio|image` for auto-start behavior
+  - Fix rate limiting: free users get 1 free/day then rewarded video or paywall (no more fallthrough bug)
+  - Show opposite-type categories in `CategoryPickerDrawer` when `showAllTypes` is set, with amber warning banner for type auto-switch
+  - Add date editing with out-of-month amber warning in `TransactionDraftCard`
+  - Add "Today" button to `DatePicker` for quick date navigation
+  - Fix batch total sign: show `-` prefix when net total is negative
+  - Add `data-testid` to AddActionSheet expense/income buttons; update all e2e selectors
+  - Add i18n keys for assistant UI, type labels, and opposite-category warnings in all 4 languages (es, en, fr, pt)
+
+- **feat(promo): add promotional code redemption system**
+  - Create `promo_codes` and `promo_redemptions` Supabase tables with RLS
+  - Add `redeem-promo` Edge Function with JWT auth, rate limiting, and atomic redemption
+  - Add PromoCodeSheet bottom sheet UI with success/error states
+  - Add "I have a promo code" link in PaywallModal with `initialPromoCode` prop
+  - Support monthly, annual, and lifetime promo codes with dynamic `expires_at`
+  - Add deep link handler (`smartspend://redeem?code=XXXX`) in main.tsx
+  - Add `PromoCodeRedeemer` component in App.tsx for deep link event handling
+  - Fix subscription.service.ts: check Supabase for active lifetime when RevenueCat returns expired
+  - Add `isPromo` flag to SubscriptionState for promo/gift subscription detection
+  - Show "Expires" instead of "Renews" for promo subs in SubscriptionManagementPage
+  - Hide price and "Manage in App Store" for promo subscriptions
+  - Add promo code i18n translations in all 4 languages (es, en, fr, pt)
+
+- **docs: update all documentation with freemium + ads + banner changes**
+  - FEATURES.md: rewrite monetization section (free-with-ads model, 3 ad formats, rewarded video, rate limits 100/day Pro), update budget detail to "Movimientos completos", remove paywall integration from filters
+  - APP_REVIEW_FIXES.md: mark all 7 issues as resolved, update version to v0.16.10
+  - ARCHITECTURE.md: update ads.service.ts docs with banner/interstitial/rewarded details and ATT
+  - CLAUDE.md: remove deleted ProFeatureGate reference
 
 ## [0.16.10] - 2026-02-20
 

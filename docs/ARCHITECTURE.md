@@ -413,7 +413,7 @@ Components in `src/shared/components/` are reusable across multiple features.
 
 - **CloudSyncGate**: Core cloud sync orchestrator (see detailed section below)
 - **RevenueCatProvider**: Subscription management and Pro status
-- **AdMobProvider**: Ad monetization initialization (free users only)
+- **AdMobProvider**: Ad monetization initialization with ATT dialog (free users only)
 - **OnboardingGate**: First-time user onboarding
 - **BiometricGate**: Biometric authentication for app lock
 
@@ -474,11 +474,13 @@ Services that operate across features:
   - Validates empty snapshots vs snapshots with data
 - **dates.service.ts**: Date formatting and utilities (e.g., `todayISO()`, `formatDateGroupHeader()`)
 - **ads.service.ts**: AdMob ad monetization (free users only)
-  - Interstitial ad frequency control (max 1 ad/3min, max 5/session)
+  - 3 ad formats: Banner, Interstitial, Rewarded Video
+  - Banner: centralized show/hide in AppFrame based on route, dedup flag
+  - Interstitial: frequency control (max 1/3min, max 5/session, 2min initial delay)
+  - Rewarded: grants +1 AI batch use when daily limit reached
+  - `AD_CONFIG` with `USE_TEST_ADS` toggle for test vs production ad unit IDs
   - Session management with localStorage persistence
-  - Action-based tracking system
-  - Platform detection (iOS/Android)
-  - Ad preloading strategy
+  - Platform detection (iOS/Android, no ads on web)
 - **pushNotification.service.ts**: Push notification management
   - Permission requests (iOS/Android native)
   - FCM token registration and refresh

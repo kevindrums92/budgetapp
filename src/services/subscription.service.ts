@@ -139,12 +139,16 @@ function mapDatabaseRowToSubscriptionState(
     status = 'expired';
   }
 
+  // Promo/gift subscriptions have no original_transaction_id (not from App Store)
+  const isPromo = !row.original_transaction_id;
+
   return {
     status,
     type,
     trialEndsAt: row.period_type === 'trial' ? row.expires_at : null,
     expiresAt: row.expires_at,
     lastChecked: new Date().toISOString(),
+    isPromo,
   };
 }
 
@@ -278,6 +282,24 @@ export async function getSubscription(
   // Strategy 1: Try RevenueCat SDK (native only)
   const revenuecatSubscription = await fetchFromRevenueCat();
   if (revenuecatSubscription) {
+    // If RevenueCat says active/trialing, trust it directly
+    if (revenuecatSubscription.status === 'active' || revenuecatSubscription.status === 'trialing') {
+      saveSubscriptionToLocalStorage(revenuecatSubscription);
+      return revenuecatSubscription;
+    }
+
+    // If RevenueCat says expired/cancelled, check Supabase for a promo lifetime
+    // (Promo codes write directly to Supabase, so RevenueCat won't know about them)
+    if (userId) {
+      const supabaseSubscription = await fetchFromSupabase(userId);
+      if (supabaseSubscription && supabaseSubscription.type === 'lifetime' && supabaseSubscription.status === 'active') {
+        console.log('[Subscription] RevenueCat expired but Supabase has active lifetime (promo), using Supabase');
+        saveSubscriptionToLocalStorage(supabaseSubscription);
+        return supabaseSubscription;
+      }
+    }
+
+    // No lifetime promo in Supabase, respect RevenueCat's verdict
     saveSubscriptionToLocalStorage(revenuecatSubscription);
     return revenuecatSubscription;
   }

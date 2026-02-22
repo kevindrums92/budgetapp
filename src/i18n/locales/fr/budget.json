@@ -4,7 +4,16 @@
     "activeBudgets": "Budgets actifs",
     "remaining": "Il reste {{amount}} ({{percentage}}%)",
     "exceeded": "Dépassé de {{amount}} ({{percentage}}%)",
-    "noActiveBudgets": "Aucun budget actif pour cette période"
+    "noActiveBudgets": "Aucun budget actif pour cette période",
+    "activeTab": "Actifs",
+    "completedTab": "Complétés",
+    "noPlansTitle": "Vous n'avez aucun plan",
+    "noPlansDescription": "Créez des limites de dépenses ou des objectifs d'épargne pour organiser votre argent",
+    "createFirstPlan": "Créer mon premier plan",
+    "noCompletedPlans": "Aucun plan complété ce mois-ci",
+    "limitsExceeded_one": "Vous avez {{count}} limite dépassée",
+    "limitsExceeded_other": "Vous avez {{count}} limites dépassées",
+    "goalsProgress": "Vous avez complété {{percentage}}% de vos objectifs d'épargne"
   },
   "summary": {
     "budgeted": "Budgété",
@@ -15,12 +24,20 @@
     "description": "Définissez un montant maximum pour des dépenses comme les Restaurants ou les Transports.",
     "cta": "Commencer maintenant"
   },
+  "types": {
+    "limit": "Limite de dépenses",
+    "goal": "Objectif d'épargne",
+    "newLimit": "Nouvelle Limite",
+    "newGoal": "Nouvel Objectif"
+  },
   "modal": {
     "titleNew": "Nouveau Budget",
     "titleEdit": "Modifier le Budget",
     "category": "Catégorie",
     "selectCategory": "Sélectionner une catégorie",
     "amount": "Budget",
+    "limitMaxAmount": "Limite maximale",
+    "goalTargetAmount": "Objectif à atteindre",
     "period": "Période",
     "selectPeriod": "Sélectionner une période",
     "recurring": "Récurrent",
@@ -29,7 +46,29 @@
     "delete": "Supprimer",
     "deleteConfirmTitle": "Supprimer le budget?",
     "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer ce budget?",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "errorDuplicate": "Un budget actif existe déjà pour cette catégorie dans la période sélectionnée."
+  },
+  "goalOnboarding": {
+    "title": "Objectifs d'Épargne",
+    "howItWorksTitle": "Comment fonctionnent les objectifs ?",
+    "howItWorksDescription": "Les objectifs d'épargne fonctionnent comme un fonds séparé. Vous définissez combien vous voulez épargner et chaque fois que vous mettez de l'argent de côté, vous l'enregistrez comme une dépense dans cette catégorie. Ainsi, il sort de votre solde mais s'accumule dans votre objectif.",
+    "exampleTitle": "Exemple :",
+    "exampleText": "Objectif : Épargner 500 000 $ pour les vacances\nAujourd'hui vous mettez 50 000 $ de côté → Vous l'enregistrez comme dépense dans \"Vacances\"\nVotre progression : 50 000 $ épargnés / 500 000 $ (10%)",
+    "recommendationTitle": "Recommandation",
+    "recommendationText": "Créez une catégorie avec le nom de votre objectif (ex: \"Vacances\", \"Fonds d'Urgence\", \"Nouvelle Moto\"). Chaque fois que vous mettez de l'argent de côté, enregistrez-le comme dépense dans cette catégorie.",
+    "createCategory": "Créer une Catégorie d'Épargne",
+    "continueWithoutCategory": "Continuer sans Créer de Catégorie",
+    "defaultCategoryName": "Objectif d'Épargne"
+  },
+  "typeSelector": {
+    "title": "Nouveau Plan",
+    "question": "Que voulez-vous faire ?",
+    "subtitle": "Choisissez le type de plan à créer",
+    "controlSpending": "Contrôler une dépense",
+    "controlSpendingDescription": "Plafond maximum pour une catégorie",
+    "saveForGoal": "Épargner pour un objectif",
+    "saveForGoalDescription": "Enregistrez des apports vers un objectif"
   },
   "periodPicker": {
     "title": "Sélectionner la Période",

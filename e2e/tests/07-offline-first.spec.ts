@@ -110,9 +110,7 @@ test.describe('Offline-First Resilience', () => {
     await page.waitForTimeout(500);
 
     // Click "Agregar uno" / manual add
-    const addOneButton = page.locator('button').filter({
-      hasText: /agregar uno|gasto manual|manual expense|add one/i,
-    });
+    const addOneButton = page.locator('[data-testid="add-expense-button"]');
     await addOneButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
@@ -168,9 +166,7 @@ test.describe('Offline-First Resilience', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    const addOneButton = page.locator('button').filter({
-      hasText: /agregar uno|gasto manual|manual expense|add one/i,
-    });
+    const addOneButton = page.locator('[data-testid="add-expense-button"]');
     await addOneButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 
@@ -226,9 +222,7 @@ test.describe('Offline-First Resilience', () => {
     await fab.click();
     await page.waitForTimeout(500);
 
-    const addOneButton = page.locator('button').filter({
-      hasText: /agregar uno|gasto manual|manual expense|add one/i,
-    });
+    const addOneButton = page.locator('[data-testid="add-expense-button"]');
     await addOneButton.click();
     await page.waitForURL(/\/(add|edit)/, { timeout: 5000 });
 

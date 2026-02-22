@@ -69,7 +69,11 @@
     "frequent": "Frequent",
     "all": "All",
     "newCategory": "New Category",
-    "noResults": "No categories found"
+    "noResults": "No categories found",
+    "switchToIncome": "Selecting one of these will change the entry to income",
+    "switchToExpense": "Selecting one of these will change the entry to expense",
+    "incomeCategories": "Income categories",
+    "expenseCategories": "Expense categories"
   },
   "monthDetail": {
     "transaction": "transaction",

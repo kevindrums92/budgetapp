@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, useCallback } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -45,6 +45,9 @@ const CategoryGroupsPage = lazy(() => import("@/features/categories/pages/Catego
 const AddEditCategoryGroupPage = lazy(() => import("@/features/categories/pages/AddEditCategoryGroupPage"));
 const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/CategoryMonthDetailPage"));
 
+// Lazy load AI assistant page
+const AssistantPage = lazy(() => import("@/features/batch-entry/pages/AssistantPage"));
+
 // Lazy load settings pages
 const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));
 const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSettingsPage"));
@@ -64,6 +67,8 @@ import OnboardingGate from "@/features/onboarding/OnboardingGate";
 import BiometricGate from "@/features/biometric/components/BiometricGate";
 import SessionExpiredGate from "@/features/session/components/SessionExpiredGate";
 import UpcomingTransactionsModal from "@/features/transactions/components/UpcomingTransactionsModal";
+import PaywallModal from "@/shared/components/modals/PaywallModal";
+import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
 
 // Loading fallback component
 function PageLoader() {
@@ -82,6 +87,7 @@ function AppFrame() {
 
   const isFormRoute =
     location.pathname === "/add" ||
+    location.pathname === "/assistant" ||
     location.pathname === "/backup" ||
     location.pathname === "/scheduled" ||
     location.pathname === "/history" ||
@@ -107,6 +113,7 @@ function AppFrame() {
   const { isPro } = useSubscription();
   const isNoBannerRoute =
     location.pathname.startsWith("/onboarding") ||
+    location.pathname === "/assistant" ||
     location.pathname === "/add" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname === "/category/new" ||
@@ -164,6 +171,7 @@ function AppFrame() {
             <Route path="/edit/:id" element={<AddEditTransactionPage />} />
             <Route path="/scheduled" element={<ScheduledPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="/assistant" element={<AssistantPage />} />
 
             <Route path="/category/new" element={<AddEditCategoryPage />} />
             <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />
@@ -195,6 +203,42 @@ function AppFrame() {
         {!isFormRoute && <BottomBar />}
       </div>
     </>
+  );
+}
+
+/**
+ * Listens for `redeem-promo-code` custom event (dispatched from deep link handler in main.tsx)
+ * and opens the PaywallModal with the promo code pre-filled.
+ */
+function PromoCodeRedeemer() {
+  const [promoCode, setPromoCode] = useState<string | null>(null);
+  const { handleSelectPlan } = usePaywallPurchase({
+    onSuccess: () => setPromoCode(null),
+  });
+
+  const handleEvent = useCallback((e: Event) => {
+    const code = (e as CustomEvent).detail?.code;
+    if (code) {
+      console.log('[PromoCodeRedeemer] Opening paywall with promo code:', code);
+      setPromoCode(code);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('redeem-promo-code', handleEvent);
+    return () => window.removeEventListener('redeem-promo-code', handleEvent);
+  }, [handleEvent]);
+
+  if (!promoCode) return null;
+
+  return (
+    <PaywallModal
+      open={true}
+      onClose={() => setPromoCode(null)}
+      trigger="upgrade_prompt"
+      onSelectPlan={handleSelectPlan}
+      initialPromoCode={promoCode}
+    />
   );
 }
 
@@ -235,6 +279,7 @@ export default function App() {
                     <BiometricGate />
                     <SessionExpiredGate />
                     <UpcomingTransactionsModal />
+                    <PromoCodeRedeemer />
                     <AppFrame />
                   </HeaderActionsProvider>
                 </BrowserRouter>

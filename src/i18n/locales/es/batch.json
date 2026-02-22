@@ -59,6 +59,7 @@
     "tryAgain": "Intentar de nuevo",
     "confidence": "Confianza",
     "needsReviewWarning": "Algunas transacciones necesitan revisión (marcadas con !)",
+    "dateOutOfMonth": "Algunas fechas no son de este mes.",
     "fixCategory": "{{count}} transacciones sin categoría. Asigna una categoría o elimínalas.",
     "fixCategory_one": "{{count}} transacción sin categoría. Asigna una categoría o elimínala.",
     "fixAmount": "{{count}} transacciones sin monto. Agrega el monto o elimínalas.",
@@ -79,7 +80,9 @@
     "missingCategoryAndAmount": "Debes agregar monto y categoría",
     "changeCategory": "Categoría",
     "changeAmount": "Monto",
-    "deleteFromBatch": "Eliminar del lote"
+    "deleteFromBatch": "Eliminar del lote",
+    "expense": "Gasto",
+    "income": "Ingreso"
   },
   "errors": {
     "generic": "Algo salió mal. Revisa tu conexión e intenta de nuevo.",
@@ -102,6 +105,17 @@
     "save": "Guardar",
     "processing": "Procesando...",
     "error": "Error"
+  },
+  "assistant": {
+    "title": "Asistente IA",
+    "greeting": "Hola, ¿qué registramos hoy?",
+    "greetingSubtitle": "Escribe, dicta o envía una foto de tus recibos. Yo extraeré los datos y los organizaré.",
+    "inputPlaceholder": "Escribe tus gastos...",
+    "example1": "\"Gasté 50 mil en almuerzo y 30 en taxi\"",
+    "example1Value": "Gasté 50 mil en almuerzo y 30 en taxi",
+    "example2": "Escanear un recibo o factura",
+    "example3": "Dictar mis gastos del día",
+    "tip": "Tip: Menciona monto y descripción para mejores resultados"
   },
   "rewards": {
     "watchAdTitle": "Uso diario agotado",

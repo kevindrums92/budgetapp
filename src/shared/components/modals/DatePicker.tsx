@@ -103,6 +103,14 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
     setShowYearPicker(false);
   };
 
+  const handleGoToToday = () => {
+    const now = new Date();
+    setViewYear(now.getFullYear());
+    setViewMonth(now.getMonth());
+    setSelectedDate(now);
+    setShowYearPicker(false);
+  };
+
   // Generate locale-aware day abbreviations (first letter of each day)
   const DAYS = useMemo(() => {
     const locale = getLocale();
@@ -293,7 +301,15 @@ export default function DatePicker({ open, onClose, value, onChange }: Props) {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 px-6 py-4">
+        <div className="flex items-center px-6 py-4">
+          <button
+            type="button"
+            onClick={handleGoToToday}
+            className="px-3 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            {t('date.today')}
+          </button>
+          <div className="flex-1" />
           <button
             type="button"
             onClick={onClose}

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { X, Search, Plus } from "lucide-react";
+import { X, Search, Plus, AlertCircle } from "lucide-react";
 import { icons } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
@@ -17,6 +17,8 @@ type Props = {
   onNavigateToNewCategory?: () => void;
   /** Whether to show the "New Category" button (default: true) */
   showNewCategoryButton?: boolean;
+  /** Show categories from the opposite type too (for batch review type correction) */
+  showAllTypes?: boolean;
 };
 
 const SHEET_HEIGHT = 500;
@@ -30,6 +32,7 @@ export default function CategoryPickerDrawer({
   onSelect,
   onNavigateToNewCategory,
   showNewCategoryButton = true,
+  showAllTypes = false,
 }: Props) {
   const navigate = useNavigate();
   const { t } = useTranslation("categories");
@@ -72,6 +75,25 @@ export default function CategoryPickerDrawer({
 
     return result;
   }, [filteredCategories, transactionType, categoryGroups]);
+
+  // Opposite type categories (for showAllTypes mode)
+  const oppositeType: TransactionType = transactionType === "expense" ? "income" : "expense";
+  const oppositeGroupedCategories = useMemo(() => {
+    if (!showAllTypes) return [];
+    const oppCategories = categoryDefinitions.filter((c) => c.type === oppositeType);
+    const filtered = searchQuery.trim()
+      ? oppCategories.filter((c) => c.name.toLowerCase().includes(searchQuery.toLowerCase()))
+      : oppCategories;
+    const groups = categoryGroups.filter((g) => g.type === oppositeType);
+    const result: { group: typeof groups[0]; categories: Category[] }[] = [];
+    for (const group of groups) {
+      const cats = filtered.filter((c) => c.groupId === group.id);
+      if (cats.length > 0) {
+        result.push({ group, categories: cats });
+      }
+    }
+    return result;
+  }, [showAllTypes, categoryDefinitions, categoryGroups, oppositeType, searchQuery]);
 
   // Compute frequent categories from transaction history
   const frequentCategories = useMemo(() => {
@@ -397,7 +419,72 @@ export default function CategoryPickerDrawer({
             </div>
           ))}
 
-          {filteredCategories.length === 0 && searchQuery && (
+          {/* Opposite type categories (batch review mode) */}
+          {showAllTypes && oppositeGroupedCategories.length > 0 && (
+            <>
+              {/* Divider */}
+              <div className="my-3 border-t border-gray-200 dark:border-gray-700" />
+
+              {/* Warning banner */}
+              <div className="mb-3 flex items-start gap-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 px-3 py-2.5">
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  {oppositeType === "income"
+                    ? t("picker.switchToIncome")
+                    : t("picker.switchToExpense")}
+                </p>
+              </div>
+
+              {/* Opposite type section label */}
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                {oppositeType === "income"
+                  ? t("picker.incomeCategories")
+                  : t("picker.expenseCategories")}
+              </p>
+
+              {oppositeGroupedCategories.map(({ group, categories }) => (
+                <div key={group.id} className="mb-4">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                    {group.name}
+                  </p>
+                  <div className="space-y-1">
+                    {categories.map((cat) => {
+                      const IconComponent =
+                        icons[kebabToPascal(cat.icon) as keyof typeof icons];
+
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => onSelect(cat.id)}
+                          onTouchStart={handleCategoryTouchStart}
+                          onTouchEnd={handleCategoryTouchEnd(cat.id)}
+                          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                        >
+                          <div
+                            className="flex h-9 w-9 items-center justify-center rounded-full"
+                            style={{ backgroundColor: cat.color + "20" }}
+                          >
+                            {IconComponent && (
+                              <IconComponent
+                                className="h-5 w-5"
+                                style={{ color: cat.color }}
+                              />
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">
+                            {cat.name}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          {filteredCategories.length === 0 && oppositeGroupedCategories.length === 0 && searchQuery && (
             <p className="py-8 text-center text-sm text-gray-500 dark:text-gray-400">
               {t("picker.noResults")}
             </p>

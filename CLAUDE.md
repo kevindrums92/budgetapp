@@ -31,7 +31,6 @@ Before implementing any UI change, refactor, or new feature:
    - **Bottom Sheets**: `AddActionSheet`, `CategoryPickerDrawer`, `ComparisonSheet`, `FilterStatisticsSheet`, etc.
    - **Cards**: `BudgetCard`, `TransactionItem`, `BalanceCard`
    - **Onboarding**: `ProgressDots`, `SlideAnimation`, `FullscreenLayout`
-   - **Gates**: `ProFeatureGate` (paywall wrapper)
 4. **If you create a new reusable component**, also create a `ComponentName.stories.tsx` file colocated with the component
 5. **Story file conventions**:
    - Colocated: `src/features/.../ComponentName.stories.tsx` (next to the component)
