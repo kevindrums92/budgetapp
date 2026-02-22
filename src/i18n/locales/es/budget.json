@@ -35,9 +35,9 @@
     "question": "¿Qué quieres hacer?",
     "subtitle": "Elige el tipo de plan que deseas crear",
     "controlSpending": "Controlar un gasto",
-    "controlSpendingDescription": "Define un límite máximo para una categoría. Te avisaremos si te pasas.",
+    "controlSpendingDescription": "Tope máximo para una categoría",
     "saveForGoal": "Ahorrar para una meta",
-    "saveForGoalDescription": "Crea una meta de ahorro. Irás registrando aportes hasta completarla."
+    "saveForGoalDescription": "Registra aportes a un objetivo"
   },
   "goalOnboarding": {
     "title": "Metas de Ahorro",

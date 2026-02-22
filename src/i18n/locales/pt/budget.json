@@ -4,7 +4,16 @@
     "activeBudgets": "Orçamentos ativos",
     "remaining": "Restam {{amount}} ({{percentage}}%)",
     "exceeded": "Excedido por {{amount}} ({{percentage}}%)",
-    "noActiveBudgets": "Sem orçamentos ativos neste período"
+    "noActiveBudgets": "Sem orçamentos ativos neste período",
+    "activeTab": "Ativos",
+    "completedTab": "Concluídos",
+    "noPlansTitle": "Você não tem nenhum plano",
+    "noPlansDescription": "Crie limites de gastos ou metas de economia para organizar seu dinheiro",
+    "createFirstPlan": "Criar meu primeiro plano",
+    "noCompletedPlans": "Nenhum plano concluído este mês",
+    "limitsExceeded_one": "Você tem {{count}} limite excedido",
+    "limitsExceeded_other": "Você tem {{count}} limites excedidos",
+    "goalsProgress": "Você completou {{percentage}}% de suas metas de economia"
   },
   "summary": {
     "budgeted": "Orçado",
@@ -15,12 +24,20 @@
     "description": "Defina um valor máximo para despesas como Restaurantes ou Transporte.",
     "cta": "Começar agora"
   },
+  "types": {
+    "limit": "Limite de gastos",
+    "goal": "Meta de economia",
+    "newLimit": "Novo Limite",
+    "newGoal": "Nova Meta"
+  },
   "modal": {
     "titleNew": "Novo Orçamento",
     "titleEdit": "Editar Orçamento",
     "category": "Categoria",
     "selectCategory": "Selecionar categoria",
     "amount": "Orçamento",
+    "limitMaxAmount": "Limite máximo",
+    "goalTargetAmount": "Meta a alcançar",
     "period": "Período",
     "selectPeriod": "Selecionar período",
     "recurring": "Recorrente",
@@ -29,7 +46,29 @@
     "delete": "Excluir",
     "deleteConfirmTitle": "Excluir orçamento?",
     "deleteConfirmMessage": "Tem certeza de que deseja excluir este orçamento?",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "errorDuplicate": "Já existe um orçamento ativo para esta categoria no período selecionado."
+  },
+  "goalOnboarding": {
+    "title": "Metas de Economia",
+    "howItWorksTitle": "Como funcionam as metas?",
+    "howItWorksDescription": "As metas de economia funcionam como um fundo separado. Você define quanto quer economizar e cada vez que reserva dinheiro, registra como despesa nessa categoria. Assim sai do seu saldo, mas se acumula na sua meta.",
+    "exampleTitle": "Exemplo:",
+    "exampleText": "Meta: Economizar R$ 500.000 para férias\nHoje você reserva R$ 50.000 → Registra como despesa em \"Férias\"\nSeu progresso: R$ 50.000 economizados / R$ 500.000 (10%)",
+    "recommendationTitle": "Recomendação",
+    "recommendationText": "Crie uma categoria com o nome da sua meta (ex: \"Férias\", \"Fundo de Emergência\", \"Moto Nova\"). Cada vez que reservar dinheiro, registre como despesa nessa categoria.",
+    "createCategory": "Criar Categoria de Economia",
+    "continueWithoutCategory": "Continuar sem Criar Categoria",
+    "defaultCategoryName": "Meta de Economia"
+  },
+  "typeSelector": {
+    "title": "Novo Plano",
+    "question": "O que você quer fazer?",
+    "subtitle": "Escolha o tipo de plano que deseja criar",
+    "controlSpending": "Controlar um gasto",
+    "controlSpendingDescription": "Limite máximo para uma categoria",
+    "saveForGoal": "Poupar para uma meta",
+    "saveForGoalDescription": "Registre contribuições para um objetivo"
   },
   "periodPicker": {
     "title": "Selecionar Período",

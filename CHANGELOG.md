@@ -6,6 +6,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(budget): convert plan form to full-screen page and period picker to bottom sheet**
+  - Replace centered modal form (step 1) with full-screen layout using `PageHeader`, hero amount input, and iOS-style grouped settings list
+  - Convert `PeriodPickerModal` from centered dialog to draggable bottom sheet with swipe-to-dismiss
+  - Change limit save button to emerald-500 matching transaction save style
+  - Back button in form now closes entirely instead of returning to type selector
+  - Add missing i18n keys (`types`, `goalOnboarding`, `modal.*`) for fr and pt locales
+
 - **feat(batch-entry): migrate AI batch entry to full-screen assistant page (`/assistant`)**
   - Replace modal-based `BatchEntrySheet` with dedicated full-screen `AssistantPage` at `/assistant`
   - Add `ChatInputBar` component with unified text/voice/photo input (like WhatsApp/ChatGPT)
