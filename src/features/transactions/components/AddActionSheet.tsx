@@ -1,16 +1,14 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { TrendingUp, TrendingDown, Mic, Camera, Type, ChevronRight, Sparkles } from "lucide-react";
-import BatchEntrySheet from "@/features/batch-entry/components/BatchEntrySheet";
-import type { BatchInputType } from "@/features/batch-entry/types/batch-entry.types";
+import { TrendingUp, TrendingDown, ChevronRight, Sparkles } from "lucide-react";
 
 type Props = {
   open: boolean;
   onClose: () => void;
 };
 
-const SHEET_HEIGHT = 340;
+const SHEET_HEIGHT = 290;
 const DRAG_THRESHOLD = 0.3;
 
 export default function AddActionSheet({ open, onClose }: Props) {
@@ -20,8 +18,6 @@ export default function AddActionSheet({ open, onClose }: Props) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [showBatchEntry, setShowBatchEntry] = useState(false);
-  const [initialInputType, setInitialInputType] = useState<BatchInputType | null>(null);
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
@@ -121,29 +117,9 @@ export default function AddActionSheet({ open, onClose }: Props) {
     navigate("/add?type=expense");
   }
 
-  function handleBatchEntry(inputType: BatchInputType) {
-    setInitialInputType(inputType);
-    // Don't close AddActionSheet - just show BatchEntrySheet on top
-    // When BatchEntrySheet closes, AddActionSheet will be visible again
-    setShowBatchEntry(true);
-  }
-
-  function handleCloseBatchEntry() {
-    setShowBatchEntry(false);
-    setInitialInputType(null);
-    // Close AddActionSheet as well
+  function handleOpenAssistant() {
     onClose();
-  }
-
-  // Render BatchEntrySheet even when action sheet is closed
-  if (showBatchEntry) {
-    return (
-      <BatchEntrySheet
-        open={showBatchEntry}
-        onClose={handleCloseBatchEntry}
-        initialInputType={initialInputType}
-      />
-    );
+    navigate("/assistant");
   }
 
   if (!isVisible) return null;
@@ -191,100 +167,86 @@ export default function AddActionSheet({ open, onClose }: Props) {
 
         {/* Content */}
         <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
-          {/* AI Quick Entry Section */}
-          <div className="mb-5">
-            <div className="mb-3 flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-violet-500" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                {t('addActionSheet.quickEntry', 'Registro Rápido (IA)')}
+          {/* AI Assistant Button - Wide Featured Rectangle */}
+          <button
+            type="button"
+            onClick={handleOpenAssistant}
+            className="group relative mb-6 flex w-full items-center gap-4 rounded-[24px] p-4 pr-5 transition-all duration-300 active:scale-[0.98]"
+          >
+            {/* Ambient Background & Border */}
+            <div className="absolute inset-0 overflow-hidden rounded-[24px] bg-[#222736] dark:bg-[#1E2532] shadow-sm">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#20B2A6]/20 via-[#20B2A6]/5 to-transparent opacity-80" />
+              <div className="absolute inset-0 rounded-[24px] border border-[#20B2A6]/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
+            </div>
+
+            {/* Glowy Icon */}
+            <div className="relative flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full bg-[#3CC0B4] shadow-[0_0_24px_rgba(60,192,180,0.5)] transition-transform duration-500 group-hover:scale-105 group-hover:-rotate-3">
+              <Sparkles size={24} className="text-white relative z-10" strokeWidth={2} />
+            </div>
+
+            {/* Text Content */}
+            <div className="flex-1 text-left relative z-10 py-1">
+              <span className="block text-[17px] font-bold text-gray-900 dark:text-white tracking-tight">
+                {t('addActionSheet.smartAssistant', { defaultValue: 'Asistente IA' })}
+              </span>
+              <span className="block text-[14px] mt-0.5 text-gray-500 dark:text-gray-400 font-semibold tracking-wide">
+                {t('addActionSheet.smartAssistantHint', { defaultValue: 'La forma más rápida' })}
               </span>
             </div>
 
-            <div className="flex justify-center gap-6">
-              {/* Voice Button */}
-              <button
-                type="button"
-                onClick={() => handleBatchEntry("audio")}
-                className="flex flex-col items-center gap-2 transition-all active:scale-95"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
-                  <Mic className="h-6 w-6 text-violet-500" />
-                </div>
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                  {t('addActionSheet.dictate', 'Dictar')}
-                </span>
-              </button>
-
-              {/* Photo Button */}
-              <button
-                type="button"
-                onClick={() => handleBatchEntry("image")}
-                className="flex flex-col items-center gap-2 transition-all active:scale-95"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
-                  <Camera className="h-6 w-6 text-rose-500" />
-                </div>
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                  {t('addActionSheet.photo', 'Foto')}
-                </span>
-              </button>
-
-              {/* Text Button */}
-              <button
-                type="button"
-                onClick={() => handleBatchEntry("text")}
-                className="flex flex-col items-center gap-2 transition-all active:scale-95"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
-                  <Type className="h-6 w-6 text-violet-400" />
-                </div>
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-                  {t('addActionSheet.text', 'Texto')}
-                </span>
-              </button>
+            {/* Minimalist Arrow */}
+            <div className="relative z-10 flex items-center justify-center text-gray-400 dark:text-gray-500 transition-all duration-300 group-hover:translate-x-1 group-hover:text-gray-900 dark:group-hover:text-gray-300">
+              <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
             </div>
-          </div>
+          </button>
 
-          {/* Divider */}
-          <div className="mb-4 border-t border-gray-200 dark:border-gray-700" />
+          {/* Manual Entry Section - Two Columns */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Add Expense */}
+            <button
+              type="button"
+              onClick={handleAddExpense}
+              data-testid="add-expense-button"
+              className="group relative flex flex-col items-center justify-center gap-4 rounded-[28px] p-6 transition-all duration-300 active:scale-[0.98]"
+            >
+              <div className="absolute inset-0 rounded-[28px] bg-gray-50 dark:bg-[#1C1F26] border border-gray-100 dark:border-white/5 transition-colors group-hover:bg-gray-100 dark:group-hover:bg-[#20242D]" />
 
-          {/* Manual Entry Section */}
-          <div>
-            <span className="mb-3 block text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-              {t('addActionSheet.manual', 'Manual')}
-            </span>
+              <div className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-red-100/80 dark:bg-[#2E2024]">
+                <TrendingDown className="h-6 w-6 text-red-500 dark:text-[#FF7A7A]" strokeWidth={2.5} />
+              </div>
 
-            <div className="space-y-2">
-              {/* Add Income */}
-              <button
-                type="button"
-                onClick={handleAddIncome}
-                className="flex w-full items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-3 transition-all active:scale-[0.98] active:bg-gray-100 dark:active:bg-gray-800"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/50">
-                  <TrendingUp className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-                <span className="flex-1 text-left font-medium text-gray-900 dark:text-gray-50">
-                  {t('addActionSheet.manualIncome', 'Ingreso Manual')}
+              <div className="relative z-10 text-center">
+                <span className="block text-[16px] font-bold text-gray-900 dark:text-white mb-0.5">
+                  {t('addActionSheet.expense', { defaultValue: 'Gasto' })}
                 </span>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </button>
-
-              {/* Add Expense */}
-              <button
-                type="button"
-                onClick={handleAddExpense}
-                className="flex w-full items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 px-4 py-3 transition-all active:scale-[0.98] active:bg-gray-100 dark:active:bg-gray-800"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
-                  <TrendingDown className="h-5 w-5 text-red-500 dark:text-red-400" />
-                </div>
-                <span className="flex-1 text-left font-medium text-gray-900 dark:text-gray-50">
-                  {t('addActionSheet.manualExpense', 'Gasto Manual')}
+                <span className="block text-[13px] text-gray-500 font-semibold tracking-wide">
+                  {t('addActionSheet.manualText', { defaultValue: 'Manual' })}
                 </span>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </button>
-            </div>
+              </div>
+            </button>
+
+            {/* Add Income */}
+            <button
+              type="button"
+              onClick={handleAddIncome}
+              data-testid="add-income-button"
+              className="group relative flex flex-col items-center justify-center gap-4 rounded-[28px] p-6 transition-all duration-300 active:scale-[0.98]"
+            >
+              <div className="absolute inset-0 rounded-[28px] bg-gray-50 dark:bg-[#1C1F26] border border-gray-100 dark:border-white/5 transition-colors group-hover:bg-gray-100 dark:group-hover:bg-[#20242D]" />
+
+              <div className="relative flex h-[52px] w-[52px] items-center justify-center rounded-full bg-emerald-100/80 dark:bg-[#182C29]">
+                <TrendingUp className="h-6 w-6 text-emerald-600 dark:text-[#20D080]" strokeWidth={2.5} />
+              </div>
+
+              <div className="relative z-10 text-center">
+                <span className="block text-[16px] font-bold text-gray-900 dark:text-white mb-0.5">
+                  {t('addActionSheet.income', { defaultValue: 'Ingreso' })}
+                </span>
+                <span className="block text-[13px] text-gray-500 font-semibold tracking-wide">
+                  {t('addActionSheet.manualText', { defaultValue: 'Manual' })}
+                </span>
+              </div>
+            </button>
           </div>
         </div>
       </div>

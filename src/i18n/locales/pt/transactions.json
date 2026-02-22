@@ -5,6 +5,7 @@
     "newExpense": "Nova Despesa",
     "amount": "Valor",
     "description": "Descrição",
+    "optional": "opcional",
     "placeholderIncome": "De onde vem?",
     "placeholderExpense": "No que você gastou?",
     "date": "Data",

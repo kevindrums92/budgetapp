@@ -59,6 +59,7 @@
     "tryAgain": "Réessayer",
     "confidence": "Confiance",
     "needsReviewWarning": "Certaines transactions nécessitent une vérification (marquées avec !)",
+    "dateOutOfMonth": "Certaines dates ne sont pas de ce mois.",
     "fixCategory": "{{count}} transactions sans catégorie. Assignez une catégorie ou supprimez-les.",
     "fixCategory_one": "{{count}} transaction sans catégorie. Assignez une catégorie ou supprimez-la.",
     "fixAmount": "{{count}} transactions sans montant. Ajoutez le montant ou supprimez-les.",
@@ -79,7 +80,9 @@
     "missingCategoryAndAmount": "Vous devez ajouter montant et catégorie",
     "changeCategory": "Catégorie",
     "changeAmount": "Montant",
-    "deleteFromBatch": "Supprimer du lot"
+    "deleteFromBatch": "Supprimer du lot",
+    "expense": "Dépense",
+    "income": "Revenu"
   },
   "errors": {
     "generic": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
@@ -102,6 +105,17 @@
     "save": "Enregistrer",
     "processing": "Traitement...",
     "error": "Erreur"
+  },
+  "assistant": {
+    "title": "Assistant IA",
+    "greeting": "Bonjour, qu'enregistrons-nous aujourd'hui ?",
+    "greetingSubtitle": "Tapez, dictez ou envoyez une photo de vos reçus. J'extrairai les données et les organiserai.",
+    "inputPlaceholder": "Tapez vos dépenses...",
+    "example1": "\"J'ai dépensé 50€ pour le déjeuner et 30€ en taxi\"",
+    "example1Value": "J'ai dépensé 50€ pour le déjeuner et 30€ en taxi",
+    "example2": "Scanner un reçu ou une facture",
+    "example3": "Dicter mes dépenses de la journée",
+    "tip": "Astuce : Mentionnez montant et description pour de meilleurs résultats"
   },
   "rewards": {
     "watchAdTitle": "Utilisation quotidienne epuisee",

@@ -145,7 +145,7 @@ describe("TransactionPreview", () => {
     expect(mockHandlers.onClose).toHaveBeenCalled();
   });
 
-  it("should render smart card header with title and total", () => {
+  it("should render smart card header with total", () => {
     render(
       <TransactionPreview
         drafts={mockDrafts}
@@ -158,8 +158,7 @@ describe("TransactionPreview", () => {
       />
     );
 
-    // Check for title and total batch label
-    expect(screen.getByText("review.title")).toBeInTheDocument();
+    // Check for total batch label
     expect(screen.getByText("review.totalBatch")).toBeInTheDocument();
     // Net total: 2,000,000 - 50,000 = 1,950,000
     expect(screen.getByText("$ 1.950.000")).toBeInTheDocument();

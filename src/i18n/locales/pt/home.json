@@ -22,7 +22,16 @@
     "addIncome": "Adicionar Receita",
     "incomeHint": "Salário, vendas, etc.",
     "addExpense": "Adicionar Despesa",
-    "expenseHint": "Compras, serviços, etc."
+    "expenseHint": "Compras, serviços, etc.",
+    "smartAssistant": "Assistente Inteligente",
+    "smartAssistantHint": "Dite, tire foto ou digite",
+    "expense": "Despesa",
+    "income": "Receita",
+    "manualText": "Manual"
+  },
+  "emptyState": {
+    "title": "Experimente o registro inteligente",
+    "subtitle": "Esqueça digitar. Dite suas despesas, tire uma foto do recibo ou escreva naturalmente."
   },
   "filters": {
     "all": "Todos",

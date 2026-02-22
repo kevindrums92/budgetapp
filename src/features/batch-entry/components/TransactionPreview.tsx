@@ -4,7 +4,7 @@
  */
 
 import { useTranslation } from "react-i18next";
-import { Loader2, Info, Receipt, Sparkles, Trash2 } from "lucide-react";
+import { Loader2, Info, Receipt, Trash2 } from "lucide-react";
 import { useCurrency } from "@/features/currency";
 import type { TransactionDraft } from "../types/batch-entry.types";
 import TransactionDraftCard from "./TransactionDraftCard";
@@ -52,6 +52,13 @@ export default function TransactionPreview({
 
   const hasReviewItems = drafts.some((d) => d.needsReview);
 
+  // Check for drafts with dates outside current month
+  const hasOutOfMonthDates = drafts.some((d) => {
+    const now = new Date();
+    const draftDate = new Date(d.date + "T12:00:00");
+    return draftDate.getMonth() !== now.getMonth() || draftDate.getFullYear() !== now.getFullYear();
+  });
+
   // Check for invalid drafts (missing category or zero amount)
   const draftsWithoutCategory = drafts.filter((d) => !d.category);
   const draftsWithZeroAmount = drafts.filter((d) => d.amount <= 0);
@@ -90,13 +97,6 @@ export default function TransactionPreview({
     <div className="flex flex-1 flex-col overflow-hidden bg-gray-100 dark:bg-gray-950">
       {/* Smart Card Header */}
       <div className="shrink-0 pb-4">
-        {/* Title - matching PageHeader height (h-10 icon container) */}
-        <div className="flex items-center gap-3 pb-4">
-          <div className="flex h-10 w-10 items-center justify-center">
-            <Sparkles size={20} className="text-violet-500" />
-          </div>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-50">{t("review.title")}</h1>
-        </div>
 
         {/* Floating Card */}
         <div data-tour="batch-review-header" className="bg-white dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-2xl p-4 shadow-sm dark:shadow-black/20">
@@ -106,7 +106,7 @@ export default function TransactionPreview({
                 {t("review.totalBatch")}
               </span>
               <span className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {formatAmount(Math.abs(netTotal))}
+                {netTotal < 0 ? "-" : ""}{formatAmount(Math.abs(netTotal))}
               </span>
             </div>
             <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center border border-gray-200 dark:border-gray-700">
@@ -156,6 +156,15 @@ export default function TransactionPreview({
         <div className="mb-3 shrink-0 rounded-xl bg-amber-50 dark:bg-amber-900/20 px-3 py-2">
           <p className="text-xs text-amber-700 dark:text-amber-400">
             {t("review.needsReviewWarning")}
+          </p>
+        </div>
+      )}
+
+      {/* Date out of month warning */}
+      {hasOutOfMonthDates && (
+        <div className="mb-3 shrink-0 rounded-xl bg-amber-50 dark:bg-amber-900/20 px-3 py-2">
+          <p className="text-xs text-amber-700 dark:text-amber-400">
+            {t("review.dateOutOfMonth")}
           </p>
         </div>
       )}

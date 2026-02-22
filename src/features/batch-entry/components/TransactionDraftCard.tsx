@@ -3,13 +3,14 @@
  * Flat card design with inline editing for name, category and amount
  */
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import * as icons from "lucide-react";
-import { Trash2, AlertCircle, ChevronDown } from "lucide-react";
+import { Trash2, AlertCircle, ChevronDown, CalendarDays } from "lucide-react";
 import { useCurrency } from "@/features/currency";
 import { useBudgetStore } from "@/state/budget.store";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
+import DatePicker from "@/shared/components/modals/DatePicker";
 import type { TransactionDraft } from "../types/batch-entry.types";
 
 type Props = {
@@ -30,6 +31,7 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
   const { t, i18n } = useTranslation("batch");
   const { currencyInfo, formatAmount } = useCurrency();
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isEditingAmount, setIsEditingAmount] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [amountInput, setAmountInput] = useState(draft.amount.toString());
@@ -54,6 +56,13 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
 
   const isIncome = draft.type === "income";
   const hasValidAmount = draft.amount > 0;
+
+  // Check if draft date is in a different month than current
+  const isDateOutOfMonth = useMemo(() => {
+    const now = new Date();
+    const draftDate = new Date(draft.date + "T12:00:00");
+    return draftDate.getMonth() !== now.getMonth() || draftDate.getFullYear() !== now.getFullYear();
+  }, [draft.date]);
 
   // Look up actual category from store
   const category = categoryDefinitions.find((c) => c.id === draft.category);
@@ -188,10 +197,20 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
             <ChevronDown className="h-3 w-3 opacity-60" />
           </button>
 
-          {/* Date - not editable */}
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          {/* Date - editable */}
+          <button
+            type="button"
+            onClick={() => setShowDatePicker(true)}
+            className={`mt-0.5 flex w-fit items-center gap-1 rounded-full py-0.5 text-xs transition-colors active:opacity-70 ${
+              isDateOutOfMonth
+                ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 pl-1.5 pr-2 font-medium"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            {isDateOutOfMonth && <AlertCircle className="h-3 w-3 shrink-0" />}
+            <CalendarDays className="h-3 w-3 shrink-0" />
             {formatDate(draft.date)}
-          </p>
+          </button>
         </div>
 
         {/* Amount - inline editable */}
@@ -247,20 +266,37 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
         </button>
       </div>
 
-      {/* Category Picker */}
+      {/* Category Picker - showAllTypes for batch review so user can fix wrong type */}
       <CategoryPickerDrawer
         open={showCategoryPicker}
         onClose={() => setShowCategoryPicker(false)}
         transactionType={draft.type}
         value={draft.category}
+        showAllTypes
         onSelect={(categoryId) => {
+          // Check if selected category is from opposite type
+          const selectedCat = categoryDefinitions.find((c) => c.id === categoryId);
+          const isOppositeType = selectedCat && selectedCat.type !== draft.type;
+
           onUpdate(draft.id, {
             category: categoryId,
-            needsReview: false, // Clear review flag since user selected category
+            needsReview: false,
+            ...(isOppositeType ? { type: selectedCat.type } : {}),
           });
           setShowCategoryPicker(false);
         }}
         showNewCategoryButton={false}
+      />
+
+      {/* Date Picker */}
+      <DatePicker
+        open={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        value={draft.date}
+        onChange={(newDate) => {
+          onUpdate(draft.id, { date: newDate });
+          setShowDatePicker(false);
+        }}
       />
     </div>
   );

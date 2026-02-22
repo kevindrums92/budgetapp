@@ -22,7 +22,16 @@
     "addIncome": "Ajouter un Revenu",
     "incomeHint": "Salaire, ventes, etc.",
     "addExpense": "Ajouter une Dépense",
-    "expenseHint": "Achats, services, etc."
+    "expenseHint": "Achats, services, etc.",
+    "smartAssistant": "Assistant Intelligent",
+    "smartAssistantHint": "Dictez, prenez une photo ou tapez",
+    "expense": "Dépense",
+    "income": "Revenu",
+    "manualText": "Manuel"
+  },
+  "emptyState": {
+    "title": "Essayez la saisie intelligente",
+    "subtitle": "Oubliez la saisie. Dictez vos dépenses, prenez une photo de votre reçu ou écrivez naturellement."
   },
   "filters": {
     "all": "Tous",

@@ -22,7 +22,16 @@
     "addIncome": "Add Income",
     "incomeHint": "Salary, sales, etc.",
     "addExpense": "Add Expense",
-    "expenseHint": "Purchases, services, etc."
+    "expenseHint": "Purchases, services, etc.",
+    "smartAssistant": "Smart Assistant",
+    "smartAssistantHint": "Dictate, take a photo or type",
+    "expense": "Expense",
+    "income": "Income",
+    "manualText": "Manual"
+  },
+  "emptyState": {
+    "title": "Try smart entry",
+    "subtitle": "Forget typing. Dictate your expenses, take a photo of your receipt or write naturally."
   },
   "filters": {
     "all": "All",

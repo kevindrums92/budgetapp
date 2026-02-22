@@ -6,6 +6,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(batch-entry): migrate AI batch entry to full-screen assistant page (`/assistant`)**
+  - Replace modal-based `BatchEntrySheet` with dedicated full-screen `AssistantPage` at `/assistant`
+  - Add `ChatInputBar` component with unified text/voice/photo input (like WhatsApp/ChatGPT)
+  - Extract all business logic into `useBatchEntry` hook (flow state, rate limiting, AI processing, category mapping)
+  - Add welcome idle state with example suggestion chips and tip chip
+  - Support URL params `?mode=text|audio|image` for auto-start behavior
+  - Fix rate limiting: free users get 1 free/day then rewarded video or paywall (no more fallthrough bug)
+  - Show opposite-type categories in `CategoryPickerDrawer` when `showAllTypes` is set, with amber warning banner for type auto-switch
+  - Add date editing with out-of-month amber warning in `TransactionDraftCard`
+  - Add "Today" button to `DatePicker` for quick date navigation
+  - Fix batch total sign: show `-` prefix when net total is negative
+  - Add `data-testid` to AddActionSheet expense/income buttons; update all e2e selectors
+  - Add i18n keys for assistant UI, type labels, and opposite-category warnings in all 4 languages (es, en, fr, pt)
+
 - **feat(promo): add promotional code redemption system**
   - Create `promo_codes` and `promo_redemptions` Supabase tables with RLS
   - Add `redeem-promo` Edge Function with JWT auth, rate limiting, and atomic redemption

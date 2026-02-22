@@ -5,6 +5,7 @@
     "newExpense": "New Expense",
     "amount": "Amount",
     "description": "Description",
+    "optional": "optional",
     "placeholderIncome": "Where does it come from?",
     "placeholderExpense": "What did you spend on?",
     "date": "Date",

@@ -344,9 +344,7 @@ async function createExpenseTransaction(
   await page.waitForTimeout(500);
 
   // Click "Gasto Manual"
-  const addExpenseButton = page.locator('button').filter({
-    hasText: /gasto manual|manual expense/i,
-  });
+  const addExpenseButton = page.locator('[data-testid="add-expense-button"]');
   await addExpenseButton.click();
   await page.waitForURL(/\/add/);
 

@@ -45,6 +45,9 @@ const CategoryGroupsPage = lazy(() => import("@/features/categories/pages/Catego
 const AddEditCategoryGroupPage = lazy(() => import("@/features/categories/pages/AddEditCategoryGroupPage"));
 const CategoryMonthDetailPage = lazy(() => import("@/features/categories/pages/CategoryMonthDetailPage"));
 
+// Lazy load AI assistant page
+const AssistantPage = lazy(() => import("@/features/batch-entry/pages/AssistantPage"));
+
 // Lazy load settings pages
 const LanguageSettingsPage = lazy(() => import("@/features/profile/pages/LanguageSettingsPage"));
 const ThemeSettingsPage = lazy(() => import("@/features/profile/pages/ThemeSettingsPage"));
@@ -84,6 +87,7 @@ function AppFrame() {
 
   const isFormRoute =
     location.pathname === "/add" ||
+    location.pathname === "/assistant" ||
     location.pathname === "/backup" ||
     location.pathname === "/scheduled" ||
     location.pathname === "/history" ||
@@ -109,6 +113,7 @@ function AppFrame() {
   const { isPro } = useSubscription();
   const isNoBannerRoute =
     location.pathname.startsWith("/onboarding") ||
+    location.pathname === "/assistant" ||
     location.pathname === "/add" ||
     location.pathname.startsWith("/edit/") ||
     location.pathname === "/category/new" ||
@@ -166,6 +171,7 @@ function AppFrame() {
             <Route path="/edit/:id" element={<AddEditTransactionPage />} />
             <Route path="/scheduled" element={<ScheduledPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="/assistant" element={<AssistantPage />} />
 
             <Route path="/category/new" element={<AddEditCategoryPage />} />
             <Route path="/category/:id/edit" element={<AddEditCategoryPage />} />

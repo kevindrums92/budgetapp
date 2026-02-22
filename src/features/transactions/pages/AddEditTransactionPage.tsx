@@ -514,14 +514,14 @@ export default function AddEditTransactionPage() {
               </div>
               <div className="flex-1">
                 <label className="mb-1 block text-xs font-medium text-gray-500 dark:text-gray-400">
-                  {t("form.description")} <span className="text-gray-400 dark:text-gray-500">(opcional)</span>
+                  {t("form.description")} <span className="text-gray-400 dark:text-gray-500">({t("form.optional")})</span>
                 </label>
                 <input
                   type="text"
                   data-testid="transaction-name-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej: Cena familiar, Pago Netflix..."
+                  placeholder={type === "income" ? t("form.placeholderIncome") : t("form.placeholderExpense")}
                   className="w-full border-0 p-0 bg-transparent text-base text-gray-900 dark:text-gray-50 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-0"
                 />
               </div>
