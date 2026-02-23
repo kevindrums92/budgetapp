@@ -12,6 +12,7 @@ export type Schedule = {
   dayOfWeek?: number;         // 0-6 for weekly (0 = Sunday)
   dayOfMonth?: number;        // 1-31 for monthly
   lastGenerated?: string;     // YYYY-MM-DD - track last auto-created tx
+  skippedOccurrences?: string[]; // Period keys to skip (e.g. ["2026-02"] for monthly)
 };
 
 export type Transaction = {

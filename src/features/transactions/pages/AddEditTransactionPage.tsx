@@ -46,6 +46,7 @@ export default function AddEditTransactionPage() {
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
   const deleteTransaction = useBudgetStore((s) => s.deleteTransaction);
+  const skipScheduledOccurrence = useBudgetStore((s) => s.skipScheduledOccurrence);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
   const transactions = useBudgetStore((s) => s.transactions);
 
@@ -432,6 +433,10 @@ export default function AddEditTransactionPage() {
 
   function handleConfirmDelete() {
     if (!tx) return;
+    // Auto-skip the recurrence so it won't be re-created by the scheduler
+    if (tx.sourceTemplateId) {
+      skipScheduledOccurrence(tx.sourceTemplateId, tx.date);
+    }
     deleteTransaction(tx.id);
     clearFormDraft(); // Clear draft when deleting
     setConfirmDelete(false);

@@ -3,7 +3,7 @@
  * Uses lazy generation - calculates virtual transactions on-the-fly for display
  */
 
-import type { Transaction, Schedule } from "@/types/budget.types";
+import type { Transaction, Schedule, ScheduleFrequency } from "@/types/budget.types";
 import { nanoid } from "nanoid";
 
 /**
@@ -14,6 +14,36 @@ function shouldProcessSchedule(schedule: Schedule, today: string): boolean {
   if (!schedule.enabled) return false;
   if (schedule.endDate && schedule.endDate < today) return false;
   return true;
+}
+
+/**
+ * Get the period key for a given date based on schedule frequency.
+ * Used to identify which occurrence to skip.
+ *   monthly → "2026-02" (YYYY-MM)
+ *   yearly  → "2026" (YYYY)
+ *   weekly  → "2026-02-21" (exact date)
+ *   daily   → "2026-02-21" (exact date)
+ */
+export function getPeriodKey(frequency: ScheduleFrequency, date: string): string {
+  switch (frequency) {
+    case "monthly":
+      return date.slice(0, 7); // "YYYY-MM"
+    case "yearly":
+      return date.slice(0, 4); // "YYYY"
+    case "weekly":
+    case "daily":
+    default:
+      return date; // "YYYY-MM-DD"
+  }
+}
+
+/**
+ * Check if a specific occurrence date is skipped in the schedule
+ */
+function isOccurrenceSkipped(schedule: Schedule, date: string): boolean {
+  if (!schedule.skippedOccurrences?.length) return false;
+  const periodKey = getPeriodKey(schedule.frequency, date);
+  return schedule.skippedOccurrences.includes(periodKey);
 }
 
 /**
@@ -270,6 +300,9 @@ function findNextOccurrence(
     // Skip dates in the past or today
     if (futureDate <= today) continue;
 
+    // Skip if this occurrence was explicitly skipped by the user
+    if (isOccurrenceSkipped(schedule, futureDate)) continue;
+
     // Skip if a real transaction already exists for this date
     if (transactionExistsForDate(transactions, template, futureDate)) {
       continue;
@@ -339,6 +372,9 @@ function findPastDueOccurrences(
   for (const date of allDates) {
     // Skip future dates (should not happen, but safety check)
     if (date > today) continue;
+
+    // Skip if this occurrence was explicitly skipped by the user
+    if (isOccurrenceSkipped(schedule, date)) continue;
 
     // Skip if a real transaction already exists for this date
     if (transactionExistsForDate(transactions, template, date)) {

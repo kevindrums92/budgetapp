@@ -96,6 +96,15 @@
     "delete": "Eliminar programación",
     "save": "Aplicar"
   },
+  "skip": {
+    "button": "Omitir",
+    "confirm": "Confirmar",
+    "edit": "Editar",
+    "disable": "Desactivar",
+    "cancel": "Cancelar",
+    "confirmTitle": "Omitir esta vez",
+    "confirmMessage": "No se generará \"{{name}}\" para este período. La programación continuará normalmente el próximo período."
+  },
   "scheduledBanner": {
     "singular": "Transacción programada",
     "plural": "Transacciones programadas",

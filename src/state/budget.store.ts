@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { getPeriodKey } from "@/shared/services/scheduler.service";
 import type {
   BudgetState,
   Transaction,
@@ -104,6 +105,7 @@ type BudgetStore = BudgetState & {
     patch: Partial<Omit<Transaction, "id" | "createdAt">>
   ) => void;
   deleteTransaction: (id: string) => void;
+  skipScheduledOccurrence: (templateId: string, occurrenceDate: string) => void;
 
   // CRUD Trips
   addTrip: (input: AddTripInput) => void;
@@ -534,6 +536,41 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         const next: BudgetState = {
           schemaVersion: 8,
           transactions: state.transactions.filter((t) => t.id !== id),
+          categories: state.categories,
+          categoryDefinitions: state.categoryDefinitions,
+          categoryGroups: state.categoryGroups,
+          budgets: state.budgets,
+          trips: state.trips,
+          tripExpenses: state.tripExpenses,
+        };
+
+        saveState(next);
+        return next;
+      });
+    },
+
+    skipScheduledOccurrence: (templateId, occurrenceDate) => {
+      set((state) => {
+        const template = state.transactions.find((t) => t.id === templateId);
+        if (!template?.schedule) return state;
+
+        const periodKey = getPeriodKey(template.schedule.frequency, occurrenceDate);
+        const existing = template.schedule.skippedOccurrences ?? [];
+        if (existing.includes(periodKey)) return state;
+
+        const next: BudgetState = {
+          schemaVersion: 8,
+          transactions: state.transactions.map((t) =>
+            t.id === templateId
+              ? {
+                  ...t,
+                  schedule: {
+                    ...t.schedule!,
+                    skippedOccurrences: [...existing, periodKey],
+                  },
+                }
+              : t
+          ),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
           categoryGroups: state.categoryGroups,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, Pencil, Power, X } from "lucide-react";
+import { Calendar, Pencil, Power, SkipForward, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/features/currency";
 import { useBudgetStore } from "@/state/budget.store";
 import {
@@ -20,13 +21,16 @@ export default function VirtualTransactionModal({
   categoryName,
   onClose,
 }: VirtualTransactionModalProps) {
+  const { t } = useTranslation("transactions");
   const navigate = useNavigate();
   const { formatAmount } = useCurrency();
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const updateTransaction = useBudgetStore((s) => s.updateTransaction);
+  const skipScheduledOccurrence = useBudgetStore((s) => s.skipScheduledOccurrence);
   const transactions = useBudgetStore((s) => s.transactions);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSkipConfirm, setShowSkipConfirm] = useState(false);
 
   // Format date for display
   const formatDate = (dateStr: string) => {
@@ -43,6 +47,12 @@ export default function VirtualTransactionModal({
     const realTx = materializeTransaction(transaction);
     addTransaction(realTx);
     // Just close the modal - user stays on the list and can click the new transaction to edit
+    onClose();
+  };
+
+  const handleSkip = () => {
+    skipScheduledOccurrence(transaction.templateId, transaction.date);
+    setShowSkipConfirm(false);
     onClose();
   };
 
@@ -117,34 +127,85 @@ export default function VirtualTransactionModal({
           Esta transaccion se generara automaticamente en la fecha indicada.
         </p>
 
-        {/* Actions - 3 buttons in a row */}
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleConfirm}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-          >
-            <Calendar className="h-4 w-4" />
-            Confirmar
-          </button>
-          <button
-            type="button"
-            onClick={handleEdit}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            <Pencil className="h-4 w-4" />
-            Editar
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowDeleteConfirm(true)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-orange-50 dark:bg-orange-900/30 py-3 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50"
-          >
-            <Power className="h-4 w-4" />
-            Desactivar
-          </button>
+        {/* Actions - 2x2 grid */}
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleConfirm}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white hover:bg-emerald-600"
+            >
+              <Calendar className="h-4 w-4" />
+              {t("skip.confirm")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSkipConfirm(true)}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-50 dark:bg-blue-900/30 py-3 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+            >
+              <SkipForward className="h-4 w-4" />
+              {t("skip.button")}
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleEdit}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+            >
+              <Pencil className="h-4 w-4" />
+              {t("skip.edit")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-orange-50 dark:bg-orange-900/30 py-3 text-sm font-medium text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50"
+            >
+              <Power className="h-4 w-4" />
+              {t("skip.disable")}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Skip Confirmation Modal */}
+      {showSkipConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setShowSkipConfirm(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative mx-4 w-full max-w-sm rounded-2xl bg-white dark:bg-gray-900 p-6 shadow-xl">
+            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              {t("skip.confirmTitle")}
+            </h3>
+            <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
+              {t("skip.confirmMessage", { name: transaction.name })}
+            </p>
+
+            {/* Actions */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowSkipConfirm(false)}
+                className="flex-1 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700"
+              >
+                {t("skip.cancel")}
+              </button>
+              <button
+                type="button"
+                onClick={handleSkip}
+                className="flex-1 rounded-xl bg-blue-500 py-3 text-sm font-medium text-white hover:bg-blue-600"
+              >
+                {t("skip.button")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (

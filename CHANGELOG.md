@@ -7,6 +7,21 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(recurring): add skip occurrence for scheduled transactions**
+  - Add `skippedOccurrences` field to `Schedule` type for per-period skip tracking
+  - Add `getPeriodKey()` helper and skip checks in `findNextOccurrence()` / `findPastDueOccurrences()`
+  - Add `skipScheduledOccurrence` store action to mark a period as skipped
+  - Add "Skip" button to `VirtualTransactionModal` with 2×2 action grid layout
+  - Auto-skip recurrence when deleting a materialized scheduled transaction (no extra modal)
+  - Add i18n `skip.*` keys for all 4 locales (es, en, fr, pt)
+  - Add 8 new unit tests for skip logic and `getPeriodKey`
+
+- **fix(forecasting): refresh Safe to Spend days-left on app resume**
+  - Add `visibilitychange` listener to `SafeToSpendCard` so the counter updates after midnight without requiring a full app restart
+
+- **fix(e2e): fix guest banner locator regex in login-screen tests**
+  - Change `/crear cuenta|create account/` to `/crea.*cuenta|create.*account/` to match actual i18n text
+
 ## [0.16.11] - 2026-02-22
 
 - **refactor(budget): convert plan form to full-screen page and period picker to bottom sheet**
