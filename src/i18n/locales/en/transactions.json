@@ -96,6 +96,15 @@
     "delete": "Delete schedule",
     "save": "Apply"
   },
+  "skip": {
+    "button": "Skip",
+    "confirm": "Confirm",
+    "edit": "Edit",
+    "disable": "Disable",
+    "cancel": "Cancel",
+    "confirmTitle": "Skip this time",
+    "confirmMessage": "\"{{name}}\" won't be generated for this period. The schedule will continue normally next period."
+  },
   "scheduledBanner": {
     "singular": "Scheduled transaction",
     "plural": "Scheduled transactions",

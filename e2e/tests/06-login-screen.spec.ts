@@ -33,8 +33,9 @@ test.describe('LoginScreen - Conditional UI', () => {
       await page.waitForURL('/profile');
 
       // Click guest banner CTA (navigates to /onboarding/login)
+      // ES: "Crea tu cuenta", EN: "Create your account"
       const guestBanner = page.locator('button').filter({
-        hasText: /crear cuenta|create account/i,
+        hasText: /crea.*cuenta|create.*account/i,
       });
       await guestBanner.click();
       await page.waitForURL(/\/onboarding\/login/, { timeout: 5000 });
@@ -59,8 +60,9 @@ test.describe('LoginScreen - Conditional UI', () => {
       await page.locator('a[href="/profile"]').click();
       await page.waitForURL('/profile');
 
+      // ES: "Crea tu cuenta", EN: "Create your account"
       const guestBanner = page.locator('button').filter({
-        hasText: /crear cuenta|create account/i,
+        hasText: /crea.*cuenta|create.*account/i,
       });
       await guestBanner.click();
       await page.waitForURL(/\/onboarding\/login/, { timeout: 5000 });

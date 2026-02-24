@@ -11,6 +11,7 @@ import {
   generatePastDueTransactions,
   materializeTransaction,
   isVirtualTransaction,
+  getPeriodKey,
 } from "./scheduler.service";
 import type { Transaction, Schedule } from "@/types/budget.types";
 
@@ -1316,6 +1317,144 @@ describe("scheduler.service", () => {
 
       // Should NOT generate another for Jan 25 2026 — the edited tx covers 2026
       expect(pastDue.length).toBe(0);
+    });
+  });
+
+  // ==========================================================================
+  // SKIPPED OCCURRENCES
+  // ==========================================================================
+
+  describe("getPeriodKey", () => {
+    it("should return YYYY-MM for monthly frequency", () => {
+      expect(getPeriodKey("monthly", "2026-02-21")).toBe("2026-02");
+    });
+
+    it("should return YYYY for yearly frequency", () => {
+      expect(getPeriodKey("yearly", "2026-02-21")).toBe("2026");
+    });
+
+    it("should return full date for weekly frequency", () => {
+      expect(getPeriodKey("weekly", "2026-02-21")).toBe("2026-02-21");
+    });
+
+    it("should return full date for daily frequency", () => {
+      expect(getPeriodKey("daily", "2026-02-21")).toBe("2026-02-21");
+    });
+  });
+
+  describe("skipped occurrences", () => {
+    const makeMonthlyTemplate = (skipped: string[]): Transaction => ({
+      id: "template-sub",
+      type: "expense",
+      name: "EA Play",
+      category: "subs",
+      amount: 26000,
+      date: "2025-12-21",
+      schedule: {
+        enabled: true,
+        frequency: "monthly",
+        interval: 1,
+        startDate: "2025-12-21",
+        dayOfMonth: 21,
+        skippedOccurrences: skipped,
+      },
+      createdAt: Date.now(),
+    });
+
+    describe("generateVirtualTransactions with skipped occurrences", () => {
+      it("should NOT generate virtual for a skipped month", () => {
+        const template = makeMonthlyTemplate(["2026-03"]);
+        const transactions: Transaction[] = [template];
+        const today = "2026-02-23";
+
+        const virtuals = generateVirtualTransactions(transactions, today);
+
+        // Next occurrence would be Mar 21, but it's skipped
+        // Should generate Apr 21 instead
+        expect(virtuals.length).toBe(1);
+        expect(virtuals[0].date).toBe("2026-04-21");
+      });
+
+      it("should generate virtual for non-skipped month", () => {
+        const template = makeMonthlyTemplate(["2026-02"]);
+        const transactions: Transaction[] = [template];
+        const today = "2026-02-23";
+
+        const virtuals = generateVirtualTransactions(transactions, today);
+
+        // Feb is skipped but Mar is not
+        expect(virtuals.length).toBe(1);
+        expect(virtuals[0].date).toBe("2026-03-21");
+      });
+
+      it("should skip multiple months correctly", () => {
+        const template = makeMonthlyTemplate(["2026-03", "2026-04"]);
+        const transactions: Transaction[] = [template];
+        const today = "2026-02-23";
+
+        const virtuals = generateVirtualTransactions(transactions, today);
+
+        // Mar and Apr are skipped, should generate May
+        expect(virtuals.length).toBe(1);
+        expect(virtuals[0].date).toBe("2026-05-21");
+      });
+    });
+
+    describe("generatePastDueTransactions with skipped occurrences", () => {
+      it("should NOT generate past-due for a skipped month", () => {
+        const template = makeMonthlyTemplate(["2026-02"]);
+        const transactions: Transaction[] = [template];
+        const today = "2026-02-23";
+
+        const pastDue = generatePastDueTransactions(transactions, today);
+
+        // Jan 21 is past-due (should generate), Feb 21 is skipped (should NOT)
+        const pastDueDates = pastDue.map((tx) => tx.date);
+        expect(pastDueDates).toContain("2026-01-21");
+        expect(pastDueDates).not.toContain("2026-02-21");
+      });
+
+      it("should still generate past-due for non-skipped months", () => {
+        const template = makeMonthlyTemplate(["2026-01"]);
+        const transactions: Transaction[] = [template];
+        const today = "2026-02-23";
+
+        const pastDue = generatePastDueTransactions(transactions, today);
+
+        // Jan is skipped, but Feb 21 is past-due and should generate
+        const pastDueDates = pastDue.map((tx) => tx.date);
+        expect(pastDueDates).not.toContain("2026-01-21");
+        expect(pastDueDates).toContain("2026-02-21");
+      });
+    });
+
+    describe("skipped occurrences do not affect other periods", () => {
+      it("skipping Feb does not affect Mar virtual generation", () => {
+        const template = makeMonthlyTemplate(["2026-02"]);
+        // Add a real tx for Jan so it doesn't show as past-due
+        const janTx: Transaction = {
+          id: "jan-tx",
+          type: "expense",
+          name: "EA Play",
+          category: "subs",
+          amount: 26000,
+          date: "2026-01-21",
+          sourceTemplateId: "template-sub",
+          createdAt: Date.now(),
+        };
+        // Even if feb tx doesn't exist (was deleted), skipped prevents re-creation
+        const transactions: Transaction[] = [template, janTx];
+        const today = "2026-02-23";
+
+        // Past-due should NOT include Feb because it's skipped
+        const pastDue = generatePastDueTransactions(transactions, today);
+        expect(pastDue.map((tx) => tx.date)).not.toContain("2026-02-21");
+
+        // Virtual should show Mar
+        const virtuals = generateVirtualTransactions(transactions, today);
+        expect(virtuals.length).toBe(1);
+        expect(virtuals[0].date).toBe("2026-03-21");
+      });
     });
   });
 });

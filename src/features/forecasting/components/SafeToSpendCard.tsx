@@ -5,6 +5,7 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { usePrivacy } from "@/features/privacy";
 import { calculateSafeToSpend } from "../services/safeToSpend.service";
+import { todayISO } from "@/services/dates.service";
 import SafeToSpendBreakdownSheet from "./SafeToSpendBreakdownSheet";
 
 const STORAGE_KEY = "app_safe_to_spend_expanded";
@@ -31,6 +32,19 @@ export default function SafeToSpendCard() {
   const budgets = useBudgetStore((s) => s.budgets);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
 
+  // Track today's date to refresh calculations on app resume (e.g. after midnight)
+  const [todayDate, setTodayDate] = useState(() => todayISO());
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        setTodayDate(todayISO());
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
+
   // Persist expanded state to localStorage
   useEffect(() => {
     try {
@@ -42,7 +56,8 @@ export default function SafeToSpendCard() {
 
   const data = useMemo(
     () => calculateSafeToSpend(transactions, budgets, selectedMonth),
-    [transactions, budgets, selectedMonth]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [transactions, budgets, selectedMonth, todayDate]
   );
 
   const dailyBudgetInfo = useMemo(() => {
@@ -60,7 +75,8 @@ export default function SafeToSpendCard() {
     if (dailyBudget <= 0) return null;
 
     return { dailyBudget, daysRemaining };
-  }, [data.safeToSpend, selectedMonth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data.safeToSpend, selectedMonth, todayDate]);
 
   const isPositive = data.safeToSpend >= 0;
 
