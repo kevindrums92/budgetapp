@@ -5,7 +5,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.12] - 2026-02-24
 
 - **feat(recurring): add skip occurrence for scheduled transactions**
   - Add `skippedOccurrences` field to `Schedule` type for per-period skip tracking
