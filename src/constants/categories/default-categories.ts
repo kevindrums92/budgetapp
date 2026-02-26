@@ -1,4 +1,5 @@
 import type { Category, TransactionType } from "@/types/budget.types";
+import { generateUUID } from "@/shared/utils/uuid";
 
 type DefaultCategoryDef = Omit<Category, "id" | "createdAt">;
 
@@ -38,7 +39,7 @@ export const DEFAULT_CATEGORIES: DefaultCategoryDef[] = [
 export function createDefaultCategories(): Category[] {
   return DEFAULT_CATEGORIES.map((cat) => ({
     ...cat,
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     createdAt: Date.now(),
   }));
 }

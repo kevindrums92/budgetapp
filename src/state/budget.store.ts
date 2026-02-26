@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { generateUUID } from "@/shared/utils/uuid";
 import { getPeriodKey } from "@/shared/services/scheduler.service";
 import type {
   BudgetState,
@@ -447,7 +448,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       }
 
       const tx: Transaction = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         type: input.type,
         name,
         category,
@@ -593,7 +594,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       if (!Number.isFinite(input.budget) || input.budget < 0) return;
 
       const trip: Trip = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         name,
         destination,
         budget: Math.round(input.budget),
@@ -670,7 +671,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       if (!Number.isFinite(input.amount) || input.amount <= 0) return;
 
       const expense: TripExpense = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         tripId: input.tripId,
         category: input.category,
         name,
@@ -744,7 +745,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       if (!name) return "";
 
       const newCategory: Category = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         name,
         icon: input.icon,
         color: input.color,
@@ -824,7 +825,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       if (!name) return "";
 
       const newGroup: CategoryGroup = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         name,
         type: input.type,
         color: input.color,
@@ -937,7 +938,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       }
 
       const newBudget: Budget = {
-        id: crypto.randomUUID(),
+        id: generateUUID(),
         categoryId: input.categoryId,
         amount: Math.round(input.amount),
         type: input.type,
