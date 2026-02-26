@@ -8,6 +8,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(ui): add light theme support to AI Assistant and budget empty state**
+  - Fix AddActionSheet Smart Assistant button using hardcoded dark background in light mode
+  - Add `dark:` variants to AssistantPage (header, idle, processing, error, success, rewarded modal)
+  - Add `dark:` variants to ChatInputBar (input area, buttons, recording state)
+  - Fix PlanPage empty state card using dark background (`bg-gray-900`) in light mode
+
 - **fix(batch-entry): fix audio transcription failures on Android native devices**
   - Force Web MediaRecorder API instead of Capacitor Voice Recorder plugin (outputs raw AAC without MP4 container, rejected by OpenAI)
   - Add `normalizeAudioMimeType()` to remap `audio/aac` → `audio/mp4` on the server side as defense-in-depth
