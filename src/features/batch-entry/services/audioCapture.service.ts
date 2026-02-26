@@ -18,8 +18,14 @@ export type AudioRecordingResult = {
   mimeType: string;
 };
 
-/** Track whether to use native plugin or web fallback */
-let useWebFallback = false;
+/**
+ * Always use Web MediaRecorder API instead of native Capacitor plugin.
+ * The native plugin (capacitor-voice-recorder) outputs raw AAC without an MP4 container,
+ * which OpenAI's transcription API rejects as "Invalid file format".
+ * Web MediaRecorder produces proper container formats (audio/mp4 or audio/webm)
+ * that OpenAI accepts. Works on both Android (Chrome WebView) and iOS (Safari WebView).
+ */
+let useWebFallback = true;
 
 /** Web Audio API state */
 let mediaRecorder: MediaRecorder | null = null;

@@ -8,6 +8,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(batch-entry): fix audio transcription failures on Android native devices**
+  - Force Web MediaRecorder API instead of Capacitor Voice Recorder plugin (outputs raw AAC without MP4 container, rejected by OpenAI)
+  - Add `normalizeAudioMimeType()` to remap `audio/aac` → `audio/mp4` on the server side as defense-in-depth
+  - Create fresh FormData for Whisper fallback to avoid body reuse issues in Deno runtime
+  - Improve transcription logging with raw/normalized MIME type, extension, and file size
+
 ## [0.16.12] - 2026-02-24
 
 - **feat(recurring): add skip occurrence for scheduled transactions**

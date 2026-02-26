@@ -90,25 +90,51 @@ function getRateLimiter(plan: UserPlan) {
   });
 }
 
-// Map MIME type to file extension for OpenAI Whisper
+// Normalize MIME types that OpenAI doesn't recognize to compatible equivalents
+// Capacitor Voice Recorder on some Android devices reports "audio/aac" which OpenAI rejects,
+// but the data is AAC in an MP4 container — same as audio/mp4.
+function normalizeAudioMimeType(mimeType: string): string {
+  const normalize: Record<string, string> = {
+    "audio/aac": "audio/mp4",     // AAC from Capacitor → MP4 container
+    "audio/x-m4a": "audio/mp4",   // Non-standard M4A → MP4
+    "audio/m4a": "audio/mp4",     // Non-standard M4A → MP4
+  };
+  const baseType = mimeType.split(";")[0].trim().toLowerCase();
+  return normalize[baseType] || mimeType;
+}
+
+// Map MIME type to file extension for OpenAI transcription
 function getAudioExtension(mimeType: string): string {
   const map: Record<string, string> = {
     "audio/webm": "webm",
     "audio/webm;codecs=opus": "webm",
     "audio/mp4": "mp4",
-    "audio/aac": "m4a",
     "audio/mpeg": "mp3",
     "audio/ogg": "ogg",
     "audio/ogg;codecs=opus": "ogg",
     "audio/wav": "wav",
     "audio/x-wav": "wav",
     "audio/flac": "flac",
-    "audio/m4a": "m4a",
-    "audio/x-m4a": "m4a",
   };
   // Strip codec params for lookup (e.g., "audio/webm;codecs=opus" → "audio/webm")
   const baseType = mimeType.split(";")[0].trim().toLowerCase();
   return map[mimeType.toLowerCase()] || map[baseType] || "webm";
+}
+
+// Build a fresh FormData for OpenAI transcription
+function buildTranscriptionForm(
+  audioBytes: Uint8Array,
+  mimeType: string,
+  extension: string,
+  model: string
+): FormData {
+  const formData = new FormData();
+  const audioBlob = new Blob([audioBytes], { type: mimeType });
+  formData.append("file", audioBlob, `recording.${extension}`);
+  formData.append("model", model);
+  formData.append("language", "es");
+  formData.append("response_format", "text");
+  return formData;
 }
 
 // Transcribe audio using OpenAI GPT-4o Mini Transcribe
@@ -118,11 +144,10 @@ async function transcribeAudio(audioBase64: string, audioMimeType?: string): Pro
     throw new Error("OPENAI_API_KEY not configured");
   }
 
-  // Use provided MIME type or default to audio/webm
-  const mimeType = audioMimeType || "audio/webm";
+  // Use provided MIME type or default to audio/webm, then normalize for OpenAI compatibility
+  const rawMimeType = audioMimeType || "audio/webm";
+  const mimeType = normalizeAudioMimeType(rawMimeType);
   const extension = getAudioExtension(mimeType);
-
-  console.log(`[parse-batch] Transcribing audio with GPT-4o Mini Transcribe (mimeType: ${mimeType}, ext: ${extension})...`);
 
   // Decode base64 to binary
   const binaryString = atob(audioBase64);
@@ -131,43 +156,43 @@ async function transcribeAudio(audioBase64: string, audioMimeType?: string): Pro
     bytes[i] = binaryString.charCodeAt(i);
   }
 
-  // Create form data with correct MIME type and extension
-  const formData = new FormData();
-  const audioBlob = new Blob([bytes], { type: mimeType });
-  formData.append("file", audioBlob, `recording.${extension}`);
-  formData.append("model", "gpt-4o-mini-transcribe");
-  formData.append("language", "es");
-  formData.append("response_format", "text");
+  console.log(`[parse-batch] Transcribing audio (rawMime: ${rawMimeType}, normalizedMime: ${mimeType}, ext: ${extension}, size: ${bytes.length} bytes)`);
+
+  // Try GPT-4o Mini Transcribe first
+  console.log("[parse-batch] Trying GPT-4o Mini Transcribe...");
+  const primaryForm = buildTranscriptionForm(bytes, mimeType, extension, "gpt-4o-mini-transcribe");
 
   const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${openaiKey}`,
     },
-    body: formData,
+    body: primaryForm,
   });
 
   if (!response.ok) {
     const error = await response.text();
-    console.error("[parse-batch] Transcription failed:", error);
+    console.error("[parse-batch] GPT-4o Mini Transcribe failed:", error);
 
-    // Fallback to standard Whisper
+    // Fallback: create a FRESH FormData for Whisper (avoids body reuse issues in Deno)
     console.log("[parse-batch] Falling back to Whisper...");
-    formData.set("model", "whisper-1");
+    const fallbackForm = buildTranscriptionForm(bytes, mimeType, extension, "whisper-1");
 
     const fallbackResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${openaiKey}`,
       },
-      body: formData,
+      body: fallbackForm,
     });
 
     if (!fallbackResponse.ok) {
       throw new Error(`Transcription failed: ${await fallbackResponse.text()}`);
     }
 
-    return await fallbackResponse.text();
+    const fallbackText = await fallbackResponse.text();
+    console.log("[parse-batch] Whisper transcription:", fallbackText);
+    return fallbackText;
   }
 
   const transcription = await response.text();
