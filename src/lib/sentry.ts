@@ -49,6 +49,22 @@ export function initSentry() {
         return null;
       }
 
+      // Skip generic network errors UNLESS they are chunk/module loading failures
+      // Chunk loading errors ("Failed to fetch dynamically imported module") are critical
+      const isChunkError = event.exception?.values?.some(
+        (e) => e.value?.includes("dynamically imported module") ||
+               e.value?.includes("Loading chunk") ||
+               e.value?.includes("Loading CSS chunk")
+      );
+      if (!isChunkError) {
+        const isNetworkNoise = event.exception?.values?.some(
+          (e) => e.value === "Failed to fetch" ||
+                 e.value === "Load failed" ||
+                 e.value === "NetworkError"
+        );
+        if (isNetworkNoise) return null;
+      }
+
       return event;
     },
 
@@ -60,10 +76,6 @@ export function initSentry() {
       // Browser navigation
       "Non-Error promise rejection captured",
       "AbortError",
-      // Network flakiness
-      "Failed to fetch",
-      "NetworkError",
-      "Load failed",
       // Auth-related (handled by app)
       "AuthRetryableFetchError",
     ],

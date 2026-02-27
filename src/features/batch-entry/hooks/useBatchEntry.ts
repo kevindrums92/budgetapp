@@ -18,6 +18,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { todayISO } from "@/services/dates.service";
 import { showRewardedVideo, isRewardedVideoReady } from "@/services/ads.service";
 import { isNative } from "@/shared/utils/platform";
+import { captureError } from "@/lib/sentry";
 import type { Category } from "@/types/budget.types";
 import type { BatchInputType, TransactionDraft, HistoryPattern } from "../types/batch-entry.types";
 import { parseText, parseImage, parseAudio } from "../services/batchEntry.service";
@@ -253,6 +254,7 @@ export function useBatchEntry() {
           setFlowState("error");
         }
       } catch (err) {
+        captureError(err, { context: 'batchEntry.parseText' });
         setError(err instanceof Error ? err.message : "Error inesperado");
         setFlowState("error");
       }
@@ -276,6 +278,7 @@ export function useBatchEntry() {
           setFlowState("error");
         }
       } catch (err) {
+        captureError(err, { context: 'batchEntry.parseImage' });
         setError(err instanceof Error ? err.message : "Error inesperado");
         setFlowState("error");
       }
@@ -299,6 +302,7 @@ export function useBatchEntry() {
           setFlowState("error");
         }
       } catch (err) {
+        captureError(err, { context: 'batchEntry.parseAudio' });
         setError(err instanceof Error ? err.message : "Error inesperado");
         setFlowState("error");
       }
@@ -334,6 +338,7 @@ export function useBatchEntry() {
       }
       setFlowState("success");
     } catch (err) {
+      captureError(err, { context: 'batchEntry.saveAll', draftCount: drafts.length });
       setError(err instanceof Error ? err.message : "Error al guardar");
       setFlowState("error");
     }

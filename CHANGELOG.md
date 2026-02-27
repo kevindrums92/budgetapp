@@ -8,6 +8,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sentry): comprehensive error tracking improvements**
+  - Add global `unhandledrejection` and `error` handlers in main.tsx to catch errors outside React ErrorBoundary
+  - Add `setSentryUser()` calls in CloudSyncGate at all auth state transitions for error attribution
+  - Add `captureError()` to deep link handlers, AdMob init, batch entry (text/image/audio/save), and image capture
+  - Fix `ignoreErrors` masking chunk loading failures — move network error filtering to smart `beforeSend` logic
+
 - **refactor(ads): remove banner ads, keep only interstitial and rewarded**
   - Remove AdMob banner show/hide/remove logic from App.tsx and HistoryPage
   - Remove banner functions, config, and ad unit IDs from ads.service.ts

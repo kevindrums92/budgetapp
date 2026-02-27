@@ -1,12 +1,27 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./i18n/config"; // IMPORTANT: Import before React
-import { initSentry } from "@/lib/sentry";
+import { initSentry, captureError } from "@/lib/sentry";
 import App from "./App";
 import "./index.css";
 
 // Initialize Sentry early, before any React rendering
 initSentry();
+
+// Global error handlers — catch errors that escape React ErrorBoundary
+window.addEventListener('unhandledrejection', (event) => {
+  captureError(
+    event.reason instanceof Error ? event.reason : new Error(String(event.reason)),
+    { type: 'unhandledRejection' }
+  );
+});
+
+window.addEventListener('error', (event) => {
+  // Skip errors already caught by React ErrorBoundary
+  if (event.error) {
+    captureError(event.error, { type: 'globalError', message: event.message });
+  }
+});
 
 import { registerSW } from "virtual:pwa-register";
 import { App as CapacitorApp } from '@capacitor/app';
@@ -67,6 +82,7 @@ if (isNative()) {
         }
       } catch (err) {
         console.error('[DeepLink] Error parsing redeem URL:', err);
+        captureError(err, { context: 'deepLink.redeem', url });
       }
       return;
     }
@@ -180,6 +196,7 @@ if (isNative()) {
         }
       } catch (err) {
         console.error('[DeepLink] Error processing OAuth callback:', err);
+        captureError(err, { context: 'deepLink.oauth', url });
       }
     }
   });
