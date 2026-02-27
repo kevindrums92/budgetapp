@@ -13,6 +13,7 @@ import { createDefaultCategoryGroups } from "@/constants/category-groups/default
 import BackupScheduler from "@/features/backup/components/BackupScheduler";
 import CloudBackupScheduler from "@/features/backup/components/CloudBackupScheduler";
 import { logger } from "@/shared/utils/logger";
+import { setSentryUser } from "@/lib/sentry";
 import { convertLegacyRecurringToSchedule } from "@/shared/services/scheduler.service";
 import { getNetworkStatus, addNetworkListener } from "@/services/network.service";
 import {
@@ -194,6 +195,7 @@ export default function CloudSyncGate() {
             avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || null,
             provider: provider as 'google' | 'apple' | null,
           });
+          setSentryUser(sessionUser.id, sessionUser.email);
           logger.info("CloudSync", `Offline mode: cloud (loaded user: ${sessionUser.email})`);
         } else {
           // Anonymous user or no user data — still cloud mode, will sync when online
@@ -323,6 +325,7 @@ export default function CloudSyncGate() {
         avatarUrl: null,
         provider: null,
       });
+      setSentryUser(null);
 
       // Try to create anonymous session → SIGNED_IN handler will activate cloud sync
       if (isOnline) {
@@ -365,6 +368,7 @@ export default function CloudSyncGate() {
       avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || null,
       provider: provider as 'google' | 'apple' | null,
     });
+    setSentryUser(session.user.id, session.user.email);
 
     // ✅ Persist auth flag so we can detect session loss on cold start
     if (session.user.email && !session.user.is_anonymous) {
@@ -797,6 +801,7 @@ export default function CloudSyncGate() {
           avatarUrl: null,
           provider: null,
         });
+        setSentryUser(null);
 
         setCloudMode("guest"); // Temporary until anonymous session is created
         setCloudStatus("idle");

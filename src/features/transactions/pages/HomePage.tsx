@@ -301,7 +301,7 @@ export default function HomePage() {
         </div>
       )}
 
-      <main className="pb-28 pt-4">
+      <main className="pb-44 pt-4">
         {/* Scheduled transactions banner (hidden when filtering to real only) */}
         {showVirtual &&
           !hideScheduledBannerSession &&

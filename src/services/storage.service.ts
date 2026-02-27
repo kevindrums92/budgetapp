@@ -1,4 +1,5 @@
 import type { BudgetState, Category } from "@/types/budget.types";
+import { generateUUID } from "@/shared/utils/uuid";
 import { createDefaultCategories } from "@/constants/categories/default-categories";
 import { createDefaultCategoryGroups } from "@/constants/category-groups/default-category-groups";
 import { DEFAULT_CATEGORY_ICON } from "@/constants/categories/category-icons";
@@ -16,7 +17,7 @@ function migrateCategoriesToDefinitions(oldCategories: string[]): Category[] {
   const customCategories: Category[] = oldCategories
     .filter((name) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
     .map((name) => ({
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       name: name.trim(),
       icon: DEFAULT_CATEGORY_ICON,
       color: DEFAULT_CATEGORY_COLOR,
@@ -290,7 +291,7 @@ export function loadState(): BudgetState | null {
           const customFromOld: Category[] = (parsed.categories || [])
             .filter((name: string) => name.trim() && !defaultNamesLower.has(name.toLowerCase()))
             .map((name: string) => ({
-              id: crypto.randomUUID(),
+              id: generateUUID(),
               name: name.trim(),
               icon: DEFAULT_CATEGORY_ICON,
               color: DEFAULT_CATEGORY_COLOR,

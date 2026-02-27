@@ -11,6 +11,7 @@ import {
   selectFromGallery,
   getImageDataUrl,
 } from "../services/imageCapture.service";
+import { captureError } from "@/lib/sentry";
 import { useFakeProgress } from "../hooks/useFakeProgress";
 
 type Props = {
@@ -45,6 +46,7 @@ export default function ImageCaptureView({
         // User cancelled, stay on selection
         return;
       }
+      captureError(err, { context: 'imageCapture.camera' });
       setError(err instanceof Error ? err.message : t("errors.captureError"));
       setState("error");
     }
@@ -61,6 +63,7 @@ export default function ImageCaptureView({
         // User cancelled, stay on selection
         return;
       }
+      captureError(err, { context: 'imageCapture.gallery' });
       setError(err instanceof Error ? err.message : t("errors.selectError"));
       setState("error");
     }

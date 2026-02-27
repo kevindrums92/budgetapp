@@ -20,9 +20,6 @@ import { useCurrency } from "@/features/currency";
 import { useKeyboardDismiss } from "@/hooks/useKeyboardDismiss";
 import { exportTransactionsToCSV } from "@/shared/services/export.service";
 import { todayISO } from "@/services/dates.service";
-import { showBanner, hideBanner } from "@/services/ads.service";
-import { isNative } from "@/shared/utils/platform";
-import { useSubscription } from "@/hooks/useSubscription";
 import DatePicker from "@/shared/components/modals/DatePicker";
 import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
@@ -48,7 +45,6 @@ export default function HistoryPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { formatAmount } = useCurrency();
-  const { isPro } = useSubscription();
   // Dismiss keyboard on scroll or touch outside
   useKeyboardDismiss();
 
@@ -122,16 +118,6 @@ export default function HistoryPage() {
       document.body.style.overflow = "";
     };
   }, [showCategoryModal]);
-
-  // Hide banner ad when category filter modal is open (prevents overlap)
-  useEffect(() => {
-    if (!isNative() || isPro) return;
-    if (showCategoryModal) {
-      hideBanner();
-    } else {
-      showBanner();
-    }
-  }, [showCategoryModal, isPro]);
 
   // Category modal drag handlers
   const handleCategoryDragStart = useCallback((clientY: number) => {

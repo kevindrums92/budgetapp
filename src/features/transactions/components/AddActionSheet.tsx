@@ -174,9 +174,9 @@ export default function AddActionSheet({ open, onClose }: Props) {
             className="group relative mb-6 flex w-full items-center gap-4 rounded-[24px] p-4 pr-5 transition-all duration-300 active:scale-[0.98]"
           >
             {/* Ambient Background & Border */}
-            <div className="absolute inset-0 overflow-hidden rounded-[24px] bg-[#222736] dark:bg-[#1E2532] shadow-sm">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#20B2A6]/20 via-[#20B2A6]/5 to-transparent opacity-80" />
-              <div className="absolute inset-0 rounded-[24px] border border-[#20B2A6]/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
+            <div className="absolute inset-0 overflow-hidden rounded-[24px] bg-[#F0FAFA] dark:bg-[#1E2532] shadow-sm">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#20B2A6]/15 via-[#20B2A6]/5 to-transparent dark:from-[#20B2A6]/20 opacity-80" />
+              <div className="absolute inset-0 rounded-[24px] border border-[#20B2A6]/30 dark:border-[#20B2A6]/40 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" />
             </div>
 
             {/* Glowy Icon */}
@@ -195,7 +195,7 @@ export default function AddActionSheet({ open, onClose }: Props) {
             </div>
 
             {/* Minimalist Arrow */}
-            <div className="relative z-10 flex items-center justify-center text-gray-400 dark:text-gray-500 transition-all duration-300 group-hover:translate-x-1 group-hover:text-gray-900 dark:group-hover:text-gray-300">
+            <div className="relative z-10 flex items-center justify-center text-[#20B2A6]/60 dark:text-gray-500 transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#20B2A6] dark:group-hover:text-gray-300">
               <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
             </div>
           </button>

@@ -15,9 +15,6 @@ import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 import { HeaderActionsProvider } from "@/shared/contexts/headerActions.context";
 import RevenueCatProvider from "@/shared/components/providers/RevenueCatProvider";
-import { showBanner, hideBanner, removeBanner } from "@/services/ads.service";
-import { useSubscription } from "@/hooks/useSubscription";
-import { isNative } from "@/shared/utils/platform";
 
 // Eager load core pages (HomePage, PlanPage)
 import HomePage from "@/features/transactions/pages/HomePage";
@@ -109,34 +106,6 @@ function AppFrame() {
 
   const isProfilePage = location.pathname === "/profile";
 
-  // Banner ads: show on pages without bottom bar, except forms with fixed bottom buttons
-  const { isPro } = useSubscription();
-  const isNoBannerRoute =
-    location.pathname.startsWith("/onboarding") ||
-    location.pathname === "/assistant" ||
-    location.pathname === "/add" ||
-    location.pathname.startsWith("/edit/") ||
-    location.pathname === "/category/new" ||
-    (location.pathname.startsWith("/category/") && location.pathname.endsWith("/edit")) ||
-    location.pathname === "/category-group/new" ||
-    (location.pathname.startsWith("/category-group/") && location.pathname.endsWith("/edit")) ||
-    (location.pathname.startsWith("/trips/") && (
-      location.pathname.endsWith("/new") ||
-      location.pathname.endsWith("/edit") ||
-      location.pathname.includes("/expense/")
-    ));
-
-  useEffect(() => {
-    if (!isNative()) return;
-
-    if (isFormRoute && !isPro && !isNoBannerRoute) {
-      showBanner();
-    } else {
-      hideBanner();
-    }
-
-    return () => { removeBanner(); };
-  }, [isFormRoute, isPro, isNoBannerRoute]);
 
   return (
     <>

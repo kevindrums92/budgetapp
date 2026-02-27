@@ -158,20 +158,20 @@ export default function ChatInputBar({
   // --- Recording state ---
   if (isRecordingState) {
     return (
-      <div className="shrink-0 border-t border-gray-800 bg-gray-950 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
+      <div className="shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
         <div className="flex items-center gap-3">
           {/* Cancel button */}
           <button
             type="button"
             onClick={handleCancelRecording}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-800 transition-all active:scale-95"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 transition-all active:scale-95"
             aria-label={t("common.cancel")}
           >
-            <X size={20} className="text-gray-400" />
+            <X size={20} className="text-gray-500 dark:text-gray-400" />
           </button>
 
           {/* Waveform + timer */}
-          <div className="flex flex-1 items-center gap-3 rounded-2xl bg-gray-900 px-4 py-2">
+          <div className="flex flex-1 items-center gap-3 rounded-2xl bg-white dark:bg-gray-900 px-4 py-2 shadow-sm dark:shadow-none">
             {/* Red pulse indicator */}
             <div className="relative flex h-3 w-3 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
@@ -179,7 +179,7 @@ export default function ChatInputBar({
             </div>
 
             {/* Timer */}
-            <span className="shrink-0 font-mono text-sm text-gray-300">
+            <span className="shrink-0 font-mono text-sm text-gray-700 dark:text-gray-300">
               {formatDuration(recordingDuration)}
             </span>
 
@@ -205,10 +205,10 @@ export default function ChatInputBar({
 
   // --- Default / Typing state ---
   return (
-    <div className="shrink-0 border-t border-gray-800 bg-gray-950 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
+    <div className="shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
       {/* Recording error message */}
       {recordingError && (
-        <div className="mb-2 rounded-lg bg-red-900/30 px-3 py-1.5 text-xs text-red-400">
+        <div className="mb-2 rounded-lg bg-red-100 dark:bg-red-900/30 px-3 py-1.5 text-xs text-red-600 dark:text-red-400">
           {recordingError}
         </div>
       )}
@@ -219,14 +219,14 @@ export default function ChatInputBar({
           type="button"
           onClick={onCaptureImage}
           disabled={disabled}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-800 transition-all active:scale-95 disabled:opacity-50"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 transition-all active:scale-95 disabled:opacity-50"
           aria-label={t("inputTypes.image.label")}
         >
-          <Camera size={20} className="text-gray-400" />
+          <Camera size={20} className="text-gray-500 dark:text-gray-400" />
         </button>
 
         {/* Textarea */}
-        <div className="flex min-h-[40px] flex-1 items-end rounded-2xl bg-gray-900 px-4 py-2">
+        <div className="flex min-h-[40px] flex-1 items-end rounded-2xl bg-white dark:bg-gray-900 px-4 py-2 shadow-sm dark:shadow-none">
           <textarea
             ref={textareaRef}
             value={text}
@@ -235,7 +235,7 @@ export default function ChatInputBar({
             placeholder={t("assistant.inputPlaceholder", { defaultValue: "Escribe tus gastos..." })}
             disabled={disabled}
             rows={1}
-            className="max-h-[120px] w-full resize-none bg-transparent text-sm text-gray-100 placeholder:text-gray-500 focus:outline-none disabled:opacity-50"
+            className="max-h-[120px] w-full resize-none bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none disabled:opacity-50"
           />
         </div>
 
@@ -257,10 +257,10 @@ export default function ChatInputBar({
               type="button"
               onClick={handleStartRecording}
               disabled={disabled}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 transition-transform duration-200 active:scale-95 disabled:opacity-50"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 transition-transform duration-200 active:scale-95 disabled:opacity-50"
               aria-label={t("inputTypes.voice.label")}
             >
-              <Mic size={20} className="text-gray-400" />
+              <Mic size={20} className="text-gray-500 dark:text-gray-400" />
             </button>
           )}
         </div>

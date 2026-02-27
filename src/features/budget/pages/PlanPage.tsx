@@ -182,7 +182,7 @@ export default function PlanPage() {
               <button
                 type="button"
                 onClick={() => setShowAddBudgetModal(true)}
-                className="w-full rounded-2xl bg-gray-900 dark:bg-gray-800 p-8 text-center transition-all hover:bg-gray-800 dark:hover:bg-gray-750 active:scale-[0.99]"
+                className="w-full rounded-2xl bg-white dark:bg-gray-800 p-8 text-center shadow-sm dark:shadow-none transition-all hover:bg-gray-50 dark:hover:bg-gray-750 active:scale-[0.99]"
               >
                 {/* Icon Circle with Plus */}
                 <div className="mb-6 flex justify-center">
@@ -192,12 +192,12 @@ export default function PlanPage() {
                 </div>
 
                 {/* Title */}
-                <h3 className="mb-3 text-xl font-bold text-white">
+                <h3 className="mb-3 text-xl font-bold text-gray-900 dark:text-white">
                   {t("page.noPlansTitle")}
                 </h3>
 
                 {/* Description */}
-                <p className="mb-6 text-sm leading-relaxed text-gray-400">
+                <p className="mb-6 text-sm leading-relaxed text-gray-500 dark:text-gray-400">
                   {t("page.noPlansDescription")}
                 </p>
 

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { requestTrackingIfNeeded, initializeAdMob, checkAndResetSession, prepareInterstitial, prepareRewardedVideo } from '@/services/ads.service';
 import { useSubscription } from '@/hooks/useSubscription';
+import { captureError } from '@/lib/sentry';
 
 /**
  * AdMobProvider
@@ -38,6 +39,7 @@ export default function AdMobProvider({ children }: { children: React.ReactNode 
         console.log('[AdMobProvider] AdMob SDK initialized successfully');
       } catch (error) {
         console.error('[AdMobProvider] Failed to initialize AdMob:', error);
+        captureError(error, { context: 'AdMobProvider.init' });
       }
     }
 

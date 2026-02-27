@@ -6,7 +6,39 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.13] - 2026-02-26
+
+- **fix(ui): increase home page bottom padding so FAB doesn't overlap last transaction**
+
+- **refactor(batch-entry): navigate to home immediately after saving batch transactions**
+  - Skip the 1.5s "Transacciones guardadas" success screen
+  - Use `navigate("/", { replace: true })` to go straight to home
+
+- **fix(sentry): comprehensive error tracking improvements**
+  - Add global `unhandledrejection` and `error` handlers in main.tsx to catch errors outside React ErrorBoundary
+  - Add `setSentryUser()` calls in CloudSyncGate at all auth state transitions for error attribution
+  - Add `captureError()` to deep link handlers, AdMob init, batch entry (text/image/audio/save), and image capture
+  - Fix `ignoreErrors` masking chunk loading failures — move network error filtering to smart `beforeSend` logic
+
+- **refactor(ads): remove banner ads, keep only interstitial and rewarded**
+  - Remove AdMob banner show/hide/remove logic from App.tsx and HistoryPage
+  - Remove banner functions, config, and ad unit IDs from ads.service.ts
+  - Remove banner type from ads.types.ts
+  - Fixes crash on Xiaomi 14T Pro caused by banner show/hide race condition during route transitions
+- **fix(ui): add light theme support to AI Assistant and budget empty state**
+  - Fix AddActionSheet Smart Assistant button using hardcoded dark background in light mode
+  - Add `dark:` variants to AssistantPage (header, idle, processing, error, success, rewarded modal)
+  - Add `dark:` variants to ChatInputBar (input area, buttons, recording state)
+  - Fix PlanPage empty state card using dark background (`bg-gray-900`) in light mode
+
+- **fix(batch-entry): fix audio transcription failures on Android native devices**
+  - Force Web MediaRecorder API instead of Capacitor Voice Recorder plugin (outputs raw AAC without MP4 container, rejected by OpenAI)
+  - Add `normalizeAudioMimeType()` to remap `audio/aac` → `audio/mp4` on the server side as defense-in-depth
+  - Create fresh FormData for Whisper fallback to avoid body reuse issues in Deno runtime
+  - Improve transcription logging with raw/normalized MIME type, extension, and file size
 
 ## [0.16.12] - 2026-02-24
 

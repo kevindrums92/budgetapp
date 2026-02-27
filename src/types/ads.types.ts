@@ -2,7 +2,7 @@
  * Ad Types and Configuration
  */
 
-export type AdType = 'interstitial' | 'rewarded' | 'banner' | 'native';
+export type AdType = 'interstitial' | 'rewarded' | 'native';
 
 export type AdPlacement =
   | 'after_transaction_create'
@@ -18,8 +18,6 @@ export interface AdConfig {
   interstitialAdUnitId: string;
   /** Rewarded Video Ad Unit ID */
   rewardedAdUnitId: string;
-  /** Banner Ad Unit ID */
-  bannerAdUnitId: string;
   /** Whether to use test ads (development) */
   useTestAds: boolean;
 }

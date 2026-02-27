@@ -1,4 +1,5 @@
 import type { BudgetState } from "@/types/budget.types";
+import { generateUUID } from "@/shared/utils/uuid";
 import type { BackupFile, BackupMeta, BackupStats, LocalBackupEntry } from "@/features/backup/types/backup.types";
 import { logger } from "@/shared/utils/logger";
 import { downloadJSON } from "@/shared/utils/download.utils";
@@ -25,7 +26,7 @@ export async function createBackup(
     backupVersion: BACKUP_VERSION,
     appVersion: APP_VERSION,
     schemaVersion: state.schemaVersion,
-    backupId: crypto.randomUUID(),
+    backupId: generateUUID(),
     createdAt: new Date().toISOString(),
     createdBy,
     userId,
