@@ -17,6 +17,11 @@ export default function AdMobProvider({ children }: { children: React.ReactNode 
     }
 
     async function initAds() {
+      if (import.meta.env.VITE_DISABLE_ADS === 'true') {
+        console.log('[AdMobProvider] Ads disabled via VITE_DISABLE_ADS');
+        return;
+      }
+
       try {
         console.log('[AdMobProvider] Initializing AdMob SDK...');
 

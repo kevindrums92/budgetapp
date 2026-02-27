@@ -127,7 +127,7 @@ function AppFrame() {
     ));
 
   useEffect(() => {
-    if (!isNative()) return;
+    if (!isNative() || import.meta.env.VITE_DISABLE_ADS === 'true') return;
 
     if (isFormRoute && !isPro && !isNoBannerRoute) {
       showBanner();

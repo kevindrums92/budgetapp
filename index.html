@@ -46,9 +46,11 @@
       .splash-loader { width: 24px; height: 24px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; margin-top: 32px; }
       @keyframes spin { to { transform: rotate(360deg); } }
       body { margin: 0; background: #0d9488; }
+      body.app-ready { background: #F9FAFB; }
       /* Dark mode splash */
       html.dark #app-splash { background: #030712; }
       html.dark body { background: #030712; }
+      html.dark body.app-ready { background: #030712; }
     </style>
   </head>
   <body>

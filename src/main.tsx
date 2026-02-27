@@ -197,7 +197,10 @@ requestAnimationFrame(() => {
     const splash = document.getElementById('app-splash');
     if (splash) {
       splash.style.opacity = '0';
-      setTimeout(() => splash.remove(), 400);
+      setTimeout(() => {
+        splash.remove();
+        document.body.classList.add('app-ready');
+      }, 400);
     }
   }, 800);
 });
