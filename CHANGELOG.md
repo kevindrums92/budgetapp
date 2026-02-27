@@ -9,6 +9,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(ui): make TopHeader avatar tappable to navigate to profile/settings page**
+
 ## [0.16.13] - 2026-02-26
 
 - **fix(ui): increase home page bottom padding so FAB doesn't overlap last transaction**
