@@ -8,6 +8,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(ui): increase home page bottom padding so FAB doesn't overlap last transaction**
+
 - **refactor(batch-entry): navigate to home immediately after saving batch transactions**
   - Skip the 1.5s "Transacciones guardadas" success screen
   - Use `navigate("/", { replace: true })` to go straight to home
