@@ -3,8 +3,8 @@
  * Manages interstitial ad frequency, session tracking, and display logic
  */
 
-import { AdMob, BannerAdSize, BannerAdPosition } from '@capacitor-community/admob';
-import type { BannerAdOptions, AdMobRewardItem } from '@capacitor-community/admob';
+import { AdMob } from '@capacitor-community/admob';
+import type { AdMobRewardItem } from '@capacitor-community/admob';
 import type { AdPlacement, AdSession, AdFrequencyConfig, AdConfig } from '@/types/ads.types';
 
 const AD_SESSION_KEY = 'budget.adSession.v1';
@@ -29,16 +29,14 @@ const DEFAULT_FREQUENCY_CONFIG: AdFrequencyConfig = {
  * https://developers.google.com/admob/ios/test-ads
  * https://developers.google.com/admob/android/test-ads
  */
-const TEST_AD_IDS: Record<'ios' | 'android', { interstitial: string; rewarded: string; banner: string }> = {
+const TEST_AD_IDS: Record<'ios' | 'android', { interstitial: string; rewarded: string }> = {
   ios: {
     interstitial: 'ca-app-pub-3940256099942544/4411468910',
     rewarded: 'ca-app-pub-3940256099942544/1712485313',
-    banner: 'ca-app-pub-3940256099942544/2934735716',
   },
   android: {
     interstitial: 'ca-app-pub-3940256099942544/1033173712',
     rewarded: 'ca-app-pub-3940256099942544/5224354917',
-    banner: 'ca-app-pub-3940256099942544/6300978111',
   },
 };
 
@@ -54,14 +52,12 @@ const AD_CONFIG: Record<'ios' | 'android', AdConfig> = {
     appId: 'ca-app-pub-1664291794679786~7314308108',
     interstitialAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.ios.interstitial : 'ca-app-pub-1664291794679786/7310438677',
     rewardedAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.ios.rewarded : 'ca-app-pub-1664291794679786/4381023000',
-    bannerAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.ios.banner : 'ca-app-pub-1664291794679786/4688144765',
     useTestAds: USE_TEST_ADS,
   },
   android: {
     appId: 'ca-app-pub-1664291794679786~3525498108',
     interstitialAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.android.interstitial : 'ca-app-pub-1664291794679786/3166405455',
     rewardedAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.android.rewarded : 'ca-app-pub-1664291794679786/1853323788',
-    bannerAdUnitId: USE_TEST_ADS ? TEST_AD_IDS.android.banner : 'ca-app-pub-1664291794679786/4688144765',
     useTestAds: USE_TEST_ADS,
   },
 };
@@ -69,7 +65,6 @@ const AD_CONFIG: Record<'ios' | 'android', AdConfig> = {
 let frequencyConfig: AdFrequencyConfig = DEFAULT_FREQUENCY_CONFIG;
 let currentSession: AdSession | null = null;
 let rewardedVideoLoaded = false;
-let isBannerVisible = false;
 
 /**
  * Request App Tracking Transparency authorization (iOS 14.5+)
@@ -327,61 +322,6 @@ export async function showRewardedVideo(): Promise<AdMobRewardItem | null> {
   prepareRewardedVideo();
 
   return result as AdMobRewardItem | null;
-}
-
-/**
- * Show banner ad at bottom of screen.
- * Includes deduplication — calling when already showing is a no-op.
- */
-export async function showBanner(): Promise<void> {
-  if (isBannerVisible) return;
-
-  try {
-    const platform = getPlatform();
-    const config = AD_CONFIG[platform];
-
-    const options: BannerAdOptions = {
-      adId: config.bannerAdUnitId,
-      adSize: BannerAdSize.ADAPTIVE_BANNER,
-      position: BannerAdPosition.BOTTOM_CENTER,
-      margin: 0,
-      isTesting: config.useTestAds,
-    };
-
-    await AdMob.showBanner(options);
-    isBannerVisible = true;
-    console.log('[AdMob] Banner ad shown');
-  } catch (error) {
-    console.error('[AdMob] Failed to show banner:', error);
-  }
-}
-
-/**
- * Hide banner ad (keeps it in memory for fast resume)
- */
-export async function hideBanner(): Promise<void> {
-  if (!isBannerVisible) return;
-
-  try {
-    await AdMob.hideBanner();
-    isBannerVisible = false;
-    console.log('[AdMob] Banner ad hidden');
-  } catch (error) {
-    console.error('[AdMob] Failed to hide banner:', error);
-  }
-}
-
-/**
- * Remove banner ad completely (frees memory)
- */
-export async function removeBanner(): Promise<void> {
-  try {
-    await AdMob.removeBanner();
-    isBannerVisible = false;
-    console.log('[AdMob] Banner ad removed');
-  } catch (error) {
-    console.error('[AdMob] Failed to remove banner:', error);
-  }
 }
 
 /**

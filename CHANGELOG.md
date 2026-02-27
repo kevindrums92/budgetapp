@@ -8,6 +8,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(ads): remove banner ads, keep only interstitial and rewarded**
+  - Remove AdMob banner show/hide/remove logic from App.tsx and HistoryPage
+  - Remove banner functions, config, and ad unit IDs from ads.service.ts
+  - Remove banner type from ads.types.ts
+  - Fixes crash on Xiaomi 14T Pro caused by banner show/hide race condition during route transitions
 - **fix(ui): add light theme support to AI Assistant and budget empty state**
   - Fix AddActionSheet Smart Assistant button using hardcoded dark background in light mode
   - Add `dark:` variants to AssistantPage (header, idle, processing, error, success, rewarded modal)
