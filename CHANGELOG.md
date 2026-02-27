@@ -8,6 +8,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(batch-entry): navigate to home immediately after saving batch transactions**
+  - Skip the 1.5s "Transacciones guardadas" success screen
+  - Use `navigate("/", { replace: true })` to go straight to home
+
 - **fix(sentry): comprehensive error tracking improvements**
   - Add global `unhandledrejection` and `error` handlers in main.tsx to catch errors outside React ErrorBoundary
   - Add `setSentryUser()` calls in CloudSyncGate at all auth state transitions for error attribution

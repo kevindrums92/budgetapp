@@ -63,13 +63,10 @@ export default function AssistantPage() {
     }
   }, [flowState, drafts.length, startTour]);
 
-  // Auto-navigate back on success
+  // Navigate to home immediately on success
   useEffect(() => {
     if (flowState === "success") {
-      const timer = setTimeout(() => {
-        navigate(-1);
-      }, 1500);
-      return () => clearTimeout(timer);
+      navigate("/", { replace: true });
     }
   }, [flowState, navigate]);
 
