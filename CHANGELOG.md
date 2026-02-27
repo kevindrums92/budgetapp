@@ -7,7 +7,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.14] - 2026-02-26
+
+- **feat(ui): make TopHeader avatar tappable to navigate to profile/settings page**
 
 ## [0.16.13] - 2026-02-26
 

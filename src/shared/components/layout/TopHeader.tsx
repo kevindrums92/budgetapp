@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -14,6 +15,8 @@ type Props = {
 
 export default function TopHeader({ showMonthSelector = true, isProfilePage = false }: Props) {
   const { t } = useTranslation('common');
+
+  const navigate = useNavigate();
 
   // ✅ Read from Zustand store (single source of truth)
   const user = useBudgetStore((s) => s.user);
@@ -137,23 +140,30 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
                 </button>
               )}
 
-              {/* Avatar with Pro styling or default */}
-              {isPro ? (
-                <div className="relative shrink-0">
-                  {/* Pro gradient border wrapper - Neon tech teal/purple */}
-                  <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-[#18B7B0] via-purple-500 to-[#18B7B0] shadow-md shadow-[#18B7B0]/20">
-                    {AvatarContent}
-                    {/* Sync indicator dot (bottom-right) */}
-                    <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
+              {/* Avatar with Pro styling or default — navigates to profile */}
+              <button
+                type="button"
+                onClick={() => navigate("/profile")}
+                className="transition-transform active:scale-95"
+                aria-label={t('settings.title')}
+              >
+                {isPro ? (
+                  <div className="relative shrink-0">
+                    {/* Pro gradient border wrapper - Neon tech teal/purple */}
+                    <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-[#18B7B0] via-purple-500 to-[#18B7B0] shadow-md shadow-[#18B7B0]/20">
+                      {AvatarContent}
+                      {/* Sync indicator dot (bottom-right) */}
+                      <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="relative flex items-center justify-center">
-                  {AvatarContent}
-                  {/* Sync indicator dot */}
-                  <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
-                </div>
-              )}
+                ) : (
+                  <div className="relative flex items-center justify-center">
+                    {AvatarContent}
+                    {/* Sync indicator dot */}
+                    <span className={`absolute top-0 right-0 h-3 w-3 rounded-full border-2 border-white dark:border-gray-900 ${syncDot}`} />
+                  </div>
+                )}
+              </button>
             </div>
           )}
         </div>
