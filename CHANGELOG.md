@@ -10,6 +10,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(forecasting): fix safe-to-spend days remaining off by one — include today in count**
+
 ## [0.16.14] - 2026-02-26
 
 - **feat(ui): make TopHeader avatar tappable to navigate to profile/settings page**

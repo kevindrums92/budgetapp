@@ -68,7 +68,7 @@ export default function SafeToSpendCard() {
 
     if (selectedMonth !== currentMonthKey) return null;
 
-    const daysRemaining = daysInMonth - today.getDate();
+    const daysRemaining = daysInMonth - today.getDate() + 1; // +1 to include today
     if (daysRemaining <= 0) return null;
 
     const dailyBudget = data.safeToSpend / daysRemaining;
