@@ -7,6 +7,17 @@ import type { Transaction, Category } from '@/types/budget.types';
 // Mock the budget store
 vi.mock('@/state/budget.store');
 
+// Mock usePrivacy
+vi.mock('@/features/privacy', () => ({
+  usePrivacy: () => ({
+    privacyLevel: 'off',
+    privacyMode: false,
+    togglePrivacyMode: vi.fn(),
+    formatWithPrivacy: (formatted: string) => formatted,
+    formatWithFullPrivacy: (formatted: string) => formatted,
+  }),
+}));
+
 // Mock TransactionItem component
 vi.mock('@/features/transactions/components/TransactionItem', () => ({
   default: ({ transaction, category }: { transaction: Transaction; category?: Category }) => (

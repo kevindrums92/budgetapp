@@ -186,6 +186,8 @@ type BudgetStore = BudgetState & {
   setCategoriesTourSeen: (v: boolean) => void;
   scheduledPageTourSeen: boolean;
   setScheduledPageTourSeen: (v: boolean) => void;
+  privacyTourSeen: boolean;
+  setPrivacyTourSeen: (v: boolean) => void;
 
   cloudMode: CloudMode;
   cloudStatus: CloudStatus;
@@ -415,6 +417,19 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         else localStorage.removeItem("smartspend.scheduledPageTour.v1");
       } catch { }
       set({ scheduledPageTourSeen: v });
+      saveState(get());
+    },
+
+    privacyTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.privacyTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setPrivacyTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.privacyTour.v1", "1");
+        else localStorage.removeItem("smartspend.privacyTour.v1");
+      } catch { }
+      set({ privacyTourSeen: v });
       saveState(get());
     },
 
@@ -970,6 +985,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1033,6 +1049,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1086,6 +1103,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1145,6 +1163,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1296,6 +1315,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
           cloudSyncReady: state.cloudSyncReady,
           excludedFromStats: isExcluded
@@ -1403,6 +1423,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         scheduledBannerTourSeen: current.scheduledBannerTourSeen,
         categoriesTourSeen: current.categoriesTourSeen,
         scheduledPageTourSeen: current.scheduledPageTourSeen,
+        privacyTourSeen: current.privacyTourSeen,
         lastSchedulerRun: data.lastSchedulerRun,
         excludedFromStats: data.excludedFromStats ?? [],
         statsLayout: data.statsLayout ?? current.statsLayout,

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Minus, Receipt, PiggyBank, Wallet } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/features/currency";
+import { usePrivacy } from "@/features/privacy";
 import type { SafeToSpendBreakdown } from "../types/forecasting.types";
 
 type Props = {
@@ -19,7 +20,9 @@ export default function SafeToSpendBreakdownSheet({
   data,
 }: Props) {
   const { t } = useTranslation("forecasting");
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { formatWithFullPrivacy } = usePrivacy();
+  const fmtFull = (v: number) => formatWithFullPrivacy(formatAmount(v), currencyInfo.symbol);
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
@@ -186,7 +189,7 @@ export default function SafeToSpendBreakdownSheet({
               </span>
             </div>
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-              {formatAmount(data.currentBalance)}
+              {fmtFull(data.currentBalance)}
             </span>
           </div>
 
@@ -201,7 +204,7 @@ export default function SafeToSpendBreakdownSheet({
               </span>
             </div>
             <span className="text-sm font-semibold text-red-500">
-              - {formatAmount(data.upcomingBillsTotal)}
+              - {fmtFull(data.upcomingBillsTotal)}
             </span>
           </div>
 
@@ -217,7 +220,7 @@ export default function SafeToSpendBreakdownSheet({
                     {bill.name}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatAmount(bill.amount)}
+                    {fmtFull(bill.amount)}
                   </span>
                 </div>
               ))}
@@ -248,7 +251,7 @@ export default function SafeToSpendBreakdownSheet({
               </span>
             </div>
             <span className="text-sm font-semibold text-red-500">
-              - {formatAmount(data.budgetReserves)}
+              - {fmtFull(data.budgetReserves)}
             </span>
           </div>
 
@@ -276,7 +279,7 @@ export default function SafeToSpendBreakdownSheet({
                   : "text-red-600 dark:text-red-400"
               }`}
             >
-              {isPositive ? "" : "- "}{formatAmount(Math.abs(data.safeToSpend))}
+              {isPositive ? "" : "- "}{fmtFull(Math.abs(data.safeToSpend))}
             </span>
           </div>
 

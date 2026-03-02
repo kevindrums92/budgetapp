@@ -5,4 +5,4 @@
 
 export { PrivacyProvider } from './components/PrivacyProvider';
 export { usePrivacy } from './hooks/usePrivacy';
-export type { PrivacyContextValue } from './context/PrivacyContext';
+export type { PrivacyContextValue, PrivacyLevel } from './context/PrivacyContext';

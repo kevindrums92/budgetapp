@@ -10,6 +10,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(privacy): implement 3-level privacy mode (off → partial → full)**
+  - Off: everything visible (Eye icon)
+  - Partial: censors summary cards only — BalanceCard, SafeToSpend, BudgetCard (EyeClosed icon)
+  - Full: censors ALL amounts including individual transactions and daily totals (EyeOff icon)
+  - Persists to localStorage with migration from old boolean format
+  - Add SpotlightTour tooltip explaining the 3-level feature (4 languages)
+
 - **fix(forecasting): fix safe-to-spend days remaining off by one — include today in count**
 
 ## [0.16.14] - 2026-02-26

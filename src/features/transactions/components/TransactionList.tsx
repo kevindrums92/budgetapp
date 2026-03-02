@@ -7,6 +7,7 @@ import TransactionItem from "@/features/transactions/components/TransactionItem"
 import EmptyStateHome from "@/features/transactions/components/EmptyStateHome";
 import type { Transaction, Category } from "@/types/budget.types";
 import { useCurrency } from "@/features/currency";
+import { usePrivacy } from "@/features/privacy";
 import { generateVirtualTransactions, isVirtualTransaction, type VirtualTransaction } from "@/shared/services/scheduler.service";
 
 // Extended transaction type that includes virtual transactions
@@ -31,7 +32,8 @@ export default function TransactionList({ searchQuery = "", filterType = "all", 
   const { t } = useTranslation("transactions");
   const { t: tCommon } = useTranslation("common");
   const { getLocale } = useLanguage();
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { formatWithFullPrivacy } = usePrivacy();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -180,15 +182,15 @@ export default function TransactionList({ searchQuery = "", filterType = "all", 
                       }`}
                     >
                       {group.balance >= 0 ? "+" : ""}
-                      {formatAmount(group.balance)}
+                      {formatWithFullPrivacy(formatAmount(group.balance), currencyInfo.symbol)}
                     </span>
                   ) : hasExpenses ? (
                     <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                      -{formatAmount(group.totalExpenses)}
+                      -{formatWithFullPrivacy(formatAmount(group.totalExpenses), currencyInfo.symbol)}
                     </span>
                   ) : (
                     <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      +{formatAmount(group.totalIncome)}
+                      +{formatWithFullPrivacy(formatAmount(group.totalIncome), currencyInfo.symbol)}
                     </span>
                   )}
                 </div>

@@ -1,61 +1,86 @@
 /**
  * PrivacyProvider
  * Provider for privacy mode (censoring sensitive financial data)
+ * Supports 3 levels: off → partial → full
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { PrivacyContext, type PrivacyContextValue } from '../context/PrivacyContext';
+import { PrivacyContext, type PrivacyContextValue, type PrivacyLevel } from '../context/PrivacyContext';
 
 const STORAGE_KEY = 'app_privacy_mode';
 
-function getInitialPrivacyMode(): boolean {
-  if (typeof window === 'undefined') return false;
+const CYCLE: Record<PrivacyLevel, PrivacyLevel> = {
+  off: 'partial',
+  partial: 'full',
+  full: 'off',
+};
+
+function getInitialPrivacyLevel(): PrivacyLevel {
+  if (typeof window === 'undefined') return 'off';
 
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored === '1'; // Use "1" like other boolean flags in the app
+    if (!stored) return 'off';
+
+    // Migration: old boolean format ('1') -> 'full'
+    if (stored === '1') return 'full';
+
+    // New format: validate stored value
+    if (stored === 'partial' || stored === 'full') return stored;
+
+    return 'off';
   } catch {
-    return false;
+    return 'off';
   }
 }
 
 export function PrivacyProvider({ children }: { children: React.ReactNode }) {
-  const [privacyMode, setPrivacyMode] = useState<boolean>(getInitialPrivacyMode);
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>(getInitialPrivacyLevel);
 
   const togglePrivacyMode = useCallback(() => {
-    setPrivacyMode((prev) => {
-      const next = !prev;
+    setPrivacyLevel((prev) => {
+      const next = CYCLE[prev];
       try {
-        if (next) {
-          localStorage.setItem(STORAGE_KEY, '1');
-        } else {
+        if (next === 'off') {
           localStorage.removeItem(STORAGE_KEY);
+        } else {
+          localStorage.setItem(STORAGE_KEY, next);
         }
       } catch (err) {
-        console.error('[Privacy] Failed to persist privacy mode:', err);
+        console.error('[Privacy] Failed to persist privacy level:', err);
       }
-      console.log('[Privacy] Privacy mode toggled:', next);
+      console.log('[Privacy] Privacy level changed:', next);
       return next;
     });
   }, []);
 
+  // Censors at partial or full
   const formatWithPrivacy = useCallback(
     (formattedAmount: string, currencySymbol: string): string => {
-      if (!privacyMode) return formattedAmount;
-
-      // Return censored format: "$ -----"
+      if (privacyLevel === 'off') return formattedAmount;
       return `${currencySymbol} -----`;
     },
-    [privacyMode]
+    [privacyLevel]
+  );
+
+  // Censors only at full
+  const formatWithFullPrivacy = useCallback(
+    (formattedAmount: string, currencySymbol: string): string => {
+      if (privacyLevel !== 'full') return formattedAmount;
+      return `${currencySymbol} -----`;
+    },
+    [privacyLevel]
   );
 
   const value: PrivacyContextValue = useMemo(
     () => ({
-      privacyMode,
+      privacyLevel,
+      privacyMode: privacyLevel !== 'off',
       togglePrivacyMode,
       formatWithPrivacy,
+      formatWithFullPrivacy,
     }),
-    [privacyMode, togglePrivacyMode, formatWithPrivacy]
+    [privacyLevel, togglePrivacyMode, formatWithPrivacy, formatWithFullPrivacy]
   );
 
   return (

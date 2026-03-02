@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useBudgetStore } from "@/state/budget.store";
 
-type TourId = "home" | "stats" | "addTransaction" | "batchReview" | "history" | "schedule" | "scheduledBanner" | "categories" | "scheduledPage";
+type TourId = "home" | "stats" | "addTransaction" | "batchReview" | "history" | "schedule" | "scheduledBanner" | "categories" | "scheduledPage" | "privacy";
 
 const STORE_KEY_MAP: Record<TourId, { seen: string; setter: string }> = {
   home: { seen: "homeTourSeen", setter: "setHomeTourSeen" },
@@ -13,6 +13,7 @@ const STORE_KEY_MAP: Record<TourId, { seen: string; setter: string }> = {
   scheduledBanner: { seen: "scheduledBannerTourSeen", setter: "setScheduledBannerTourSeen" },
   categories: { seen: "categoriesTourSeen", setter: "setCategoriesTourSeen" },
   scheduledPage: { seen: "scheduledPageTourSeen", setter: "setScheduledPageTourSeen" },
+  privacy: { seen: "privacyTourSeen", setter: "setPrivacyTourSeen" },
 };
 
 export function useSpotlightTour(tourId: TourId) {

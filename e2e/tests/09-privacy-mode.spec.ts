@@ -1,8 +1,10 @@
 /**
- * E2E Tests: Privacy Mode
+ * E2E Tests: Privacy Mode (3-Level)
  *
- * Tests that the privacy mode toggle censors sensitive financial data
- * (amounts in BalanceCard and SafeToSpendCard) and persists across reloads.
+ * Tests the 3-level privacy toggle: off → partial → full → off
+ * - off:     Everything visible (Eye icon, aria-label "Ocultar montos")
+ * - partial: BalanceCard + SafeToSpend censored (EyeClosed icon, aria-label "Ocultar todo")
+ * - full:    ALL amounts censored including transactions (EyeOff icon, aria-label "Mostrar montos")
  */
 
 import { test, expect } from '@playwright/test';
@@ -15,16 +17,13 @@ test.describe('Privacy Mode', () => {
     await mockSupabase(page);
 
     // Add test data (income + expense) so BalanceCard and SafeToSpend show amounts
-    // Inject directly into localStorage (the store loads from there on mount)
     await page.evaluate(() => {
       const today = new Date().toISOString().slice(0, 10);
       const currentMonth = today.slice(0, 7); // YYYY-MM
 
-      // Get existing state or create new one
       const existingState = localStorage.getItem('budget_app_v1');
       const state = existingState ? JSON.parse(existingState) : {};
 
-      // Add test transactions
       state.transactions = [
         {
           id: 'test-income-1',
@@ -46,10 +45,7 @@ test.describe('Privacy Mode', () => {
         },
       ];
 
-      // Set selectedMonth to current month (so BalanceCard calculates totals)
       state.selectedMonth = currentMonth;
-
-      // Save back to localStorage
       localStorage.setItem('budget_app_v1', JSON.stringify(state));
     });
 
@@ -59,62 +55,55 @@ test.describe('Privacy Mode', () => {
   });
 
   // =========================================================================
-  // TOGGLE FUNCTIONALITY
+  // TOGGLE FUNCTIONALITY (3-state cycle: off → partial → full → off)
   // =========================================================================
 
   test('should show Eye icon by default (privacy OFF)', async ({ page }) => {
-    // Eye icon should be visible in TopHeader
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
+    // Eye icon should be visible in TopHeader with "Ocultar montos" label
+    const eyeButton = page.locator('button[aria-label="Ocultar montos"]');
     await expect(eyeButton).toBeVisible();
 
     // Verify amounts are visible (not censored)
-    // Balance card should show actual numbers
     const balanceCard = page.locator('[data-tour="home-balance-card"]');
     await expect(balanceCard).toBeVisible();
 
-    // Should contain formatted amounts (not "-----")
     const balanceText = await balanceCard.textContent();
     expect(balanceText).not.toContain('-----');
   });
 
-  test('should toggle to EyeOff icon when clicked (privacy ON)', async ({ page }) => {
-    // Click Eye icon to enable privacy mode
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
-    await eyeButton.click();
+  test('should cycle off → partial → full → off', async ({ page }) => {
+    // State 1: OFF — Eye icon, "Ocultar montos"
+    const offButton = page.locator('button[aria-label="Ocultar montos"]');
+    await expect(offButton).toBeVisible();
 
-    // Icon should change to EyeOff
-    const eyeOffButton = page.locator('button[aria-label*="Mostrar"]');
-    await expect(eyeOffButton).toBeVisible();
-  });
+    // Click 1: OFF → PARTIAL — EyeClosed icon, "Ocultar todo"
+    await offButton.click();
+    const partialButton = page.locator('button[aria-label="Ocultar todo"]');
+    await expect(partialButton).toBeVisible();
 
-  test('should toggle back to Eye icon when EyeOff is clicked', async ({ page }) => {
-    // Enable privacy mode
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
-    await eyeButton.click();
+    // Click 2: PARTIAL → FULL — EyeOff icon, "Mostrar montos"
+    await partialButton.click();
+    const fullButton = page.locator('button[aria-label="Mostrar montos"]');
+    await expect(fullButton).toBeVisible();
 
-    // Disable privacy mode
-    const eyeOffButton = page.locator('button[aria-label*="Mostrar"]');
-    await eyeOffButton.click();
-
-    // Should show Eye icon again
-    await expect(eyeButton).toBeVisible();
+    // Click 3: FULL → OFF — Eye icon, "Ocultar montos"
+    await fullButton.click();
+    await expect(offButton).toBeVisible();
   });
 
   // =========================================================================
-  // BALANCECARD CENSORING
+  // PARTIAL LEVEL CENSORING (BalanceCard censored, transactions visible)
   // =========================================================================
 
-  test('should censor BalanceCard amounts when privacy mode ON', async ({ page }) => {
+  test('should censor BalanceCard amounts at partial level', async ({ page }) => {
     // Verify amounts are visible initially
     const balanceCard = page.locator('[data-tour="home-balance-card"]');
     let balanceText = await balanceCard.textContent();
     expect(balanceText).not.toContain('-----');
 
-    // Enable privacy mode
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
+    // Click once: OFF → PARTIAL
+    const eyeButton = page.locator('button[aria-label="Ocultar montos"]');
     await eyeButton.click();
-
-    // Wait for UI update
     await page.waitForTimeout(100);
 
     // Balance card should now show censored amounts ("$ -----")
@@ -122,28 +111,57 @@ test.describe('Privacy Mode', () => {
     expect(balanceText).toContain('-----');
 
     // Should contain multiple censored amounts (balance + income + expense)
-    const censoredCount = (balanceText.match(/-----/g) || []).length;
-    expect(censoredCount).toBeGreaterThanOrEqual(3); // Balance, income, expense
+    const censoredCount = (balanceText!.match(/-----/g) || []).length;
+    expect(censoredCount).toBeGreaterThanOrEqual(3);
   });
 
-  test('should show real amounts when privacy mode toggled OFF', async ({ page }) => {
-    // Enable privacy mode
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
+  test('should keep transaction items visible at partial level', async ({ page }) => {
+    // Click once: OFF → PARTIAL
+    const eyeButton = page.locator('button[aria-label="Ocultar montos"]');
     await eyeButton.click();
     await page.waitForTimeout(100);
 
-    // Verify amounts are censored
-    const balanceCard = page.locator('[data-tour="home-balance-card"]');
-    let balanceText = await balanceCard.textContent();
-    expect(balanceText).toContain('-----');
+    // Transaction amounts should still be visible (not censored)
+    const salarioItem = page.locator('button').filter({ hasText: 'Salario' });
+    const salarioText = await salarioItem.textContent();
+    expect(salarioText).toContain('3.000.000');
+    expect(salarioText).not.toContain('-----');
+  });
 
-    // Disable privacy mode
-    const eyeOffButton = page.locator('button[aria-label*="Mostrar"]');
-    await eyeOffButton.click();
+  // =========================================================================
+  // FULL LEVEL CENSORING (everything censored)
+  // =========================================================================
+
+  test('should censor all amounts at full level', async ({ page }) => {
+    // Click twice: OFF → PARTIAL → FULL
+    await page.locator('button[aria-label="Ocultar montos"]').click();
+    await page.waitForTimeout(50);
+    await page.locator('button[aria-label="Ocultar todo"]').click();
     await page.waitForTimeout(100);
 
-    // Amounts should be visible again
-    balanceText = await balanceCard.textContent();
+    // BalanceCard should be censored
+    const balanceCard = page.locator('[data-tour="home-balance-card"]');
+    const balanceText = await balanceCard.textContent();
+    expect(balanceText).toContain('-----');
+
+    // Transaction amounts should also be censored
+    const salarioItem = page.locator('button').filter({ hasText: 'Salario' });
+    const salarioText = await salarioItem.textContent();
+    expect(salarioText).toContain('-----');
+  });
+
+  test('should show all amounts when toggled back to OFF', async ({ page }) => {
+    // Full cycle: OFF → PARTIAL → FULL → OFF
+    await page.locator('button[aria-label="Ocultar montos"]').click();
+    await page.waitForTimeout(50);
+    await page.locator('button[aria-label="Ocultar todo"]').click();
+    await page.waitForTimeout(50);
+    await page.locator('button[aria-label="Mostrar montos"]').click();
+    await page.waitForTimeout(100);
+
+    // All amounts should be visible again
+    const balanceCard = page.locator('[data-tour="home-balance-card"]');
+    const balanceText = await balanceCard.textContent();
     expect(balanceText).not.toContain('-----');
   });
 
@@ -151,8 +169,7 @@ test.describe('Privacy Mode', () => {
   // SAFETOSPEND CENSORING
   // =========================================================================
 
-  test('should censor SafeToSpend amount when privacy mode ON', async ({ page }) => {
-    // Look for SafeToSpendCard (may not always be visible, skip if not found)
+  test('should censor SafeToSpend amount at partial level', async ({ page }) => {
     const safeToSpendCard = page.locator('button').filter({ hasText: /seguro para gastar|safe to spend/i }).first();
     const isVisible = await safeToSpendCard.isVisible().catch(() => false);
 
@@ -161,18 +178,18 @@ test.describe('Privacy Mode', () => {
       let cardText = await safeToSpendCard.textContent();
       const hasCensoredBefore = cardText?.includes('-----');
 
-      // Enable privacy mode
-      const eyeButton = page.locator('button[aria-label*="Ocultar"]');
-      await eyeButton.click();
+      // Click once: OFF → PARTIAL
+      await page.locator('button[aria-label="Ocultar montos"]').click();
       await page.waitForTimeout(100);
 
       // Should now show censored amount
       cardText = await safeToSpendCard.textContent();
       expect(cardText).toContain('-----');
 
-      // Disable privacy mode
-      const eyeOffButton = page.locator('button[aria-label*="Mostrar"]');
-      await eyeOffButton.click();
+      // Go back to OFF via full cycle (PARTIAL → FULL → OFF)
+      await page.locator('button[aria-label="Ocultar todo"]').click();
+      await page.waitForTimeout(50);
+      await page.locator('button[aria-label="Mostrar montos"]').click();
       await page.waitForTimeout(100);
 
       // Should show real amount again
@@ -187,23 +204,47 @@ test.describe('Privacy Mode', () => {
   // PERSISTENCE
   // =========================================================================
 
-  test('should persist privacy mode ON across page reload', async ({ page }) => {
-    // Enable privacy mode
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
-    await eyeButton.click();
+  test('should persist partial level across page reload', async ({ page }) => {
+    // Click once: OFF → PARTIAL
+    await page.locator('button[aria-label="Ocultar montos"]').click();
     await page.waitForTimeout(100);
 
-    // Verify localStorage was set
+    // Verify localStorage was set to 'partial'
     const privacyMode = await page.evaluate(() => localStorage.getItem('app_privacy_mode'));
-    expect(privacyMode).toBe('1');
+    expect(privacyMode).toBe('partial');
 
     // Reload page
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // EyeOff icon should still be visible (privacy mode still ON)
-    const eyeOffButton = page.locator('button[aria-label*="Mostrar"]');
-    await expect(eyeOffButton).toBeVisible();
+    // EyeClosed icon should still be visible (partial level persisted)
+    const partialButton = page.locator('button[aria-label="Ocultar todo"]');
+    await expect(partialButton).toBeVisible();
+
+    // Amounts should still be censored
+    const balanceCard = page.locator('[data-tour="home-balance-card"]');
+    const balanceText = await balanceCard.textContent();
+    expect(balanceText).toContain('-----');
+  });
+
+  test('should persist full level across page reload', async ({ page }) => {
+    // Click twice: OFF → PARTIAL → FULL
+    await page.locator('button[aria-label="Ocultar montos"]').click();
+    await page.waitForTimeout(50);
+    await page.locator('button[aria-label="Ocultar todo"]').click();
+    await page.waitForTimeout(100);
+
+    // Verify localStorage was set to 'full'
+    const privacyMode = await page.evaluate(() => localStorage.getItem('app_privacy_mode'));
+    expect(privacyMode).toBe('full');
+
+    // Reload page
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // EyeOff icon should still be visible (full level persisted)
+    const fullButton = page.locator('button[aria-label="Mostrar montos"]');
+    await expect(fullButton).toBeVisible();
 
     // Amounts should still be censored
     const balanceCard = page.locator('[data-tour="home-balance-card"]');
@@ -213,19 +254,19 @@ test.describe('Privacy Mode', () => {
 
   test('should persist privacy mode OFF across page reload', async ({ page }) => {
     // Privacy mode starts OFF by default
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
+    const eyeButton = page.locator('button[aria-label="Ocultar montos"]');
     await expect(eyeButton).toBeVisible();
 
-    // Verify localStorage is empty or not "1"
+    // Verify localStorage is empty (OFF removes the key)
     const privacyMode = await page.evaluate(() => localStorage.getItem('app_privacy_mode'));
-    expect(privacyMode).not.toBe('1');
+    expect(privacyMode).toBeNull();
 
     // Reload page
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
     // Eye icon should still be visible (privacy mode still OFF)
-    await expect(eyeButton).toBeVisible();
+    await expect(page.locator('button[aria-label="Ocultar montos"]')).toBeVisible();
 
     // Amounts should still be visible
     const balanceCard = page.locator('[data-tour="home-balance-card"]');
@@ -255,9 +296,8 @@ test.describe('Privacy Mode', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // Enable privacy mode
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
-    await eyeButton.click();
+    // Click once: OFF → PARTIAL
+    await page.locator('button[aria-label="Ocultar montos"]').click();
     await page.waitForTimeout(100);
 
     // Balance card should show "Q -----" (not "$ -----")
@@ -271,66 +311,55 @@ test.describe('Privacy Mode', () => {
   // EDGE CASES
   // =========================================================================
 
-  test('should handle rapid toggle clicks', async ({ page }) => {
+  test('should handle full 3-level cycle with correct censoring at each step', async ({ page }) => {
     const balanceCard = page.locator('[data-tour="home-balance-card"]');
 
-    // Verify BalanceCard is visible initially
+    // Start: OFF — amounts visible
     await expect(balanceCard).toBeVisible();
-    const initialText = await balanceCard.textContent();
-    expect(initialText).not.toContain('-----'); // Starts with privacy OFF
-
-    // Toggle ON (Eye → EyeOff)
-    const eyeButton1 = page.locator('button[aria-label*="Ocultar"]');
-    await eyeButton1.click();
-    await page.waitForTimeout(50);
-
-    // Verify censored
     let text = await balanceCard.textContent();
+    expect(text).not.toContain('-----');
+
+    // Click 1: OFF → PARTIAL — balance censored
+    await page.locator('button[aria-label="Ocultar montos"]').click();
+    await page.waitForTimeout(50);
+    text = await balanceCard.textContent();
     expect(text).toContain('-----');
 
-    // Toggle OFF (EyeOff → Eye)
-    const eyeOffButton1 = page.locator('button[aria-label*="Mostrar"]');
-    await eyeOffButton1.click();
+    // Click 2: PARTIAL → FULL — still censored
+    await page.locator('button[aria-label="Ocultar todo"]').click();
     await page.waitForTimeout(50);
+    text = await balanceCard.textContent();
+    expect(text).toContain('-----');
 
-    // Verify visible again
+    // Click 3: FULL → OFF — amounts visible again
+    await page.locator('button[aria-label="Mostrar montos"]').click();
+    await page.waitForTimeout(50);
     text = await balanceCard.textContent();
     expect(text).not.toContain('-----');
 
-    // Toggle ON again (Eye → EyeOff)
-    const eyeButton2 = page.locator('button[aria-label*="Ocultar"]');
-    await eyeButton2.click();
-    await page.waitForTimeout(50);
-
-    // Verify censored again
-    text = await balanceCard.textContent();
-    expect(text).toContain('-----');
-
-    // Final state should be consistent (censored, EyeOff icon visible)
-    const finalEyeOffButton = page.locator('button[aria-label*="Mostrar"]');
-    await expect(finalEyeOffButton).toBeVisible();
+    // Final state: OFF, Eye icon visible
+    await expect(page.locator('button[aria-label="Ocultar montos"]')).toBeVisible();
   });
 
   test('should work when navigating between pages', async ({ page }) => {
-    // Enable privacy mode on home page
-    const eyeButton = page.locator('button[aria-label*="Ocultar"]');
-    await eyeButton.click();
+    // Click once: OFF → PARTIAL
+    await page.locator('button[aria-label="Ocultar montos"]').click();
     await page.waitForTimeout(100);
 
     // Navigate to Stats page
     await page.locator('a[href="/stats"]').click();
     await page.waitForURL('/stats');
 
-    // EyeOff icon should still be visible
-    const eyeOffButton = page.locator('button[aria-label*="Mostrar"]');
-    await expect(eyeOffButton).toBeVisible();
+    // Partial button should still be visible ("Ocultar todo")
+    const partialButton = page.locator('button[aria-label="Ocultar todo"]');
+    await expect(partialButton).toBeVisible();
 
     // Navigate back to home
     await page.locator('a[href="/"]').click();
     await page.waitForURL('/');
 
-    // Privacy mode should still be ON
-    await expect(eyeOffButton).toBeVisible();
+    // Privacy mode should still be partial
+    await expect(partialButton).toBeVisible();
 
     // Amounts should still be censored
     const balanceCard = page.locator('[data-tour="home-balance-card"]');

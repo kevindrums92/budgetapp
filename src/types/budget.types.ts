@@ -173,6 +173,7 @@ export type BudgetState = {
   scheduledBannerTourSeen?: boolean;   // Scheduled banner spotlight tour completed
   categoriesTourSeen?: boolean;        // Categories page spotlight tour completed
   scheduledPageTourSeen?: boolean;     // Scheduled page spotlight tour completed
+  privacyTourSeen?: boolean;           // Privacy mode spotlight tour completed
   // Scheduler
   lastSchedulerRun?: string;         // YYYY-MM-DD - last time scheduler ran
   cloudSyncReady?: boolean;          // Flag: CloudSync completed initial pull

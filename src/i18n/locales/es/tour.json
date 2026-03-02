@@ -121,6 +121,12 @@
       "description": "Para agregar una nueva, crea un movimiento normal y activa la opcion 'Programar' antes de guardar."
     }
   },
+  "privacy": {
+    "toggle": {
+      "title": "Modo privacidad",
+      "description": "Toca este boton para ocultar tus montos. Tiene 3 niveles: visible, ocultar resumen y ocultar todo."
+    }
+  },
   "buttons": {
     "next": "Siguiente",
     "skip": "Omitir",

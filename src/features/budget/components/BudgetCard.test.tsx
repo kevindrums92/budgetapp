@@ -30,9 +30,11 @@ vi.mock('@/features/currency', () => ({
 // Mock usePrivacy
 vi.mock('@/features/privacy', () => ({
   usePrivacy: () => ({
+    privacyLevel: 'off',
     privacyMode: false,
     togglePrivacyMode: vi.fn(),
     formatWithPrivacy: (formatted: string) => formatted,
+    formatWithFullPrivacy: (formatted: string) => formatted,
   }),
 }));
 
