@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSpend IG Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Modern Premium Aesthetics */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+        }
+
+        /* The canvas itself (always 1080x1350) */
+        .ig-post {
+            width: 1080px;
+            height: 1350px;
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform-origin: top left;
+            /* Adjust scale for the preview window depending on screen */
+            transform: scale(0.35);
+            /* Soft premium shadow */
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Themes */
+        .ig-post.dark {
+            background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+        }
+
+        .ig-post.emerald {
+            background: radial-gradient(circle at bottom left, #065f46 0%, #022c22 40%, #020617 100%);
+        }
+
+        .ig-post.purple {
+            background: radial-gradient(circle at top left, #4c1d95 0%, #020617 70%);
+        }
+
+        /* Text Styles */
+        .slide-content {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 0 120px;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .title {
+            font-size: 84px;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #ffffff;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            letter-spacing: -1px;
+        }
+
+        .highlight {
+            color: #34d399;
+            /* Emerald 400 */
+        }
+
+        .subtitle {
+            font-size: 42px;
+            font-weight: 300;
+            color: #94a3b8;
+        }
+
+        /* Phone Mockup */
+        .phone-mockup {
+            width: 760px;
+            height: 1400px;
+            /* Reduced height to fit completely on screen */
+            background-color: #000;
+            border-radius: 64px;
+            /* Fully rounded top and bottom */
+            border: 18px solid #1e293b;
+            overflow: hidden;
+            position: absolute;
+            bottom: 40px;
+            /* Bring it up so it's fully visible */
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 0 0 2px #334155;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 220px;
+            height: 38px;
+            background-color: #1e293b;
+            border-radius: 0 0 24px 24px;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            /* Change to cover but center it */
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-color: #020617;
+            /* Inner shadow simulating bezel */
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Ambient glowing effects */
+        .glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: #10b981;
+            filter: blur(250px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .brand {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 34px;
+            font-weight: 600;
+            color: #34d399;
+            /* Emerald 400 */
+            z-index: 20;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        /* UI Styling */
+        #preview-container {
+            width: 378px;
+            height: 472.5px;
+        }
+
+        /* Custom scrollbar for tools */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">
+                🚀 SmartSpend Instagram Studio
+            </h1>
+            <p class="text-slate-400 mt-2">Generador premium de assets para redes sociales</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-10 items-start justify-center">
+
+            <!-- CONTROLS SIDEBAR -->
+            <div
+                class="w-full lg:w-1/3 bg-slate-800/50 backdrop-blur-md p-6 rounded-3xl shadow-2xl border border-slate-700/50 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl"></div>
+
+                <h2 class="text-xl font-semibold mb-6 text-white border-b border-slate-700 pb-3">Configurar Slide</h2>
+
+                <div class="space-y-5 relative z-10">
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Tipo de Slide</label>
+                        <select id="layoutType"
+                            class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white outline-none focus:border-emerald-500 transition-colors">
+                            <option value="text-center">Slide 1: Texto Centrado (Gancho)</option>
+                            <option value="mockup-full">Slide 2/3: Teléfono Completo (Se ve todo)</option>
+                            <option value="mockup-zoomed">Slide 2/3: Teléfono Ampliado (Cortado, enfocado)</option>
+                            <option value="mockup-clean">Sólo Mockup (Limpio)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Tema (Estilo de fondo)</label>
+                        <select id="theme"
+                            class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white outline-none focus:border-emerald-500 transition-colors">
+                            <option value="emerald">🌟 Premium Emerald Boost</option>
+                            <option value="dark">🌙 Dark Mode Minimal</option>
+                            <option value="purple">💜 Crypto/Tech Purple</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Título Principal <span
+                                class="text-slate-500 text-xs ml-2">(Soporta HTML/br)</span></label>
+                        <textarea id="titleInput" rows="3"
+                            class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white outline-none focus:border-emerald-500 transition-colors resize-none">¿Anotar tus gastos te da <span class="highlight">pereza?</span></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Subtítulo</label>
+                        <input type="text" id="subtitleInput" value="Te entendemos."
+                            class="w-full bg-slate-900/80 border border-slate-600 rounded-xl p-3 text-white outline-none focus:border-emerald-500 transition-colors">
+                    </div>
+
+                    <div id="imageUploadWrapper" class="hidden animate-fade-in">
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Captura de la App
+                            (Screenshot)</label>
+                        <div
+                            class="border-2 border-dashed border-slate-600 rounded-xl p-4 text-center hover:border-emerald-500 transition-colors bg-slate-900/50">
+                            <input type="file" id="imageInput" accept="image/*"
+                                class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-500/20 file:text-emerald-400 hover:file:bg-emerald-500/30 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-sm text-slate-400">Mostrar marca al pie</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="showBrand" class="sr-only peer" checked>
+                            <div
+                                class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
+                            </div>
+                        </label>
+                    </div>
+
+                    <button id="downloadBtn"
+                        class="w-full mt-4 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] transform hover:-translate-y-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Descargar (1080x1350)
+                    </button>
+                </div>
+            </div>
+
+            <!-- PREVIEW AREA -->
+            <div class="w-full lg:w-auto flex flex-col items-center">
+                <div class="text-sm text-slate-400 mb-4 flex gap-4">
+                    <span>📱 Preview a escala (35%)</span>
+                    <span>HD 1080x1350 px al exportar</span>
+                </div>
+
+                <div class="bg-slate-800 rounded-[40px] border-[8px] border-slate-700 shadow-2xl p-4 overflow-visible">
+                    <div id="preview-container">
+                        <!-- CANVA ELEMENT - REAL RENDER AREA -->
+                        <div id="captureArea" class="ig-post dark">
+                            <div class="glow" id="ambientGlow"></div>
+
+                            <div class="slide-content" id="renderContent">
+                                <div id="renderTitle" class="title"></div>
+                                <div id="renderSubtitle" class="subtitle"></div>
+                            </div>
+
+                            <div id="renderMockup" class="phone-mockup" style="display: none;">
+                                <div class="phone-notch"></div>
+                                <div id="renderScreen"
+                                    class="phone-screen bg-slate-900 flex items-center justify-center">
+                                    <span class="text-slate-600 text-2xl font-light">Sube una imagen 👉</span>
+                                </div>
+                            </div>
+
+                            <div id="renderBrand" class="brand">SmartSpend</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const layoutType = document.getElementById('layoutType');
+        const theme = document.getElementById('theme');
+        const titleInput = document.getElementById('titleInput');
+        const subtitleInput = document.getElementById('subtitleInput');
+        const imageInput = document.getElementById('imageInput');
+        const showBrand = document.getElementById('showBrand');
+
+        const captureArea = document.getElementById('captureArea');
+        const renderTitle = document.getElementById('renderTitle');
+        const renderSubtitle = document.getElementById('renderSubtitle');
+        const renderMockup = document.getElementById('renderMockup');
+        const renderScreen = document.getElementById('renderScreen');
+        const slideContent = document.getElementById('renderContent');
+        const imageUploadWrapper = document.getElementById('imageUploadWrapper');
+        const renderBrand = document.getElementById('renderBrand');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        function updatePreview() {
+            // Theme Class Reset
+            captureArea.className = 'ig-post';
+            captureArea.classList.add(theme.value);
+
+            // Text Values
+            renderTitle.innerHTML = titleInput.value;
+            renderSubtitle.textContent = subtitleInput.value;
+
+            // Text Display
+            renderTitle.style.display = titleInput.value ? 'block' : 'none';
+            renderSubtitle.style.display = subtitleInput.value ? 'block' : 'none';
+            renderBrand.style.display = showBrand.checked ? 'block' : 'none';
+
+            // Layout Switching
+            if (layoutType.value === 'text-center') {
+                renderMockup.style.display = 'none';
+                slideContent.style.top = '45%';
+                slideContent.style.transform = 'translateY(-50%)';
+                slideContent.style.background = 'none';
+                slideContent.style.padding = '0 120px';
+                imageUploadWrapper.classList.add('hidden');
+            } else if (layoutType.value === 'mockup-full') {
+                renderMockup.style.display = 'block';
+                // iPhone proportions approx 19.5:9 -> width 440 gives height ~950
+                renderMockup.style.width = '440px';
+                renderMockup.style.height = '940px';
+                renderMockup.style.bottom = '40px';
+                renderMockup.style.borderRadius = '56px';
+
+                slideContent.style.top = '70px';
+                slideContent.style.transform = 'none';
+                slideContent.style.background = 'none';
+                slideContent.style.padding = '0 120px';
+
+                renderScreen.style.backgroundSize = 'cover';
+                renderScreen.style.backgroundPosition = 'center top';
+                imageUploadWrapper.classList.remove('hidden');
+
+                // Adjust notch size relatively
+                document.querySelector('.phone-notch').style.width = '140px';
+                document.querySelector('.phone-notch').style.height = '24px';
+                document.querySelector('.phone-notch').style.borderRadius = '0 0 16px 16px';
+
+            } else if (layoutType.value === 'mockup-zoomed') {
+                renderMockup.style.display = 'block';
+                renderMockup.style.width = '760px';
+                renderMockup.style.height = '1400px';
+                renderMockup.style.bottom = '-80px'; // Cortado abajo
+                renderMockup.style.borderRadius = '64px';
+
+                slideContent.style.top = '0';
+                slideContent.style.transform = 'none';
+                slideContent.style.background = 'linear-gradient(to bottom, rgba(2,6,23,1) 0%, rgba(2,6,23,0.8) 75%, transparent 100%)';
+                slideContent.style.padding = '120px 120px 60px 120px';
+
+                renderScreen.style.backgroundSize = 'cover';
+                renderScreen.style.backgroundPosition = 'center top';
+                imageUploadWrapper.classList.remove('hidden');
+
+                document.querySelector('.phone-notch').style.width = '220px';
+                document.querySelector('.phone-notch').style.height = '38px';
+                document.querySelector('.phone-notch').style.borderRadius = '0 0 24px 24px';
+            } else if (layoutType.value === 'mockup-clean') {
+                renderMockup.style.display = 'block';
+                renderMockup.style.width = '600px';
+                renderMockup.style.height = '1280px';
+                renderMockup.style.bottom = '35px'; // Centered vertically
+                renderMockup.style.borderRadius = '64px';
+
+                slideContent.style.display = 'none';
+
+                renderScreen.style.backgroundSize = 'cover';
+                renderScreen.style.backgroundPosition = 'center top';
+                imageUploadWrapper.classList.remove('hidden');
+
+                document.querySelector('.phone-notch').style.width = '180px';
+                document.querySelector('.phone-notch').style.height = '32px';
+                document.querySelector('.phone-notch').style.borderRadius = '0 0 20px 20px';
+            }
+
+            if (layoutType.value !== 'mockup-clean') {
+                slideContent.style.display = 'flex';
+            }
+        }
+
+        // Live Event Listeners
+        layoutType.addEventListener('change', updatePreview);
+        theme.addEventListener('change', updatePreview);
+        titleInput.addEventListener('input', updatePreview);
+        subtitleInput.addEventListener('input', updatePreview);
+        showBrand.addEventListener('change', updatePreview);
+
+        // Image Handling
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    renderScreen.style.backgroundImage = `url(${event.target.result})`;
+                    renderScreen.innerHTML = ''; // Remove placeholder text
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Setup Initial State
+        updatePreview();
+
+        // Download functionality using HTML2Canvas
+        downloadBtn.addEventListener('click', () => {
+            const originalTransform = captureArea.style.transform;
+            const originalBoxShadow = captureArea.style.boxShadow;
+
+            // Revert scaling and remove shadow to get perfect 1:1 render
+            captureArea.style.transform = 'scale(1)';
+            captureArea.style.boxShadow = 'none';
+
+            // Add a brief timeout so DOM updates before rendering
+            setTimeout(() => {
+                downloadBtn.innerHTML = 'Generando... ⏳';
+
+                html2canvas(captureArea, {
+                    scale: 2, // 2x scale to ensure super crispy text and images
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    logging: false
+                }).then(canvas => {
+                    // Restore UI
+                    captureArea.style.transform = originalTransform;
+                    captureArea.style.boxShadow = originalBoxShadow;
+
+                    downloadBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Descargar (1080x1350)';
+
+                    // Create download link
+                    const link = document.createElement('a');
+                    link.download = `SmartSpend-IG-${new Date().getTime()}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.click();
+                });
+            }, 100);
+        });
+    </script>
+</body>
+
+</html>

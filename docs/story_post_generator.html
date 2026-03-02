@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSpend Web Stories Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+        }
+
+        /* HD Story Canvas (1080x1920) */
+        .story-post {
+            width: 1080px;
+            height: 1920px;
+            background: #020617;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Adjust scale for the preview window */
+            transform-origin: top left;
+            transform: scale(0.3);
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Themes */
+        .story-post.emerald {
+            background: linear-gradient(160deg, #022c22 0%, #020617 40%, #020617 100%);
+        }
+
+        .story-post.dark {
+            background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+        }
+
+        /* Ambient glowing effects */
+        .glow-top {
+            position: absolute;
+            top: -200px;
+            right: -200px;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glow-bottom {
+            position: absolute;
+            bottom: -300px;
+            left: -100px;
+            width: 900px;
+            height: 900px;
+            background: radial-gradient(circle, rgba(6, 78, 59, 0.45) 0%, rgba(6, 78, 59, 0) 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Content Layout */
+        .story-top-content {
+            position: absolute;
+            top: 180px;
+            left: 0;
+            width: 100%;
+            padding: 0 100px;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .title {
+            font-size: 88px;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #ffffff;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .highlight {
+            color: #34d399;
+            /* Emerald 400 */
+        }
+
+        .description {
+            font-size: 40px;
+            font-weight: 300;
+            color: #d1d5db;
+            line-height: 1.4;
+            margin-bottom: 60px;
+        }
+
+        /* Phone Mockup floating in center/bottom */
+        .phone-mockup {
+            width: 720px;
+            /* Slightly narrower than feed */
+            height: 1450px;
+            background-color: #000;
+            border-radius: 64px;
+            border: 16px solid #1e293b;
+            position: absolute;
+            /* Positioning is dynamic via JS based on layout */
+            bottom: -150px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #334155;
+            z-index: 10;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center top;
+            background-color: #0f172a;
+            border-radius: 46px;
+            /* Inner radius */
+            overflow: hidden;
+        }
+
+        /* Features List (Bullets) */
+        .features-container {
+            position: absolute;
+            bottom: 300px;
+            left: 0;
+            width: 100%;
+            padding: 0 100px;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: 24px;
+            padding: 24px 36px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon-wrapper {
+            background: rgba(16, 185, 129, 0.15);
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            min-width: 64px;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 24px;
+            margin-top: auto;
+            margin-bottom: auto;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            color: #fff;
+            font-size: 36px;
+            font-weight: 500;
+            line-height: 1.3;
+            margin-top: auto;
+            margin-bottom: auto;
+            padding-top: 4px;
+        }
+
+        /* Bottom Download Bar (Simulating IG Sticker/Link) */
+        .download-action {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 28px 60px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
+            z-index: 40;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .download-text {
+            color: white;
+            font-size: 42px;
+            font-weight: 700;
+        }
+
+        /* Brand Top bar */
+        .brand-bar {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 20;
+        }
+
+
+        .brand-text {
+            font-size: 32px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: 1px;
+            vertical-align: middle;
+        }
+
+        /* Preview Container Constraint */
+        #preview-container {
+            width: 324px;
+            /* 1080 * 0.3 */
+            height: 576px;
+            /* 1920 * 0.3 */
+        }
+
+        /* Fade overlay for text contrast when mockup is behind */
+        .text-overlay-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 700px;
+            background: linear-gradient(to top, rgba(2, 6, 23, 0.95) 0%, rgba(2, 6, 23, 0.8) 50%, transparent 100%);
+            z-index: 25;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-[1400px] mx-auto">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-400">
+                📱 Stories Generator
+            </h1>
+            <p class="text-slate-400 mt-2">Crea historias inmersivas a 1080x1920px</p>
+        </div>
+
+        <div class="flex flex-col xl:flex-row gap-8 items-start justify-center">
+
+            <!-- CONTROLS -->
+            <div
+                class="w-full xl:w-[45%] bg-slate-800/40 backdrop-blur-md p-6 rounded-3xl shadow-xl border border-slate-700/50 flex flex-col gap-6">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Layout de la Historia</label>
+                        <select id="layoutType"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white focus:border-emerald-500 outline-none">
+                            <option value="text-top-phone-bottom">Texto Arriba + Teléfono Abajo</option>
+                            <option value="phone-bg-text-bottom">Teléfono de Fondo + Info Abajo</option>
+                            <option value="split-left-right">Dividido (Teléfono Izq / Features Der)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Tema</label>
+                        <select id="themeStyle"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white focus:border-emerald-500 outline-none">
+                            <option value="emerald">💚 Premium Emerald</option>
+                            <option value="dark">🌑 Classic Dark</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-4 border-t border-slate-700/50 pt-4">
+                    <h3 class="text-emerald-400 font-medium">Textos Principales</h3>
+
+                    <div>
+                        <label class="block text-xs font-medium mb-1 text-slate-400">Título Principal (usa span para
+                            verde)</label>
+                        <textarea id="titleText" rows="2"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 outline-none resize-none">Sin excusas. Tu dinero <span class="highlight">bajo control.</span></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium mb-1 text-slate-400">Descripción breve</label>
+                        <input type="text" id="descText"
+                            value="La primera app de finanzas 100% enfocada en tu privacidad y velocidad."
+                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-4 border-t border-slate-700/50 pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-emerald-400 font-medium">✨ Bullets / Features</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-slate-400">Mostrar Features</span>
+                            <input type="checkbox" id="showFeatures" checked class="accent-emerald-500 w-4 h-4 rounded">
+                        </div>
+                    </div>
+
+                    <div id="featuresList" class="space-y-2">
+                        <input type="text" id="feat1" value="Inteligencia Artificial Integrada"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-emerald-500 outline-none">
+                        <input type="text" id="feat2" value="100% Privado (Local First)"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-emerald-500 outline-none">
+                        <input type="text" id="feat3" value="Registro de gastos en 3 segundos"
+                            class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-700/50 pt-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2 text-slate-300">Captura (Screenshot)</label>
+                        <input type="file" id="imageInput" accept="image/*"
+                            class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-white hover:file:bg-slate-600 text-sm cursor-pointer">
+                    </div>
+
+                    <div class="flex flex-col justify-between">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-slate-300">Botón de App Store</span>
+                            <input type="checkbox" id="showBtn" checked class="accent-emerald-500 w-4 h-4 rounded">
+                        </div>
+                        <input type="text" id="btnText" value="Descargar Gratis"
+                            class="w-full mt-2 bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <button id="downloadBtn"
+                    class="w-full mt-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg transform hover:-translate-y-1 flex justify-center items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Exportar Historia (1080x1920)
+                </button>
+            </div>
+
+            <!-- LIVE PREVIEW CANVAS -->
+            <div
+                class="w-full xl:w-auto flex justify-center bg-slate-900/50 rounded-[40px] p-6 border border-slate-800">
+                <div id="preview-container">
+                    <!-- ACTUAL CANVAS RENDERED FOR DOWNLOAD -->
+                    <div id="captureArea" class="story-post emerald">
+                        <!-- Ambient Lights -->
+                        <div class="glow-top"></div>
+                        <div class="glow-bottom"></div>
+
+                        <!-- Brand Top Bar -->
+                        <div class="brand-bar">
+                            <span class="brand-text">SmartSpend</span>
+                        </div>
+
+                        <!-- Primary Text Content -->
+                        <div id="renderHeader" class="story-top-content">
+                            <h1 id="renderTitle" class="title"></h1>
+                            <p id="renderDesc" class="description"></p>
+                        </div>
+
+                        <!-- Secondary Text Overlay (Only used in alternative layout) -->
+                        <div id="renderGradient" class="text-overlay-gradient" style="display: none;"></div>
+
+                        <!-- Phone Mockup -->
+                        <div id="renderMockup" class="phone-mockup">
+                            <div id="renderScreen"
+                                class="phone-screen flex items-center justify-center border border-slate-800/50">
+                                <span class="text-slate-600 text-xl font-light">Carga una imagen...</span>
+                            </div>
+                        </div>
+
+                        <!-- Features Area -->
+                        <div id="renderFeatures" class="features-container">
+                            <!-- Injected via JS -->
+                        </div>
+
+                        <!-- CTA Sticker -->
+                        <div id="renderCta" class="download-action">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            <span id="renderBtnText" class="download-text">Descargar Gratis</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Form Controls
+        const layoutType = document.getElementById('layoutType');
+        const themeStyle = document.getElementById('themeStyle');
+        const titleText = document.getElementById('titleText');
+        const descText = document.getElementById('descText');
+
+        const showFeatures = document.getElementById('showFeatures');
+        const feat1 = document.getElementById('feat1');
+        const feat2 = document.getElementById('feat2');
+        const feat3 = document.getElementById('feat3');
+
+        const imageInput = document.getElementById('imageInput');
+        const showBtn = document.getElementById('showBtn');
+        const btnText = document.getElementById('btnText');
+
+        // Render Targets
+        const captureArea = document.getElementById('captureArea');
+        const renderHeader = document.getElementById('renderHeader');
+        const renderTitle = document.getElementById('renderTitle');
+        const renderDesc = document.getElementById('renderDesc');
+        const renderMockup = document.getElementById('renderMockup');
+        const renderScreen = document.getElementById('renderScreen');
+        const renderFeatures = document.getElementById('renderFeatures');
+        const renderCta = document.getElementById('renderCta');
+        const renderGradient = document.getElementById('renderGradient');
+        const renderBtnText = document.getElementById('renderBtnText');
+
+        // Features Action Icons Update
+        const SVG_CHECK = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-emerald-400"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+        function renderFeaturesList() {
+            renderFeatures.innerHTML = '';
+            if (!showFeatures.checked) {
+                renderFeatures.style.display = 'none';
+                return;
+            }
+
+            renderFeatures.style.display = 'flex';
+            const features = [feat1.value, feat2.value, feat3.value].filter(v => v.trim() !== '');
+
+            features.forEach(feat => {
+                const fDiv = document.createElement('div');
+                fDiv.className = 'feature-item';
+                fDiv.innerHTML = `
+                    <div class="feature-icon-wrapper">${SVG_CHECK}</div>
+                    <span class="feature-text">${feat}</span>
+                `;
+                renderFeatures.appendChild(fDiv);
+            });
+        }
+
+        function updatePreview() {
+            // Theme Update
+            captureArea.className = 'story-post';
+            captureArea.classList.add(themeStyle.value);
+
+            // Basic Texts Update
+            renderTitle.innerHTML = titleText.value;
+            renderDesc.textContent = descText.value;
+            renderBtnText.textContent = btnText.value;
+
+            // Features & Button Toggles
+            renderFeaturesList();
+            renderCta.style.display = showBtn.checked ? 'flex' : 'none';
+
+            // Reset all dynamic inline styles to avoid conflict between switches
+            renderHeader.style = '';
+            renderMockup.style = '';
+            renderFeatures.style = '';
+            renderGradient.style = '';
+
+            const notch = document.querySelector('.phone-notch');
+            if (notch) notch.style.display = 'block';
+
+            // Layout Switching Engine
+            if (layoutType.value === 'text-top-phone-bottom') {
+                // Layout A: Text floats top, Phone cuts at bottom
+                renderHeader.style.top = '180px';
+                renderHeader.style.left = '0';
+                renderHeader.style.width = '100%';
+                renderHeader.style.textAlign = 'center';
+                renderHeader.style.padding = '0 100px';
+
+                renderMockup.style.width = '720px';
+                renderMockup.style.height = '1450px';
+                renderMockup.style.bottom = '-150px';
+                renderMockup.style.top = 'auto';
+                renderMockup.style.left = '50%';
+                renderMockup.style.transform = 'translateX(-50%) rotate(0deg)';
+                renderMockup.style.borderRadius = '64px';
+
+                renderFeatures.style.flexDirection = 'column';
+                renderFeatures.style.bottom = showBtn.checked ? '280px' : '150px';
+                renderFeatures.style.top = 'auto';
+                renderFeatures.style.left = '0';
+                renderFeatures.style.width = '100%';
+                renderFeatures.style.padding = '0 100px';
+                renderFeatures.style.alignItems = 'stretch';
+
+                renderGradient.style.display = 'none';
+
+            } else if (layoutType.value === 'phone-bg-text-bottom') {
+                // Layout B: Giant phone taking whole background, texts fade in at bottom
+                renderHeader.style.top = 'auto';
+                renderHeader.style.bottom = showFeatures.checked ? '650px' : (showBtn.checked ? '300px' : '150px');
+                renderHeader.style.left = '0';
+                renderHeader.style.width = '100%';
+                renderHeader.style.textAlign = 'center';
+                renderHeader.style.padding = '0 100px';
+
+                renderMockup.style.width = '1000px';
+                renderMockup.style.height = '2160px'; // Taller than canvas
+                renderMockup.style.top = '-80px';
+                renderMockup.style.bottom = 'auto';
+                renderMockup.style.left = '50%';
+                renderMockup.style.transform = 'translateX(-50%) rotate(0deg)';
+                renderMockup.style.borderRadius = '64px';
+
+                renderFeatures.style.flexDirection = 'column';
+                renderFeatures.style.bottom = showBtn.checked ? '260px' : '100px';
+                renderFeatures.style.top = 'auto';
+                renderFeatures.style.left = '0';
+                renderFeatures.style.width = '100%';
+                renderFeatures.style.padding = '0 100px';
+                renderFeatures.style.alignItems = 'stretch';
+
+                renderGradient.style.display = 'block';
+                renderGradient.style.height = '1100px'; // Big bottom fade
+
+            } else if (layoutType.value === 'split-left-right') {
+                // Layout C: Split View (Phone Left, Features Right)
+                renderHeader.style.top = '150px';
+                renderHeader.style.left = '0';
+                renderHeader.style.width = '100%';
+                renderHeader.style.textAlign = 'center';
+                renderHeader.style.padding = '0 100px';
+
+                // Phone is smaller, rotated and positioned on the left
+                renderMockup.style.width = '520px';
+                renderMockup.style.height = '1060px';
+                renderMockup.style.bottom = '250px';
+                renderMockup.style.top = 'auto';
+                renderMockup.style.left = '-30px';
+                renderMockup.style.transform = 'rotate(-8deg)';
+                renderMockup.style.borderRadius = '52px';
+
+                // Features are stacked vertically on the right, centered in right half
+                renderFeatures.style.flexDirection = 'column';
+                renderFeatures.style.top = '50%';
+                renderFeatures.style.bottom = 'auto';
+                renderFeatures.style.left = '530px';
+                renderFeatures.style.width = '520px';
+                renderFeatures.style.padding = '0';
+                renderFeatures.style.gap = '28px';
+                renderFeatures.style.alignItems = 'flex-start';
+                renderFeatures.style.transform = 'translateY(-50%)';
+
+                // Adjust the inner feature items to look like floating tags
+                const currentFeatures = renderFeatures.querySelectorAll('.feature-item');
+                currentFeatures.forEach(el => {
+                    el.style.borderRadius = '20px';
+                    el.style.padding = '20px 28px';
+                    el.style.background = 'rgba(16, 185, 129, 0.15)';
+                    el.style.border = '2px solid rgba(52, 211, 153, 0.4)';
+                    el.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)';
+                    const textSpan = el.querySelector('.feature-text');
+                    if (textSpan) textSpan.style.fontSize = '28px';
+                    const iconWrap = el.querySelector('.feature-icon-wrapper');
+                    if (iconWrap) {
+                        iconWrap.style.width = '42px';
+                        iconWrap.style.height = '42px';
+                        iconWrap.style.marginRight = '16px';
+                        iconWrap.style.background = 'rgba(16, 185, 129, 0.3)';
+                    }
+                });
+
+                renderGradient.style.display = 'none';
+            }
+        }
+
+
+        // Live Event Listeners
+        const inputs = [layoutType, themeStyle, titleText, descText, showFeatures, feat1, feat2, feat3, showBtn, btnText];
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        });
+
+        // Image Handling
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    renderScreen.style.backgroundImage = `url(${event.target.result})`;
+                    renderScreen.innerHTML = ''; // Remove placeholder
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Setup Initial State
+        updatePreview();
+
+        // Download Action
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const originalTransform = captureArea.style.transform;
+            const btn = document.getElementById('downloadBtn');
+            const oldText = btn.innerHTML;
+
+            // Revert scaling to 1.0 for high res HD capture and force reflow
+            captureArea.style.transform = 'scale(1)';
+
+            setTimeout(() => {
+                btn.innerHTML = 'Generando Historia... ⏳';
+
+                html2canvas(captureArea, {
+                    scale: 2, // 2x gives 2160x3840 (super crisp for stories)
+                    useCORS: true,
+                    allowTaint: true, // Need this because local images taint the canvas
+                    backgroundColor: null,
+                    logging: true // Enabled for debugging issues
+                }).then(canvas => {
+                    captureArea.style.transform = originalTransform;
+                    btn.innerHTML = oldText;
+
+                    const link = document.createElement('a');
+                    link.download = `SmartSpend-Story-${new Date().getTime()}.png`;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.click();
+                }).catch(err => {
+                    console.error("Error generating canvas:", err);
+                    captureArea.style.transform = originalTransform;
+                    btn.innerHTML = 'Error al exportar ❌';
+                    setTimeout(() => btn.innerHTML = oldText, 3000);
+                });
+            }, 300); // Increased timeout to ensure DOM repaint
+        });
+    </script>
+</body>
+
+</html>
