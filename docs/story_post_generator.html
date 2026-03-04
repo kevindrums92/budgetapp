@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartSpend Web Stories Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3/dist/dom-to-image-more.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -18,6 +18,8 @@
         /* HD Story Canvas (1080x1920) */
         .story-post {
             width: 1080px;
+            min-width: 1080px;
+            max-width: 1080px;
             height: 1920px;
             background: #020617;
             position: relative;
@@ -29,6 +31,15 @@
             transform-origin: top left;
             transform: scale(0.3);
             box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        /* Reset Tailwind preflight borders — Tailwind sets border-style:solid
+           on all elements; dom-to-image copies these computed styles making
+           invisible 0px borders appear in the exported image. */
+        .story-post,
+        .story-post *:not(.feature-item):not(.phone-mockup):not(.download-action) {
+            border-style: none;
         }
 
         /* Themes */
@@ -38,6 +49,54 @@
 
         .story-post.dark {
             background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+        }
+
+        .story-post.sunset {
+            background: radial-gradient(circle at top right, #9a3412 0%, #431407 35%, #0c0a09 100%);
+        }
+
+        .story-post.ocean {
+            background: radial-gradient(circle at bottom right, #164e63 0%, #083344 40%, #020617 100%);
+        }
+
+        .story-post.gold {
+            background: radial-gradient(circle at top center, #1c1917 0%, #0c0a09 50%, #000000 100%);
+        }
+
+        .story-post.white {
+            background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.05);
+        }
+
+        .story-post.white .title {
+            color: #0f172a;
+            text-shadow: none;
+        }
+
+        .story-post.white .description {
+            color: #475569;
+        }
+
+        .story-post.white .brand-text {
+            color: #10b981;
+        }
+
+        .story-post.white .feature-text {
+            color: #0f172a;
+        }
+
+        .story-post.white .feature-item {
+            background: rgba(255, 255, 255, 0.85);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .story-post.white .phone-mockup {
+            border-color: #cbd5e1;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.15), inset 0 0 0 2px #e2e8f0;
+        }
+
+        .story-post.white .download-text {
+            color: white;
         }
 
         /* Ambient glowing effects */
@@ -141,6 +200,7 @@
         .feature-item {
             display: flex;
             align-items: center;
+            gap: 20px;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(52, 211, 153, 0.3);
@@ -149,30 +209,62 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .feature-icon-wrapper {
-            background: rgba(16, 185, 129, 0.15);
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
             border-radius: 50%;
-            width: 64px;
-            height: 64px;
-            min-width: 64px;
-            min-height: 64px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 24px;
-            margin-top: auto;
-            margin-bottom: auto;
-            flex-shrink: 0;
         }
 
         .feature-text {
             color: #fff;
-            font-size: 36px;
+            font-size: 30px;
             font-weight: 500;
             line-height: 1.3;
-            margin-top: auto;
-            margin-bottom: auto;
-            padding-top: 4px;
+        }
+
+        /* Bullet Style: Accent Bar (minimal-pills) */
+        .feature-item.style-minimal-pills {
+            border-left: 5px solid;
+            border-top: none;
+            border-right: none;
+            border-bottom: none;
+            border-radius: 16px;
+            padding: 22px 32px;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(24px);
+        }
+
+        .feature-item.style-minimal-pills .feature-text {
+            font-size: 28px;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        /* Bullet Style: Floating Tags (compact) */
+        .feature-item.style-floating-tags {
+            border-radius: 100px;
+            padding: 22px 40px;
+            gap: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(28px);
+            border: 1.5px solid rgba(52, 211, 153, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .feature-dot {
+            width: 14px;
+            height: 14px;
+            min-width: 14px;
+            border-radius: 50%;
+        }
+
+        .feature-item.style-floating-tags .feature-text {
+            font-size: 22px;
+            font-weight: 500;
         }
 
         /* Bottom Download Bar (Simulating IG Sticker/Link) */
@@ -223,6 +315,8 @@
             /* 1080 * 0.3 */
             height: 576px;
             /* 1920 * 0.3 */
+            overflow: hidden;
+            position: relative;
         }
 
         /* Fade overlay for text contrast when mockup is behind */
@@ -269,7 +363,11 @@
                         <select id="themeStyle"
                             class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white focus:border-emerald-500 outline-none">
                             <option value="emerald">💚 Premium Emerald</option>
-                            <option value="dark">🌑 Classic Dark</option>
+                            <option value="dark">🌑 Dark Minimal</option>
+                            <option value="sunset">🌅 Sunset Warm</option>
+                            <option value="ocean">🌊 Ocean Blue</option>
+                            <option value="gold">✨ Midnight Gold</option>
+                            <option value="white">⬜ Clean White</option>
                         </select>
                     </div>
                 </div>
@@ -281,13 +379,13 @@
                         <label class="block text-xs font-medium mb-1 text-slate-400">Título Principal (usa span para
                             verde)</label>
                         <textarea id="titleText" rows="2"
-                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 outline-none resize-none">Sin excusas. Tu dinero <span class="highlight">bajo control.</span></textarea>
+                            class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 outline-none resize-none">¿Sabes en qué se va tu dinero? Ten todo <span class="highlight">bajo control.</span></textarea>
                     </div>
 
                     <div>
                         <label class="block text-xs font-medium mb-1 text-slate-400">Descripción breve</label>
                         <input type="text" id="descText"
-                            value="La primera app de finanzas 100% enfocada en tu privacidad y velocidad."
+                            value="Organiza tus gastos sin compartir tus datos."
                             class="w-full bg-slate-900 border border-slate-600 rounded-xl p-3 text-white text-sm focus:border-emerald-500 outline-none">
                     </div>
                 </div>
@@ -301,12 +399,38 @@
                         </div>
                     </div>
 
+                    <div>
+                        <label class="block text-xs font-medium mb-2 text-slate-400">Estilo de Bullets</label>
+                        <div class="grid grid-cols-2 gap-2" id="bulletStyleGrid">
+                            <button type="button" data-style="solid-badge"
+                                class="bullet-style-btn active bg-slate-900 border-2 border-emerald-500 rounded-xl p-3 text-left transition-all hover:border-emerald-400">
+                                <span class="block text-sm font-medium text-white">Solid Badge</span>
+                                <span class="block text-xs text-slate-400 mt-1">Check sólido + glassmorphism</span>
+                            </button>
+                            <button type="button" data-style="minimal-pills"
+                                class="bullet-style-btn bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-left transition-all hover:border-slate-500">
+                                <span class="block text-sm font-medium text-white">Minimal Pills</span>
+                                <span class="block text-xs text-slate-400 mt-1">Barra lateral, sin icono</span>
+                            </button>
+                            <button type="button" data-style="staggered"
+                                class="bullet-style-btn bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-left transition-all hover:border-slate-500">
+                                <span class="block text-sm font-medium text-white">Staggered</span>
+                                <span class="block text-xs text-slate-400 mt-1">Escalonado + badge</span>
+                            </button>
+                            <button type="button" data-style="floating-tags"
+                                class="bullet-style-btn bg-slate-900 border-2 border-slate-700 rounded-xl p-3 text-left transition-all hover:border-slate-500">
+                                <span class="block text-sm font-medium text-white">Floating Tags</span>
+                                <span class="block text-xs text-slate-400 mt-1">Compacto, tipo chips</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div id="featuresList" class="space-y-2">
-                        <input type="text" id="feat1" value="Inteligencia Artificial Integrada"
+                        <input type="text" id="feat1" value="Registro con IA: voz, texto o foto"
                             class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-emerald-500 outline-none">
-                        <input type="text" id="feat2" value="100% Privado (Local First)"
+                        <input type="text" id="feat2" value="Recordatorios de pagos y deudas"
                             class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-emerald-500 outline-none">
-                        <input type="text" id="feat3" value="Registro de gastos en 3 segundos"
+                        <input type="text" id="feat3" value="Registro de gastos en 3s"
                             class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white text-sm focus:border-emerald-500 outline-none">
                     </div>
                 </div>
@@ -366,7 +490,7 @@
                         <!-- Phone Mockup -->
                         <div id="renderMockup" class="phone-mockup">
                             <div id="renderScreen"
-                                class="phone-screen flex items-center justify-center border border-slate-800/50">
+                                class="phone-screen flex items-center justify-center">
                                 <span class="text-slate-600 text-xl font-light">Carga una imagen...</span>
                             </div>
                         </div>
@@ -406,6 +530,24 @@
         const feat2 = document.getElementById('feat2');
         const feat3 = document.getElementById('feat3');
 
+        // Bullet style state
+        let currentBulletStyle = 'solid-badge';
+        document.querySelectorAll('.bullet-style-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.bullet-style-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.borderColor = '';
+                    b.classList.add('border-slate-700');
+                    b.classList.remove('border-emerald-500');
+                });
+                btn.classList.add('active');
+                btn.classList.remove('border-slate-700');
+                btn.classList.add('border-emerald-500');
+                currentBulletStyle = btn.dataset.style;
+                updatePreview();
+            });
+        });
+
         const imageInput = document.getElementById('imageInput');
         const showBtn = document.getElementById('showBtn');
         const btnText = document.getElementById('btnText');
@@ -422,10 +564,26 @@
         const renderGradient = document.getElementById('renderGradient');
         const renderBtnText = document.getElementById('renderBtnText');
 
-        // Features Action Icons Update
-        const SVG_CHECK = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-emerald-400"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        // Theme accent color map
+        const THEME_ACCENTS = {
+            emerald: { highlight: '#34d399', glow: 'rgba(16, 185, 129, 0.25)', glowBottom: 'rgba(6, 78, 59, 0.45)', check: '#34d399', cta: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', ctaShadow: 'rgba(16, 185, 129, 0.3)', featureBorder: 'rgba(52, 211, 153, 0.3)', featureIconBg: 'rgba(16, 185, 129, 0.15)' },
+            dark:    { highlight: '#34d399', glow: 'rgba(16, 185, 129, 0.15)', glowBottom: 'rgba(6, 78, 59, 0.25)', check: '#34d399', cta: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', ctaShadow: 'rgba(16, 185, 129, 0.3)', featureBorder: 'rgba(52, 211, 153, 0.3)', featureIconBg: 'rgba(16, 185, 129, 0.15)' },
+            sunset:  { highlight: '#fb923c', glow: 'rgba(249, 115, 22, 0.25)', glowBottom: 'rgba(154, 52, 18, 0.4)', check: '#fb923c', cta: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', ctaShadow: 'rgba(249, 115, 22, 0.3)', featureBorder: 'rgba(251, 146, 60, 0.3)', featureIconBg: 'rgba(249, 115, 22, 0.15)' },
+            ocean:   { highlight: '#22d3ee', glow: 'rgba(6, 182, 212, 0.25)', glowBottom: 'rgba(22, 78, 99, 0.45)', check: '#22d3ee', cta: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)', ctaShadow: 'rgba(6, 182, 212, 0.3)', featureBorder: 'rgba(34, 211, 238, 0.3)', featureIconBg: 'rgba(6, 182, 212, 0.15)' },
+            gold:    { highlight: '#fbbf24', glow: 'rgba(217, 119, 6, 0.25)', glowBottom: 'rgba(120, 53, 15, 0.4)', check: '#fbbf24', cta: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', ctaShadow: 'rgba(217, 119, 6, 0.3)', featureBorder: 'rgba(251, 191, 36, 0.3)', featureIconBg: 'rgba(217, 119, 6, 0.15)' },
+            white:   { highlight: '#10b981', glow: 'rgba(16, 185, 129, 0.1)', glowBottom: 'rgba(16, 185, 129, 0.08)', check: '#10b981', cta: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', ctaShadow: 'rgba(16, 185, 129, 0.2)', featureBorder: 'rgba(16, 185, 129, 0.3)', featureIconBg: 'rgba(16, 185, 129, 0.1)' },
+        };
+
+        function getSvgCheck(color) {
+            return `<svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        }
+
+        function getSvgCheckWhite() {
+            return `<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        }
 
         function renderFeaturesList() {
+            const accent = THEME_ACCENTS[themeStyle.value] || THEME_ACCENTS.emerald;
             renderFeatures.innerHTML = '';
             if (!showFeatures.checked) {
                 renderFeatures.style.display = 'none';
@@ -434,19 +592,55 @@
 
             renderFeatures.style.display = 'flex';
             const features = [feat1.value, feat2.value, feat3.value].filter(v => v.trim() !== '');
+            const isWhiteTheme = themeStyle.value === 'white';
+            const tc = isWhiteTheme ? '#0f172a' : '#fff';
 
-            features.forEach(feat => {
+            const staggerOffsets = [0, 60, 20];
+
+            features.forEach((feat, idx) => {
                 const fDiv = document.createElement('div');
-                fDiv.className = 'feature-item';
-                fDiv.innerHTML = `
-                    <div class="feature-icon-wrapper">${SVG_CHECK}</div>
-                    <span class="feature-text">${feat}</span>
-                `;
+
+                if (currentBulletStyle === 'solid-badge') {
+                    fDiv.className = 'feature-item';
+                    fDiv.style.background = isWhiteTheme ? 'rgba(255, 255, 255, 0.85)' : 'rgba(15, 23, 42, 0.7)';
+                    fDiv.style.backdropFilter = 'blur(28px)';
+                    fDiv.style.border = `1.5px solid ${accent.featureBorder}`;
+                    fDiv.style.boxShadow = `0 12px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05)`;
+                    fDiv.innerHTML = `<div class="feature-icon" style="background: ${accent.check}; box-shadow: 0 4px 16px ${accent.featureBorder};">${getSvgCheckWhite()}</div><span class="feature-text" style="color: ${tc};">${feat}</span>`;
+
+                } else if (currentBulletStyle === 'minimal-pills') {
+                    fDiv.className = 'feature-item style-minimal-pills';
+                    fDiv.style.borderLeftColor = accent.check;
+                    fDiv.style.background = isWhiteTheme ? 'rgba(255, 255, 255, 0.8)' : 'rgba(15, 23, 42, 0.6)';
+                    fDiv.style.backdropFilter = 'blur(24px)';
+                    fDiv.style.boxShadow = `0 8px 24px rgba(0, 0, 0, 0.2)`;
+                    fDiv.innerHTML = `<span class="feature-text" style="color: ${tc};">${feat}</span>`;
+
+                } else if (currentBulletStyle === 'staggered') {
+                    fDiv.className = 'feature-item';
+                    fDiv.style.background = isWhiteTheme ? 'rgba(255, 255, 255, 0.85)' : 'rgba(15, 23, 42, 0.7)';
+                    fDiv.style.backdropFilter = 'blur(28px)';
+                    fDiv.style.border = `1.5px solid ${accent.featureBorder}`;
+                    fDiv.style.boxShadow = `0 12px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.05)`;
+                    fDiv.style.marginLeft = `${staggerOffsets[idx % staggerOffsets.length]}px`;
+                    fDiv.style.borderRadius = '20px';
+                    fDiv.innerHTML = `<div class="feature-icon" style="background: ${accent.check}; width: 52px; height: 52px; min-width: 52px; box-shadow: 0 4px 12px ${accent.featureBorder};">${getSvgCheckWhite()}</div><span class="feature-text" style="color: ${tc};">${feat}</span>`;
+
+                } else if (currentBulletStyle === 'floating-tags') {
+                    fDiv.className = 'feature-item style-floating-tags';
+                    fDiv.style.borderColor = accent.featureBorder;
+                    fDiv.style.background = isWhiteTheme ? 'rgba(255, 255, 255, 0.75)' : 'rgba(15, 23, 42, 0.55)';
+                    fDiv.style.backdropFilter = 'blur(28px)';
+                    fDiv.innerHTML = `<div class="feature-dot" style="background: ${accent.check}; box-shadow: 0 0 12px ${accent.check}40;"></div><span class="feature-text" style="color: ${tc};">${feat}</span>`;
+                }
+
                 renderFeatures.appendChild(fDiv);
             });
         }
 
         function updatePreview() {
+            const accent = THEME_ACCENTS[themeStyle.value] || THEME_ACCENTS.emerald;
+
             // Theme Update
             captureArea.className = 'story-post';
             captureArea.classList.add(themeStyle.value);
@@ -455,6 +649,13 @@
             renderTitle.innerHTML = titleText.value;
             renderDesc.textContent = descText.value;
             renderBtnText.textContent = btnText.value;
+
+            // Apply theme-adaptive colors
+            renderTitle.querySelectorAll('.highlight').forEach(el => el.style.color = accent.highlight);
+            document.querySelector('.glow-top').style.background = `radial-gradient(circle, ${accent.glow} 0%, transparent 70%)`;
+            document.querySelector('.glow-bottom').style.background = `radial-gradient(circle, ${accent.glowBottom} 0%, transparent 70%)`;
+            renderCta.style.background = accent.cta;
+            renderCta.style.boxShadow = `0 20px 40px ${accent.ctaShadow}`;
 
             // Features & Button Toggles
             renderFeaturesList();
@@ -492,7 +693,7 @@
                 renderFeatures.style.left = '0';
                 renderFeatures.style.width = '100%';
                 renderFeatures.style.padding = '0 100px';
-                renderFeatures.style.alignItems = 'stretch';
+                renderFeatures.style.alignItems = (currentBulletStyle === 'floating-tags') ? 'flex-end' : 'stretch';
 
                 renderGradient.style.display = 'none';
 
@@ -519,7 +720,7 @@
                 renderFeatures.style.left = '0';
                 renderFeatures.style.width = '100%';
                 renderFeatures.style.padding = '0 100px';
-                renderFeatures.style.alignItems = 'stretch';
+                renderFeatures.style.alignItems = (currentBulletStyle === 'floating-tags') ? 'flex-end' : 'stretch';
 
                 renderGradient.style.display = 'block';
                 renderGradient.style.height = '1100px'; // Big bottom fade
@@ -552,22 +753,22 @@
                 renderFeatures.style.alignItems = 'flex-start';
                 renderFeatures.style.transform = 'translateY(-50%)';
 
-                // Adjust the inner feature items to look like floating tags
+                // Adjust the inner feature items for split layout
                 const currentFeatures = renderFeatures.querySelectorAll('.feature-item');
                 currentFeatures.forEach(el => {
                     el.style.borderRadius = '20px';
-                    el.style.padding = '20px 28px';
+                    el.style.padding = '18px 28px';
                     el.style.background = 'rgba(16, 185, 129, 0.15)';
                     el.style.border = '2px solid rgba(52, 211, 153, 0.4)';
                     el.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)';
                     const textSpan = el.querySelector('.feature-text');
                     if (textSpan) textSpan.style.fontSize = '28px';
-                    const iconWrap = el.querySelector('.feature-icon-wrapper');
-                    if (iconWrap) {
-                        iconWrap.style.width = '42px';
-                        iconWrap.style.height = '42px';
-                        iconWrap.style.marginRight = '16px';
-                        iconWrap.style.background = 'rgba(16, 185, 129, 0.3)';
+                    const iconEl = el.querySelector('.feature-icon');
+                    if (iconEl) {
+                        iconEl.style.width = '42px';
+                        iconEl.style.height = '42px';
+                        iconEl.style.minWidth = '42px';
+                        iconEl.style.background = 'rgba(16, 185, 129, 0.3)';
                     }
                 });
 
@@ -599,39 +800,35 @@
         // Setup Initial State
         updatePreview();
 
-        // Download Action
+        // Download Action — uses dom-to-image-more (SVG foreignObject)
+        // Unlike html2canvas (which re-implements CSS in JS and gets it wrong),
+        // dom-to-image delegates rendering to the browser's native CSS engine.
+        // What you see in the preview = what gets exported.
         document.getElementById('downloadBtn').addEventListener('click', () => {
-            const originalTransform = captureArea.style.transform;
             const btn = document.getElementById('downloadBtn');
             const oldText = btn.innerHTML;
+            btn.innerHTML = 'Generando Historia... ⏳';
 
-            // Revert scaling to 1.0 for high res HD capture and force reflow
-            captureArea.style.transform = 'scale(1)';
-
-            setTimeout(() => {
-                btn.innerHTML = 'Generando Historia... ⏳';
-
-                html2canvas(captureArea, {
-                    scale: 2, // 2x gives 2160x3840 (super crisp for stories)
-                    useCORS: true,
-                    allowTaint: true, // Need this because local images taint the canvas
-                    backgroundColor: null,
-                    logging: true // Enabled for debugging issues
-                }).then(canvas => {
-                    captureArea.style.transform = originalTransform;
-                    btn.innerHTML = oldText;
-
-                    const link = document.createElement('a');
-                    link.download = `SmartSpend-Story-${new Date().getTime()}.png`;
-                    link.href = canvas.toDataURL('image/png', 1.0);
-                    link.click();
-                }).catch(err => {
-                    console.error("Error generating canvas:", err);
-                    captureArea.style.transform = originalTransform;
-                    btn.innerHTML = 'Error al exportar ❌';
-                    setTimeout(() => btn.innerHTML = oldText, 3000);
-                });
-            }, 300); // Increased timeout to ensure DOM repaint
+            domtoimage.toPng(captureArea, {
+                width: 2160,
+                height: 3840,
+                style: {
+                    transform: 'scale(2)',
+                    transformOrigin: 'top left',
+                    width: '1080px',
+                    height: '1920px',
+                }
+            }).then(dataUrl => {
+                btn.innerHTML = oldText;
+                const link = document.createElement('a');
+                link.download = `SmartSpend-Story-${new Date().getTime()}.png`;
+                link.href = dataUrl;
+                link.click();
+            }).catch(err => {
+                console.error("Error generating image:", err);
+                btn.innerHTML = 'Error al exportar';
+                setTimeout(() => btn.innerHTML = oldText, 3000);
+            });
         });
     </script>
 </body>

@@ -10,6 +10,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **docs: redesign IG post generator with Figma-like editor layout**
+  - Full-viewport layout: top toolbar, left sidebar controls, center canvas with dot pattern
+  - Auto-scale preview based on available canvas space
+  - Add phone size/position sliders for mockup layouts
+  - Switch export to dom-to-image-more for better CSS fidelity
+  - Theme-aware gradient overlay for Clean White theme on zoomed layout
+
 - **feat(privacy): implement 3-level privacy mode (off → partial → full)**
   - Off: everything visible (Eye icon)
   - Partial: censors summary cards only — BalanceCard, SafeToSpend, BudgetCard (EyeClosed icon)
