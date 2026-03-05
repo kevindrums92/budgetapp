@@ -78,8 +78,14 @@ async function downloadTextFileNative(
 
     logger.info('Download', 'File shared successfully');
   } catch (error) {
+    // User canceling the share sheet is not an error
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('cancel') || message.includes('Cancel')) {
+      logger.info('Download', 'Share canceled by user');
+      return;
+    }
     logger.error('Download', 'Failed to download file on native:', error);
-    throw new Error(`Error al exportar archivo: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(`Error al exportar archivo: ${message}`);
   }
 }
 

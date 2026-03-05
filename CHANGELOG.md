@@ -10,6 +10,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(download): ignore iOS share sheet cancel as error — prevent false Sentry reports**
+
 - **docs: redesign IG post generator with Figma-like editor layout**
   - Full-viewport layout: top toolbar, left sidebar controls, center canvas with dot pattern
   - Auto-scale preview based on available canvas space
