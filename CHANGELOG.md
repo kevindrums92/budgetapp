@@ -2,13 +2,19 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
-
-
-
-
-
-
 ## [unreleased] - {relase date}
+
+- **fix(scheduler): gate auto-confirm behind cloudSyncReady to prevent race condition**
+  - Scheduled transactions no longer disappear after cloud sync overwrites local state
+  - Added `visibilitychange` listener so `today` updates when app resumes from background overnight
+  - `hasAutoConfirmedRef` resets on date change, allowing scheduler to re-run correctly
+
+- **feat(scheduler): show feedback modal when scheduled transactions are auto-confirmed**
+  - New `AutoConfirmedModal` component with transaction list (max 5 + "y N más..." indicator)
+  - i18n support for all 4 languages (es, en, fr, pt) with plural forms
+  - 30 unit + integration tests covering modal rendering and scheduler race condition gate
+
+- **chore(ios): switch to production bundle ID and push notification environment**
 
 - **feat(export): PDF report generation with full i18n support (4 languages)**
   - `@react-pdf/renderer` lazy-loaded (~1.5MB code-split chunk, zero impact on initial bundle)

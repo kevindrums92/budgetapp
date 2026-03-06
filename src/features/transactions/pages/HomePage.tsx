@@ -15,6 +15,8 @@ import { todayISO } from "@/services/dates.service";
 import { requestPermissions, checkPermissionStatus } from "@/services/pushNotification.service";
 import { shouldShowBanner, recordDismiss, markAsEnabled } from "@/services/pushBannerTracking.service";
 import SafeToSpendCard from "@/features/forecasting/components/SafeToSpendCard";
+import AutoConfirmedModal from "@/features/transactions/components/AutoConfirmedModal";
+import type { Transaction } from "@/types/budget.types";
 
 export default function HomePage() {
   const { t } = useTranslation('home');
@@ -53,14 +55,34 @@ export default function HomePage() {
   const transactions = useBudgetStore((s) => s.transactions);
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const user = useBudgetStore((s) => s.user);
+  const cloudSyncReady = useBudgetStore((s) => s.cloudSyncReady);
+  const cloudMode = useBudgetStore((s) => s.cloudMode);
 
-  const today = todayISO();
+  const [today, setToday] = useState(() => todayISO());
+  const [autoConfirmedTxs, setAutoConfirmedTxs] = useState<Transaction[]>([]);
 
   // Track if we've already auto-confirmed past-due transactions this session
   const hasAutoConfirmedRef = useRef(false);
 
-  // Auto-confirm past-due scheduled transactions on mount
+  // Keep `today` reactive when app resumes from background overnight
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const newToday = todayISO();
+        if (newToday !== today) {
+          setToday(newToday);
+          hasAutoConfirmedRef.current = false; // Allow scheduler to re-run with new date
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [today]);
+
+  // Auto-confirm past-due scheduled transactions (gated behind cloudSyncReady)
+  useEffect(() => {
+    // Wait for cloud sync to complete before running scheduler (guest mode doesn't need to wait)
+    if (cloudMode === "cloud" && !cloudSyncReady) return;
     if (hasAutoConfirmedRef.current) return;
 
     const pastDue = generatePastDueTransactions(transactions, today);
@@ -69,8 +91,9 @@ export default function HomePage() {
       console.log(`[HomePage] Auto-confirming ${pastDue.length} past-due scheduled transactions`);
       pastDue.forEach((tx) => addTransaction(tx));
       hasAutoConfirmedRef.current = true;
+      setAutoConfirmedTxs(pastDue);
     }
-  }, [transactions, today, addTransaction]);
+  }, [transactions, today, addTransaction, cloudSyncReady, cloudMode]);
 
   // Start spotlight tour on first visit
   useEffect(() => {
@@ -401,6 +424,13 @@ export default function HomePage() {
         config={homeTour}
         isActive={isTourActive}
         onComplete={completeTour}
+      />
+
+      {/* Auto-confirmed scheduled transactions feedback modal */}
+      <AutoConfirmedModal
+        open={autoConfirmedTxs.length > 0}
+        transactions={autoConfirmedTxs}
+        onClose={() => setAutoConfirmedTxs([])}
       />
 
     </div>

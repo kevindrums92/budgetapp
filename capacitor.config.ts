@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.jhotech.smartspend.dev',
-  appName: 'SmartSpend Dev',
+  appId: 'com.jhotech.smartspend',
+  appName: 'SmartSpend',
   webDir: 'dist',
   server: {
     androidScheme: 'https',

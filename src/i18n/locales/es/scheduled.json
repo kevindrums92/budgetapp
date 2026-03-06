@@ -90,5 +90,11 @@
     "title": "Movimientos de mañana",
     "andMore": "y {{count}} más...",
     "dismiss": "Entendido"
+  },
+  "autoConfirmedModal": {
+    "title": "Registros automáticos",
+    "subtitle_one": "Se registró 1 movimiento programado",
+    "subtitle_other": "Se registraron {{count}} movimientos programados",
+    "dismiss": "Ok"
   }
 }
