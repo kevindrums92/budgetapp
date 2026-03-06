@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
+import { useLanguage } from "@/hooks/useLanguage";
 import {
   Plus,
   MapPin,
@@ -13,9 +14,16 @@ import {
   ShoppingBag,
   Ticket,
   HelpCircle,
+  FileText,
+  Loader2,
 } from "lucide-react";
 import type { TripExpenseCategory } from "@/types/budget.types";
 import PageHeader from "@/shared/components/layout/PageHeader";
+import { downloadBlobFile } from "@/shared/utils/download.utils";
+import { logger } from "@/shared/utils/logger";
+import { prepareTripReportData } from "@/features/pdf-export/services/pdf-data.service";
+import { generateTripReportPDF } from "@/features/pdf-export/services/pdf-generation.service";
+import type { TripReportLabels } from "@/features/pdf-export/services/pdf-data.service";
 
 const CATEGORY_CONFIG: Record<
   TripExpenseCategory,
@@ -31,9 +39,13 @@ const CATEGORY_CONFIG: Record<
 
 export default function TripDetailPage() {
   const { t } = useTranslation('trips');
+  const { t: tProfile } = useTranslation('profile');
   const navigate = useNavigate();
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { getLocale } = useLanguage();
   const params = useParams<{ id: string }>();
+  const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   const trips = useBudgetStore((s) => s.trips);
   const tripExpenses = useBudgetStore((s) => s.tripExpenses);
@@ -71,6 +83,46 @@ export default function TripDetailPage() {
 
   if (!trip) return null;
 
+  const buildTripLabels = (): TripReportLabels => ({
+    title: tProfile('export.pdf.labels.tripTitle', 'Trip Report'),
+    budget: tProfile('export.pdf.labels.budget', 'Budget'),
+    spent: tProfile('export.pdf.labels.spent', 'Spent'),
+    available: tProfile('export.pdf.labels.available', 'Available'),
+    exceeded: tProfile('export.pdf.labels.exceeded', 'Exceeded'),
+    budgetUsed: tProfile('export.pdf.labels.budgetUsed', 'of budget used'),
+    expensesByCategory: tProfile('export.pdf.labels.expensesByCategory', 'Expenses by Category'),
+    expenseDetails: tProfile('export.pdf.labels.expenseDetails', 'Expense Details'),
+    total: tProfile('export.pdf.labels.total', 'Total'),
+    generatedWith: tProfile('export.pdf.labels.generatedWith', 'Generated with SmartSpend'),
+    since: tProfile('export.pdf.labels.since', 'Since'),
+    statusPlanning: tProfile('export.pdf.labels.statusPlanning', 'Planning'),
+    statusActive: tProfile('export.pdf.labels.statusActive', 'In progress'),
+    statusCompleted: tProfile('export.pdf.labels.statusCompleted', 'Completed'),
+    categoryTransport: tProfile('export.pdf.labels.catTransport', 'Transport'),
+    categoryAccommodation: tProfile('export.pdf.labels.catAccommodation', 'Accommodation'),
+    categoryFood: tProfile('export.pdf.labels.catFood', 'Food'),
+    categoryActivities: tProfile('export.pdf.labels.catActivities', 'Activities'),
+    categoryShopping: tProfile('export.pdf.labels.catShopping', 'Shopping'),
+    categoryOther: tProfile('export.pdf.labels.catOther', 'Other'),
+  });
+
+  const handleExportPDF = async () => {
+    setGeneratingPDF(true);
+    setPdfError(null);
+    try {
+      const data = prepareTripReportData(trip, tripExpenses, currencyInfo, getLocale(), buildTripLabels());
+      const blob = await generateTripReportPDF(data);
+      const safeName = trip.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+      const filename = `trip-${safeName || "report"}.pdf`;
+      await downloadBlobFile(blob, filename);
+    } catch (err) {
+      logger.error("TripDetail", "PDF generation failed:", err);
+      setPdfError(tProfile('export.pdf.errorGeneric', 'Could not generate PDF. Please try again.'));
+    } finally {
+      setGeneratingPDF(false);
+    }
+  };
+
   const remaining = trip.budget - totalSpent;
   const progress = trip.budget > 0 ? Math.min((totalSpent / trip.budget) * 100, 100) : 0;
   const isOverBudget = totalSpent > trip.budget;
@@ -97,7 +149,28 @@ export default function TripDetailPage() {
           </div>
         }
         onBack={() => navigate("/trips")}
+        rightActions={
+          <button
+            type="button"
+            onClick={handleExportPDF}
+            disabled={generatingPDF}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 disabled:opacity-50"
+            aria-label="Exportar PDF"
+          >
+            {generatingPDF ? (
+              <Loader2 size={20} className="animate-spin text-gray-600" />
+            ) : (
+              <FileText size={20} className="text-gray-600" />
+            )}
+          </button>
+        }
       />
+
+      {pdfError && (
+        <div className="mx-4 mt-4 rounded-xl bg-red-50 dark:bg-red-900/20 p-3">
+          <p className="text-sm text-red-600 dark:text-red-400">{pdfError}</p>
+        </div>
+      )}
 
       <div className="flex-1 px-4 pt-6 pb-20">
         {/* Budget summary */}

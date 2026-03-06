@@ -45,6 +45,7 @@ src/
 │   ├── budget/                   # Budget limits & tracking
 │   ├── trips/                    # Travel expense tracking
 │   ├── backup/                   # Data backup & restore
+│   ├── pdf-export/               # PDF report generation (@react-pdf)
 │   ├── profile/                  # User profile & settings
 │   └── stats/                    # Analytics & statistics
 │
@@ -235,6 +236,58 @@ features/{feature-name}/
 **Routes**:
 - `/profile` → ProfilePage
 - `/settings/notifications` → NotificationSettingsPage
+
+---
+
+### Feature: PDF Export
+
+**Purpose**: Generate branded PDF reports (financial summaries and trip reports)
+
+**Files**:
+- **Services**: `pdf-data.service.ts` (pure data aggregation), `pdf-generation.service.ts` (lazy-loads @react-pdf)
+- **Documents**: `FinancialReportDocument.tsx` (multi-page financial report), `TripReportDocument.tsx` (single-page trip report)
+- **Primitives**: `PDFHeader`, `PDFFooter`, `PDFMetricCard`, `PDFCategoryBar`, `PDFProgressBar`, `PDFTransactionRow` — @react-pdf components (View/Text/Svg, NOT HTML)
+- **Sheets**: `ExportPDFSheet` (bottom sheet with date range picker)
+- **Utils**: `pdf-styles.ts` (StyleSheet.create with brand colors), `pdf-format.ts` (pure Intl.NumberFormat wrappers, no hooks)
+
+**Internal Structure**:
+```
+features/pdf-export/
+├── services/
+│   ├── pdf-data.service.ts          # Pure functions: store data → report-ready shapes
+│   └── pdf-generation.service.ts    # Lazy import(@react-pdf) → Blob
+├── components/
+│   ├── documents/
+│   │   ├── FinancialReportDocument.tsx   # @react-pdf Document (2+ pages)
+│   │   └── TripReportDocument.tsx        # @react-pdf Document (1 page)
+│   ├── primitives/
+│   │   ├── PDFHeader.tsx / PDFFooter.tsx
+│   │   ├── PDFMetricCard.tsx / PDFCategoryBar.tsx
+│   │   ├── PDFProgressBar.tsx / PDFTransactionRow.tsx
+│   └── sheets/
+│       └── ExportPDFSheet.tsx       # Bottom sheet: date picker + generate button
+└── utils/
+    ├── pdf-styles.ts                # StyleSheet.create() with COLORS
+    └── pdf-format.ts                # formatAmountPure(), formatDateRange(), etc.
+```
+
+**Integration Points** (cross-feature, via ExportPDFSheet or direct service call):
+- `profile/pages/ExportCSVPage.tsx` — "Reporte PDF" card opens ExportPDFSheet
+- `transactions/pages/HistoryPage.tsx` — PDF button with pre-filled date filters
+- `stats/pages/StatsPage.tsx` — PDF icon in header with selected month range
+- `trips/pages/TripDetailPage.tsx` — Direct call to `prepareTripReportData()` + `generateTripReportPDF()`
+
+**i18n**: Labels passed via data pipeline (`FinancialReportLabels` / `TripReportLabels`) since @react-pdf components cannot use React hooks. Callers build labels from `t()` and pass them to data service.
+
+**Key Design Decisions**:
+- `@react-pdf/renderer` lazy-loaded via `import()` — ~1.5MB code-split chunk, zero initial bundle impact
+- Helvetica font (built-in) — no custom font registration needed
+- PDF always renders in light mode (white background)
+- Max 200 transactions per report for performance
+- Top 8 categories in breakdown charts
+- Charts use `Svg > Rect` bars (Recharts cannot render in @react-pdf)
+
+**Routes**: N/A (modal-based, no dedicated routes)
 
 ---
 

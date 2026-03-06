@@ -10,6 +10,18 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(export): PDF report generation with full i18n support (4 languages)**
+  - `@react-pdf/renderer` lazy-loaded (~1.5MB code-split chunk, zero impact on initial bundle)
+  - Financial report: summary metrics, category breakdown bars, insights, transaction detail (auto-paginated)
+  - Trip report: budget progress, category breakdown, expense list with totals
+  - Available from 4 entry points: Export page, History page, Stats page, Trip detail page
+  - Custom date range picker with transaction count preview
+  - Cross-platform download: web (blob URL) and native (Capacitor Filesystem + Share)
+  - All PDF text fully internationalized (es, en, fr, pt) — labels passed through data pipeline
+  - Drag-to-dismiss on ExportPDFSheet bottom sheet
+  - Error handling with Sentry logging and user-friendly error messages
+  - Unit tests: 65 tests covering pdf-data.service, pdf-format, and download.utils
+
 - **fix(download): ignore iOS share sheet cancel as error — prevent false Sentry reports**
 
 - **docs: redesign IG post generator with Figma-like editor layout**

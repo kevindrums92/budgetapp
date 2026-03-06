@@ -109,3 +109,91 @@ export async function downloadCSV(content: string, filename: string): Promise<vo
   const bom = '\uFEFF';
   await downloadTextFile(bom + content, `${filename}.csv`, 'text/csv;charset=utf-8;');
 }
+
+/**
+ * Download a Blob file (PDF, images, etc.)
+ * Works on both web and native mobile platforms
+ *
+ * @param blob - File content as Blob
+ * @param filename - Output filename with extension
+ */
+export async function downloadBlobFile(
+  blob: Blob,
+  filename: string,
+): Promise<void> {
+  if (isNative()) {
+    await downloadBlobFileNative(blob, filename);
+  } else {
+    downloadBlobFileWeb(blob, filename);
+  }
+}
+
+function downloadBlobFileWeb(blob: Blob, filename: string): void {
+  try {
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    logger.error('Download', 'Failed to download blob file on web:', error);
+    throw error;
+  }
+}
+
+async function downloadBlobFileNative(
+  blob: Blob,
+  filename: string,
+): Promise<void> {
+  try {
+    // Convert Blob to base64 for Capacitor Filesystem
+    const base64 = await blobToBase64(blob);
+
+    const result = await Filesystem.writeFile({
+      path: filename,
+      data: base64,
+      directory: Directory.Cache,
+    });
+
+    logger.info('Download', 'Blob file written to cache:', result.uri);
+
+    await Share.share({
+      title: `Compartir ${filename}`,
+      text: `Reporte ${filename}`,
+      url: result.uri,
+      dialogTitle: 'Guardar reporte',
+    });
+
+    logger.info('Download', 'Blob file shared successfully');
+  } catch (error) {
+    // User canceling the share sheet is not an error
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes('cancel') || message.includes('Cancel')) {
+      logger.info('Download', 'Share canceled by user');
+      return;
+    }
+    logger.error('Download', 'Failed to download blob file on native:', error);
+    throw new Error(`Error al exportar archivo: ${message}`);
+  }
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove the data:...;base64, prefix
+      const base64 = result.split(',')[1];
+      if (!base64) {
+        reject(new Error('Failed to convert blob to base64'));
+        return;
+      }
+      resolve(base64);
+    };
+    reader.onerror = () => reject(new Error('FileReader failed to read blob'));
+    reader.readAsDataURL(blob);
+  });
+}

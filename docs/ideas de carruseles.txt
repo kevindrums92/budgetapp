@@ -71,3 +71,11 @@ Copy: "No es solo saber cuanto gastaste. Es saber cuanto PUEDES gastar. SmartSpe
 Orden sugerido de publicacion: 2 (IA) → 4 (estadisticas) → 5 (privacidad) → 3 (presupuestos) → 8 (safe-to-spend) → 7 (recurrentes) → 6 (setup rapido)
 
 La IA primero porque es el feature mas "wow" y viral. Privacidad temprano porque genera confianza. El setup rapido al final porque ya tienes audiencia interesada.
+
+
+
+
+
+
+Tutorial en reels
+

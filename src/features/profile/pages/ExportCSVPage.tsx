@@ -3,7 +3,7 @@
  * Página para exportar datos a CSV
  */
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { FileDown, FileText, FolderOpen, Target, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useBudgetStore } from '@/state/budget.store';
@@ -14,6 +14,8 @@ import {
   exportBudgetsToCSV,
   exportAll,
 } from '../services/export.service';
+
+const ExportPDFSheet = lazy(() => import('@/features/pdf-export/components/sheets/ExportPDFSheet'));
 
 type ExportOption = {
   id: string;
@@ -27,6 +29,7 @@ type ExportOption = {
 export default function ExportCSVPage() {
   const { t } = useTranslation('profile');
   const [exporting, setExporting] = useState(false);
+  const [showPDFSheet, setShowPDFSheet] = useState(false);
 
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
@@ -145,9 +148,41 @@ export default function ExportCSVPage() {
               </button>
             );
           })}
+
+          {/* Divider */}
+          <div className="border-t border-gray-200 dark:border-gray-800 my-2" />
+
+          {/* PDF Report */}
+          <button
+            type="button"
+            onClick={() => setShowPDFSheet(true)}
+            className="w-full rounded-xl bg-white dark:bg-gray-900 p-4 shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                <FileText className="h-6 w-6" strokeWidth={2} />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-0.5">
+                  {t('export.pdf.title', 'Reporte PDF')}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {t('export.pdf.description', 'Genera un reporte visual con resumen y graficos')}
+                </p>
+              </div>
+              <FileDown className="h-5 w-5 text-gray-400 dark:text-gray-500 shrink-0" />
+            </div>
+          </button>
         </div>
       </div>
 
+      {/* PDF Export Sheet */}
+      <Suspense fallback={null}>
+        <ExportPDFSheet
+          open={showPDFSheet}
+          onClose={() => setShowPDFSheet(false)}
+        />
+      </Suspense>
     </div>
   );
 }
