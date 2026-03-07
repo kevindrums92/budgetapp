@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(budget): always show active/completed tabs and reset tab when navigating months**
+
 - **fix(scheduler): gate auto-confirm behind cloudSyncReady to prevent race condition**
   - Scheduled transactions no longer disappear after cloud sync overwrites local state
   - Added `visibilitychange` listener so `today` updates when app resumes from background overnight
