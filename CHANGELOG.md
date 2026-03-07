@@ -4,6 +4,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(budget): allow navigating to completed tab even when empty to show empty state**
+
 - **refactor(batch): replace native image picker modal with inline camera/gallery selector**
   - Tapping "Escanear un recibo" now expands emerald sub-buttons (Tomar foto / Elegir de galería) inline
   - Skips intermediate ImageCaptureView selection screen, goes straight to processing

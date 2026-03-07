@@ -98,13 +98,6 @@ export default function PlanPage() {
   // Show tabs when there's at least one budget (active or completed)
   const showTabs = activeBudgets.length > 0 || completedBudgets.length > 0;
 
-  // Reset to "active" tab when navigating to a month with no completed budgets
-  useEffect(() => {
-    if (activeTab === "completed" && completedBudgets.length === 0) {
-      setActiveTab("active");
-    }
-  }, [completedBudgets.length, activeTab]);
-
   // Calculate health check
   const healthCheck = useMemo(() => {
     return getBudgetHealthCheck();
