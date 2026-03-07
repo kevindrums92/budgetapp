@@ -712,7 +712,15 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
 
     // Select type
     if (flowState === "select-type") {
-      return <InputTypeSelector onSelect={handleSelectInputType} />;
+      return (
+        <InputTypeSelector
+          onSelect={handleSelectInputType}
+          onImageCaptured={(base64) => {
+            setInputType("image");
+            handleImageCapture(base64);
+          }}
+        />
+      );
     }
 
     // Capturing states

@@ -4,6 +4,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(batch): replace native image picker modal with inline camera/gallery selector**
+  - Tapping "Escanear un recibo" now expands emerald sub-buttons (Tomar foto / Elegir de galería) inline
+  - Skips intermediate ImageCaptureView selection screen, goes straight to processing
+  - Reorder input options: text → image → voice
+
 - **fix(sync): add retry with exponential backoff for cloud sync operations**
   - Retries signInAnonymously, getCloudState, and upsertCloudState up to 3 times (1s, 2s, 4s)
   - Only retries network/server errors; auth/client errors fail immediately
