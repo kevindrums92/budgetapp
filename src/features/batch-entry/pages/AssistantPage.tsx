@@ -4,10 +4,10 @@
  * Replaces the old BatchEntrySheet modal with an immersive chat-like experience.
  */
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ChevronLeft, Sparkles, WifiOff, X, Loader2, Lightbulb, Mic, Camera, Type } from "lucide-react";
+import { ChevronLeft, Sparkles, WifiOff, X, Loader2, Lightbulb, Mic, Camera, Type, Image as ImageIcon } from "lucide-react";
 import { isNative } from "@/shared/utils/platform";
 import { isRewardedVideoReady } from "@/services/ads.service";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
@@ -18,7 +18,7 @@ import { useBatchEntry } from "../hooks/useBatchEntry";
 import { useFakeProgress } from "../hooks/useFakeProgress";
 import ChatInputBar from "../components/ChatInputBar";
 import TransactionPreview from "../components/TransactionPreview";
-import { captureImage } from "../services/imageCapture.service";
+import { captureFromCamera, selectFromGallery } from "../services/imageCapture.service";
 import type { BatchInputType } from "../types/batch-entry.types";
 
 export default function AssistantPage() {
@@ -70,14 +70,19 @@ export default function AssistantPage() {
     }
   }, [flowState, navigate]);
 
-  // Handle image capture from camera button
-  const handleCaptureImageFromBar = useCallback(async () => {
+  // Inline image source picker state
+  const [showImageOptions, setShowImageOptions] = useState(false);
+
+  // Handle image capture from a specific source (camera or gallery)
+  const handleCaptureFromSource = useCallback(async (source: "camera" | "gallery") => {
     try {
-      const imageBase64 = await captureImage();
+      setShowImageOptions(false);
+      const imageBase64 = source === "camera"
+        ? await captureFromCamera()
+        : await selectFromGallery();
       await handleImageCapture(imageBase64);
     } catch (err: unknown) {
       const error = err as { message?: string };
-      // User cancelled - ignore
       if (error.message?.includes("cancelled") || error.message?.includes("canceled")) {
         return;
       }
@@ -91,10 +96,10 @@ export default function AssistantPage() {
 
     if (initialMode === "image") {
       hasTriggeredInitialMode.current = true;
-      handleCaptureImageFromBar();
+      setShowImageOptions(true);
     }
     // audio and text modes are handled by ChatInputBar's autoStart props
-  }, [initialMode, handleCaptureImageFromBar]);
+  }, [initialMode]);
 
   const handleBack = () => {
     navigate(-1);
@@ -186,7 +191,7 @@ export default function AssistantPage() {
               </button>
               <button
                 type="button"
-                onClick={handleCaptureImageFromBar}
+                onClick={() => setShowImageOptions((prev) => !prev)}
                 className="flex items-center gap-3 rounded-2xl bg-white dark:bg-gray-900 px-4 py-3 text-left shadow-sm dark:shadow-none transition-all active:scale-[0.98]"
               >
                 <Camera size={16} className="shrink-0 text-gray-400 dark:text-gray-500" />
@@ -194,6 +199,31 @@ export default function AssistantPage() {
                   {t("assistant.example2")}
                 </span>
               </button>
+              {/* Inline camera/gallery sub-options */}
+              {showImageOptions && (
+                <div className="ml-4 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleCaptureFromSource("camera")}
+                    className="flex items-center gap-2 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 px-4 py-2.5 transition-all active:scale-[0.97]"
+                  >
+                    <Camera size={14} className="text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                      {t("imageInput.takePhoto")}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleCaptureFromSource("gallery")}
+                    className="flex items-center gap-2 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 px-4 py-2.5 transition-all active:scale-[0.97]"
+                  >
+                    <ImageIcon size={14} className="text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                      {t("imageInput.selectGallery")}
+                    </span>
+                  </button>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => {
@@ -303,7 +333,7 @@ export default function AssistantPage() {
         <ChatInputBar
           onSendText={handleTextSubmit}
           onSendAudio={handleAudioCapture}
-          onCaptureImage={handleCaptureImageFromBar}
+          onCaptureImage={handleCaptureFromSource}
           disabled={!isOnline}
           autoFocusText={initialMode === "text"}
           autoStartRecording={initialMode === "audio"}

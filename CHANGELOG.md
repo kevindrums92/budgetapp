@@ -4,6 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(batch): replace native image picker in AssistantPage and ChatInputBar**
+  - AssistantPage welcome suggestion and ChatInputBar camera button now show inline emerald sub-options
+  - Removes last usage of native `CameraSource.Prompt` modal ("Seleccionar imagen")
+
 - **fix(budget): allow navigating to completed tab even when empty to show empty state**
 
 - **refactor(batch): replace native image picker modal with inline camera/gallery selector**
