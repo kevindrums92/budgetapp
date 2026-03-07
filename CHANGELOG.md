@@ -4,6 +4,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sync): add retry with exponential backoff for cloud sync operations**
+  - Retries signInAnonymously, getCloudState, and upsertCloudState up to 3 times (1s, 2s, 4s)
+  - Only retries network/server errors; auth/client errors fail immediately
+  - Add Safari "Load failed" detection to `isNetworkOrServerError`
+  - Report final failures to Sentry instead of silent console.warn
+
 - **fix(batch): use most frequent amount (mode) instead of average for history matching**
 - **fix(batch): capitalize first letter of AI-parsed transaction names**
 - **fix(tour): only show privacy mode tooltip when user has at least 1 transaction**
