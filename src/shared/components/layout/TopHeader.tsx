@@ -32,15 +32,16 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   // ✅ Privacy mode
   const { privacyLevel, togglePrivacyMode } = usePrivacy();
 
-  // ✅ Privacy tour (show after home tour is seen)
+  // ✅ Privacy tour (show after home tour is seen AND user has at least 1 transaction)
   const homeTourSeen = useBudgetStore((s) => s.homeTourSeen);
+  const hasTransactions = useBudgetStore((s) => s.transactions.length > 0);
   const { isActive: isPrivacyTourActive, startTour: startPrivacyTour, completeTour: completePrivacyTour } = useSpotlightTour("privacy");
 
   useEffect(() => {
-    if (!isProfilePage && homeTourSeen) {
+    if (!isProfilePage && homeTourSeen && hasTransactions) {
       startPrivacyTour();
     }
-  }, [isProfilePage, homeTourSeen, startPrivacyTour]);
+  }, [isProfilePage, homeTourSeen, hasTransactions, startPrivacyTour]);
 
   // ✅ Reactive network status (triggers re-render on online/offline)
   const [isOnline, setIsOnline] = useState(navigator.onLine);

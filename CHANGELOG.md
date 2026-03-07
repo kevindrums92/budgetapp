@@ -4,6 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(batch): use most frequent amount (mode) instead of average for history matching**
+- **fix(batch): capitalize first letter of AI-parsed transaction names**
+- **fix(tour): only show privacy mode tooltip when user has at least 1 transaction**
+
 - **fix(budget): always show active/completed tabs and reset tab when navigating months**
 
 - **fix(scheduler): gate auto-confirm behind cloudSyncReady to prevent race condition**
