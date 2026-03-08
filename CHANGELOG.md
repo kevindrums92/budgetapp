@@ -2,7 +2,10 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.15] - 2026-03-08
 
 - **refactor(ui): redesign "viewing different month" banner**
   - Prominent amber card with AlertCircle icon, title, subtitle, and "Back to [month]" button
