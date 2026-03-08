@@ -7,7 +7,12 @@
     "title": "Saldo Disponível",
     "available": "Disponível",
     "income": "Receitas",
-    "expenses": "Despesas"
+    "expenses": "Despesas",
+    "carryOver": "Saldo anterior",
+    "breakdown": "Detalhamento do saldo",
+    "carryOverToggle": "Usar saldo do mês anterior",
+    "result": "Saldo total",
+    "close": "Fechar"
   },
   "addActionSheet": {
     "title": "Novo registro",

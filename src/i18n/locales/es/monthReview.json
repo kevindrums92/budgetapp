@@ -1,0 +1,18 @@
+{
+  "title": "Bienvenido a {{month}}",
+  "subtitle": "Tu resumen de {{previousMonth}}",
+  "summary": {
+    "income": "Ingresos",
+    "expense": "Gastos",
+    "balance": "Balance"
+  },
+  "question": {
+    "positive": "¿Deseas continuar con este balance como base de {{month}}?",
+    "negative": "Tienes una deuda de {{amount}} del mes anterior. ¿Deseas arrastrarla a {{month}}?"
+  },
+  "actions": {
+    "acceptPositive": "Sí, continuar con {{amount}}",
+    "acceptNegative": "Sí, arrastrar deuda",
+    "decline": "No, empezar desde cero"
+  }
+}

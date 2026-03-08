@@ -7,7 +7,12 @@
     "title": "Balance Disponible",
     "available": "Disponible",
     "income": "Ingresos",
-    "expenses": "Gastos"
+    "expenses": "Gastos",
+    "carryOver": "Saldo anterior",
+    "breakdown": "Desglose del balance",
+    "carryOverToggle": "Usar saldo del mes anterior",
+    "result": "Balance total",
+    "close": "Cerrar"
   },
   "addActionSheet": {
     "title": "Nuevo registro",

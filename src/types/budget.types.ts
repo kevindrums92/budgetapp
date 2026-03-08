@@ -146,10 +146,18 @@ export type SubscriptionState = {
   isPromo?: boolean;             // true for promo/gift subs (no auto-renewal)
 };
 
+// ==================== CARRY-OVER ====================
+
+export type CarryOverEntry = {
+  amount: number;       // positive (surplus) or negative (debt)
+  fromMonth: string;    // YYYY-MM source month
+  acceptedAt: number;   // epoch ms
+};
+
 // ==================== STATE ====================
 
 export type BudgetState = {
-  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  schemaVersion: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
   transactions: Transaction[];
   categories: string[];              // Legacy: kept for backward compat
   categoryDefinitions: Category[];   // Full category objects
@@ -182,6 +190,9 @@ export type BudgetState = {
   statsLayout?: string[];      // Section order for stats page (e.g. ['quickStats', 'donutChart', ...])
   // Security
   security?: SecuritySettings;       // Biometric authentication settings
+  // Carry-over balance
+  carryOverBalances?: Record<string, CarryOverEntry>; // key = target month YYYY-MM
+  monthReviewDismissed?: string[];  // months user chose "start fresh" (YYYY-MM)
   // NOTE: Subscription is NO LONGER part of BudgetState (as of v2.0)
   // Subscription is now stored separately in user_subscriptions table
   // and managed by RevenueCat webhooks. See subscription.service.ts

@@ -4,6 +4,18 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(monthReview): add month review modal and carry-over balance system**
+  - Show fullscreen modal on new month summarizing previous month's income/expenses/balance
+  - User can accept carry-over (positive or negative) or start fresh
+  - Carry-over stored per-month in Zustand store (schema v9), synced to cloud
+  - BalanceCard and SafeToSpend calculations include carry-over when present
+  - BalanceCard shows "Saldo anterior" line when carry-over is active
+
+- **feat(balanceCard): add balance breakdown sheet with carry-over toggle**
+  - CircleHelp icon on BalanceCard opens a bottom sheet with income/expense/carry-over breakdown
+  - Toggle to enable/disable previous month's carry-over directly from the sheet
+  - BalanceCard remains visible when previous month has data (even with 0 current transactions)
+
 - **refactor(batch): replace native image picker in AssistantPage and ChatInputBar**
   - AssistantPage welcome suggestion and ChatInputBar camera button now show inline emerald sub-options
   - Removes last usage of native `CameraSource.Prompt` modal ("Seleccionar imagen")

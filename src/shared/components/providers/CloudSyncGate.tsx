@@ -123,6 +123,8 @@ export default function CloudSyncGate() {
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
   const statsLayout = useBudgetStore((s) => s.statsLayout);
   const security = useBudgetStore((s) => s.security);
+  const carryOverBalances = useBudgetStore((s) => s.carryOverBalances);
+  const monthReviewDismissed = useBudgetStore((s) => s.monthReviewDismissed);
   // NOTE: subscription is no longer synced to cloud (managed by RevenueCat webhooks)
 
   const initializedRef = useRef(false);
@@ -974,7 +976,7 @@ export default function CloudSyncGate() {
     checkNetworkAndPush();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, statsLayout, security]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, statsLayout, security, carryOverBalances, monthReviewDismissed]);
 
   const mode = useBudgetStore.getState().cloudMode;
 

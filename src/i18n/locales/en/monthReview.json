@@ -1,0 +1,18 @@
+{
+  "title": "Welcome to {{month}}",
+  "subtitle": "Your {{previousMonth}} summary",
+  "summary": {
+    "income": "Income",
+    "expense": "Expenses",
+    "balance": "Balance"
+  },
+  "question": {
+    "positive": "Would you like to carry this balance into {{month}}?",
+    "negative": "You have a debt of {{amount}} from last month. Carry it into {{month}}?"
+  },
+  "actions": {
+    "acceptPositive": "Yes, continue with {{amount}}",
+    "acceptNegative": "Yes, carry over debt",
+    "decline": "No, start from zero"
+  }
+}

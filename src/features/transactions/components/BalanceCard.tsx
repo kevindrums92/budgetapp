@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, CircleHelp } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
 import { useCurrency } from "@/features/currency";
 import { usePrivacy } from "@/features/privacy";
+import BalanceBreakdownSheet from "./BalanceBreakdownSheet";
 
 type FilterType = "all" | "income" | "expense";
 
@@ -23,8 +24,10 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
   const { t } = useTranslation('home');
   const { formatAmount, currencyInfo } = useCurrency();
   const { formatWithPrivacy } = usePrivacy();
+  const [showBreakdown, setShowBreakdown] = useState(false);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
+  const carryOverBalances = useBudgetStore((s) => s.carryOverBalances);
 
   const totals = useMemo(() => {
     let income = 0;
@@ -36,11 +39,13 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
       else expense += t.amount;
     }
 
-    return { income, expense, balance: income - expense };
-  }, [transactions, selectedMonth]);
+    const carryOver = carryOverBalances?.[selectedMonth]?.amount ?? 0;
+    return { income, expense, balance: carryOver + income - expense, carryOver };
+  }, [transactions, selectedMonth, carryOverBalances]);
 
-  // Progress for "available balance": remaining balance as a fraction of monthly income
-  const rawAvailableRatio = totals.income > 0 ? totals.balance / totals.income : 0;
+  // Progress for "available balance": remaining balance as a fraction of total positive inflows
+  const totalInflows = totals.income + Math.max(0, totals.carryOver);
+  const rawAvailableRatio = totalInflows > 0 ? totals.balance / totalInflows : 0;
   const availableRatio = Math.min(Math.max(rawAvailableRatio, 0), 1);
   const availablePercent = availableRatio * 100;
   const roundedAvailablePercent = Math.round(availablePercent);
@@ -50,6 +55,7 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
   const balanceFormatted = formatWithPrivacy(formatAmount(totals.balance), currencyInfo.symbol);
 
   return (
+    <>
     <div className="bg-gray-50 dark:bg-gray-950">
       <div className="mx-auto max-w-xl px-4 pt-4">
         {/* Hero Card with gradient */}
@@ -61,12 +67,38 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
           {/* Content */}
           <div className="relative z-10">
             {/* Header */}
-            <span className="block text-teal-100 text-sm font-medium mb-1">{t('balanceCard.title')}</span>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-teal-100 text-sm font-medium">{t('balanceCard.title')}</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowBreakdown(true);
+                }}
+                className="p-1 -mr-1 rounded-full transition-all active:scale-95"
+              >
+                <CircleHelp size={16} className="text-white/40" />
+              </button>
+            </div>
 
             {/* Balance Amount */}
-            <div className="mb-3.5">
+            <div className={totals.carryOver !== 0 ? "mb-2" : "mb-3.5"}>
               <span className="text-4xl font-bold tracking-tight">{balanceFormatted}</span>
             </div>
+
+            {/* Carry-over line (when present) */}
+            {totals.carryOver !== 0 && (
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-teal-100/70">
+                  {t('balanceCard.carryOver')}
+                </span>
+                <span className={`text-xs font-semibold tabular-nums ${
+                  totals.carryOver >= 0 ? 'text-emerald-300' : 'text-rose-300'
+                }`}>
+                  {totals.carryOver >= 0 ? '+' : '-'}{formatWithPrivacy(formatAmount(Math.abs(totals.carryOver)), currencyInfo.symbol)}
+                </span>
+              </div>
+            )}
 
             {/* Income vs Expense — Ratio Bar */}
             <div className="mb-3">
@@ -151,5 +183,11 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
         </section>
       </div>
     </div>
+
+    <BalanceBreakdownSheet
+      open={showBreakdown}
+      onClose={() => setShowBreakdown(false)}
+    />
+    </>
   );
 }
