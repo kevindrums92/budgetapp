@@ -49,6 +49,10 @@
   },
   "list": {
     "monthWarning": "You're viewing a different month. You can still add transactions, but check the date.",
+    "monthWarningTitle": "You're viewing another month",
+    "monthWarningSubtitle": "You can still add transactions, but make sure to verify the date.",
+    "monthWarningSubtitleFuture": "You can start adding transactions for this month now.",
+    "monthWarningButton": "Back to {{month}}",
     "searchEmpty": "No results found for \"{{query}}\"",
     "noTransactions": "You don't have any transactions this month yet."
   },

@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { AlertCircle, CalendarClock } from "lucide-react";
 import { useBudgetStore } from "@/state/budget.store";
-import { formatDateGroupHeaderI18n, todayISO, currentMonthKey } from "@/services/dates.service";
+import { formatDateGroupHeaderI18n, todayISO, currentMonthKey, monthLabel } from "@/services/dates.service";
 import { useLanguage } from "@/hooks/useLanguage";
 import TransactionItem from "@/features/transactions/components/TransactionItem";
 import EmptyStateHome from "@/features/transactions/components/EmptyStateHome";
@@ -35,6 +36,7 @@ export default function TransactionList({ searchQuery = "", filterType = "all", 
   const { formatAmount, currencyInfo } = useCurrency();
   const { formatWithFullPrivacy } = usePrivacy();
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
+  const setSelectedMonth = useBudgetStore((s) => s.setSelectedMonth);
   const transactions = useBudgetStore((s) => s.transactions);
   const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
 
@@ -45,6 +47,7 @@ export default function TransactionList({ searchQuery = "", filterType = "all", 
 
   const currentMonth = currentMonthKey();
   const isCurrent = selectedMonth === currentMonth;
+  const isFuture = selectedMonth > currentMonth;
   const today = todayISO();
 
   // Generate virtual transactions for future dates (lazy generation - only next occurrence)
@@ -141,8 +144,28 @@ export default function TransactionList({ searchQuery = "", filterType = "all", 
   return (
     <div className="mx-auto max-w-xl">
       {!isCurrent && (
-        <div className="mb-3 mx-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 text-xs text-gray-600 dark:text-gray-400 rounded-lg">
-          {t("list.monthWarning")}
+        <div className="mb-3 mx-4 rounded-2xl border border-amber-400/30 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-950/60 p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-400/20 dark:bg-amber-500/20 mt-0.5">
+              <AlertCircle size={18} className="text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+                {t("list.monthWarningTitle")}
+              </p>
+              <p className="mt-1 text-xs text-amber-700/70 dark:text-amber-200/70 leading-relaxed">
+                {t(isFuture ? "list.monthWarningSubtitleFuture" : "list.monthWarningSubtitle")}
+              </p>
+              <button
+                type="button"
+                onClick={() => setSelectedMonth(currentMonth)}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-amber-500/15 dark:bg-amber-500/20 border border-amber-500/30 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:text-amber-300 transition-all active:scale-[0.97]"
+              >
+                <CalendarClock size={14} />
+                {t("list.monthWarningButton", { month: monthLabel(currentMonth, getLocale()) })}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

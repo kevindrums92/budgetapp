@@ -4,6 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(ui): redesign "viewing different month" banner**
+  - Prominent amber card with AlertCircle icon, title, subtitle, and "Back to [month]" button
+  - Different subtitle for future months ("Desde ya puedes agregar...") vs past months
+
 - **feat(categories): expand default onboarding categories from 9 to 22**
   - Add 9 new expense categories: Restaurantes, Servicios, Suscripciones, Educación, Cuidado Personal, Gasolina, Hijos, Mascotas, Regalos
   - Add 4 new income categories: Freelance, Bonos, Inversiones, Arriendo Recibido
