@@ -42,7 +42,7 @@ describe("historyMatcher.service", () => {
       expect(patterns.length).toBe(1);
       expect(patterns[0].name).toBe("cafe chipre"); // Normalized: no accents, "en" removed
       expect(patterns[0].category).toBe("food_drink");
-      expect(patterns[0].avgAmount).toBe(7500); // (7000 + 8000) / 2
+      expect(patterns[0].avgAmount).toBe(8000); // most recent (tie: both appear once)
       expect(patterns[0].occurrences).toBe(2);
     });
 
@@ -86,6 +86,31 @@ describe("historyMatcher.service", () => {
       // Both should normalize to "almuerzo oficina"
       expect(patterns.length).toBe(1);
       expect(patterns[0].name).toBe("almuerzo oficina");
+    });
+
+    it("should use most frequent amount (mode) instead of average", () => {
+      const transactions: Transaction[] = [
+        createTransaction({ name: "café", category: "food_drink", amount: 7000, date: "2026-01-10" }),
+        createTransaction({ name: "café", category: "food_drink", amount: 7000, date: "2026-01-15" }),
+        createTransaction({ name: "café", category: "food_drink", amount: 10000, date: "2026-01-20" }),
+      ];
+
+      const patterns = extractPatterns(transactions);
+
+      // 7000 appears 2x, 10000 appears 1x → mode is 7000
+      expect(patterns[0].avgAmount).toBe(7000);
+    });
+
+    it("should fallback to most recent amount on tie", () => {
+      const transactions: Transaction[] = [
+        createTransaction({ name: "café", category: "food_drink", amount: 7000, date: "2026-01-10" }),
+        createTransaction({ name: "café", category: "food_drink", amount: 10000, date: "2026-01-20" }),
+      ];
+
+      const patterns = extractPatterns(transactions);
+
+      // Both appear 1x → tie → most recent (10000, date 2026-01-20) wins
+      expect(patterns[0].avgAmount).toBe(10000);
     });
 
     it("should use most common category when there are multiple", () => {

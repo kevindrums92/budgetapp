@@ -20,6 +20,7 @@ import type {
   BudgetProgress,
   SecuritySettings,
   SubscriptionState,
+  CarryOverEntry,
 } from "@/types/budget.types";
 import { TRIAL_PERIOD_DAYS } from "@/constants/pricing";
 import { loadState, saveState } from "@/services/storage.service";
@@ -186,6 +187,8 @@ type BudgetStore = BudgetState & {
   setCategoriesTourSeen: (v: boolean) => void;
   scheduledPageTourSeen: boolean;
   setScheduledPageTourSeen: (v: boolean) => void;
+  privacyTourSeen: boolean;
+  setPrivacyTourSeen: (v: boolean) => void;
 
   cloudMode: CloudMode;
   cloudStatus: CloudStatus;
@@ -218,13 +221,19 @@ type BudgetStore = BudgetState & {
   clearSubscription: () => void;
   syncWithRevenueCat: () => Promise<void>;
 
+  // Carry-over balance
+  setCarryOverBalance: (targetMonth: string, entry: CarryOverEntry) => void;
+  removeCarryOverBalance: (targetMonth: string) => void;
+  dismissMonthReview: (targetMonth: string) => void;
+  undismissMonthReview: (targetMonth: string) => void;
+
   // Sync helpers
   getSnapshot: () => BudgetState;
   replaceAllData: (next: BudgetState) => void;
 };
 
 const defaultState: BudgetState = {
-  schemaVersion: 8,
+  schemaVersion: 9,
   transactions: [],
   categories: [],
   categoryDefinitions: [], // Las categorías se crean durante el onboarding
@@ -233,6 +242,8 @@ const defaultState: BudgetState = {
   trips: [],
   tripExpenses: [],
   security: { biometricEnabled: false },
+  carryOverBalances: {},
+  monthReviewDismissed: [],
 };
 
 function uniqSorted(arr: string[]) {
@@ -418,6 +429,19 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       saveState(get());
     },
 
+    privacyTourSeen: (() => {
+      try { return localStorage.getItem("smartspend.privacyTour.v1") === "1"; }
+      catch { return false; }
+    })(),
+    setPrivacyTourSeen: (v) => {
+      try {
+        if (v) localStorage.setItem("smartspend.privacyTour.v1", "1");
+        else localStorage.removeItem("smartspend.privacyTour.v1");
+      } catch { }
+      set({ privacyTourSeen: v });
+      saveState(get());
+    },
+
     // UI month
     selectedMonth: currentMonthKey(),
     setSelectedMonth: (monthKey) => set({ selectedMonth: monthKey }),
@@ -464,7 +488,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
           categoryDefinitions: state.categoryDefinitions,
@@ -517,7 +541,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           : state.categories;
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: nextTransactions,
           categories: nextCategories,
           categoryDefinitions: state.categoryDefinitions,
@@ -535,7 +559,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTransaction: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions.filter((t) => t.id !== id),
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -560,7 +584,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         if (existing.includes(periodKey)) return state;
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions.map((t) =>
             t.id === templateId
               ? {
@@ -606,7 +630,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -629,7 +653,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -647,7 +671,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTrip: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -683,7 +707,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -706,7 +730,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -724,7 +748,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteTripExpense: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -757,7 +781,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
@@ -782,7 +806,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -800,7 +824,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteCategory: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
@@ -835,7 +859,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -860,7 +884,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -892,7 +916,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: nextCategoryDefinitions,
@@ -951,7 +975,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -970,6 +994,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1014,7 +1039,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1033,6 +1058,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1044,7 +1070,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     deleteBudget: (id) => {
       set((state) => {
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1067,7 +1093,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1086,6 +1112,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1126,7 +1153,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         });
 
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1145,6 +1172,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
         };
 
@@ -1234,11 +1262,65 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
     },
 
+    // ---------- CARRY-OVER BALANCE ----------
+    setCarryOverBalance: (targetMonth, entry) => {
+      set((state) => {
+        const next = {
+          ...state,
+          carryOverBalances: {
+            ...(state.carryOverBalances ?? {}),
+            [targetMonth]: entry,
+          },
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    removeCarryOverBalance: (targetMonth) => {
+      set((state) => {
+        const balances = { ...(state.carryOverBalances ?? {}) };
+        delete balances[targetMonth];
+        const next = {
+          ...state,
+          carryOverBalances: balances,
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    dismissMonthReview: (targetMonth) => {
+      set((state) => {
+        const dismissed = state.monthReviewDismissed ?? [];
+        if (dismissed.includes(targetMonth)) return state;
+        const next = {
+          ...state,
+          monthReviewDismissed: [...dismissed, targetMonth],
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
+    undismissMonthReview: (targetMonth) => {
+      set((state) => {
+        const dismissed = state.monthReviewDismissed ?? [];
+        if (!dismissed.includes(targetMonth)) return state;
+        const next = {
+          ...state,
+          monthReviewDismissed: dismissed.filter((m) => m !== targetMonth),
+        };
+        saveState(next);
+        return next;
+      });
+    },
+
     // ---------- SYNC HELPERS ----------
     getSnapshot: () => {
       const s = get();
       return {
-        schemaVersion: 8,
+        schemaVersion: 9,
         transactions: s.transactions,
         categories: s.categories,
         categoryDefinitions: s.categoryDefinitions ?? [],
@@ -1254,6 +1336,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         excludedFromStats: s.excludedFromStats,
         statsLayout: s.statsLayout,
         security: s.security,
+        carryOverBalances: s.carryOverBalances ?? {},
+        monthReviewDismissed: s.monthReviewDismissed ?? [],
         // NOTE: subscription is NOT included in snapshot (managed by RevenueCat + Supabase)
       };
     },
@@ -1269,6 +1353,10 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       // No need to saveState - this is a runtime flag only
     },
 
+    // Carry-over balance (hydrated)
+    carryOverBalances: hydrated.carryOverBalances ?? {},
+    monthReviewDismissed: hydrated.monthReviewDismissed ?? [],
+
     // Stats preferences
     excludedFromStats: hydrated.excludedFromStats ?? [],
     statsLayout: hydrated.statsLayout,
@@ -1277,7 +1365,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         const current = state.excludedFromStats ?? [];
         const isExcluded = current.includes(categoryId);
         const next: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: state.transactions,
           categories: state.categories,
           categoryDefinitions: state.categoryDefinitions,
@@ -1296,6 +1384,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           scheduledBannerTourSeen: state.scheduledBannerTourSeen,
           categoriesTourSeen: state.categoriesTourSeen,
           scheduledPageTourSeen: state.scheduledPageTourSeen,
+          privacyTourSeen: state.privacyTourSeen,
           lastSchedulerRun: state.lastSchedulerRun,
           cloudSyncReady: state.cloudSyncReady,
           excludedFromStats: isExcluded
@@ -1303,6 +1392,8 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
             : [...current, categoryId],
           statsLayout: state.statsLayout,
           security: state.security,
+          carryOverBalances: state.carryOverBalances,
+          monthReviewDismissed: state.monthReviewDismissed,
         };
         saveState(next);
         return next;
@@ -1318,7 +1409,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       set((state) => {
         const next: BudgetState = {
           ...state,
-          schemaVersion: 8,
+          schemaVersion: 9,
           security: {
             biometricEnabled: !(state.security?.biometricEnabled ?? false),
             lastAuthTimestamp: state.security?.lastAuthTimestamp,
@@ -1333,7 +1424,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       set((state) => {
         const next: BudgetState = {
           ...state,
-          schemaVersion: 8,
+          schemaVersion: 9,
           security: {
             biometricEnabled: state.security?.biometricEnabled ?? false,
             lastAuthTimestamp: Date.now(),
@@ -1354,7 +1445,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       const migratedBudgets = migrateBudgets(data.budgets ?? []);
 
       // guarda como cache local (cloud cache) - subscription is NOT included (managed separately)
-      const normalizedData = { ...data, schemaVersion: 8 as const, budgets: migratedBudgets };
+      const normalizedData = { ...data, schemaVersion: 9 as const, budgets: migratedBudgets, carryOverBalances: data.carryOverBalances ?? {}, monthReviewDismissed: data.monthReviewDismissed ?? [] };
       saveState(normalizedData);
 
       // Sync onboarding flags to localStorage
@@ -1382,7 +1473,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       // set explícito (NO meter funciones del store dentro)
       const current = get();
       set({
-        schemaVersion: 8,
+        schemaVersion: 9,
         transactions: data.transactions,
         categories: data.categories,
         categoryDefinitions: data.categoryDefinitions ?? [],
@@ -1403,10 +1494,13 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         scheduledBannerTourSeen: current.scheduledBannerTourSeen,
         categoriesTourSeen: current.categoriesTourSeen,
         scheduledPageTourSeen: current.scheduledPageTourSeen,
+        privacyTourSeen: current.privacyTourSeen,
         lastSchedulerRun: data.lastSchedulerRun,
         excludedFromStats: data.excludedFromStats ?? [],
         statsLayout: data.statsLayout ?? current.statsLayout,
         security: data.security ?? { biometricEnabled: false },
+        carryOverBalances: data.carryOverBalances ?? {},
+        monthReviewDismissed: data.monthReviewDismissed ?? [],
         // NOTE: subscription is NOT set here (managed by RevenueCat + subscription.service.ts)
       });
     },

@@ -170,6 +170,7 @@ export function useBatchEntry() {
         );
         return {
           ...tx,
+          name: tx.name ? tx.name.charAt(0).toUpperCase() + tx.name.slice(1) : tx.name,
           category: mappedCategoryId || "",
           notes: tx.notes || interpretation || "",
           needsReview: tx.needsReview || !mappedCategoryId,

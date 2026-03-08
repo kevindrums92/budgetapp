@@ -15,6 +15,11 @@ import { todayISO } from "@/services/dates.service";
 import { requestPermissions, checkPermissionStatus } from "@/services/pushNotification.service";
 import { shouldShowBanner, recordDismiss, markAsEnabled } from "@/services/pushBannerTracking.service";
 import SafeToSpendCard from "@/features/forecasting/components/SafeToSpendCard";
+import AutoConfirmedModal from "@/features/transactions/components/AutoConfirmedModal";
+import MonthReviewModal from "@/features/monthReview/components/MonthReviewModal";
+import { shouldShowMonthReview, markMonthReviewShown, getPreviousMonth, calculatePreviousMonthBalance } from "@/features/monthReview/services/monthReview.service";
+import { currentMonthKey } from "@/services/dates.service";
+import type { Transaction } from "@/types/budget.types";
 
 export default function HomePage() {
   const { t } = useTranslation('home');
@@ -53,14 +58,37 @@ export default function HomePage() {
   const transactions = useBudgetStore((s) => s.transactions);
   const addTransaction = useBudgetStore((s) => s.addTransaction);
   const user = useBudgetStore((s) => s.user);
+  const cloudSyncReady = useBudgetStore((s) => s.cloudSyncReady);
+  const cloudMode = useBudgetStore((s) => s.cloudMode);
+  const carryOverBalances = useBudgetStore((s) => s.carryOverBalances);
+  const monthReviewDismissed = useBudgetStore((s) => s.monthReviewDismissed);
 
-  const today = todayISO();
+  const [today, setToday] = useState(() => todayISO());
+  const [autoConfirmedTxs, setAutoConfirmedTxs] = useState<Transaction[]>([]);
+  const [showMonthReview, setShowMonthReview] = useState(false);
 
   // Track if we've already auto-confirmed past-due transactions this session
   const hasAutoConfirmedRef = useRef(false);
 
-  // Auto-confirm past-due scheduled transactions on mount
+  // Keep `today` reactive when app resumes from background overnight
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const newToday = todayISO();
+        if (newToday !== today) {
+          setToday(newToday);
+          hasAutoConfirmedRef.current = false; // Allow scheduler to re-run with new date
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [today]);
+
+  // Auto-confirm past-due scheduled transactions (gated behind cloudSyncReady)
+  useEffect(() => {
+    // Wait for cloud sync to complete before running scheduler (guest mode doesn't need to wait)
+    if (cloudMode === "cloud" && !cloudSyncReady) return;
     if (hasAutoConfirmedRef.current) return;
 
     const pastDue = generatePastDueTransactions(transactions, today);
@@ -69,8 +97,23 @@ export default function HomePage() {
       console.log(`[HomePage] Auto-confirming ${pastDue.length} past-due scheduled transactions`);
       pastDue.forEach((tx) => addTransaction(tx));
       hasAutoConfirmedRef.current = true;
+      setAutoConfirmedTxs(pastDue);
     }
-  }, [transactions, today, addTransaction]);
+  }, [transactions, today, addTransaction, cloudSyncReady, cloudMode]);
+
+  // Month review modal detection (gated behind cloudSyncReady)
+  useEffect(() => {
+    if (cloudMode === "cloud" && !cloudSyncReady) return;
+
+    if (shouldShowMonthReview(monthReviewDismissed ?? [], carryOverBalances ?? {}, transactions)) {
+      // Delay to let AutoConfirmedModal show first
+      const timer = setTimeout(() => {
+        setShowMonthReview(true);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cloudSyncReady, cloudMode]);
 
   // Start spotlight tour on first visit
   useEffect(() => {
@@ -160,6 +203,14 @@ export default function HomePage() {
     return transactions.some((t) => t.date.slice(0, 7) === selectedMonth);
   }, [transactions, selectedMonth]);
 
+  // Show BalanceCard when there are transactions, a carry-over, or previous month has data
+  const hasCarryOverInMonth = !!(carryOverBalances?.[selectedMonth]?.amount);
+  const hasPreviousMonthData = useMemo(() => {
+    const prevMonth = getPreviousMonth(selectedMonth);
+    return transactions.some((t) => t.date.slice(0, 7) === prevMonth);
+  }, [transactions, selectedMonth]);
+  const showBalanceArea = hasTransactionsInMonth || hasCarryOverInMonth || hasPreviousMonthData;
+
   // Check if user has at least 1 transaction (any month) - used to show nav buttons
   const hasAnyTransactions = transactions.length > 0;
 
@@ -218,7 +269,7 @@ export default function HomePage() {
 
   return (
     <div data-testid="home-page" className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
-      {hasTransactionsInMonth && (
+      {showBalanceArea && (
         <>
           <BalanceCard activeFilter={filterType} onFilterChange={setFilterType} />
 
@@ -402,6 +453,33 @@ export default function HomePage() {
         isActive={isTourActive}
         onComplete={completeTour}
       />
+
+      {/* Auto-confirmed scheduled transactions feedback modal */}
+      <AutoConfirmedModal
+        open={autoConfirmedTxs.length > 0}
+        transactions={autoConfirmedTxs}
+        onClose={() => setAutoConfirmedTxs([])}
+      />
+
+      {/* Month review carry-over modal */}
+      {showMonthReview && (() => {
+        const curMonth = currentMonthKey();
+        const prevMonth = getPreviousMonth(curMonth);
+        const prevMonthCarryOver = carryOverBalances?.[prevMonth]?.amount ?? 0;
+        const summary = calculatePreviousMonthBalance(transactions, prevMonth, prevMonthCarryOver);
+        return (
+          <MonthReviewModal
+            open={showMonthReview}
+            onClose={() => {
+              setShowMonthReview(false);
+              markMonthReviewShown();
+            }}
+            previousMonth={prevMonth}
+            currentMonth={curMonth}
+            summary={summary}
+          />
+        );
+      })()}
 
     </div>
   );

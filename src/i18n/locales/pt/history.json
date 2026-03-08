@@ -43,7 +43,8 @@
   },
   "results": {
     "title": "Resultados ({{count}})",
-    "exportCSV": "Exportar CSV",
+    "exportCSV": "CSV",
+    "exportPDF": "PDF",
     "balanceOfSelection": "Total",
     "noResults": "Nenhuma transação encontrada com os filtros aplicados"
   }

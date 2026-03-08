@@ -1,0 +1,18 @@
+{
+  "title": "Bienvenue en {{month}}",
+  "subtitle": "Votre résumé de {{previousMonth}}",
+  "summary": {
+    "income": "Revenus",
+    "expense": "Dépenses",
+    "balance": "Solde"
+  },
+  "question": {
+    "positive": "Souhaitez-vous reporter ce solde sur {{month}} ?",
+    "negative": "Vous avez une dette de {{amount}} du mois dernier. La reporter sur {{month}} ?"
+  },
+  "actions": {
+    "acceptPositive": "Oui, continuer avec {{amount}}",
+    "acceptNegative": "Oui, reporter la dette",
+    "decline": "Non, repartir de zéro"
+  }
+}

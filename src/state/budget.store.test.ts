@@ -1376,7 +1376,7 @@ describe('budget.store', () => {
 
         const snapshot = store.getSnapshot();
 
-        expect(snapshot.schemaVersion).toBe(8);
+        expect(snapshot.schemaVersion).toBe(9);
         expect(snapshot.transactions).toHaveLength(1);
         expect(snapshot.transactions[0].name).toBe('Test');
         expect(snapshot.categories).toBeDefined();
@@ -1458,10 +1458,12 @@ describe('budget.store', () => {
 
         store.replaceAllData(newData);
 
-        // replaceAllData normalizes to v8 before saving
+        // replaceAllData normalizes to v9 before saving
         expect(storageService.saveState).toHaveBeenCalledWith({
           ...newData,
-          schemaVersion: 8,
+          schemaVersion: 9,
+          carryOverBalances: {},
+          monthReviewDismissed: [],
         });
       });
     });

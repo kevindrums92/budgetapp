@@ -187,12 +187,23 @@ export function extractPatterns(transactions: Transaction[]): TransactionPattern
       }
     }
 
-    // Calculate average amount
-    const totalAmount = txs.reduce((sum, tx) => sum + tx.amount, 0);
-    const avgAmount = Math.round(totalAmount / txs.length);
+    // Find most frequent amount (mode), fallback to most recent on tie
+    const sorted = [...txs].sort((a, b) => b.date.localeCompare(a.date));
+    const amountCounts = new Map<number, number>();
+    for (const tx of txs) {
+      amountCounts.set(tx.amount, (amountCounts.get(tx.amount) || 0) + 1);
+    }
+    let topAmount = sorted[0].amount;
+    let topAmountCount = 0;
+    for (const [amount, count] of amountCounts) {
+      if (count > topAmountCount || (count === topAmountCount && amount === sorted[0].amount)) {
+        topAmount = amount;
+        topAmountCount = count;
+      }
+    }
+    const avgAmount = topAmount;
 
     // Get most recent type
-    const sorted = [...txs].sort((a, b) => b.date.localeCompare(a.date));
     const type = sorted[0].type;
 
     patterns.push({

@@ -932,10 +932,30 @@ Suite completa en `CloudSyncGate.test.tsx`:
 ### Export/Import
 - **Exportación manual** a JSON
 - **Exportación CSV** para análisis externo
+- **Exportación PDF** — reportes visuales con resumen y gráficos
 - **Restauración desde archivo** JSON
 - **Backup validation**: Checksum SHA-256
 - **Modos de restauración**: Replace (reemplazar todo) o Merge
 - Metadata completa: device info, stats, version
+
+### PDF Export (Reportes Visuales)
+- **Reporte Financiero** (2+ páginas):
+  - Página 1: Header con marca SmartSpend, 4 tarjetas métricas (ingresos, gastos, balance, tasa de ahorro), barras de categorías (top 8), sección de análisis (promedio diario, categoría principal, día de mayor gasto)
+  - Página 2+: Detalle de transacciones agrupadas por fecha (máximo 200, auto-paginación)
+  - Footer con "Generado con SmartSpend" y número de página
+- **Reporte de Viaje** (1 página):
+  - Header con nombre del viaje, destino, estado y rango de fechas
+  - 3 tarjetas: presupuesto, gastado, disponible/excedido
+  - Barra de progreso del presupuesto
+  - Desglose por categoría de viaje (transporte, alojamiento, comida, etc.)
+  - Lista de gastos con total
+- **Internacionalización completa**: Todo el texto del PDF traducido en 4 idiomas (es, en, fr, pt)
+- **Rango de fechas personalizado**: Selector de fecha inicio/fin con preview de cantidad de transacciones
+- **4 puntos de acceso**: Página de exportación, historial, estadísticas, detalle de viaje
+- **Lazy loading**: `@react-pdf/renderer` cargado dinámicamente (~1.5MB chunk separado, sin impacto en bundle inicial)
+- **Cross-platform**: Descarga como archivo en web, Share sheet en iOS/Android nativo
+- **Diseño siempre en modo claro**: Fondo blanco independiente del tema de la app
+- **Fuente Helvetica**: Built-in en PDF, sin necesidad de registrar fuentes custom
 
 ### Backup Service Features
 - **createBackup**: Generación de metadata, cálculo de stats, checksum
@@ -1135,6 +1155,9 @@ Suite completa en `CloudSyncGate.test.tsx`:
 - **react-i18next** - Internationalization
 - **i18next** - i18n framework
 - **i18next-browser-languagedetector** - Auto-detect locale
+
+### PDF Generation
+- **@react-pdf/renderer** - Generación de PDF con componentes React (lazy-loaded, ~1.5MB chunk separado)
 
 ### Backend & Auth
 - **Supabase** - Backend as a Service

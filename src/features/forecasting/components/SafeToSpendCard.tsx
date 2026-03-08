@@ -31,6 +31,7 @@ export default function SafeToSpendCard() {
   const transactions = useBudgetStore((s) => s.transactions);
   const budgets = useBudgetStore((s) => s.budgets);
   const selectedMonth = useBudgetStore((s) => s.selectedMonth);
+  const carryOverBalances = useBudgetStore((s) => s.carryOverBalances);
 
   // Track today's date to refresh calculations on app resume (e.g. after midnight)
   const [todayDate, setTodayDate] = useState(() => todayISO());
@@ -54,10 +55,12 @@ export default function SafeToSpendCard() {
     }
   }, [isExpanded]);
 
+  const carryOver = carryOverBalances?.[selectedMonth]?.amount ?? 0;
+
   const data = useMemo(
-    () => calculateSafeToSpend(transactions, budgets, selectedMonth),
+    () => calculateSafeToSpend(transactions, budgets, selectedMonth, carryOver),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [transactions, budgets, selectedMonth, todayDate]
+    [transactions, budgets, selectedMonth, carryOver, todayDate]
   );
 
   const dailyBudgetInfo = useMemo(() => {
@@ -68,7 +71,7 @@ export default function SafeToSpendCard() {
 
     if (selectedMonth !== currentMonthKey) return null;
 
-    const daysRemaining = daysInMonth - today.getDate();
+    const daysRemaining = daysInMonth - today.getDate() + 1; // +1 to include today
     if (daysRemaining <= 0) return null;
 
     const dailyBudget = data.safeToSpend / daysRemaining;

@@ -7,7 +7,12 @@
     "title": "Solde Disponible",
     "available": "Disponible",
     "income": "Revenus",
-    "expenses": "Dépenses"
+    "expenses": "Dépenses",
+    "carryOver": "Solde précédent",
+    "breakdown": "Détail du solde",
+    "carryOverToggle": "Utiliser le solde du mois précédent",
+    "result": "Solde total",
+    "close": "Fermer"
   },
   "addActionSheet": {
     "title": "Nouvel enregistrement",

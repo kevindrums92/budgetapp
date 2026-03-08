@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -13,6 +13,7 @@ import {
   Search,
   Repeat,
   ArrowUpDown,
+  FileText,
 } from "lucide-react";
 import PageHeader from "@/shared/components/layout/PageHeader";
 import { useBudgetStore } from "@/state/budget.store";
@@ -25,6 +26,8 @@ import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 import { historyTour } from "@/features/tour/tours/historyTour";
 import * as icons from "lucide-react";
+
+const ExportPDFSheet = lazy(() => import("@/features/pdf-export/components/sheets/ExportPDFSheet"));
 
 type FilterType = "all" | "expense" | "income";
 type FilterStatus = "all" | "paid" | "pending" | "planned";
@@ -76,6 +79,7 @@ export default function HistoryPage() {
   const [showCustomDateModal, setShowCustomDateModal] = useState(false);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [showPDFSheet, setShowPDFSheet] = useState(false);
 
   // Category modal drag states
   const [isCategoryModalVisible, setIsCategoryModalVisible] = useState(false);
@@ -266,6 +270,20 @@ export default function HistoryPage() {
     const year = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
     return `${year}-${String(prevMonth).padStart(2, "0")}`;
   }, []);
+
+  // Compute date range for PDF export
+  const pdfDateRange = useMemo(() => {
+    if (dateRangePreset === "custom") {
+      return { start: customStartDate, end: customEndDate };
+    }
+    const month = dateRangePreset === "last-month" ? previousMonth : currentMonth;
+    const [y, m] = month.split("-").map(Number);
+    const lastDay = new Date(y, m, 0).getDate();
+    return {
+      start: `${month}-01`,
+      end: `${month}-${String(lastDay).padStart(2, "0")}`,
+    };
+  }, [dateRangePreset, customStartDate, customEndDate, currentMonth, previousMonth]);
 
   // Apply filters
   const filteredTransactions = useMemo(() => {
@@ -903,15 +921,26 @@ export default function HistoryPage() {
             <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               {t("results.title", { count: filteredTransactions.length })}
             </h2>
-            <button
-              type="button"
-              onClick={handleExport}
-              disabled={filteredTransactions.length === 0}
-              className="flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed text-[#18B7B0] hover:text-[#159d97]"
-            >
-              <Download size={16} />
-              {t("results.exportCSV")}
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={filteredTransactions.length === 0}
+                className="flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed text-[#18B7B0] hover:text-[#159d97]"
+              >
+                <Download size={16} />
+                {t("results.exportCSV")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPDFSheet(true)}
+                disabled={filteredTransactions.length === 0}
+                className="flex items-center gap-1.5 text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed text-[#18B7B0] hover:text-[#159d97]"
+              >
+                <FileText size={16} />
+                {t("results.exportPDF")}
+              </button>
+            </div>
           </div>
 
           {/* Right Column - Sort + Balance */}
@@ -1310,6 +1339,17 @@ export default function HistoryPage() {
         isActive={isTourActive}
         onComplete={completeTour}
       />
+
+      {/* PDF Export Sheet */}
+      <Suspense fallback={null}>
+        <ExportPDFSheet
+          open={showPDFSheet}
+          onClose={() => setShowPDFSheet(false)}
+          initialStartDate={pdfDateRange.start}
+          initialEndDate={pdfDateRange.end}
+          preFilteredTransactions={filteredTransactions}
+        />
+      </Suspense>
     </div>
   );
 }

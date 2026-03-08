@@ -792,6 +792,85 @@ Used for action selection, pickers (AddActionSheet, CategoryPickerDrawer).
 - Border radius: `rounded-t-3xl` (top corners only)
 - Drag handle: `h-1 w-10 rounded-full bg-gray-300`
 - Safe area padding: `pb-[calc(env(safe-area-inset-bottom)+16px)]`
+- **MANDATORY: Drag-to-dismiss** — Every bottom sheet MUST support closing by dragging down
+
+**Drag-to-Dismiss Pattern (REQUIRED on all bottom sheets)**:
+
+```tsx
+// 1. State & refs
+const [dragOffset, setDragOffset] = useState(0);
+const [isDragging, setIsDragging] = useState(false);
+const startYRef = useRef(0);
+const sheetRef = useRef<HTMLDivElement>(null);
+const DRAG_THRESHOLD = 0.3;
+
+// 2. Handlers
+const handleDragStart = useCallback((clientY: number) => {
+  setIsDragging(true);
+  startYRef.current = clientY;
+}, []);
+
+const handleDragMove = useCallback((clientY: number) => {
+  if (!isDragging) return;
+  const diff = clientY - startYRef.current;
+  setDragOffset(diff > 0 ? diff : 0);
+}, [isDragging]);
+
+const handleDragEnd = useCallback(() => {
+  if (!isDragging) return;
+  setIsDragging(false);
+  const sheetHeight = sheetRef.current?.offsetHeight ?? 400;
+  if (dragOffset > sheetHeight * DRAG_THRESHOLD) onClose();
+  setDragOffset(0);
+}, [isDragging, dragOffset, onClose]);
+
+// 3. Touch + mouse wrappers
+const handleTouchStart = useCallback((e: React.TouchEvent) => handleDragStart(e.touches[0].clientY), [handleDragStart]);
+const handleTouchMove = useCallback((e: React.TouchEvent) => handleDragMove(e.touches[0].clientY), [handleDragMove]);
+const handleTouchEnd = useCallback(() => handleDragEnd(), [handleDragEnd]);
+const handleMouseDown = useCallback((e: React.MouseEvent) => handleDragStart(e.clientY), [handleDragStart]);
+
+// 4. Desktop mouse listeners (in useEffect)
+useEffect(() => {
+  if (!isDragging) return;
+  const onMove = (e: MouseEvent) => handleDragMove(e.clientY);
+  const onUp = () => handleDragEnd();
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onUp);
+  return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+}, [isDragging, handleDragMove, handleDragEnd]);
+```
+
+**Drag handle JSX** (attach touch/mouse events here):
+```tsx
+<div
+  className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+  onMouseDown={handleMouseDown}
+>
+  <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-600" />
+</div>
+```
+
+**Sheet transform** (use `dragOffset` when open):
+```tsx
+style={{
+  transform: isAnimating ? `translateY(${dragOffset}px)` : 'translateY(100%)',
+  transition: isDragging ? 'none' : 'transform 300ms cubic-bezier(0.32, 0.72, 0, 1)',
+}}
+```
+
+**Backdrop opacity** (fades as user drags):
+```tsx
+style={{
+  opacity: isAnimating ? Math.max(0, 1 - dragOffset / (sheetRef.current?.offsetHeight ?? 400)) * 0.5 : 0,
+  transition: isDragging ? 'none' : 'opacity 300ms ease-out',
+}}
+```
+
+**Reference**: See `CategoryPickerDrawer.tsx`, `ComparisonSheet.tsx`, `ExportPDFSheet.tsx`
 
 **Z-Index Layers** (CRITICAL - Never overlap):
 - Header/PageHeader: `z-10`

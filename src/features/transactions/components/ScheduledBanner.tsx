@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { CalendarClock, ChevronRight, X } from "lucide-react";
 import type { VirtualTransaction } from "@/shared/services/scheduler.service";
 import { useCurrency } from "@/features/currency";
+import { usePrivacy } from "@/features/privacy";
 import { useBudgetStore } from "@/state/budget.store";
 import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { scheduledBannerTour } from "@/features/tour/tours/scheduledBannerTour";
@@ -24,7 +25,8 @@ export default function ScheduledBanner({
   onDismissForMonth,
 }: ScheduledBannerProps) {
   const { t } = useTranslation("transactions");
-  const { formatAmount } = useCurrency();
+  const { formatAmount, currencyInfo } = useCurrency();
+  const { formatWithFullPrivacy } = usePrivacy();
   const [showConfirm, setShowConfirm] = useState(false);
   const [showDismissConfirm, setShowDismissConfirm] = useState(false);
 
@@ -174,7 +176,7 @@ export default function ScheduledBanner({
                 <div key={vt.id} className="flex items-center justify-between py-1.5 text-sm">
                   <span className="text-gray-700 dark:text-gray-300 truncate flex-1 mr-2">{vt.name}</span>
                   <span className={`font-medium whitespace-nowrap ${vt.type === "income" ? "text-emerald-600 dark:text-emerald-400" : "text-gray-900 dark:text-gray-50"}`}>
-                    {vt.type === "income" ? "+" : "-"}{formatAmount(vt.amount)}
+                    {vt.type === "income" ? "+" : "-"}{formatWithFullPrivacy(formatAmount(vt.amount), currencyInfo.symbol)}
                   </span>
                 </div>
               ))}

@@ -26,6 +26,31 @@ import {
 const SEEN_KEY = "budget.welcomeSeen.v1";
 const SYNC_LOCK_KEY = "budget.syncLock";
 const SYNC_LOCK_TIMEOUT = 5000; // 5 seconds
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff
+
+/**
+ * Retry an async operation with exponential backoff.
+ * Only retries on network/server errors, not on auth or client errors.
+ */
+async function retryAsync<T>(
+  label: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (!isNetworkOrServerError(err)) throw err; // Don't retry client/auth errors
+      const delay = RETRY_DELAYS[attempt] ?? 4000;
+      logger.warn("CloudSync", `${label} failed (attempt ${attempt + 1}/${MAX_RETRIES}), retrying in ${delay}ms...`, err);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+  throw lastError;
+}
 
 function isNetworkOrServerError(err: unknown) {
   const msg = String((err as any)?.message ?? err ?? "").toLowerCase();
@@ -33,6 +58,7 @@ function isNetworkOrServerError(err: unknown) {
   return (
     !navigator.onLine ||
     msg.includes("failed to fetch") ||
+    msg.includes("load failed") ||       // Safari/WebKit equivalent of "failed to fetch"
     msg.includes("err_name_not_resolved") ||
     msg.includes("networkerror") ||
     msg.includes("internal server error") ||
@@ -97,6 +123,8 @@ export default function CloudSyncGate() {
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
   const statsLayout = useBudgetStore((s) => s.statsLayout);
   const security = useBudgetStore((s) => s.security);
+  const carryOverBalances = useBudgetStore((s) => s.carryOverBalances);
+  const monthReviewDismissed = useBudgetStore((s) => s.monthReviewDismissed);
   // NOTE: subscription is no longer synced to cloud (managed by RevenueCat webhooks)
 
   const initializedRef = useRef(false);
@@ -131,18 +159,20 @@ export default function CloudSyncGate() {
         trips: snapshot.trips.length,
         schemaVersion: snapshot.schemaVersion,
       });
-      await upsertCloudState(snapshot);
+      await retryAsync("pushSnapshot", () => upsertCloudState(snapshot));
       clearPendingSnapshot();
       setCloudStatus("ok");
     } catch (err) {
-      logger.error("CloudSync", "Push failed:", err);
+      logger.error("CloudSync", "Push failed after retries:", err);
       setCloudStatus(isNetworkOrServerError(err) ? "offline" : "error");
       setPendingSnapshot(snapshot);
     }
   }
 
   async function initForSession() {
-    console.log("[CloudSyncGate] initForSession() called");
+    const _localTxCount = useBudgetStore.getState().transactions.length;
+    const _localMode = useBudgetStore.getState().cloudMode;
+    console.log("[CloudSyncGate] initForSession() called", { localTransactions: _localTxCount, cloudMode: _localMode, initialized: initializedRef.current });
 
     // ⚠️ CRITICAL: Check network status BEFORE attempting any Supabase calls
     // This prevents hanging when app starts offline
@@ -327,21 +357,26 @@ export default function CloudSyncGate() {
       });
       setSentryUser(null);
 
-      // Try to create anonymous session → SIGNED_IN handler will activate cloud sync
+      // Try to create anonymous session with retries → SIGNED_IN handler will activate cloud sync
       if (isOnline) {
         try {
-          const { error: anonError } = await supabase.auth.signInAnonymously();
+          console.log("[CloudSyncGate] 🔍 About to signInAnonymously, local transactions:", useBudgetStore.getState().transactions.length);
+          const { error: anonError } = await retryAsync("signInAnonymously", async () => {
+            const result = await supabase.auth.signInAnonymously();
+            if (result.error) throw result.error;
+            return result;
+          });
           if (!anonError) {
-            console.log("[CloudSyncGate] Anonymous session created, SIGNED_IN will init cloud sync");
+            console.log("[CloudSyncGate] 🔍 Anonymous session created, local transactions BEFORE SIGNED_IN handler:", useBudgetStore.getState().transactions.length);
             return; // SIGNED_IN handler will call initForSession()
           }
-          console.warn("[CloudSyncGate] signInAnonymously failed:", anonError);
         } catch (err) {
-          console.warn("[CloudSyncGate] signInAnonymously error:", err);
+          logger.error("CloudSync", "signInAnonymously failed after retries", err instanceof Error ? err : new Error(String(err)));
         }
       }
 
       // Fallback: no session possible → true guest mode (rare: offline first launch, Supabase down)
+      console.log("[CloudSyncGate] 🔍 GUEST MODE FALLBACK. Local transactions:", useBudgetStore.getState().transactions.length);
       setCloudMode("guest");
       setCloudStatus("idle");
       initializedRef.current = false;
@@ -437,7 +472,7 @@ export default function CloudSyncGate() {
       // ✅ 2) No hay pendientes: flujo normal (pull)
       logger.info("CloudSync", "No pending changes, pulling from cloud...");
       console.log("[CloudSyncGate] About to call getCloudState()");
-      const cloud = await getCloudState();
+      const cloud = await retryAsync("getCloudState", () => getCloudState());
       console.log("[CloudSyncGate] getCloudState() returned:", { hasCloud: !!cloud, cloudData: cloud ? { transactions: cloud.transactions?.length, categories: cloud.categoryDefinitions?.length } : null });
 
       if (cloud) {
@@ -604,10 +639,15 @@ export default function CloudSyncGate() {
 
         // Subscription is NO LONGER merged here (v2.0)
         // It's managed separately by RevenueCat SDK + subscription.service.ts
-        console.log("[CloudSyncGate] Applying cloud data to local state:", {
-          transactions: cloud.transactions.length,
-          categories: cloud.categoryDefinitions.length,
+        const _localBefore = useBudgetStore.getState().transactions.length;
+        console.log("[CloudSyncGate] 🔍 REPLACING local data with cloud:", {
+          localTransactionsBefore: _localBefore,
+          cloudTransactions: cloud.transactions.length,
+          cloudCategories: cloud.categoryDefinitions.length,
         });
+        if (_localBefore > 0 && cloud.transactions.length === 0) {
+          console.warn("[CloudSyncGate] ⚠️ DATA LOSS RISK: Replacing", _localBefore, "local transactions with EMPTY cloud state!");
+        }
         replaceAllData(cloud);
 
         // Fetch subscription separately from RevenueCat/Supabase
@@ -629,7 +669,7 @@ export default function CloudSyncGate() {
         // Push the fixed data back to cloud if we added defaults
         if (needsPush) {
           logger.info("CloudSync", "Pushing migrated data back to cloud");
-          await upsertCloudState(cloud);
+          await retryAsync("pushMigration", () => upsertCloudState(cloud));
         }
       } else {
         // ⚠️ CRITICAL SAFEGUARD: NEVER overwrite cloud with empty state
@@ -638,6 +678,13 @@ export default function CloudSyncGate() {
         const hasData = localSnapshot.transactions.length > 0 ||
                        localSnapshot.trips.length > 0;
 
+        console.log("[CloudSyncGate] 🔍 Cloud is NULL (new user). Local snapshot:", {
+          transactions: localSnapshot.transactions.length,
+          categories: localSnapshot.categoryDefinitions.length,
+          trips: localSnapshot.trips.length,
+          hasData,
+        });
+
         if (hasData) {
           // Safe to push: local has actual user data
           logger.info("CloudSync", "New account detected, pushing local data to cloud:", {
@@ -645,7 +692,7 @@ export default function CloudSyncGate() {
             trips: localSnapshot.trips.length,
             categoryDefinitions: localSnapshot.categoryDefinitions.length,
           });
-          await upsertCloudState(localSnapshot);
+          await retryAsync("pushNewAccount", () => upsertCloudState(localSnapshot));
 
           // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
           updateLastAuthTimestamp();
@@ -807,18 +854,16 @@ export default function CloudSyncGate() {
         setCloudStatus("idle");
         initializedRef.current = false;
 
-        // Re-create anonymous session → SIGNED_IN handler will init cloud sync
+        // Re-create anonymous session with retries → SIGNED_IN handler will init cloud sync
         try {
-          const { error } = await supabase.auth.signInAnonymously();
-          if (error) {
-            console.warn("[CloudSyncGate] Failed to re-create anonymous session after logout:", error);
-            useBudgetStore.getState().setCloudSyncReady();
-          } else {
-            console.log("[CloudSyncGate] Anonymous session re-created, SIGNED_IN will init cloud sync");
-            // SIGNED_IN handler will call initForSession() and set cloudMode = "cloud"
-          }
+          await retryAsync("signInAnonymously (post-logout)", async () => {
+            const result = await supabase.auth.signInAnonymously();
+            if (result.error) throw result.error;
+            return result;
+          });
+          console.log("[CloudSyncGate] Anonymous session re-created, SIGNED_IN will init cloud sync");
         } catch (err) {
-          console.warn("[CloudSyncGate] signInAnonymously error after logout:", err);
+          logger.error("CloudSync", "signInAnonymously failed after retries (post-logout)", err instanceof Error ? err : new Error(String(err)));
           useBudgetStore.getState().setCloudSyncReady();
         }
 
@@ -840,11 +885,12 @@ export default function CloudSyncGate() {
         if (session?.user?.is_anonymous) {
           // Anonymous SIGNED_IN: init cloud sync if not already initialized
           // Guard prevents loop: signInAnonymously → SIGNED_IN → initForSession → (finds session) → done
+          const _txCount = useBudgetStore.getState().transactions.length;
           if (initializedRef.current && useBudgetStore.getState().cloudMode === "cloud") {
-            console.log("[CloudSyncGate] Anonymous SIGNED_IN but already in cloud mode, skipping");
+            console.log("[CloudSyncGate] 🔍 Anonymous SIGNED_IN but already in cloud mode, skipping. Local transactions:", _txCount);
             return;
           }
-          console.log("[CloudSyncGate] Anonymous SIGNED_IN, initializing cloud sync");
+          console.log("[CloudSyncGate] 🔍 Anonymous SIGNED_IN, will call initForSession. Local transactions:", _txCount);
           initializedRef.current = false;
           setTimeout(() => initForSession(), 0);
           return;
@@ -930,7 +976,7 @@ export default function CloudSyncGate() {
     checkNetworkAndPush();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, statsLayout, security]);
+  }, [transactions, categories, categoryDefinitions, categoryGroups, budgets, trips, tripExpenses, welcomeSeen, budgetOnboardingSeen, excludedFromStats, statsLayout, security, carryOverBalances, monthReviewDismissed]);
 
   const mode = useBudgetStore.getState().cloudMode;
 

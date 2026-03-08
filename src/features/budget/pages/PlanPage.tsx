@@ -95,8 +95,8 @@ export default function PlanPage() {
   // Filter budgets by active tab
   const displayedBudgets = activeTab === "active" ? activeBudgets : completedBudgets;
 
-  // Show tabs only when there are completed budgets
-  const showTabs = completedBudgets.length > 0;
+  // Show tabs when there's at least one budget (active or completed)
+  const showTabs = activeBudgets.length > 0 || completedBudgets.length > 0;
 
   // Calculate health check
   const healthCheck = useMemo(() => {

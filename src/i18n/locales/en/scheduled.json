@@ -90,5 +90,11 @@
     "title": "Tomorrow's transactions",
     "andMore": "and {{count}} more...",
     "dismiss": "Got it"
+  },
+  "autoConfirmedModal": {
+    "title": "Automatic records",
+    "subtitle_one": "1 scheduled transaction was recorded",
+    "subtitle_other": "{{count}} scheduled transactions were recorded",
+    "dismiss": "Ok"
   }
 }

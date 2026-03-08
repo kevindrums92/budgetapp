@@ -121,6 +121,12 @@
       "description": "To add a new one, create a regular transaction and enable the 'Schedule' option before saving."
     }
   },
+  "privacy": {
+    "toggle": {
+      "title": "Privacy mode",
+      "description": "Tap this button to hide your amounts. It has 3 levels: visible, hide summary, and hide all."
+    }
+  },
   "buttons": {
     "next": "Next",
     "skip": "Skip",

@@ -7,6 +7,17 @@ import type { Transaction, Category } from '@/types/budget.types';
 // Mock the budget store
 vi.mock('@/state/budget.store');
 
+// Mock usePrivacy
+vi.mock('@/features/privacy', () => ({
+  usePrivacy: () => ({
+    privacyLevel: 'off',
+    privacyMode: false,
+    togglePrivacyMode: vi.fn(),
+    formatWithPrivacy: (formatted: string) => formatted,
+    formatWithFullPrivacy: (formatted: string) => formatted,
+  }),
+}));
+
 // Mock TransactionItem component
 vi.mock('@/features/transactions/components/TransactionItem', () => ({
   default: ({ transaction, category }: { transaction: Transaction; category?: Category }) => (
@@ -121,11 +132,14 @@ describe('TransactionList', () => {
     },
   ];
 
+  const mockSetSelectedMonth = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
     (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
       const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: mockTransactions,
         categoryDefinitions: mockCategories,
       };
@@ -156,6 +170,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: currentMonth,
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: [],
         categoryDefinitions: mockCategories,
         };
@@ -171,6 +186,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: [],
         categoryDefinitions: mockCategories,
         };
@@ -234,6 +250,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: sameDay,
         categoryDefinitions: mockCategories,
         };
@@ -288,6 +305,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: incomeOnly,
         categoryDefinitions: mockCategories,
         };
@@ -328,6 +346,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: withNotes,
         categoryDefinitions: mockCategories,
         };
@@ -405,6 +424,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: pendingTx,
         categoryDefinitions: mockCategories,
         };
@@ -435,6 +455,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: currentMonth,
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: mockTransactions,
         categoryDefinitions: mockCategories,
         };
@@ -444,7 +465,7 @@ describe('TransactionList', () => {
       render(<TransactionList />);
 
       expect(
-        screen.queryByText(/Estás viendo un mes diferente al actual/)
+        screen.queryByText(/Estás viendo otro mes/)
       ).not.toBeInTheDocument();
     });
 
@@ -452,6 +473,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-01',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: mockTransactions,
         categoryDefinitions: mockCategories,
         };
@@ -461,7 +483,7 @@ describe('TransactionList', () => {
       render(<TransactionList />);
 
       expect(
-        screen.getByText(/Estás viendo un mes diferente al actual/)
+        screen.getByText(/Estás viendo otro mes/)
       ).toBeInTheDocument();
     });
 
@@ -469,6 +491,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2025-12',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: mockTransactions,
         categoryDefinitions: mockCategories,
         };
@@ -478,7 +501,7 @@ describe('TransactionList', () => {
       render(<TransactionList />);
 
       expect(
-        screen.getByText(/Estás viendo un mes diferente al actual/)
+        screen.getByText(/Estás viendo otro mes/)
       ).toBeInTheDocument();
     });
   });
@@ -501,6 +524,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: noCategory,
         categoryDefinitions: mockCategories,
         };
@@ -549,6 +573,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: mixed,
         categoryDefinitions: mockCategories,
         };
@@ -579,6 +604,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: multiMonth,
         categoryDefinitions: mockCategories,
         };
@@ -609,6 +635,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
         selectedMonth: '2024-03',
+        setSelectedMonth: mockSetSelectedMonth,
         transactions: zeroAmount,
         categoryDefinitions: mockCategories,
         };
@@ -627,6 +654,7 @@ describe('TransactionList', () => {
       (useBudgetStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector) => {
         const state = {
           selectedMonth: '2024-03',
+          setSelectedMonth: mockSetSelectedMonth,
           transactions: mockTransactions,
           categoryDefinitions: [],
         };

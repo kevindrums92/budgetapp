@@ -59,7 +59,7 @@ export function loadState(): BudgetState | null {
       const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
       if (onboardingCompleted) {
         const initialState: BudgetState = {
-          schemaVersion: 8,
+          schemaVersion: 9,
           transactions: [],
           categories: [],
           categoryDefinitions: createDefaultCategories(),
@@ -223,6 +223,15 @@ export function loadState(): BudgetState | null {
       parsed.schemaVersion = 8;
       needsSave = true;
       console.log('[Storage] Migrated v7→v8: Removed subscription from state (now in separate table)');
+    }
+
+    // Migrate v8 to v9: Add carryOverBalances and monthReviewDismissed
+    if (parsed.schemaVersion === 8) {
+      parsed.carryOverBalances = {};
+      parsed.monthReviewDismissed = [];
+      parsed.schemaVersion = 9;
+      needsSave = true;
+      console.log('[Storage] Migrated v8→v9: Added carryOverBalances and monthReviewDismissed');
     }
 
     // Always repair: Ensure all transactions have sourceTemplateId if they match a template

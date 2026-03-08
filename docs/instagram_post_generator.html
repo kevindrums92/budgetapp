@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSpend IG Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3/dist/dom-to-image-more.min.js"></script>
+    <style>
+        /* Modern Premium Aesthetics */
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* ── Canvas (always 1080x1350, scale set by JS) ── */
+        .ig-post {
+            width: 1080px;
+            min-width: 1080px;
+            max-width: 1080px;
+            height: 1350px;
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform-origin: top left;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+        }
+
+        /* Reset Tailwind preflight borders for clean export */
+        .ig-post,
+        .ig-post * {
+            border-style: none;
+        }
+
+        /* ── Themes ── */
+        .ig-post.dark {
+            background: radial-gradient(circle at top right, #1e293b 0%, #020617 100%);
+        }
+
+        .ig-post.emerald {
+            background: radial-gradient(circle at bottom left, #065f46 0%, #022c22 40%, #020617 100%);
+        }
+
+        .ig-post.purple {
+            background: radial-gradient(circle at top left, #4c1d95 0%, #020617 70%);
+        }
+
+        .ig-post.sunset {
+            background: radial-gradient(circle at top right, #9a3412 0%, #431407 35%, #0c0a09 100%);
+        }
+
+        .ig-post.ocean {
+            background: radial-gradient(circle at bottom right, #164e63 0%, #083344 40%, #020617 100%);
+        }
+
+        .ig-post.gold {
+            background: radial-gradient(circle at top center, #1c1917 0%, #0c0a09 50%, #000000 100%);
+        }
+
+        .ig-post.white {
+            background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.05);
+        }
+
+        .ig-post.white .title {
+            color: #0f172a;
+            text-shadow: none;
+        }
+
+        .ig-post.white .subtitle {
+            color: #475569;
+        }
+
+        .ig-post.white .brand {
+            color: #10b981;
+        }
+
+        .ig-post.white .phone-mockup {
+            background: linear-gradient(160deg, #e2e8f0 0%, #cbd5e1 30%, #94a3b8 70%, #64748b 100%);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+
+        .ig-post.white .phone-screen {
+            background-color: #f8fafc;
+        }
+
+        /* ── Canvas inner styles ── */
+        .slide-content {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 0 120px;
+            z-index: 20;
+        }
+
+        .title {
+            font-size: 84px;
+            font-weight: 700;
+            line-height: 1.1;
+            color: #ffffff;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            letter-spacing: -1px;
+        }
+
+        .highlight {
+            color: #34d399;
+        }
+
+        .subtitle {
+            font-size: 42px;
+            font-weight: 300;
+            color: #94a3b8;
+            margin-top: 24px;
+        }
+
+        .phone-mockup {
+            width: 760px;
+            height: 1400px;
+            background: linear-gradient(160deg, #64748b 0%, #475569 30%, #334155 70%, #1e293b 100%);
+            border-radius: 64px;
+            padding: 18px;
+            overflow: hidden;
+            position: absolute;
+            bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center top;
+            background-repeat: no-repeat;
+            background-color: #000;
+            border-radius: 46px;
+            overflow: hidden;
+        }
+
+        .glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: #10b981;
+            filter: blur(250px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .brand {
+            position: absolute;
+            bottom: 70px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 34px;
+            font-weight: 600;
+            color: #34d399;
+            z-index: 20;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        /* ── Editor UI ── */
+        #canvas-area {
+            background-color: #111827;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        #preview-sizer {
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar section labels */
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #64748b;
+            padding: 12px 0 6px;
+        }
+
+        /* Compact inputs */
+        .ctrl-select,
+        .ctrl-input,
+        .ctrl-textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            padding: 8px 10px;
+            color: #f1f5f9;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .ctrl-select:focus,
+        .ctrl-input:focus,
+        .ctrl-textarea:focus {
+            border-color: #10b981;
+        }
+
+        .ctrl-textarea {
+            resize: none;
+        }
+
+        .ctrl-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .ctrl-hint {
+            font-size: 10px;
+            color: #475569;
+            margin-left: 4px;
+        }
+
+        /* Slider styling */
+        .ctrl-slider {
+            width: 100%;
+            accent-color: #10b981;
+            cursor: pointer;
+            height: 4px;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #475569;
+            margin-top: 2px;
+        }
+
+        /* File input */
+        .file-drop {
+            border: 1.5px dashed #1e293b;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            transition: border-color 0.15s;
+            background: #0f172a;
+        }
+
+        .file-drop:hover {
+            border-color: #10b981;
+        }
+
+        /* Toggle */
+        .toggle-track {
+            width: 36px;
+            height: 20px;
+            border-radius: 10px;
+            background: #1e293b;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-track.active {
+            background: #10b981;
+        }
+
+        .toggle-knob {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        .toggle-track.active .toggle-knob {
+            transform: translateX(16px);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+
+<body class="h-screen flex flex-col">
+
+    <!-- ════════ TOP TOOLBAR ════════ -->
+    <header class="h-11 shrink-0 bg-slate-900/95 border-b border-slate-700/40 flex items-center justify-between px-4">
+        <div class="flex items-center gap-2.5">
+            <div class="w-5 h-5 rounded bg-gradient-to-br from-emerald-400 to-teal-500"></div>
+            <span class="text-sm font-semibold text-slate-200 tracking-tight">SmartSpend IG Studio</span>
+            <span class="text-[10px] text-slate-500 ml-1">1080 × 1350</span>
+        </div>
+        <button id="downloadBtn"
+            class="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Exportar PNG
+        </button>
+    </header>
+
+    <!-- ════════ MAIN AREA ════════ -->
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- ──── LEFT SIDEBAR ──── -->
+        <aside class="w-72 shrink-0 bg-slate-900/70 border-r border-slate-700/40 overflow-y-auto p-3 space-y-1">
+
+            <!-- Layout -->
+            <div class="section-label">Layout</div>
+            <div>
+                <select id="layoutType" class="ctrl-select">
+                    <option value="text-center">Texto Centrado (Gancho)</option>
+                    <option value="mockup-full">Teléfono Completo</option>
+                    <option value="mockup-zoomed">Teléfono Ampliado</option>
+                    <option value="mockup-clean">Sólo Mockup</option>
+                </select>
+            </div>
+
+            <!-- Theme -->
+            <div class="section-label">Tema</div>
+            <div>
+                <select id="theme" class="ctrl-select">
+                    <option value="emerald">Premium Emerald</option>
+                    <option value="dark">Dark Minimal</option>
+                    <option value="purple">Tech Purple</option>
+                    <option value="sunset">Sunset Warm</option>
+                    <option value="ocean">Ocean Blue</option>
+                    <option value="gold">Midnight Gold</option>
+                    <option value="white">Clean White</option>
+                </select>
+            </div>
+
+            <!-- Text -->
+            <div class="section-label">Texto</div>
+            <div class="space-y-2.5">
+                <div>
+                    <label class="ctrl-label">Título <span class="ctrl-hint">(&lt;span class="highlight"&gt; para
+                            acento)</span></label>
+                    <textarea id="titleInput" rows="2"
+                        class="ctrl-textarea">¿Anotar tus gastos te da <span class="highlight">pereza?</span></textarea>
+                </div>
+                <div>
+                    <label class="ctrl-label">Subtítulo</label>
+                    <input type="text" id="subtitleInput" value="Te entendemos." class="ctrl-input">
+                </div>
+            </div>
+
+            <!-- Screenshot -->
+            <div id="imageUploadWrapper" class="hidden">
+                <div class="section-label">Screenshot</div>
+                <div class="space-y-2.5">
+                    <div class="file-drop">
+                        <input type="file" id="imageInput" accept="image/*"
+                            class="w-full text-xs text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-emerald-500/15 file:text-emerald-400 hover:file:bg-emerald-500/25 cursor-pointer">
+                    </div>
+                    <div id="imagePosWrapper" class="hidden space-y-2">
+                        <div>
+                            <label class="ctrl-label">Zoom</label>
+                            <input type="range" id="imageZoom" min="100" max="200" value="100" class="ctrl-slider">
+                            <div class="slider-labels">
+                                <span>Ajustado</span><span>Acercado</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="ctrl-label">Posición imagen</label>
+                            <input type="range" id="imagePosY" min="-250" max="100" value="0" class="ctrl-slider">
+                            <div class="slider-labels">
+                                <span>Arriba</span><span>Abajo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phone controls -->
+            <div id="phonePosWrapper" class="hidden">
+                <div class="section-label">Teléfono</div>
+                <div class="space-y-2">
+                    <div>
+                        <label class="ctrl-label">Tamaño</label>
+                        <input type="range" id="phoneSize" min="70" max="150" value="100" class="ctrl-slider">
+                        <div class="slider-labels">
+                            <span>Pequeño</span><span>Grande</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="ctrl-label">Posición</label>
+                        <input type="range" id="phonePosY" min="-300" max="300" value="40" class="ctrl-slider">
+                        <div class="slider-labels">
+                            <span>Abajo</span><span>Arriba</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div class="section-label">Opciones</div>
+            <div class="flex items-center justify-between py-1">
+                <span class="text-xs text-slate-400">Marca al pie</span>
+                <div id="brandToggle" class="toggle-track active">
+                    <div class="toggle-knob"></div>
+                </div>
+                <input type="checkbox" id="showBrand" class="hidden" checked>
+            </div>
+
+        </aside>
+
+        <!-- ──── CANVAS AREA ──── -->
+        <main id="canvas-area" class="flex-1 flex items-center justify-center overflow-hidden relative">
+
+            <!-- Sizer controls space in flex layout; wrapper handles the visual scale -->
+            <div id="preview-sizer">
+                <div id="preview-wrapper">
+                    <div id="captureArea" class="ig-post dark">
+                    <div class="glow" id="ambientGlow"></div>
+
+                    <div class="slide-content" id="renderContent">
+                        <div id="renderTitle" class="title"></div>
+                        <div id="renderSubtitle" class="subtitle"></div>
+                    </div>
+
+                    <div id="renderMockup" class="phone-mockup" style="display: none;">
+                        <div id="renderScreen" class="phone-screen bg-slate-900 flex items-center justify-center">
+                            <span class="text-slate-600 text-2xl font-light">Sube una imagen</span>
+                        </div>
+                    </div>
+
+                        <div id="renderBrand" class="brand">SmartSpend</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scale info -->
+            <div id="scaleInfo"
+                class="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 bg-slate-900/60 px-3 py-1 rounded-full">
+                1080 × 1350 · 35%
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- ════════ STATUS BAR ════════ -->
+    <footer
+        class="h-7 shrink-0 bg-slate-900/95 border-t border-slate-700/40 flex items-center justify-between px-4 text-[10px] text-slate-500">
+        <span>SmartSpend IG Studio</span>
+        <span>Exporta a 1080 × 1350 px (2x = 2160 × 2700)</span>
+    </footer>
+
+    <script>
+        // ── DOM References ──
+        const layoutType = document.getElementById('layoutType');
+        const theme = document.getElementById('theme');
+        const titleInput = document.getElementById('titleInput');
+        const subtitleInput = document.getElementById('subtitleInput');
+        const imageInput = document.getElementById('imageInput');
+        const showBrand = document.getElementById('showBrand');
+
+        const captureArea = document.getElementById('captureArea');
+        const renderTitle = document.getElementById('renderTitle');
+        const renderSubtitle = document.getElementById('renderSubtitle');
+        const renderMockup = document.getElementById('renderMockup');
+        const renderScreen = document.getElementById('renderScreen');
+        const slideContent = document.getElementById('renderContent');
+        const imageUploadWrapper = document.getElementById('imageUploadWrapper');
+        const renderBrand = document.getElementById('renderBrand');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // Brand toggle (custom UI)
+        const brandToggle = document.getElementById('brandToggle');
+        brandToggle.addEventListener('click', () => {
+            showBrand.checked = !showBrand.checked;
+            brandToggle.classList.toggle('active', showBrand.checked);
+            updatePreview();
+        });
+
+        // ── Theme Accent Map ──
+        const THEME_ACCENTS = {
+            emerald: { highlight: '#34d399', glow: '#10b981', brand: '#34d399' },
+            dark: { highlight: '#34d399', glow: '#10b981', brand: '#34d399' },
+            purple: { highlight: '#a78bfa', glow: '#8b5cf6', brand: '#a78bfa' },
+            sunset: { highlight: '#fb923c', glow: '#f97316', brand: '#fb923c' },
+            ocean: { highlight: '#22d3ee', glow: '#06b6d4', brand: '#22d3ee' },
+            gold: { highlight: '#fbbf24', glow: '#d97706', brand: '#fbbf24' },
+            white: { highlight: '#10b981', glow: '#10b981', brand: '#10b981' },
+        };
+
+        // ── Auto-Scale ──
+        // Transform lives on #preview-wrapper so #captureArea never has a transform.
+        // This ensures dom-to-image reads correct layout dimensions on export.
+        function autoScale() {
+            const canvasArea = document.getElementById('canvas-area');
+            const availW = canvasArea.clientWidth - 100;
+            const availH = canvasArea.clientHeight - 80;
+            const scaleX = availW / 1080;
+            const scaleY = availH / 1350;
+            const scale = Math.min(scaleX, scaleY, 0.7);
+
+            // Scale on the wrapper (NOT on captureArea)
+            const wrapper = document.getElementById('preview-wrapper');
+            wrapper.style.transform = `scale(${scale})`;
+            wrapper.style.transformOrigin = 'top left';
+            wrapper.style.width = '1080px';
+            wrapper.style.height = '1350px';
+
+            // Sizer takes up only the scaled space in the flex layout
+            const sizer = document.getElementById('preview-sizer');
+            sizer.style.width = `${1080 * scale}px`;
+            sizer.style.height = `${1350 * scale}px`;
+
+            document.getElementById('scaleInfo').textContent =
+                `1080 × 1350 · ${Math.round(scale * 100)}%`;
+        }
+
+        window.addEventListener('resize', autoScale);
+
+        // ── Update Preview ──
+        function updatePreview() {
+            // Theme
+            captureArea.className = 'ig-post';
+            captureArea.classList.add(theme.value);
+
+            const accent = THEME_ACCENTS[theme.value] || THEME_ACCENTS.emerald;
+            const ambientGlow = document.getElementById('ambientGlow');
+            if (ambientGlow) ambientGlow.style.background = accent.glow;
+            renderBrand.style.color = accent.brand;
+
+            const highlights = renderTitle.querySelectorAll('.highlight');
+            highlights.forEach(el => el.style.color = accent.highlight);
+
+            // Text
+            renderTitle.innerHTML = titleInput.value;
+            renderSubtitle.textContent = subtitleInput.value;
+            renderTitle.querySelectorAll('.highlight').forEach(el => el.style.color = accent.highlight);
+
+            renderTitle.style.display = titleInput.value ? 'block' : 'none';
+            renderSubtitle.style.display = subtitleInput.value ? 'block' : 'none';
+            renderBrand.style.display = showBrand.checked ? 'block' : 'none';
+
+            // Layout
+            const phonePosWrapperEl = document.getElementById('phonePosWrapper');
+
+            if (layoutType.value === 'text-center') {
+                renderMockup.style.display = 'none';
+                renderMockup.style.transform = 'none';
+                slideContent.style.top = '45%';
+                slideContent.style.transform = 'translateY(-50%)';
+                slideContent.style.background = 'none';
+                slideContent.style.padding = '0 120px';
+                imageUploadWrapper.classList.add('hidden');
+                phonePosWrapperEl.classList.add('hidden');
+            } else if (layoutType.value === 'mockup-full') {
+                renderMockup.style.display = 'block';
+                renderMockup.style.width = '640px';
+                renderMockup.style.height = '1180px';
+                renderMockup.style.borderRadius = '56px';
+                renderScreen.style.borderRadius = '38px';
+
+                slideContent.style.top = '70px';
+                slideContent.style.transform = 'none';
+                slideContent.style.background = 'none';
+                slideContent.style.padding = '0 120px';
+
+                imageUploadWrapper.classList.remove('hidden');
+                phonePosWrapperEl.classList.remove('hidden');
+
+            } else if (layoutType.value === 'mockup-zoomed') {
+                renderMockup.style.display = 'block';
+                renderMockup.style.width = '760px';
+                renderMockup.style.height = '1400px';
+                renderMockup.style.borderRadius = '64px';
+                renderScreen.style.borderRadius = '46px';
+
+                slideContent.style.top = '0';
+                slideContent.style.transform = 'none';
+                slideContent.style.background = theme.value === 'white'
+                    ? 'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.85) 75%, transparent 100%)'
+                    : 'linear-gradient(to bottom, rgba(2,6,23,1) 0%, rgba(2,6,23,0.8) 75%, transparent 100%)';
+                slideContent.style.padding = '120px 120px 60px 120px';
+
+                imageUploadWrapper.classList.remove('hidden');
+                phonePosWrapperEl.classList.remove('hidden');
+
+            } else if (layoutType.value === 'mockup-clean') {
+                renderMockup.style.display = 'block';
+                renderMockup.style.width = '600px';
+                renderMockup.style.height = '1280px';
+                renderMockup.style.borderRadius = '64px';
+                renderScreen.style.borderRadius = '46px';
+
+                slideContent.style.display = 'none';
+
+                imageUploadWrapper.classList.remove('hidden');
+                phonePosWrapperEl.classList.remove('hidden');
+            }
+
+            // Phone size/position from sliders
+            if (layoutType.value !== 'text-center') {
+                const scale = phoneSize.value / 100;
+                renderMockup.style.transform = `scale(${scale})`;
+                renderMockup.style.transformOrigin = 'center bottom';
+                renderMockup.style.bottom = `${phonePosY.value}px`;
+            }
+
+            if (layoutType.value !== 'mockup-clean') {
+                slideContent.style.display = 'block';
+            }
+
+            // Re-apply auto-scale (canvas transform)
+            autoScale();
+        }
+
+        // ── Phone Controls ──
+        const phonePosWrapper = document.getElementById('phonePosWrapper');
+        const phonePosY = document.getElementById('phonePosY');
+        const phoneSize = document.getElementById('phoneSize');
+
+        function updatePhoneView() {
+            if (layoutType.value === 'text-center') return;
+            const scale = phoneSize.value / 100;
+            renderMockup.style.transform = `scale(${scale})`;
+            renderMockup.style.transformOrigin = 'center bottom';
+            renderMockup.style.bottom = `${phonePosY.value}px`;
+        }
+
+        phoneSize.addEventListener('input', updatePhoneView);
+        phonePosY.addEventListener('input', updatePhoneView);
+
+        // ── Event Listeners ──
+        layoutType.addEventListener('change', () => {
+            if (layoutType.value === 'mockup-full') {
+                phoneSize.value = 100;
+                phonePosY.value = 40;
+            } else if (layoutType.value === 'mockup-zoomed') {
+                phoneSize.value = 100;
+                phonePosY.value = -80;
+            } else if (layoutType.value === 'mockup-clean') {
+                phoneSize.value = 100;
+                phonePosY.value = 35;
+            }
+            updatePreview();
+        });
+        theme.addEventListener('change', updatePreview);
+        titleInput.addEventListener('input', updatePreview);
+        subtitleInput.addEventListener('input', updatePreview);
+
+        // ── Image Handling ──
+        const imagePosWrapper = document.getElementById('imagePosWrapper');
+        const imagePosY = document.getElementById('imagePosY');
+        const imageZoom = document.getElementById('imageZoom');
+
+        function updateImageView() {
+            renderScreen.style.backgroundSize = `${imageZoom.value}%`;
+            renderScreen.style.backgroundPosition = `center ${imagePosY.value}%`;
+        }
+
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    renderScreen.style.backgroundImage = `url(${event.target.result})`;
+                    renderScreen.innerHTML = '';
+                    imagePosWrapper.classList.remove('hidden');
+                    imageZoom.value = 100;
+                    imagePosY.value = 0;
+                    updateImageView();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        imageZoom.addEventListener('input', updateImageView);
+        imagePosY.addEventListener('input', updateImageView);
+
+        // ── Init ──
+        updatePreview();
+
+        // ── Download ──
+        // captureArea has NO transform (scale lives on wrapper), so dom-to-image
+        // reads correct layout dimensions for all text elements.
+        downloadBtn.addEventListener('click', () => {
+            const btnText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = 'Generando...';
+            downloadBtn.disabled = true;
+
+            domtoimage.toPng(captureArea, {
+                width: 2160,
+                height: 2700,
+                style: {
+                    transform: 'scale(2)',
+                    transformOrigin: 'top left',
+                    width: '1080px',
+                    height: '1350px',
+                    boxShadow: 'none',
+                }
+            }).then(dataUrl => {
+                downloadBtn.innerHTML = btnText;
+                downloadBtn.disabled = false;
+
+                const link = document.createElement('a');
+                link.download = `SmartSpend-IG-${new Date().getTime()}.png`;
+                link.href = dataUrl;
+                link.click();
+            }).catch(err => {
+                console.error("Error generating image:", err);
+                downloadBtn.innerHTML = 'Error';
+                downloadBtn.disabled = false;
+                setTimeout(() => { downloadBtn.innerHTML = btnText; }, 3000);
+            });
+        });
+    </script>
+</body>
+
+</html>

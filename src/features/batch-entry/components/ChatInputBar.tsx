@@ -5,7 +5,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Camera, Mic, Send, X } from "lucide-react";
+import { Camera, Image as ImageIcon, Mic, Send, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import AudioWaveform from "./AudioWaveform";
 import {
@@ -19,7 +19,7 @@ import {
 type ChatInputBarProps = {
   onSendText: (text: string) => void;
   onSendAudio: (base64: string, mimeType: string) => void;
-  onCaptureImage: () => void;
+  onCaptureImage: (source: "camera" | "gallery") => void;
   disabled?: boolean;
   autoFocusText?: boolean;
   autoStartRecording?: boolean;
@@ -45,6 +45,7 @@ export default function ChatInputBar({
   const maxDuration = getMaxDuration();
 
   const hasText = text.trim().length > 0;
+  const [showImagePicker, setShowImagePicker] = useState(false);
 
   // Auto-focus textarea
   useEffect(() => {
@@ -213,11 +214,37 @@ export default function ChatInputBar({
         </div>
       )}
 
+      {/* Inline image source picker */}
+      {showImagePicker && (
+        <div className="mb-2 flex gap-2">
+          <button
+            type="button"
+            onClick={() => { setShowImagePicker(false); onCaptureImage("camera"); }}
+            className="flex items-center gap-2 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 px-4 py-2.5 transition-all active:scale-[0.97]"
+          >
+            <Camera size={14} className="text-emerald-600 dark:text-emerald-400" />
+            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+              {t("imageInput.takePhoto")}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => { setShowImagePicker(false); onCaptureImage("gallery"); }}
+            className="flex items-center gap-2 rounded-xl bg-emerald-500/15 dark:bg-emerald-500/20 px-4 py-2.5 transition-all active:scale-[0.97]"
+          >
+            <ImageIcon size={14} className="text-emerald-600 dark:text-emerald-400" />
+            <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+              {t("imageInput.selectGallery")}
+            </span>
+          </button>
+        </div>
+      )}
+
       <div className="flex items-end gap-2">
         {/* Camera button */}
         <button
           type="button"
-          onClick={onCaptureImage}
+          onClick={() => setShowImagePicker((prev) => !prev)}
           disabled={disabled}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 transition-all active:scale-95 disabled:opacity-50"
           aria-label={t("inputTypes.image.label")}

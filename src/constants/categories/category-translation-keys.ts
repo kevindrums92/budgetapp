@@ -16,12 +16,17 @@ export const CATEGORY_TRANSLATION_KEYS: Record<string, string> = {
   "Ropa": "defaultCategories.ropa",
   "Educación": "defaultCategories.educacion",
   "Entretenimiento": "defaultCategories.entretenimiento",
+  "Cuidado Personal": "defaultCategories.cuidadoPersonal",
   "Hijos": "defaultCategories.hijos",
   "Salud": "defaultCategories.salud",
 
   // Transport
   "Transporte": "defaultCategories.transporte",
   "Gasolina": "defaultCategories.gasolina",
+
+  // Family
+  "Mascotas": "defaultCategories.mascotas",
+  "Regalos": "defaultCategories.regalos",
 
   // Miscellaneous
   "Otros Gastos": "defaultCategories.otrosGastos",

@@ -22,7 +22,8 @@ import { isPeriodActive } from "@/features/budget/utils/period.utils";
 export function calculateSafeToSpend(
   transactions: Transaction[],
   budgets: Budget[],
-  selectedMonth: string
+  selectedMonth: string,
+  carryOver: number = 0
 ): SafeToSpendBreakdown {
   const today = todayISO();
   const currentMonthKey = today.slice(0, 7);
@@ -38,7 +39,7 @@ export function calculateSafeToSpend(
   const expense = monthTxs
     .filter((tx) => tx.type === "expense")
     .reduce((sum, tx) => sum + tx.amount, 0);
-  const currentBalance = income - expense;
+  const currentBalance = carryOver + income - expense;
 
   // Upcoming bills and budget reserves only apply to the current month.
   // For past/future months, safeToSpend = currentBalance.

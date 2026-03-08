@@ -21,6 +21,7 @@ import esBatch from './locales/es/batch.json';
 import esTour from './locales/es/tour.json';
 import esSession from './locales/es/session.json';
 import esForecasting from './locales/es/forecasting.json';
+import esMonthReview from './locales/es/monthReview.json';
 
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
@@ -41,6 +42,7 @@ import enBatch from './locales/en/batch.json';
 import enTour from './locales/en/tour.json';
 import enSession from './locales/en/session.json';
 import enForecasting from './locales/en/forecasting.json';
+import enMonthReview from './locales/en/monthReview.json';
 
 import ptCommon from './locales/pt/common.json';
 import ptOnboarding from './locales/pt/onboarding.json';
@@ -61,6 +63,7 @@ import ptBatch from './locales/pt/batch.json';
 import ptTour from './locales/pt/tour.json';
 import ptSession from './locales/pt/session.json';
 import ptForecasting from './locales/pt/forecasting.json';
+import ptMonthReview from './locales/pt/monthReview.json';
 
 import frCommon from './locales/fr/common.json';
 import frOnboarding from './locales/fr/onboarding.json';
@@ -81,6 +84,7 @@ import frBatch from './locales/fr/batch.json';
 import frTour from './locales/fr/tour.json';
 import frSession from './locales/fr/session.json';
 import frForecasting from './locales/fr/forecasting.json';
+import frMonthReview from './locales/fr/monthReview.json';
 
 const resources = {
   es: {
@@ -103,6 +107,7 @@ const resources = {
     tour: esTour,
     session: esSession,
     forecasting: esForecasting,
+    monthReview: esMonthReview,
   },
   en: {
     common: enCommon,
@@ -124,6 +129,7 @@ const resources = {
     tour: enTour,
     session: enSession,
     forecasting: enForecasting,
+    monthReview: enMonthReview,
   },
   pt: {
     common: ptCommon,
@@ -145,6 +151,7 @@ const resources = {
     tour: ptTour,
     session: ptSession,
     forecasting: ptForecasting,
+    monthReview: ptMonthReview,
   },
   fr: {
     common: frCommon,
@@ -166,6 +173,7 @@ const resources = {
     tour: frTour,
     session: frSession,
     forecasting: frForecasting,
+    monthReview: frMonthReview,
   },
 };
 
@@ -204,7 +212,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour', 'session', 'forecasting'],
+    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour', 'session', 'forecasting', 'monthReview'],
     interpolation: {
       escapeValue: false, // React already escapes
     },

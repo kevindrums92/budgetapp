@@ -84,6 +84,7 @@ export async function skipOnboarding(page: Page) {
     localStorage.setItem('smartspend.scheduledBannerTour.v1', '1');
     localStorage.setItem('smartspend.categoriesTour.v1', '1');
     localStorage.setItem('smartspend.scheduledPageTour.v1', '1');
+    localStorage.setItem('smartspend.privacyTour.v1', '1');
 
     // Set default preferences
     localStorage.setItem('app_language', 'es');

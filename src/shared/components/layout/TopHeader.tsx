@@ -5,8 +5,11 @@ import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useHeaderActions } from "@/shared/contexts/headerActions.context";
 import { usePrivacy } from "@/features/privacy";
+import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
+import SpotlightTour from "@/features/tour/components/SpotlightTour";
+import { privacyTour } from "@/features/tour/tours/privacyTour";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
-import { User, Eye, EyeOff } from "lucide-react";
+import { User, Eye, EyeOff, EyeClosed } from "lucide-react";
 
 type Props = {
   showMonthSelector?: boolean;
@@ -27,7 +30,18 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   const { isPro } = useSubscription();
 
   // ✅ Privacy mode
-  const { privacyMode, togglePrivacyMode } = usePrivacy();
+  const { privacyLevel, togglePrivacyMode } = usePrivacy();
+
+  // ✅ Privacy tour (show after home tour is seen AND user has at least 1 transaction)
+  const homeTourSeen = useBudgetStore((s) => s.homeTourSeen);
+  const hasTransactions = useBudgetStore((s) => s.transactions.length > 0);
+  const { isActive: isPrivacyTourActive, startTour: startPrivacyTour, completeTour: completePrivacyTour } = useSpotlightTour("privacy");
+
+  useEffect(() => {
+    if (!isProfilePage && homeTourSeen && hasTransactions) {
+      startPrivacyTour();
+    }
+  }, [isProfilePage, homeTourSeen, hasTransactions, startPrivacyTour]);
 
   // ✅ Reactive network status (triggers re-render on online/offline)
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -84,6 +98,7 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   const headerPaddingTop = 'max(env(safe-area-inset-top), 16px)';
 
   return (
+    <>
     <header className="sticky top-0 z-30 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-10px_rgba(0,0,0,0.30)]">
       <div
         className="mx-auto max-w-xl px-4 pb-2"
@@ -130,12 +145,21 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
                   type="button"
                   onClick={togglePrivacyMode}
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
-                  aria-label={privacyMode ? "Mostrar montos" : "Ocultar montos"}
+                  aria-label={
+                    privacyLevel === 'off'
+                      ? "Ocultar montos"
+                      : privacyLevel === 'partial'
+                        ? "Ocultar todo"
+                        : "Mostrar montos"
+                  }
+                  data-tour="home-privacy-toggle"
                 >
-                  {privacyMode ? (
-                    <EyeOff size={20} className="text-gray-600 dark:text-gray-400" />
-                  ) : (
+                  {privacyLevel === 'off' ? (
                     <Eye size={20} className="text-gray-600 dark:text-gray-400" />
+                  ) : privacyLevel === 'partial' ? (
+                    <EyeClosed size={20} className="text-gray-600 dark:text-gray-400" />
+                  ) : (
+                    <EyeOff size={20} className="text-gray-600 dark:text-gray-400" />
                   )}
                 </button>
               )}
@@ -169,5 +193,7 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
         </div>
       </div>
     </header>
+    <SpotlightTour config={privacyTour} isActive={isPrivacyTourActive} onComplete={completePrivacyTour} />
+    </>
   );
 }

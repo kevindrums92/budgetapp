@@ -85,6 +85,9 @@
     "inversiones": "Investments",
     "arriendoRecibido": "Rent Received",
     "propinas": "Tips",
-    "otrosIngresos": "Other Income"
+    "otrosIngresos": "Other Income",
+    "cuidadoPersonal": "Personal Care",
+    "mascotas": "Pets",
+    "regalos": "Gifts"
   }
 }

@@ -1,0 +1,81 @@
+Ideas de Carruseles para Instagram
+Ya tienes el Post 1 (registro de gastos / UX simplificada). Aqui van los siguientes:
+
+Post 2 - "Tu asistente financiero con IA"
+El feature mas diferenciador. Alto potencial viral.
+
+Slide 1 (Gancho): "Registrar gastos es aburrido. Y si una IA lo hiciera por ti?"
+Slide 2: Screenshot 14 - La pantalla del asistente con el mensaje "Hola, que registramos hoy?"
+Slide 3: Screenshot 15 - Procesando con IA (52%, barra de progreso)
+Slide 4: Screenshot 16 - Resultado: 7 transacciones parseadas con categorias auto-asignadas
+Slide 5: Screenshot 17 - Guardado exitoso en el home
+Copy: "Escribe, dicta o toma foto de tu recibo. Nuestra IA lo organiza todo en segundos. Probala gratis."
+
+Post 3 - "Presupuestos que de verdad funcionan"
+Apela al dolor de no saber cuanto queda del presupuesto.
+
+Slide 1 (Gancho): "¿Siempre te pasas del presupuesto de mercado?"
+Slide 2: Screenshot 25 - Crear un límite es súper simple (Mercado, $1.500.000, recurrente)
+Slide 3: Screenshot 26 - Tu plan activo con barra de progreso (6%)
+Slide 4: Screenshot 27 - Detalle: sugerencia diaria $64.318, 22 días restantes
+Slide 5: Screenshot 22 - Alertas inteligentes cuando te pasas
+Copy: "Crea límites por categoría y SmartSpend te dice cuanto puedes gastar cada día. Sin sorpresas a fin de mes."
+
+Post 4 - "Tus estadísticas, tu poder"
+Mostrar que no es solo anotar gastos, sino entenderlos.
+
+Slide 1 (Gancho): "¿Sabes en qué se te va la plata cada mes?"
+Slide 2: Screenshot 33 - Donut chart con categorías (visual potente)
+Slide 3: Screenshot 28 - Vista Rápida: promedio diario, categoría top, día pico
+Slide 4: Screenshot 29 - Proyección: "A este ritmo gastarás $1.120.000 este mes"
+Slide 5: Screenshot 34 - Tendencia histórica (gráficos de línea)
+Copy: "SmartSpend te muestra patrones que no sabías que tenías. Promedio diario, proyecciones, comparaciones mes a mes. Tus finanzas, en modo experto."
+
+Correcciones: tildes faltantes (estadísticas, qué, categorías, rápida, categoría, día, proyección, gastarás, histórica, gráficos, sabías, tenías) y signos de apertura de interrogación (¿Sabes...).
+
+
+Post 5 - "Privacidad primero"
+Diferenciador clave vs competencia (Fintonic, Monefy, etc).
+
+Slide 1 (Gancho): "Las apps de finanzas quieren acceso a tus cuentas bancarias. Nosotros no."
+Slide 2: Screenshot 1 - Works offline, Total privacy, Financial control
+Slide 3: Screenshot 2 - End-to-end encryption, No spam or ads
+Slide 4: Screenshot 38 - Tus datos, tu decision (eliminar datos)
+Slide 5: Texto sobre fondo: "Tus datos viven en tu telefono. Sin servidores externos. Sin vender tu info."
+Copy: "SmartSpend funciona 100% offline. Tus datos nunca salen de tu dispositivo a menos que tu lo decidas. Finanzas personales que respetan tu privacidad."
+Post 6 - "Lista en 1 minuto"
+Mostrar que el setup es rapidisimo.
+
+Slide 1 (Gancho): "Configurar una app de finanzas no deberia tomar media hora"
+Slide 2: Screenshot 7 - Elige tu idioma (4 opciones)
+Slide 3: Screenshot 8 - Elige tu tema (claro/oscuro/auto)
+Slide 4: Screenshot 9 - Elige tu moneda
+Slide 5: Screenshot 11 - Todo listo! Resumen de configuracion
+Copy: "Idioma, tema, moneda, categorias. En menos de 60 segundos estas registrando tu primer gasto. Sin formularios, sin cuenta obligatoria."
+Post 7 - "Nunca olvides un pago"
+Transacciones recurrentes / programadas.
+
+Slide 1 (Gancho): "Netflix, arriendo, gym... cuantos pagos te has olvidado este ano?"
+Slide 2: Screenshot 5 - Lista de recurrentes (Netflix, Rent, Credit card) con fechas y montos
+Slide 3: Screenshot 18 - Home mostrando Netflix en la lista de transacciones
+Slide 4: Texto: "Se registran solas cada mes. Te avisamos antes de cada cobro."
+Copy: "Programa tus gastos fijos una vez y olvidate. SmartSpend los registra automaticamente y te avisa antes de cada pago."
+Post 8 - "Cuanto puedo gastar hoy?" (Safe-to-spend)
+Feature unica que la competencia no tiene.
+
+Slide 1 (Gancho): "La pregunta mas importante de tus finanzas: cuanto puedo gastar HOY?"
+Slide 2: Screenshot 18 - Banner "Al mes le quedan 21 dias, Podrias gastar $210.476/dia"
+Slide 3: Screenshot 27 - Sugerencia Diaria $64.318 por categoria
+Slide 4: Texto: "SmartSpend calcula cuanto puedes gastar cada dia para llegar bien a fin de mes."
+Copy: "No es solo saber cuanto gastaste. Es saber cuanto PUEDES gastar. SmartSpend te da una sugerencia diaria personalizada."
+Orden sugerido de publicacion: 2 (IA) → 4 (estadisticas) → 5 (privacidad) → 3 (presupuestos) → 8 (safe-to-spend) → 7 (recurrentes) → 6 (setup rapido)
+
+La IA primero porque es el feature mas "wow" y viral. Privacidad temprano porque genera confianza. El setup rapido al final porque ya tienes audiencia interesada.
+
+
+
+
+
+
+Tutorial en reels
+

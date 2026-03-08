@@ -7,7 +7,12 @@
     "title": "Available Balance",
     "available": "Available",
     "income": "Income",
-    "expenses": "Expenses"
+    "expenses": "Expenses",
+    "carryOver": "Previous balance",
+    "breakdown": "Balance breakdown",
+    "carryOverToggle": "Use previous month's balance",
+    "result": "Total balance",
+    "close": "Close"
   },
   "addActionSheet": {
     "title": "New Record",

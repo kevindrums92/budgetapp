@@ -3,12 +3,96 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
-
-
-
-
-
 ## [unreleased] - {relase date}
+
+## [0.16.15] - 2026-03-08
+
+- **refactor(ui): redesign "viewing different month" banner**
+  - Prominent amber card with AlertCircle icon, title, subtitle, and "Back to [month]" button
+  - Different subtitle for future months ("Desde ya puedes agregar...") vs past months
+
+- **feat(categories): expand default onboarding categories from 9 to 22**
+  - Add 9 new expense categories: Restaurantes, Servicios, Suscripciones, Educación, Cuidado Personal, Gasolina, Hijos, Mascotas, Regalos
+  - Add 4 new income categories: Freelance, Bonos, Inversiones, Arriendo Recibido
+  - Add new "Familia" category group with Hijos, Mascotas, and Regalos
+  - Add translations for new categories in es, en, fr, pt
+
+- **feat(monthReview): add month review modal and carry-over balance system**
+  - Show fullscreen modal on new month summarizing previous month's income/expenses/balance
+  - User can accept carry-over (positive or negative) or start fresh
+  - Carry-over stored per-month in Zustand store (schema v9), synced to cloud
+  - BalanceCard and SafeToSpend calculations include carry-over when present
+  - BalanceCard shows "Saldo anterior" line when carry-over is active
+
+- **feat(balanceCard): add balance breakdown sheet with carry-over toggle**
+  - CircleHelp icon on BalanceCard opens a bottom sheet with income/expense/carry-over breakdown
+  - Toggle to enable/disable previous month's carry-over directly from the sheet
+  - BalanceCard remains visible when previous month has data (even with 0 current transactions)
+
+- **refactor(batch): replace native image picker in AssistantPage and ChatInputBar**
+  - AssistantPage welcome suggestion and ChatInputBar camera button now show inline emerald sub-options
+  - Removes last usage of native `CameraSource.Prompt` modal ("Seleccionar imagen")
+
+- **fix(budget): allow navigating to completed tab even when empty to show empty state**
+
+- **refactor(batch): replace native image picker modal with inline camera/gallery selector**
+  - Tapping "Escanear un recibo" now expands emerald sub-buttons (Tomar foto / Elegir de galería) inline
+  - Skips intermediate ImageCaptureView selection screen, goes straight to processing
+  - Reorder input options: text → image → voice
+
+- **fix(sync): add retry with exponential backoff for cloud sync operations**
+  - Retries signInAnonymously, getCloudState, and upsertCloudState up to 3 times (1s, 2s, 4s)
+  - Only retries network/server errors; auth/client errors fail immediately
+  - Add Safari "Load failed" detection to `isNetworkOrServerError`
+  - Report final failures to Sentry instead of silent console.warn
+
+- **fix(batch): use most frequent amount (mode) instead of average for history matching**
+- **fix(batch): capitalize first letter of AI-parsed transaction names**
+- **fix(tour): only show privacy mode tooltip when user has at least 1 transaction**
+
+- **fix(budget): always show active/completed tabs and reset tab when navigating months**
+
+- **fix(scheduler): gate auto-confirm behind cloudSyncReady to prevent race condition**
+  - Scheduled transactions no longer disappear after cloud sync overwrites local state
+  - Added `visibilitychange` listener so `today` updates when app resumes from background overnight
+  - `hasAutoConfirmedRef` resets on date change, allowing scheduler to re-run correctly
+
+- **feat(scheduler): show feedback modal when scheduled transactions are auto-confirmed**
+  - New `AutoConfirmedModal` component with transaction list (max 5 + "y N más..." indicator)
+  - i18n support for all 4 languages (es, en, fr, pt) with plural forms
+  - 30 unit + integration tests covering modal rendering and scheduler race condition gate
+
+- **chore(ios): switch to production bundle ID and push notification environment**
+
+- **feat(export): PDF report generation with full i18n support (4 languages)**
+  - `@react-pdf/renderer` lazy-loaded (~1.5MB code-split chunk, zero impact on initial bundle)
+  - Financial report: summary metrics, category breakdown bars, insights, transaction detail (auto-paginated)
+  - Trip report: budget progress, category breakdown, expense list with totals
+  - Available from 4 entry points: Export page, History page, Stats page, Trip detail page
+  - Custom date range picker with transaction count preview
+  - Cross-platform download: web (blob URL) and native (Capacitor Filesystem + Share)
+  - All PDF text fully internationalized (es, en, fr, pt) — labels passed through data pipeline
+  - Drag-to-dismiss on ExportPDFSheet bottom sheet
+  - Error handling with Sentry logging and user-friendly error messages
+  - Unit tests: 65 tests covering pdf-data.service, pdf-format, and download.utils
+
+- **fix(download): ignore iOS share sheet cancel as error — prevent false Sentry reports**
+
+- **docs: redesign IG post generator with Figma-like editor layout**
+  - Full-viewport layout: top toolbar, left sidebar controls, center canvas with dot pattern
+  - Auto-scale preview based on available canvas space
+  - Add phone size/position sliders for mockup layouts
+  - Switch export to dom-to-image-more for better CSS fidelity
+  - Theme-aware gradient overlay for Clean White theme on zoomed layout
+
+- **feat(privacy): implement 3-level privacy mode (off → partial → full)**
+  - Off: everything visible (Eye icon)
+  - Partial: censors summary cards only — BalanceCard, SafeToSpend, BudgetCard (EyeClosed icon)
+  - Full: censors ALL amounts including individual transactions and daily totals (EyeOff icon)
+  - Persists to localStorage with migration from old boolean format
+  - Add SpotlightTour tooltip explaining the 3-level feature (4 languages)
+
+- **fix(forecasting): fix safe-to-spend days remaining off by one — include today in count**
 
 ## [0.16.14] - 2026-02-26
 

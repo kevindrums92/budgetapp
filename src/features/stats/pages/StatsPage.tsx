@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
+import { useMemo, useState, useEffect, useCallback, useRef, lazy, Suspense, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -35,6 +35,8 @@ import AddEditBudgetModal from "@/features/budget/components/AddEditBudgetModal"
 import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 import { statsTour } from "@/features/tour/tours/statsTour";
+
+const ExportPDFSheet = lazy(() => import("@/features/pdf-export/components/sheets/ExportPDFSheet"));
 
 const DEFAULT_STATS_LAYOUT = ['quickStats', 'donutChart', 'barChart', 'trendChart', 'futureBalance'];
 
@@ -115,6 +117,7 @@ export default function StatsPage() {
     try { return localStorage.getItem("budget.showAllCategories") === "true"; } catch { return false; }
   });
   const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [showPDFSheet, setShowPDFSheet] = useState(false);
 
   const excludedFromStats = useBudgetStore((s) => s.excludedFromStats);
 
@@ -472,14 +475,24 @@ export default function StatsPage() {
       );
     } else {
       setAction(
-        <button
-          type="button"
-          onClick={handleEnterEditMode}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
-          aria-label={t('layout.editLayout')}
-        >
-          <LayoutGrid size={20} className="text-gray-600 dark:text-gray-400" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setShowPDFSheet(true)}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
+            aria-label="Exportar PDF"
+          >
+            <icons.FileText size={20} className="text-gray-600 dark:text-gray-400" />
+          </button>
+          <button
+            type="button"
+            onClick={handleEnterEditMode}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all active:scale-95 active:bg-gray-100 dark:active:bg-gray-800"
+            aria-label={t('layout.editLayout')}
+          >
+            <LayoutGrid size={20} className="text-gray-600 dark:text-gray-400" />
+          </button>
+        </div>
       );
     }
 
@@ -1008,6 +1021,20 @@ export default function StatsPage() {
         isActive={isTourActive}
         onComplete={completeTour}
       />
+
+      {/* PDF Export Sheet */}
+      <Suspense fallback={null}>
+        <ExportPDFSheet
+          open={showPDFSheet}
+          onClose={() => setShowPDFSheet(false)}
+          initialStartDate={`${selectedMonth}-01`}
+          initialEndDate={(() => {
+            const [y, m] = selectedMonth.split("-").map(Number);
+            const lastDay = new Date(y, m, 0).getDate();
+            return `${selectedMonth}-${String(lastDay).padStart(2, "0")}`;
+          })()}
+        />
+      </Suspense>
     </div>
   );
 }

@@ -121,6 +121,12 @@
       "description": "Pour en ajouter une nouvelle, creez un mouvement normal et activez l'option 'Programmer' avant d'enregistrer."
     }
   },
+  "privacy": {
+    "toggle": {
+      "title": "Mode confidentialite",
+      "description": "Appuyez sur ce bouton pour masquer vos montants. Il a 3 niveaux: visible, masquer le resume et tout masquer."
+    }
+  },
   "buttons": {
     "next": "Suivant",
     "skip": "Passer",

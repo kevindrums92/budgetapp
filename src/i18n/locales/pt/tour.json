@@ -121,6 +121,12 @@
       "description": "Para adicionar uma nova, crie um movimento normal e ative a opcao 'Programar' antes de salvar."
     }
   },
+  "privacy": {
+    "toggle": {
+      "title": "Modo privacidade",
+      "description": "Toque neste botao para ocultar seus valores. Possui 3 niveis: visivel, ocultar resumo e ocultar tudo."
+    }
+  },
   "buttons": {
     "next": "Proximo",
     "skip": "Pular",
