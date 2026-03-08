@@ -4,6 +4,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(categories): expand default onboarding categories from 9 to 22**
+  - Add 9 new expense categories: Restaurantes, Servicios, Suscripciones, Educación, Cuidado Personal, Gasolina, Hijos, Mascotas, Regalos
+  - Add 4 new income categories: Freelance, Bonos, Inversiones, Arriendo Recibido
+  - Add new "Familia" category group with Hijos, Mascotas, and Regalos
+  - Add translations for new categories in es, en, fr, pt
+
 - **feat(monthReview): add month review modal and carry-over balance system**
   - Show fullscreen modal on new month summarizing previous month's income/expenses/balance
   - User can accept carry-over (positive or negative) or start fresh

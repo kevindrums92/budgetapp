@@ -6,6 +6,7 @@ const GROUP_COLORS = {
   home_utilities: "#3B82F6",  // Blue
   lifestyle: "#EC4899",       // Pink
   transport: "#0EA5E9",       // Sky
+  family: "#F59E0B",          // Amber-500
   miscellaneous: "#6B7280",   // Gray
   primary_income: "#10B981",  // Emerald
   other_income: "#8B5CF6",    // Violet
@@ -24,6 +25,7 @@ const DEFAULT_GROUP_DEFS: DefaultGroupDef[] = [
   { id: "home_utilities", name: "Hogar y Servicios", type: "expense", color: GROUP_COLORS.home_utilities },
   { id: "lifestyle", name: "Estilo de Vida", type: "expense", color: GROUP_COLORS.lifestyle },
   { id: "transport", name: "Transporte", type: "expense", color: GROUP_COLORS.transport },
+  { id: "family", name: "Familia", type: "expense", color: GROUP_COLORS.family },
   { id: "miscellaneous", name: "Otros", type: "expense", color: GROUP_COLORS.miscellaneous },
   // Income groups
   { id: "primary_income", name: "Ingresos Principales", type: "income", color: GROUP_COLORS.primary_income },
