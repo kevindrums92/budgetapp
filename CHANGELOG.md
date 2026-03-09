@@ -4,7 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.17] - 2026-03-09
 
 - **fix(sync): protect anonymous users and handle Supabase server errors gracefully**
   - Prevent data loss for anonymous cloud users when SIGNED_OUT fires (offline or online)
