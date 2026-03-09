@@ -1095,7 +1095,7 @@ export default function HistoryPage() {
             </div>
 
             {/* Content */}
-            <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+            <div className="px-4 pb-[calc(var(--sab)+16px)]">
               {/* Title */}
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
@@ -1294,7 +1294,7 @@ export default function HistoryPage() {
             </div>
 
             {/* Actions */}
-            <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] pt-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+            <div className="px-4 pb-[calc(var(--sab)+16px)] pt-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
               <div className="flex gap-3 mb-3">
                 <button
                   type="button"

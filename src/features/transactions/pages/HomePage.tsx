@@ -102,8 +102,10 @@ export default function HomePage() {
   }, [transactions, today, addTransaction, cloudSyncReady, cloudMode]);
 
   // Month review modal detection (gated behind cloudSyncReady)
+  // MUST wait for cloudSyncReady regardless of mode, so cloud data
+  // (including monthReviewDismissed) is loaded before deciding.
   useEffect(() => {
-    if (cloudMode === "cloud" && !cloudSyncReady) return;
+    if (!cloudSyncReady) return;
 
     if (shouldShowMonthReview(monthReviewDismissed ?? [], carryOverBalances ?? {}, transactions)) {
       // Delay to let AutoConfirmedModal show first
@@ -113,7 +115,7 @@ export default function HomePage() {
       return () => clearTimeout(timer);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cloudSyncReady, cloudMode]);
+  }, [cloudSyncReady]);
 
   // Start spotlight tour on first visit
   useEffect(() => {
@@ -383,7 +385,7 @@ export default function HomePage() {
           "shadow-[0_8px_24px_rgba(24,183,176,0.4)]",
           "active:scale-95 transition-transform hover:bg-[#159d97]",
         ].join(" ")}
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+        style={{ bottom: "calc(var(--sab) + 96px)" }}
         aria-label="Agregar movimiento"
       >
         <Plus size={26} strokeWidth={2.2} />

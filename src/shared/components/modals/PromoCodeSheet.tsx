@@ -159,7 +159,7 @@ export default function PromoCodeSheet({ open, onClose, onSuccess, initialCode =
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-[calc(env(safe-area-inset-bottom)+24px)]">
+        <div className="px-6 pb-[calc(var(--sab)+24px)]">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">

@@ -825,7 +825,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
 
         {/* Content */}
         <div
-          className={`px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] ${
+          className={`px-4 pb-[calc(var(--sab)+16px)] ${
             isFullScreen ? "flex flex-1 flex-col overflow-hidden bg-gray-100 dark:bg-gray-950" : "bg-white dark:bg-gray-900"
           }`}
         >

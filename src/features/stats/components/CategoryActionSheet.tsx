@@ -102,7 +102,7 @@ export default function CategoryActionSheet({
         </div>
 
         {/* Content */}
-        <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="px-4 pb-[calc(var(--sab)+16px)]">
           <div className="space-y-2">
             {/* Create / View Budget */}
             <button

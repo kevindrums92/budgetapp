@@ -173,7 +173,7 @@ export default function AddEditCategoryGroupPage() {
       </div>
 
       {/* Save Button */}
-      <div className="sticky bottom-0 bg-white dark:bg-gray-900 p-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)]">
+      <div className="sticky bottom-0 bg-white dark:bg-gray-900 p-4 pb-[calc(var(--sab)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_10px_rgba(0,0,0,0.3)]">
         <button
           type="button"
           onClick={handleSave}

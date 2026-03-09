@@ -112,8 +112,8 @@ export default function SessionExpiredGate() {
     <div
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gray-950"
       style={{
-        paddingTop: 'max(env(safe-area-inset-top), 16px)',
-        paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
+        paddingTop: 'var(--sat)',
+        paddingBottom: 'var(--sab)',
       }}
     >
       <div className="flex w-full max-w-sm flex-col items-center px-6">

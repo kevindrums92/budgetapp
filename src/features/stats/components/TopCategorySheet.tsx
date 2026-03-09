@@ -249,7 +249,7 @@ export default function TopCategorySheet({
         {/* Close Button */}
         <div
           className="px-6 pt-4 bg-white dark:bg-gray-900"
-          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}
+          style={{ paddingBottom: "calc(var(--sab) + 24px)" }}
         >
           <button
             type="button"

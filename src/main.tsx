@@ -52,6 +52,11 @@ if (isNative()) {
     StatusBar.setBackgroundColor({ color: '#00000000' }).catch((err) => {
       console.error('[StatusBar] setBackgroundColor error:', err);
     });
+    // On Android edge-to-edge, env(safe-area-inset-*) may not include system bars
+    // (only display cutouts). Set CSS variables as fallback.
+    // 24px = standard status bar height (24dp), 48px = 3-button nav bar (48dp).
+    document.documentElement.style.setProperty('--sat-android', '40px');
+    document.documentElement.style.setProperty('--sab-android', '48px');
   }
 
   // Handle Android back button

@@ -366,11 +366,11 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div className="flex min-h-screen min-h-dvh flex-col bg-gray-50 dark:bg-gray-950" style={{ paddingBottom: 'var(--sab)' }}>
       {/* Header with safe-area + conditional back button */}
       <header
         className="sticky top-0 z-10 flex shrink-0 items-center bg-white dark:bg-gray-900 px-4 py-4 shadow-sm"
-        style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
+        style={{ paddingTop: 'var(--sat)' }}
       >
         {!isPostLogout ? (
           <button

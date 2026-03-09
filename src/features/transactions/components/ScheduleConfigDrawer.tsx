@@ -204,7 +204,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+100px)] pt-4">
+        <div className="flex-1 overflow-y-auto px-4 pb-[calc(var(--sab)+100px)] pt-4">
           {/* Frequency */}
               <div className="mb-6" data-tour="schedule-frequency">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -377,7 +377,7 @@ export default function ScheduleConfigDrawer({ open, onClose, schedule, transact
         </div>
 
         {/* Fixed Bottom Buttons */}
-        <div className="fixed inset-x-0 bottom-0 z-20 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="fixed inset-x-0 bottom-0 z-20 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 pb-[calc(var(--sab)+16px)]">
           <div className="flex gap-3">
             {schedule && (
               <button

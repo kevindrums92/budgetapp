@@ -27,7 +27,6 @@ export default function AssistantPage() {
   const { t } = useTranslation("batch");
   const initialMode = searchParams.get("mode") as BatchInputType | null;
   const hasTriggeredInitialMode = useRef(false);
-
   const {
     flowState,
     drafts,
@@ -118,11 +117,11 @@ export default function AssistantPage() {
 
   // --- Render ---
   return (
-    <div className="flex h-dvh flex-col bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen h-dvh flex-col bg-gray-50 dark:bg-gray-950" style={{ paddingBottom: 'var(--keyboard-height, 0px)' }}>
       {/* Header */}
       <header
         className="sticky top-0 z-10 flex shrink-0 items-center justify-between bg-gray-50 dark:bg-gray-950 px-4 pb-3"
-        style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}
+        style={{ paddingTop: "var(--sat)" }}
       >
         <div className="flex items-center gap-3">
           <button
@@ -275,7 +274,7 @@ export default function AssistantPage() {
 
         {/* Preview state */}
         {isOnline && (flowState === "preview" || flowState === "saving") && (
-          <div className="flex flex-1 flex-col overflow-hidden px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+          <div className="flex flex-1 flex-col overflow-hidden px-4 pb-[calc(var(--sab)+16px)]">
             <TransactionPreview
               drafts={drafts}
               onUpdateDraft={handleUpdateDraft}

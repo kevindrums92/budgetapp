@@ -231,7 +231,7 @@ export default function PlanPage() {
             type="button"
             onClick={() => setShowAddBudgetModal(true)}
             className="fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-black dark:bg-emerald-500 text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] active:scale-95 transition-transform"
-            style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+            style={{ bottom: "calc(var(--sab) + 96px)" }}
           >
             <Plus size={26} strokeWidth={2.2} />
           </button>

@@ -1,9 +1,14 @@
 /**
  * Audio Capture Service
- * Handles voice recording using capacitor-voice-recorder plugin with Web Audio API fallback
+ * Handles voice recording with a hybrid strategy:
  *
- * The native plugin (capacitor-voice-recorder) doesn't support Swift Package Manager,
- * so we use MediaRecorder API as a fallback for iOS/web.
+ * - Permissions: Always use native VoiceRecorder plugin on native platforms
+ *   (proper Android/iOS system permission dialogs).
+ * - Recording: Always use Web MediaRecorder API (produces audio/webm or audio/mp4
+ *   with proper container that OpenAI accepts). The native plugin outputs raw AAC
+ *   (ADTS) without an MP4 container, which OpenAI rejects.
+ * - If Web MediaRecorder fails on native (e.g., WebView denies getUserMedia),
+ *   falls back to native recording as last resort.
  */
 
 import { VoiceRecorder } from "capacitor-voice-recorder";
@@ -18,117 +23,115 @@ export type AudioRecordingResult = {
   mimeType: string;
 };
 
+/** Whether native VoiceRecorder plugin is available */
+let nativePluginAvailable: boolean | null = null;
+
 /**
- * Always use Web MediaRecorder API instead of native Capacitor plugin.
- * The native plugin (capacitor-voice-recorder) outputs raw AAC without an MP4 container,
- * which OpenAI's transcription API rejects as "Invalid file format".
- * Web MediaRecorder produces proper container formats (audio/mp4 or audio/webm)
- * that OpenAI accepts. Works on both Android (Chrome WebView) and iOS (Safari WebView).
+ * Which recording method is active for the current recording session.
+ * Needed so stop/cancel know which API to call.
  */
-let useWebFallback = true;
+let activeRecordingMethod: "web" | "native" | null = null;
 
 /** Web Audio API state */
 let mediaRecorder: MediaRecorder | null = null;
 let audioChunks: Blob[] = [];
 let audioStream: MediaStream | null = null;
-/** Track the mime type used by MediaRecorder */
 let recordedMimeType: string = "audio/webm";
 
-/**
- * Check if we should use the web fallback
- * Called once on first use to determine plugin availability
- */
+/** Check if the native VoiceRecorder plugin is available */
 async function checkPluginAvailability(): Promise<boolean> {
   try {
     await VoiceRecorder.hasAudioRecordingPermission();
-    return false; // Plugin works, don't use fallback
+    return true;
   } catch (error: unknown) {
     const err = error as { code?: string };
     if (err?.code === "UNIMPLEMENTED") {
-      console.log("[audioCapture] Native plugin not available, using web fallback");
-      return true; // Use web fallback
+      return false;
     }
-    return false; // Other error, try native anyway
+    return true; // Other error means plugin exists
+  }
+}
+
+/** Ensure plugin availability is resolved */
+async function ensureInitialized(): Promise<void> {
+  if (nativePluginAvailable === null) {
+    nativePluginAvailable = await checkPluginAvailability();
+    console.log("[audioCapture] Native plugin available:", nativePluginAvailable);
   }
 }
 
 /** Check if we have microphone permission */
 export async function checkMicrophonePermission(): Promise<boolean> {
-  // Check plugin availability on first call
-  if (!useWebFallback) {
-    useWebFallback = await checkPluginAvailability();
-  }
+  await ensureInitialized();
 
-  if (useWebFallback) {
-    // For web, check navigator.permissions if available
+  if (nativePluginAvailable) {
     try {
-      if (navigator.permissions) {
-        const result = await navigator.permissions.query({ name: "microphone" as PermissionName });
-        return result.state === "granted";
-      }
-      // If permissions API not available, we'll find out when we try to record
-      return true;
-    } catch {
-      return true; // Assume true, will fail on actual use if not granted
+      const result = await VoiceRecorder.hasAudioRecordingPermission();
+      return result.value;
+    } catch (error) {
+      console.error("[audioCapture] Native permission check error:", error);
+      return false;
     }
   }
 
+  // Web-only fallback
   try {
-    const result = await VoiceRecorder.hasAudioRecordingPermission();
-    return result.value;
-  } catch (error) {
-    console.error("[audioCapture] Error checking permission:", error);
-    return false;
+    if (navigator.permissions) {
+      const result = await navigator.permissions.query({ name: "microphone" as PermissionName });
+      return result.state === "granted";
+    }
+    return true;
+  } catch {
+    return true;
   }
 }
 
 /** Request microphone permission */
 export async function requestMicrophonePermission(): Promise<boolean> {
-  if (useWebFallback) {
-    // For web, requesting permission means trying to get user media
+  await ensureInitialized();
+
+  if (nativePluginAvailable) {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      // Got permission, stop the stream immediately
-      stream.getTracks().forEach(track => track.stop());
-      return true;
+      const result = await VoiceRecorder.requestAudioRecordingPermission();
+      return result.value;
     } catch (error) {
-      console.error("[audioCapture] Web permission denied:", error);
+      console.error("[audioCapture] Native permission request error:", error);
       return false;
     }
   }
 
+  // Web-only fallback
   try {
-    const result = await VoiceRecorder.requestAudioRecordingPermission();
-    return result.value;
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(track => track.stop());
+    return true;
   } catch (error) {
-    console.error("[audioCapture] Error requesting permission:", error);
+    console.error("[audioCapture] Web permission denied:", error);
     return false;
   }
 }
 
 /** Check if recording is currently in progress */
 export async function isRecording(): Promise<boolean> {
-  if (useWebFallback) {
+  if (activeRecordingMethod === "web") {
     return mediaRecorder?.state === "recording";
   }
-
-  try {
-    const status = await VoiceRecorder.getCurrentStatus();
-    return status.status === "RECORDING";
-  } catch (error) {
-    console.error("[audioCapture] Error checking status:", error);
-    return false;
+  if (activeRecordingMethod === "native") {
+    try {
+      const status = await VoiceRecorder.getCurrentStatus();
+      return status.status === "RECORDING";
+    } catch {
+      return false;
+    }
   }
+  return false;
 }
 
 /** Start recording audio */
 export async function startRecording(): Promise<void> {
-  // Check plugin availability on first call
-  if (!useWebFallback) {
-    useWebFallback = await checkPluginAvailability();
-  }
+  await ensureInitialized();
 
-  // Check/request permission first
+  // Check/request permission (native plugin on native platforms)
   const hasPermission = await checkMicrophonePermission();
   if (!hasPermission) {
     const granted = await requestMicrophonePermission();
@@ -137,25 +140,37 @@ export async function startRecording(): Promise<void> {
     }
   }
 
-  if (useWebFallback) {
+  // Always try Web MediaRecorder first (produces proper container format for OpenAI).
+  // On native, the system permission is already granted via native plugin above,
+  // so getUserMedia should also succeed.
+  try {
     await startWebRecording();
+    activeRecordingMethod = "web";
+    console.log("[audioCapture] Using web recording (proper container format)");
+    return;
+  } catch (webError) {
+    console.warn("[audioCapture] Web recording failed:", webError);
+  }
+
+  // Fallback: native recording (raw AAC — server normalizes for OpenAI)
+  if (nativePluginAvailable) {
+    const recording = activeRecordingMethod === "native" &&
+      (await VoiceRecorder.getCurrentStatus().catch(() => ({ status: "NONE" }))).status === "RECORDING";
+    if (recording) {
+      await VoiceRecorder.stopRecording();
+    }
+
+    console.log("[audioCapture] Falling back to native recording");
+    await VoiceRecorder.startRecording();
+    activeRecordingMethod = "native";
     return;
   }
 
-  // Check if already recording
-  const recording = await isRecording();
-  if (recording) {
-    console.log("[audioCapture] Already recording, stopping first...");
-    await VoiceRecorder.stopRecording();
-  }
-
-  console.log("[audioCapture] Starting native recording...");
-  await VoiceRecorder.startRecording();
+  throw new Error("No se pudo iniciar la grabación");
 }
 
 /** Start recording using Web Audio API */
 async function startWebRecording(): Promise<void> {
-  // Stop any existing recording
   if (mediaRecorder && mediaRecorder.state !== "inactive") {
     mediaRecorder.stop();
   }
@@ -163,9 +178,6 @@ async function startWebRecording(): Promise<void> {
     audioStream.getTracks().forEach(track => track.stop());
   }
 
-  console.log("[audioCapture] Starting web recording...");
-
-  // Get audio stream
   audioStream = await navigator.mediaDevices.getUserMedia({
     audio: {
       echoCancellation: true,
@@ -174,10 +186,8 @@ async function startWebRecording(): Promise<void> {
     }
   });
 
-  // Reset chunks
   audioChunks = [];
 
-  // Create MediaRecorder with AAC codec if available, otherwise use default
   const mimeType = MediaRecorder.isTypeSupported("audio/mp4")
     ? "audio/mp4"
     : MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
@@ -193,35 +203,40 @@ async function startWebRecording(): Promise<void> {
     }
   };
 
-  mediaRecorder.start(100); // Collect data every 100ms
+  mediaRecorder.start(100);
   console.log("[audioCapture] Web recording started with mime type:", mimeType);
 }
 
 /** Stop recording and return base64 audio data with mime type */
 export async function stopRecording(): Promise<AudioRecordingResult> {
-  if (useWebFallback) {
+  if (activeRecordingMethod === "web") {
+    activeRecordingMethod = null;
     return stopWebRecording();
   }
 
-  console.log("[audioCapture] Stopping native recording...");
+  if (activeRecordingMethod === "native") {
+    activeRecordingMethod = null;
+    console.log("[audioCapture] Stopping native recording...");
 
-  const result: RecordingData = await VoiceRecorder.stopRecording();
+    const result: RecordingData = await VoiceRecorder.stopRecording();
 
-  if (!result.value?.recordDataBase64) {
-    throw new Error("No se pudo obtener la grabación");
+    if (!result.value?.recordDataBase64) {
+      throw new Error("No se pudo obtener la grabación");
+    }
+
+    const mimeType = result.value.mimeType || "audio/aac";
+
+    console.log(
+      "[audioCapture] Native recording stopped, duration:",
+      result.value.msDuration,
+      "ms, mimeType:",
+      mimeType
+    );
+
+    return { audioBase64: result.value.recordDataBase64, mimeType };
   }
 
-  // Native plugin on Android records AAC (.m4a), on iOS records AAC (.m4a)
-  const mimeType = result.value.mimeType || "audio/aac";
-
-  console.log(
-    "[audioCapture] Recording stopped, duration:",
-    result.value.msDuration,
-    "ms, mimeType:",
-    mimeType
-  );
-
-  return { audioBase64: result.value.recordDataBase64, mimeType };
+  throw new Error("No hay grabación activa");
 }
 
 /** Stop web recording and return base64 audio data with mime type */
@@ -238,19 +253,15 @@ async function stopWebRecording(): Promise<AudioRecordingResult> {
 
     mediaRecorder.onstop = async () => {
       try {
-        // Combine all chunks into a single blob
         const audioBlob = new Blob(audioChunks, { type: mimeType });
 
         console.log("[audioCapture] Web recording stopped, size:", audioBlob.size, "bytes, mimeType:", mimeType);
 
-        // Convert to base64
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64 = reader.result as string;
-          // Remove the data URL prefix (e.g., "data:audio/webm;base64,")
           const base64Data = base64.split(",")[1];
 
-          // Clean up
           if (audioStream) {
             audioStream.getTracks().forEach(track => track.stop());
             audioStream = null;
@@ -275,7 +286,10 @@ async function stopWebRecording(): Promise<AudioRecordingResult> {
 
 /** Cancel/pause recording without saving */
 export async function cancelRecording(): Promise<void> {
-  if (useWebFallback) {
+  const method = activeRecordingMethod;
+  activeRecordingMethod = null;
+
+  if (method === "web") {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
       mediaRecorder.stop();
     }
@@ -289,14 +303,17 @@ export async function cancelRecording(): Promise<void> {
     return;
   }
 
-  try {
-    const recording = await isRecording();
-    if (recording) {
-      console.log("[audioCapture] Cancelling native recording...");
-      await VoiceRecorder.stopRecording();
+  if (method === "native") {
+    try {
+      const status = await VoiceRecorder.getCurrentStatus();
+      if (status.status === "RECORDING") {
+        console.log("[audioCapture] Cancelling native recording...");
+        await VoiceRecorder.stopRecording();
+      }
+    } catch (error) {
+      console.error("[audioCapture] Error cancelling native:", error);
     }
-  } catch (error) {
-    console.error("[audioCapture] Error cancelling:", error);
+    return;
   }
 }
 

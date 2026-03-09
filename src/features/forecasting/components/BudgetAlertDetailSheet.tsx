@@ -307,7 +307,7 @@ export default function BudgetAlertDetailSheet({
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="px-6 pb-[calc(var(--sab)+16px)]">
           {/* Spent row */}
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center gap-3">

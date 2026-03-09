@@ -159,7 +159,7 @@ export default function ChatInputBar({
   // --- Recording state ---
   if (isRecordingState) {
     return (
-      <div className="shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
+      <div className="shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 pb-[calc(var(--sab)+12px)] pt-3">
         <div className="flex items-center gap-3">
           {/* Cancel button */}
           <button
@@ -206,7 +206,7 @@ export default function ChatInputBar({
 
   // --- Default / Typing state ---
   return (
-    <div className="shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-3">
+    <div className="shrink-0 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 px-4 pb-[calc(var(--sab)+12px)] pt-3">
       {/* Recording error message */}
       {recordingError && (
         <div className="mb-2 rounded-lg bg-red-100 dark:bg-red-900/30 px-3 py-1.5 text-xs text-red-600 dark:text-red-400">
