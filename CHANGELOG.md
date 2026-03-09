@@ -3,7 +3,10 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.16] - 2026-03-09
 
 - **fix(android): centralize safe area insets as CSS variables for older Android WebViews**
   - Add `--sat` / `--sab` CSS custom properties in `index.css` with Android overrides in `main.tsx`
