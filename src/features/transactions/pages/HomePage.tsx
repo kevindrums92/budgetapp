@@ -385,7 +385,7 @@ export default function HomePage() {
           "shadow-[0_8px_24px_rgba(24,183,176,0.4)]",
           "active:scale-95 transition-transform hover:bg-[#159d97]",
         ].join(" ")}
-        style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+        style={{ bottom: "calc(var(--sab) + 96px)" }}
         aria-label="Agregar movimiento"
       >
         <Plus size={26} strokeWidth={2.2} />

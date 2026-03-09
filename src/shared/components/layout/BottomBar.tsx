@@ -43,8 +43,9 @@ export default function BottomBar() {
           "border-t border-gray-200/70 dark:border-gray-800/70",
           "bg-white/99 dark:bg-gray-900/99 backdrop-blur-xl",
           "shadow-[0_-10px_30px_rgba(0,0,0,0.10)] dark:shadow-[0_-10px_30px_rgba(0,0,0,0.50)]",
-          "pt-3 pb-[calc(env(safe-area-inset-bottom)+10px)]",
+          "pt-3",
         ].join(" ")}
+        style={{ paddingBottom: 'calc(var(--sab) + 10px)' }}
       >
         <div className="grid grid-cols-4">
           <Tab to="/" label={t("navigation.home")} icon={Home} />

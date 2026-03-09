@@ -21,7 +21,7 @@ export default function PageHeader({ title, onBack, rightActions }: Props) {
   return (
     <header
       className="sticky top-0 z-10 flex items-center justify-between bg-white dark:bg-gray-900 px-4 pb-4 shadow-sm dark:shadow-black/30"
-      style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
+      style={{ paddingTop: 'var(--sat)' }}
     >
       <div className="flex items-center gap-3">
         <button

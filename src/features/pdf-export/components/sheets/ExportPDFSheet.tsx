@@ -246,7 +246,7 @@ export default function ExportPDFSheet({
           <div className="h-1 w-10 rounded-full bg-gray-300 dark:bg-gray-700" />
         </div>
 
-        <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="px-4 pb-[calc(var(--sab)+16px)]">
           {/* Title */}
           <div className="flex items-center gap-3 mb-6">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">

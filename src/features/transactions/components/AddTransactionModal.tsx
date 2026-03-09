@@ -226,7 +226,7 @@ export default function AddTransactionModal({
               className="sticky bottom-0 z-10 border-t bg-white px-4 pt-3 md:px-6"
               style={{
                 paddingBottom:
-                  "calc(env(safe-area-inset-bottom) + var(--bottom-bar-h))",
+                  "calc(var(--sab) + var(--bottom-bar-h))",
               }}
             >
               <div className="flex gap-2">

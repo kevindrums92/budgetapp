@@ -100,7 +100,7 @@ export default function ResetPasswordOTPPage() {
   return (
     <div
       className="flex min-h-dvh flex-col bg-gray-50 dark:bg-gray-950"
-      style={{ paddingTop: 'max(env(safe-area-inset-top), 16px)' }}
+      style={{ paddingTop: 'var(--sat)' }}
     >
       {/* Progress bar */}
       <div className="h-1 w-full bg-gray-200 dark:bg-gray-800">
@@ -163,7 +163,7 @@ export default function ResetPasswordOTPPage() {
       </div>
 
       {/* Verify button */}
-      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-950 px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-white dark:bg-gray-950 px-6 py-4 pb-[calc(var(--sab)+16px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <button
           type="button"
           onClick={() => handleVerify()}

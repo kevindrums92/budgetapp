@@ -14,6 +14,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { Ratelimit } from "https://esm.sh/@upstash/ratelimit@2.0.5";
 import { Redis } from "https://esm.sh/@upstash/redis@1.34.3";
 import { getSystemPrompt, RESPONSE_SCHEMA, type HistoryPattern } from "./prompts.ts";
+import { isAdtsData, wrapAdtsInM4a } from "./adtsToM4a.ts";
 
 // CORS headers
 const corsHeaders = {
@@ -146,14 +147,27 @@ async function transcribeAudio(audioBase64: string, audioMimeType?: string): Pro
 
   // Use provided MIME type or default to audio/webm, then normalize for OpenAI compatibility
   const rawMimeType = audioMimeType || "audio/webm";
-  const mimeType = normalizeAudioMimeType(rawMimeType);
-  const extension = getAudioExtension(mimeType);
+  let mimeType = normalizeAudioMimeType(rawMimeType);
+  let extension = getAudioExtension(mimeType);
 
   // Decode base64 to binary
   const binaryString = atob(audioBase64);
-  const bytes = new Uint8Array(binaryString.length);
+  let bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
     bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  // If data is raw ADTS AAC (from Android native plugin), wrap in M4A container.
+  // OpenAI rejects raw AAC but accepts M4A (which is AAC in an MP4 container).
+  if (isAdtsData(bytes)) {
+    console.log(`[parse-batch] Detected raw ADTS AAC data, wrapping in M4A container...`);
+    try {
+      bytes = wrapAdtsInM4a(bytes);
+      mimeType = "audio/mp4";
+      extension = "m4a";
+    } catch (e) {
+      console.error(`[parse-batch] ADTS→M4A muxing failed, sending raw data:`, e);
+    }
   }
 
   console.log(`[parse-batch] Transcribing audio (rawMime: ${rawMimeType}, normalizedMime: ${mimeType}, ext: ${extension}, size: ${bytes.length} bytes)`);

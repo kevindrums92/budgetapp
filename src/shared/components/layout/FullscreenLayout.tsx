@@ -43,10 +43,10 @@ export default function FullscreenLayout({
 }: FullscreenLayoutProps) {
   return (
     <div
-      className={`flex h-dvh flex-col bg-gray-50 dark:bg-gray-950 ${className}`}
+      className={`flex h-screen h-dvh flex-col bg-gray-50 dark:bg-gray-950 ${className}`}
       style={{
-        paddingTop: 'max(env(safe-area-inset-top), 16px)',
-        paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
+        paddingTop: 'var(--sat)',
+        paddingBottom: 'var(--sab)',
       }}
     >
       {/* Header - shrink-0 (three-column layout) */}

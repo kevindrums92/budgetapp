@@ -230,7 +230,7 @@ export default function AddEditTripPage() {
 
       {/* Footer actions */}
       <div className="fixed inset-x-0 bottom-0 z-30 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <div className="mx-auto max-w-xl px-4 py-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="mx-auto max-w-xl px-4 py-4 pb-[calc(var(--sab)+16px)]">
           <button
             type="button"
             onClick={handleSave}

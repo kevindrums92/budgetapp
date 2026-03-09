@@ -252,7 +252,7 @@ export default function ScheduledPage() {
       {(templates.length === 0 || activeTab === "active") && (
         <div
           className="fixed right-4 z-40"
-          style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+          style={{ bottom: "calc(var(--sab) + 96px)" }}
           data-tour="scheduled-fab"
         >
           <button

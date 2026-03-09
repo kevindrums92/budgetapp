@@ -4,6 +4,15 @@
 
 html, body, #root { height: 100%; }
 
+/* Centralized safe-area insets.
+   On Android native, --sat-android / --sab-android are set by main.tsx
+   because env(safe-area-inset-*) returns 0 for system bars in edge-to-edge mode.
+   On iOS / web, those vars are absent so we fall back to env(). */
+:root {
+  --sat: var(--sat-android, env(safe-area-inset-top, 0px));
+  --sab: var(--sab-android, env(safe-area-inset-bottom, 0px));
+}
+
 /* Disable text selection globally for native app feel */
 *,
 *::before,

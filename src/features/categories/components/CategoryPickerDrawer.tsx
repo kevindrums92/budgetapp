@@ -493,7 +493,7 @@ export default function CategoryPickerDrawer({
 
         {/* New Category button */}
         {showNewCategoryButton && (
-          <div className="flex-none border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+          <div className="flex-none border-t border-gray-200 dark:border-gray-700 px-4 py-3 pb-[calc(var(--sab)+12px)]">
             <button
               type="button"
               onClick={handleNewCategory}
@@ -507,7 +507,7 @@ export default function CategoryPickerDrawer({
 
         {/* Safe area padding when no button */}
         {!showNewCategoryButton && (
-          <div className="flex-none pb-[calc(env(safe-area-inset-bottom)+12px)]" />
+          <div className="flex-none pb-[calc(var(--sab)+12px)]" />
         )}
       </div>
     </div>

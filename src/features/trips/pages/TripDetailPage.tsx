@@ -307,7 +307,7 @@ export default function TripDetailPage() {
           type="button"
           onClick={() => navigate(`/trips/${trip.id}/expense/new`)}
           className="fixed right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-black text-white shadow-[0_8px_24px_rgba(0,0,0,0.25)] active:scale-95 transition-transform"
-          style={{ bottom: "calc(env(safe-area-inset-bottom) + 96px)" }}
+          style={{ bottom: "calc(var(--sab) + 96px)" }}
           aria-label={t('detail.addExpenseButtonAria')}
         >
           <Plus size={26} strokeWidth={2.2} />

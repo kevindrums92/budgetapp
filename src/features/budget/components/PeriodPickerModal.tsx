@@ -260,7 +260,7 @@ export default function PeriodPickerModal({
           </div>
 
           {/* Content */}
-          <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+          <div className="px-4 pb-[calc(var(--sab)+16px)]">
             {/* Title */}
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("periodPicker.title")}

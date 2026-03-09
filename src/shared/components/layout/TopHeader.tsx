@@ -95,7 +95,7 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   const { action: headerAction } = useHeaderActions();
 
   // Safe area padding for status bar (edge-to-edge on both platforms)
-  const headerPaddingTop = 'max(env(safe-area-inset-top), 16px)';
+  const headerPaddingTop = 'var(--sat)';
 
   return (
     <>

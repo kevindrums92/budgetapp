@@ -5,6 +5,24 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(android): centralize safe area insets as CSS variables for older Android WebViews**
+  - Add `--sat` / `--sab` CSS custom properties in `index.css` with Android overrides in `main.tsx`
+  - Replace `env(safe-area-inset-*)` with `var(--sat)` / `var(--sab)` across 50+ files (headers, bottom sheets, FABs, forms, auth pages)
+  - Fix bottom sheets, FAB buttons, and login screen being cut off on Samsung Galaxy Note 10+ (Android 12)
+  - Add `h-screen h-dvh` cascade fallback for WebViews that don't support `100dvh`
+
+- **fix(android): forward keyboard height from native to WebView for edge-to-edge mode**
+  - Add `WindowInsetsCompat.Type.ime()` listener in `MainActivity.java` to detect keyboard open/close
+  - Pass keyboard height as `--keyboard-height` CSS variable (converted from px to dp)
+  - AssistantPage uses `paddingBottom: var(--keyboard-height)` to keep input above keyboard
+  - Add `android:windowSoftInputMode="adjustResize"` to AndroidManifest
+
+- **fix(audio): use native plugin for mic permissions and add ADTS→M4A server-side muxer**
+  - Audio recording now uses native VoiceRecorder plugin for permissions (fixes Samsung WebView `getUserMedia` denial)
+  - Try Web MediaRecorder first for recording (proper container format), fall back to native if WebView denies
+  - Add `adtsToM4a.ts` server-side muxer that wraps raw ADTS AAC in M4A container for OpenAI compatibility
+  - Edge Function auto-detects ADTS data and wraps before sending to transcription API
+
 - **fix(monthReview): gate month review modal behind cloudSyncReady for all modes**
   - Previously only waited for cloud sync in cloud mode; guest mode ran the check immediately with stale local data
   - Now waits for `cloudSyncReady` regardless of mode, ensuring `monthReviewDismissed` from cloud is loaded before deciding

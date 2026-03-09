@@ -288,7 +288,7 @@ export default function AddEditBudgetModal({
         <div
           className="px-6 pb-44"
           style={{
-            paddingTop: 'max(env(safe-area-inset-top), 24px)',
+            paddingTop: 'var(--sat)',
           }}
         >
           {/* Title */}
@@ -340,7 +340,7 @@ export default function AddEditBudgetModal({
         <div
           className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-gray-50 via-gray-50 dark:from-gray-950 dark:via-gray-950 to-transparent px-6 pt-8 space-y-3"
           style={{
-            paddingBottom: 'max(env(safe-area-inset-bottom), 16px)',
+            paddingBottom: 'var(--sab)',
           }}
         >
           <button
@@ -425,7 +425,7 @@ export default function AddEditBudgetModal({
           </div>
 
           {/* Content */}
-          <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+          <div className="px-4 pb-[calc(var(--sab)+16px)]">
             {/* Title */}
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
               {t("typeSelector.title")}
@@ -491,7 +491,7 @@ export default function AddEditBudgetModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-[85] flex flex-col bg-white dark:bg-gray-950">
+      <div className="fixed inset-0 z-[85] flex flex-col overflow-hidden bg-white dark:bg-gray-950">
         {/* Header */}
         <PageHeader
           title={formTitle}
@@ -672,7 +672,7 @@ export default function AddEditBudgetModal({
         {/* Fixed Bottom Button */}
         <div
           className="shrink-0 bg-white dark:bg-gray-950 px-4"
-          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}
+          style={{ paddingBottom: "var(--sab)" }}
         >
           <button
             type="button"

@@ -166,7 +166,7 @@ export default function AddActionSheet({ open, onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+16px)]">
+        <div className="px-4 pb-[calc(var(--sab)+16px)]">
           {/* AI Assistant Button - Wide Featured Rectangle */}
           <button
             type="button"
