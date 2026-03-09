@@ -301,6 +301,20 @@ export default function CloudSyncGate() {
       const persistedWasAuthenticated = localStorage.getItem('budget.wasAuthenticated') === 'true';
 
       if (persistedWasAuthenticated) {
+        // ⚠️ OFFLINE-FIRST: Re-check network. We entered the online path because
+        // getNetworkStatus() returned true, but the token refresh failed (Supabase
+        // removed the session). If we're actually offline/flaky, don't show the modal —
+        // stay in cloud-offline mode and re-verify when truly online.
+        const stillOnline = await getNetworkStatus();
+        if (!stillOnline) {
+          logger.info("CloudSync", "No session but offline — staying in cloud mode, will re-verify when online");
+          setCloudMode("cloud");
+          setCloudStatus("offline");
+          initializedRef.current = true;
+          useBudgetStore.getState().setCloudSyncReady();
+          return;
+        }
+
         logger.info("CloudSync", "Session expired for previously authenticated user — showing recovery modal");
         useBudgetStore.getState().setSessionExpired(true);
         setCloudMode("guest");
@@ -741,6 +755,30 @@ export default function CloudSyncGate() {
     async function onOnline() {
       if (!initializedRef.current) return;
 
+      // ✅ OFFLINE-FIRST: If we deferred session verification while offline
+      // (wasAuthenticated exists but sessionExpired is false), verify now.
+      const wasAuthenticated = localStorage.getItem('budget.wasAuthenticated');
+      const { sessionExpired } = useBudgetStore.getState();
+      if (wasAuthenticated && !sessionExpired) {
+        try {
+          const { data } = await supabase.auth.getSession();
+          if (!data.session) {
+            // Session truly expired — now show the modal
+            console.log("[CloudSyncGate] Network back: session confirmed expired, showing recovery modal");
+            useBudgetStore.getState().setSessionExpired(true);
+            setCloudMode("guest");
+            setCloudStatus("idle");
+            return;
+          }
+          // Session recovered successfully
+          console.log("[CloudSyncGate] Network back: session recovered, resuming cloud sync");
+          setCloudMode("cloud");
+          setCloudStatus("ok");
+        } catch (err) {
+          logger.warn("CloudSync", "Failed to verify session on reconnect, will retry later", err);
+        }
+      }
+
       // ✅ Si hay pending, push de inmediato
       const pending = getPendingSnapshot();
       if (pending) {
@@ -812,6 +850,17 @@ export default function CloudSyncGate() {
         // so if it still exists here, the session expired on its own.
         const persistedAuth = localStorage.getItem('budget.wasAuthenticated');
         if (persistedAuth) {
+          // ⚠️ OFFLINE-FIRST: If offline, Supabase may fire SIGNED_OUT because it couldn't
+          // refresh the expired JWT (network error). Don't show the modal — stay in cloud-offline
+          // mode and defer session verification until the network comes back.
+          const isCurrentlyOnline = await getNetworkStatus();
+          if (!isCurrentlyOnline) {
+            console.log("[CloudSyncGate] SIGNED_OUT while offline — deferring session check, staying in cloud mode");
+            setCloudMode("cloud");
+            setCloudStatus("offline");
+            return; // DON'T show modal, DON'T clear data
+          }
+
           console.log("[CloudSyncGate] SIGNED_OUT with wasAuthenticated flag — session expired, showing recovery modal");
           useBudgetStore.getState().setSessionExpired(true);
           setCloudMode("guest");

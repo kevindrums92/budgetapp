@@ -5,6 +5,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sync): defer session expired modal when offline instead of blocking the user**
+  - SIGNED_OUT handler now checks network status before showing the modal
+  - initForSession re-checks network when token refresh fails on flaky connections
+  - Network reconnect listener re-verifies deferred sessions automatically
+  - Add 7 unit tests covering all offline-first session handling scenarios
+
 ## [0.16.15] - 2026-03-08
 
 - **refactor(ui): redesign "viewing different month" banner**

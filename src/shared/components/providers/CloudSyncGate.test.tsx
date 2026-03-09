@@ -11,6 +11,7 @@ const mockSignInAnonymously = vi.fn();
 const mockSignOut = vi.fn();
 const mockRpc = vi.fn();
 let authChangeCallback: ((event: string, session: any) => void) | null = null;
+let networkListenerCallback: ((isOnline: boolean) => void) | null = null;
 
 vi.mock('@/lib/supabaseClient', () => ({
   supabase: {
@@ -68,7 +69,10 @@ vi.mock('@/services/pendingSync.service', () => ({
 const mockGetNetworkStatus = vi.fn().mockResolvedValue(true);
 vi.mock('@/services/network.service', () => ({
   getNetworkStatus: mockGetNetworkStatus,
-  addNetworkListener: vi.fn(() => vi.fn()),
+  addNetworkListener: vi.fn((callback: any) => {
+    networkListenerCallback = callback;
+    return vi.fn();
+  }),
 }));
 
 const mockMigrateGuestTokenToUser = vi.fn().mockResolvedValue(false);
@@ -246,6 +250,7 @@ describe('CloudSyncGate - Anonymous Auth → OAuth Transition', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     localStorage.clear();
     authChangeCallback = null;
+    networkListenerCallback = null;
 
     // Reset store
     useBudgetStore.getState().replaceAllData({
@@ -706,6 +711,7 @@ describe('CloudSyncGate - Session Expired Detection', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     localStorage.clear();
     authChangeCallback = null;
+    networkListenerCallback = null;
 
     // Reset store
     useBudgetStore.getState().replaceAllData({
@@ -955,6 +961,249 @@ describe('CloudSyncGate - Session Expired Detection', () => {
 
       // Should NOT trigger sessionExpired (oauthTransition check comes first)
       expect(useBudgetStore.getState().sessionExpired).toBe(false);
+    });
+  });
+});
+
+// ============================================================================
+// Offline-First: Deferred Session Verification Tests
+// ============================================================================
+
+describe('CloudSyncGate - Offline-First Session Handling', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    localStorage.clear();
+    authChangeCallback = null;
+    networkListenerCallback = null;
+
+    // Reset store
+    useBudgetStore.getState().replaceAllData({
+      schemaVersion: 6,
+      transactions: [],
+      categories: [],
+      categoryDefinitions: [],
+      categoryGroups: [],
+      budgets: [],
+      trips: [],
+      tripExpenses: [],
+    });
+    useBudgetStore.setState({
+      cloudMode: 'guest',
+      cloudStatus: 'idle',
+      user: { email: null, name: null, avatarUrl: null, provider: null },
+      sessionExpired: false,
+    });
+
+    mockGetNetworkStatus.mockResolvedValue(true);
+    mockGetPendingSnapshot.mockReturnValue(null);
+    mockUpsertCloudState.mockResolvedValue(undefined);
+    mockRpc.mockResolvedValue({ data: null, error: null });
+    mockSignInAnonymously.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+    mockMigrateGuestTokenToUser.mockResolvedValue(false);
+    mockDeactivateToken.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  /**
+   * Helper: simulate network change event and wait for async handler
+   */
+  async function fireNetworkChange(isOnline: boolean) {
+    if (networkListenerCallback) {
+      networkListenerCallback(isOnline);
+    }
+    await new Promise((r) => setTimeout(r, 150));
+  }
+
+  // ========================================================================
+  // Fix 1: SIGNED_OUT while offline → no modal, stay in cloud-offline
+  // ========================================================================
+  describe('Fix 1: SIGNED_OUT while offline defers session expired modal', () => {
+    it('should NOT show session expired modal when SIGNED_OUT fires while offline', async () => {
+      // Start with authenticated session (online)
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+      useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+      await renderAndInit();
+
+      // Verify: authenticated, wasAuthenticated flag set
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+      expect(localStorage.getItem('budget.wasAuthenticated')).toBe('true');
+
+      // Simulate: device goes offline
+      mockGetNetworkStatus.mockResolvedValue(false);
+
+      // Simulate: Supabase internally fires SIGNED_OUT (failed token refresh while offline)
+      await fireSignedOut();
+
+      // CRITICAL: modal should NOT appear
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+      // Should stay in cloud mode, not guest
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+      expect(useBudgetStore.getState().cloudStatus).toBe('offline');
+    });
+
+    it('should preserve local data when SIGNED_OUT fires while offline', async () => {
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+      mockGetCloudState.mockResolvedValue(null);
+      useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+      await renderAndInit();
+
+      mockGetNetworkStatus.mockResolvedValue(false);
+      await fireSignedOut();
+
+      // Data must be preserved
+      const state = useBudgetStore.getState();
+      expect(state.transactions).toHaveLength(2);
+      expect(state.transactions[0].name).toBe('Almuerzo');
+    });
+  });
+
+  // ========================================================================
+  // Fix 2: initForSession online path → no session + offline re-check
+  // ========================================================================
+  describe('Fix 2: initForSession defers modal when network is flaky', () => {
+    it('should stay in cloud-offline when getSession returns null but network is actually down', async () => {
+      // Previously authenticated
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', AUTH_EMAIL);
+
+      // Simulate: getNetworkStatus returns true first (enters online path),
+      // then false on re-check (network was flaky, now confirmed offline)
+      mockGetNetworkStatus
+        .mockResolvedValueOnce(true)   // line 179: enters online path
+        .mockResolvedValueOnce(false); // line 308: re-check → actually offline
+
+      // Supabase getSession returns null (couldn't refresh)
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+
+      // CRITICAL: modal should NOT appear — we're offline
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+      expect(useBudgetStore.getState().cloudStatus).toBe('offline');
+    });
+
+    it('should show modal when getSession returns null and network is confirmed online', async () => {
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+
+      // Both network checks return true → genuinely online
+      mockGetNetworkStatus.mockResolvedValue(true);
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await renderAndInit();
+
+      // Session genuinely expired while online → show modal
+      expect(useBudgetStore.getState().sessionExpired).toBe(true);
+      expect(useBudgetStore.getState().cloudMode).toBe('guest');
+    });
+  });
+
+  // ========================================================================
+  // Fix 3: Network reconnect → verify deferred session
+  // ========================================================================
+  describe('Fix 3: Network reconnect re-verifies deferred session', () => {
+    it('should recover session when network comes back and session is valid', async () => {
+      // Start offline with stored session
+      mockGetNetworkStatus.mockResolvedValue(false);
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', AUTH_EMAIL);
+
+      // Store a fake Supabase session in localStorage (offline path reads this)
+      localStorage.setItem('sb-test-auth-token', JSON.stringify({
+        currentSession: {
+          user: {
+            id: AUTH_USER_ID,
+            email: AUTH_EMAIL,
+            is_anonymous: false,
+            user_metadata: { full_name: 'Test User' },
+            app_metadata: { provider: 'google' },
+          },
+        },
+      }));
+
+      await renderAndInit();
+
+      // Verify: offline cloud mode (deferred verification)
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+      expect(useBudgetStore.getState().cloudStatus).toBe('offline');
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+
+      // Simulate: network comes back, session is valid
+      mockGetNetworkStatus.mockResolvedValue(true);
+      mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+
+      await fireNetworkChange(true);
+
+      // Session recovered → cloud mode + ok
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+      expect(useBudgetStore.getState().cloudStatus).toBe('ok');
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+    });
+
+    it('should show session expired modal when network comes back and session is truly expired', async () => {
+      // Start offline with stored session
+      mockGetNetworkStatus.mockResolvedValue(false);
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', AUTH_EMAIL);
+
+      localStorage.setItem('sb-test-auth-token', JSON.stringify({
+        currentSession: {
+          user: {
+            id: AUTH_USER_ID,
+            email: AUTH_EMAIL,
+            is_anonymous: false,
+            user_metadata: {},
+            app_metadata: { provider: 'google' },
+          },
+        },
+      }));
+
+      await renderAndInit();
+
+      // Verify: offline cloud mode
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+
+      // Simulate: network comes back, but session is truly expired
+      mockGetNetworkStatus.mockResolvedValue(true);
+      mockGetSession.mockResolvedValue({ data: { session: null }, error: null });
+
+      await fireNetworkChange(true);
+
+      // NOW the modal should appear
+      expect(useBudgetStore.getState().sessionExpired).toBe(true);
+      expect(useBudgetStore.getState().cloudMode).toBe('guest');
+    });
+
+    it('should keep retrying if session verification fails on reconnect', async () => {
+      // Start offline
+      mockGetNetworkStatus.mockResolvedValue(false);
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+
+      localStorage.setItem('sb-test-auth-token', JSON.stringify({
+        currentSession: { user: { id: AUTH_USER_ID, email: AUTH_EMAIL, is_anonymous: false, user_metadata: {}, app_metadata: {} } },
+      }));
+
+      await renderAndInit();
+
+      // Network comes back but getSession throws (server error)
+      mockGetNetworkStatus.mockResolvedValue(true);
+      mockGetSession.mockRejectedValue(new Error('Internal Server Error'));
+
+      await fireNetworkChange(true);
+
+      // Should NOT show modal — will retry later
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+      // Should stay in cloud mode (deferred)
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
     });
   });
 });
