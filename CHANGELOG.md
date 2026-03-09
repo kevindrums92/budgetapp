@@ -5,6 +5,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(monthReview): gate month review modal behind cloudSyncReady for all modes**
+  - Previously only waited for cloud sync in cloud mode; guest mode ran the check immediately with stale local data
+  - Now waits for `cloudSyncReady` regardless of mode, ensuring `monthReviewDismissed` from cloud is loaded before deciding
+  - Prevents the modal from showing repeatedly across devices or app restarts within the same month
+
 - **fix(sync): defer session expired modal when offline instead of blocking the user**
   - SIGNED_OUT handler now checks network status before showing the modal
   - initForSession re-checks network when token refresh fails on flaky connections
