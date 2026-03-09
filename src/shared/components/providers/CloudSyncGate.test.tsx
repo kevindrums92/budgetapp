@@ -1206,4 +1206,232 @@ describe('CloudSyncGate - Offline-First Session Handling', () => {
       expect(useBudgetStore.getState().cloudMode).toBe('cloud');
     });
   });
+
+  // ========================================================================
+  // Fix 4: Supabase 500 → don't show false "session expired" modal
+  // ========================================================================
+  describe('Fix 4: Supabase server error does not trigger false session expired', () => {
+    it('should recover session from localStorage when getSession returns server error on init', async () => {
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', AUTH_EMAIL);
+
+      // Simulate: Supabase is down, getSession returns error (500)
+      mockGetNetworkStatus.mockResolvedValue(true);
+      mockGetSession.mockResolvedValue({
+        data: { session: null },
+        error: { message: 'Internal Server Error', status: 500 },
+      });
+
+      // Store a Supabase session in localStorage (Supabase preserves it on retryable errors)
+      localStorage.setItem('sb-test-auth-token', JSON.stringify({
+        currentSession: {
+          user: {
+            id: AUTH_USER_ID,
+            email: AUTH_EMAIL,
+            is_anonymous: false,
+            user_metadata: { full_name: 'Test User' },
+            app_metadata: { provider: 'google' },
+          },
+        },
+      }));
+
+      await renderAndInit();
+
+      // CRITICAL: should NOT show session expired modal
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+      // Should be in cloud mode (recovered from localStorage)
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+    });
+
+    it('should not show modal when getSession returns error on network reconnect', async () => {
+      // Start offline with stored session
+      mockGetNetworkStatus.mockResolvedValue(false);
+      localStorage.setItem('budget.wasAuthenticated', 'true');
+      localStorage.setItem('budget.lastAuthEmail', AUTH_EMAIL);
+
+      localStorage.setItem('sb-test-auth-token', JSON.stringify({
+        currentSession: {
+          user: {
+            id: AUTH_USER_ID,
+            email: AUTH_EMAIL,
+            is_anonymous: false,
+            user_metadata: {},
+            app_metadata: { provider: 'google' },
+          },
+        },
+      }));
+
+      await renderAndInit();
+
+      // Verify: offline cloud mode
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+
+      // Simulate: network comes back, but Supabase still returning 500
+      mockGetNetworkStatus.mockResolvedValue(true);
+      mockGetSession.mockResolvedValue({
+        data: { session: null },
+        error: { message: 'Internal Server Error', status: 500 },
+      });
+
+      await fireNetworkChange(true);
+
+      // Should NOT show modal — Supabase is down, not session expired
+      expect(useBudgetStore.getState().sessionExpired).toBe(false);
+      expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+    });
+  });
+});
+
+// ============================================================================
+// Anonymous User Data Protection Tests
+// ============================================================================
+
+describe('CloudSyncGate - Anonymous User Data Protection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    localStorage.clear();
+    authChangeCallback = null;
+    networkListenerCallback = null;
+
+    // Reset store
+    useBudgetStore.getState().replaceAllData({
+      schemaVersion: 6,
+      transactions: [],
+      categories: [],
+      categoryDefinitions: [],
+      categoryGroups: [],
+      budgets: [],
+      trips: [],
+      tripExpenses: [],
+    });
+    useBudgetStore.setState({
+      cloudMode: 'guest',
+      cloudStatus: 'idle',
+      user: { email: null, name: null, avatarUrl: null, provider: null },
+      sessionExpired: false,
+    });
+
+    mockGetNetworkStatus.mockResolvedValue(true);
+    mockGetPendingSnapshot.mockReturnValue(null);
+    mockUpsertCloudState.mockResolvedValue(undefined);
+    mockRpc.mockResolvedValue({ data: null, error: null });
+    mockSignInAnonymously.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+    mockMigrateGuestTokenToUser.mockResolvedValue(false);
+    mockDeactivateToken.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  // ========================================================================
+  // SIGNED_OUT while offline for anonymous user → data preserved
+  // ========================================================================
+  it('should preserve anonymous user data when SIGNED_OUT fires while offline', async () => {
+    // Start with anonymous session (online)
+    mockGetSession.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+    mockGetCloudState.mockResolvedValue(null);
+    useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+    await renderAndInit();
+
+    // Verify: anonymous cloud mode, no wasAuthenticated flag
+    expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+    expect(localStorage.getItem('budget.wasAuthenticated')).toBeNull();
+
+    // Simulate: device goes offline, Supabase fires SIGNED_OUT (failed token refresh)
+    mockGetNetworkStatus.mockResolvedValue(false);
+    await fireSignedOut();
+
+    // CRITICAL: data must be preserved
+    const state = useBudgetStore.getState();
+    expect(state.transactions).toHaveLength(2);
+    expect(state.transactions[0].name).toBe('Almuerzo');
+    // Should stay in cloud mode, not guest
+    expect(state.cloudMode).toBe('cloud');
+    expect(state.cloudStatus).toBe('offline');
+    // Should NOT show session expired modal
+    expect(state.sessionExpired).toBe(false);
+  });
+
+  // ========================================================================
+  // SIGNED_OUT while online for anonymous user → data preserved, new session
+  // ========================================================================
+  it('should preserve data and re-create anonymous session when SIGNED_OUT fires while online', async () => {
+    // Start with anonymous session
+    mockGetSession.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+    mockGetCloudState.mockResolvedValue(null);
+    useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+    await renderAndInit();
+
+    expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+
+    // Simulate: SIGNED_OUT while online (e.g., non-retryable auth error)
+    mockGetNetworkStatus.mockResolvedValue(true);
+    await fireSignedOut();
+
+    // CRITICAL: data must be preserved
+    const state = useBudgetStore.getState();
+    expect(state.transactions).toHaveLength(2);
+    expect(state.transactions[0].name).toBe('Almuerzo');
+    // Should have attempted to re-create anonymous session
+    expect(mockSignInAnonymously).toHaveBeenCalled();
+  });
+
+  // ========================================================================
+  // Explicit logout (no data, guest mode) → full cleanup still runs
+  // ========================================================================
+  it('should still run full cleanup when there is no data (explicit logout scenario)', async () => {
+    // Start with anonymous session but NO data (empty state)
+    mockGetSession.mockResolvedValue({ data: { session: mockAnonSession }, error: null });
+    mockGetCloudState.mockResolvedValue(null);
+    // Don't load any transactions — keep empty
+
+    await renderAndInit();
+
+    expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+
+    // Simulate: SIGNED_OUT with no local data (explicit logout scenario)
+    mockGetNetworkStatus.mockResolvedValue(true);
+    await fireSignedOut();
+
+    // Cleanup should have run (deactivateToken called)
+    expect(mockDeactivateToken).toHaveBeenCalled();
+    // signInAnonymously called as part of post-logout recovery
+    expect(mockSignInAnonymously).toHaveBeenCalled();
+  });
+
+  // ========================================================================
+  // Authenticated user explicit logout → full cleanup runs (NOT protected)
+  // ========================================================================
+  it('should run full cleanup for authenticated user explicit logout even with data', async () => {
+    // Start with authenticated session
+    mockGetSession.mockResolvedValue({ data: { session: mockAuthSession }, error: null });
+    mockGetCloudState.mockResolvedValue(null);
+    useBudgetStore.getState().replaceAllData(mockLocalTransactions);
+
+    await renderAndInit();
+
+    expect(useBudgetStore.getState().cloudMode).toBe('cloud');
+    expect(useBudgetStore.getState().user.email).toBe(AUTH_EMAIL);
+    expect(localStorage.getItem('budget.wasAuthenticated')).toBe('true');
+
+    // Simulate: ProfilePage explicit logout
+    // ProfilePage removes wasAuthenticated BEFORE calling signOut()
+    localStorage.removeItem('budget.wasAuthenticated');
+    localStorage.removeItem('budget.lastAuthEmail');
+    localStorage.removeItem('budget.lastAuthProvider');
+
+    mockGetNetworkStatus.mockResolvedValue(true);
+    await fireSignedOut();
+
+    // Full cleanup SHOULD have run — user email means NOT anonymous
+    expect(mockDeactivateToken).toHaveBeenCalled();
+    // Data should be wiped (replaceAllData with empty)
+    expect(useBudgetStore.getState().transactions).toHaveLength(0);
+  });
 });

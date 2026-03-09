@@ -244,8 +244,10 @@ export default function CloudSyncGate() {
 
     // OFFLINE-FIRST: Wrap getSession() in a timeout to prevent hanging when
     // Supabase's internal initializePromise is stuck refreshing an expired JWT.
-    // If it takes >5s, fall back to reading the stored session from localStorage.
+    // If it takes >5s or returns a server error, fall back to reading the stored
+    // session from localStorage.
     let session: any = null;
+    let getSessionFailed = false;
     try {
       const result = await Promise.race([
         supabase.auth.getSession(),
@@ -254,9 +256,21 @@ export default function CloudSyncGate() {
         ),
       ]);
       session = result.data.session;
+      // ⚠️ Supabase returns { session: null, error } when token refresh fails (500/network).
+      // The session still exists in localStorage — detect this so we don't falsely show "expired".
+      if (!session && result.error) {
+        console.warn("[CloudSyncGate] getSession() returned error (server/network):", result.error.message);
+        getSessionFailed = true;
+      }
     } catch {
-      console.warn("[CloudSyncGate] getSession() timed out, reading from localStorage");
-      // Try to read raw session from localStorage as fallback
+      console.warn("[CloudSyncGate] getSession() timed out or threw");
+      getSessionFailed = true;
+    }
+
+    // If getSession() failed (timeout, 500, network error), read from localStorage.
+    // Supabase preserves the session in localStorage on retryable errors, so we can
+    // use it to keep the user in cloud mode without showing a false "session expired" modal.
+    if (!session && getSessionFailed) {
       const storedKeys = Object.keys(localStorage).filter(
         (key) => key.includes("sb-") && key.includes("-auth-token")
       );
@@ -265,6 +279,7 @@ export default function CloudSyncGate() {
           const parsed = JSON.parse(localStorage.getItem(key) || "");
           if (parsed?.currentSession) {
             session = parsed.currentSession;
+            console.log("[CloudSyncGate] Recovered session from localStorage after getSession() failure");
             break;
           }
         } catch { /* skip */ }
@@ -761,9 +776,14 @@ export default function CloudSyncGate() {
       const { sessionExpired } = useBudgetStore.getState();
       if (wasAuthenticated && !sessionExpired) {
         try {
-          const { data } = await supabase.auth.getSession();
+          const { data, error } = await supabase.auth.getSession();
+          if (!data.session && error) {
+            // Server/network error — Supabase is down, don't show modal, will retry later
+            logger.warn("CloudSync", "getSession failed on reconnect (server error), will retry later", error);
+            return;
+          }
           if (!data.session) {
-            // Session truly expired — now show the modal
+            // No error, genuinely no session — session truly expired, show modal
             console.log("[CloudSyncGate] Network back: session confirmed expired, showing recovery modal");
             useBudgetStore.getState().setSessionExpired(true);
             setCloudMode("guest");
@@ -866,6 +886,42 @@ export default function CloudSyncGate() {
           setCloudMode("guest");
           setCloudStatus("idle");
           return; // DON'T clear data, DON'T create anonymous session
+        }
+
+        // ⚠️ OFFLINE-FIRST: Protect anonymous cloud users from data loss.
+        // Anonymous users don't have `wasAuthenticated` flag, so they reach this cleanup path
+        // even on network-induced SIGNED_OUT (failed token refresh). If we're in cloud mode
+        // with local data, preserve everything and silently re-create the anonymous session.
+        const storeState = useBudgetStore.getState();
+        const currentCloudMode = storeState.cloudMode;
+        const hasData = storeState.transactions.length > 0;
+        const isAnonymousUser = !storeState.user.email;
+
+        if (currentCloudMode === "cloud" && hasData && isAnonymousUser) {
+          const isCurrentlyOnline = await getNetworkStatus();
+          if (!isCurrentlyOnline) {
+            console.log("[CloudSyncGate] SIGNED_OUT for anonymous user while offline — preserving data, staying in cloud mode");
+            setCloudMode("cloud");
+            setCloudStatus("offline");
+            return;
+          }
+
+          // Online: re-create anonymous session without wiping data
+          console.log("[CloudSyncGate] SIGNED_OUT for anonymous user while online — preserving data, re-creating session");
+          setCloudMode("guest");
+          setCloudStatus("idle");
+          try {
+            await retryAsync("signInAnonymously (anon-recovery)", async () => {
+              const result = await supabase.auth.signInAnonymously();
+              if (result.error) throw result.error;
+              return result;
+            });
+            // SIGNED_IN handler will re-init cloud sync and push local data
+          } catch (err) {
+            logger.warn("CloudSync", "Failed to re-create anonymous session, data preserved locally", err);
+            useBudgetStore.getState().setCloudSyncReady();
+          }
+          return;
         }
 
         // Deactivate push notification token before clearing data
