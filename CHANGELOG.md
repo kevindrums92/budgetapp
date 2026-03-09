@@ -6,6 +6,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sync): protect anonymous users and handle Supabase server errors gracefully**
+  - Prevent data loss for anonymous cloud users when SIGNED_OUT fires (offline or online)
+  - Detect Supabase 500/network errors in `getSession()` and fall back to localStorage instead of showing false "session expired" modal
+  - Handle server errors on network reconnect without triggering recovery modal
+  - Add 8 unit tests covering anonymous data protection and Supabase outage scenarios
+
 ## [0.16.16] - 2026-03-09
 
 - **fix(android): centralize safe area insets as CSS variables for older Android WebViews**
