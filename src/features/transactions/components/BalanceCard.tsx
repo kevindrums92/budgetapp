@@ -15,9 +15,9 @@ type Props = {
 
 function amountSizeClass(text: string): string {
   const length = text.length;
-  if (length >= 18) return "text-sm";
-  if (length >= 14) return "text-[0.98rem]";
-  return "text-[1.14rem]";
+  if (length >= 18) return "text-xs min-[400px]:text-sm";
+  if (length >= 14) return "text-sm min-[400px]:text-[0.98rem]";
+  return "text-[0.93rem] min-[400px]:text-[1.14rem]";
 }
 
 export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
@@ -83,7 +83,7 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
 
             {/* Balance Amount */}
             <div className={totals.carryOver !== 0 ? "mb-2" : "mb-3.5"}>
-              <span className="text-4xl font-bold tracking-tight">{balanceFormatted}</span>
+              <span className="text-3xl min-[400px]:text-4xl font-bold tracking-tight">{balanceFormatted}</span>
             </div>
 
             {/* Carry-over line (when present) */}
@@ -150,7 +150,7 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
                   </span>
                 </div>
 
-                <p title={incomeLabel} className={`${amountSizeClass(incomeLabel)} font-bold tabular-nums text-white leading-tight tracking-tight break-all`}>
+                <p title={incomeLabel} className={`${amountSizeClass(incomeLabel)} font-bold tabular-nums text-white leading-tight tracking-tight truncate`}>
                   {incomeLabel}
                 </p>
               </button>
@@ -174,7 +174,7 @@ export default function BalanceCard({ activeFilter, onFilterChange }: Props) {
                   </span>
                 </div>
 
-                <p title={expenseLabel} className={`${amountSizeClass(expenseLabel)} font-bold tabular-nums text-white leading-tight tracking-tight break-all`}>
+                <p title={expenseLabel} className={`${amountSizeClass(expenseLabel)} font-bold tabular-nums text-white leading-tight tracking-tight truncate`}>
                   {expenseLabel}
                 </p>
               </button>

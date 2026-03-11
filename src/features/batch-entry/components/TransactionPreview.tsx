@@ -169,72 +169,74 @@ export default function TransactionPreview({
         </div>
       )}
 
-      {/* Transaction list */}
-      <div data-tour="batch-review-cards" className="mb-4 min-h-0 flex-1 space-y-2 overflow-y-auto">
-        {drafts.map((draft) => (
-          <TransactionDraftCard
-            key={draft.id}
-            draft={draft}
-            onUpdate={onUpdateDraft}
-            onDelete={onDeleteDraft}
-          />
-        ))}
-      </div>
+      {/* Transaction list + Actions — single scrollable area so buttons hide behind keyboard */}
+      <div data-tour="batch-review-cards" className="min-h-0 flex-1 flex flex-col overflow-y-auto">
+        <div className="space-y-2">
+          {drafts.map((draft) => (
+            <TransactionDraftCard
+              key={draft.id}
+              draft={draft}
+              onUpdate={onUpdateDraft}
+              onDelete={onDeleteDraft}
+            />
+          ))}
+        </div>
 
-      {/* Actions */}
-      {isFullScreen ? (
-        <div data-tour="batch-review-actions" className="shrink-0 space-y-3">
-          <button
-            type="button"
-            onClick={onSaveAll}
-            disabled={isSaving || !canSave}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3.5 text-sm font-medium text-white transition-all active:scale-[0.98] disabled:bg-gray-300 dark:disabled:bg-gray-700"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {t("review.saving")}
-              </>
-            ) : (
-              drafts.length > 1 ? t("review.saveAll") : t("review.save")
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isSaving}
-            className="w-full py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors active:text-gray-700 dark:active:text-gray-300 disabled:opacity-50"
-          >
-            {t("common.cancel")}
-          </button>
-        </div>
-      ) : (
-        <div data-tour="batch-review-actions" className="flex shrink-0 gap-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isSaving}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all active:scale-[0.98] disabled:opacity-50"
-          >
-            {t("common.cancel")}
-          </button>
-          <button
-            type="button"
-            onClick={onSaveAll}
-            disabled={isSaving || !canSave}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white transition-all active:scale-[0.98] disabled:bg-gray-300 dark:disabled:bg-gray-700"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                {t("review.saving")}
-              </>
-            ) : (
-              drafts.length > 1 ? t("review.saveAll") : t("review.save")
-            )}
-          </button>
-        </div>
-      )}
+        {/* Actions — mt-auto pushes to bottom when space allows */}
+        {isFullScreen ? (
+          <div data-tour="batch-review-actions" className="mt-auto space-y-3 pt-4">
+            <button
+              type="button"
+              onClick={onSaveAll}
+              disabled={isSaving || !canSave}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3.5 text-sm font-medium text-white transition-all active:scale-[0.98] disabled:bg-gray-300 dark:disabled:bg-gray-700"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("review.saving")}
+                </>
+              ) : (
+                drafts.length > 1 ? t("review.saveAll") : t("review.save")
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isSaving}
+              className="w-full py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors active:text-gray-700 dark:active:text-gray-300 disabled:opacity-50"
+            >
+              {t("common.cancel")}
+            </button>
+          </div>
+        ) : (
+          <div data-tour="batch-review-actions" className="mt-auto flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isSaving}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gray-100 dark:bg-gray-800 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all active:scale-[0.98] disabled:opacity-50"
+            >
+              {t("common.cancel")}
+            </button>
+            <button
+              type="button"
+              onClick={onSaveAll}
+              disabled={isSaving || !canSave}
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3 text-sm font-medium text-white transition-all active:scale-[0.98] disabled:bg-gray-300 dark:disabled:bg-gray-700"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {t("review.saving")}
+                </>
+              ) : (
+                drafts.length > 1 ? t("review.saveAll") : t("review.save")
+              )}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

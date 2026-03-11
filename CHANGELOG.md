@@ -7,6 +7,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(android): responsive BalanceCard and keyboard handling for smaller screens**
+  - Make balance and income/expense text sizes responsive with `min-[400px]:` breakpoint for narrow Android screens (e.g. Samsung A53)
+  - Replace `break-all` with `truncate` on income/expense amounts to prevent text wrapping
+  - Remove double keyboard compensation on AssistantPage (`adjustResize` + `--keyboard-height` padding)
+  - Move batch review action buttons into scrollable area so they hide behind keyboard during editing
+- **chore: add Android support to `configure-env.cjs` dev/prod script**
+  - Update `build.gradle` (applicationId, namespace), `strings.xml` (app_name), and `AndroidManifest.xml` (URL scheme) for dev builds
+  - Add `com.jhotech.smartspend.dev` entry to `google-services.json`
+
 ## [0.16.17] - 2026-03-09
 
 - **fix(sync): protect anonymous users and handle Supabase server errors gracefully**

@@ -117,7 +117,7 @@ export default function AssistantPage() {
 
   // --- Render ---
   return (
-    <div className="flex h-screen h-dvh flex-col bg-gray-50 dark:bg-gray-950" style={{ paddingBottom: 'var(--keyboard-height, 0px)' }}>
+    <div className="flex h-screen h-dvh flex-col bg-gray-50 dark:bg-gray-950">
       {/* Header */}
       <header
         className="sticky top-0 z-10 flex shrink-0 items-center justify-between bg-gray-50 dark:bg-gray-950 px-4 pb-3"
