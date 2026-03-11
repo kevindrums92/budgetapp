@@ -346,6 +346,74 @@ When an anonymous user (from `signInAnonymously()`) logs in with Google/Apple, `
 - LoginProScreen.tsx - Google/Apple OAuth buttons
 - LoginScreen.tsx - Guest mode OAuth buttons
 
+**Promotional Codes & Deep Links** (`src/shared/components/modals/PromoCodeSheet.tsx`):
+
+**CRITICAL**: Promo codes bypass RevenueCat entirely. They are managed server-side in Supabase (`promo_codes` + `promo_redemptions` tables) via the `redeem-promo` Edge Function.
+
+**Deep Link Scheme**: `smartspend://redeem?code=XXXX`
+
+```typescript
+// Deep link handling in main.tsx:
+// 1. CapacitorApp.addListener('appUrlOpen') intercepts the URL
+// 2. Parses code from smartspend://redeem?code=XXXX
+// 3. Dispatches custom event: window.dispatchEvent(new CustomEvent('redeem-promo-code', { detail: { code } }))
+// 4. PromoCodeRedeemer (App.tsx) catches event → opens PaywallModal with initialPromoCode
+
+// Native config:
+// iOS:  Info.plist → CFBundleURLSchemes: ["smartspend"]
+// Android: AndroidManifest.xml → <data android:scheme="smartspend" />
+```
+
+**PaywallModal + PromoCodeSheet integration**:
+```tsx
+// PaywallModal accepts initialPromoCode prop (from deep link)
+<PaywallModal
+  open={true}
+  onClose={handleClose}
+  trigger="upgrade_prompt"
+  onSelectPlan={handleSelectPlan}
+  initialPromoCode="SP-MONTHLY"  // Auto-opens PromoCodeSheet with code pre-filled
+/>
+
+// PromoCodeSheet calls Edge Function:
+const { data, error } = await supabase.functions.invoke('redeem-promo', {
+  body: { code: trimmed },
+  headers: { Authorization: `Bearer ${session.access_token}` },
+});
+// On success: refreshSubscription(userId) → updates store
+```
+
+**Promo subscription detection**:
+```typescript
+// subscription.service.ts detects promo subs by missing original_transaction_id
+// isPromo = true → SubscriptionManagementPage shows "Expires" instead of "Renews"
+// isPromo = true → hides "Manage in App Store" button
+```
+
+**Error codes** (Edge Function → PromoCodeSheet):
+- `INVALID_CODE` (404), `CODE_EXPIRED` (410), `CODE_EXHAUSTED` (410)
+- `CODE_INACTIVE` (410), `ALREADY_REDEEMED` (409), `ALREADY_PRO` (409)
+- `RATE_LIMIT` (429) — max 5 attempts/user/hour
+
+**Common Mistakes to Avoid**:
+
+❌ Using RevenueCat for promo code redemption
+✅ Promo codes go through Supabase Edge Function `redeem-promo` directly
+
+❌ Hardcoding promo codes in the client
+✅ Codes are validated server-side in `promo_codes` table
+
+❌ Forgetting to call `refreshSubscription()` after successful redemption
+✅ Always refresh subscription state so Pro features unlock immediately
+
+**Key Files**:
+- `src/shared/components/modals/PromoCodeSheet.tsx` — Bottom sheet UI
+- `src/shared/components/modals/PaywallModal.tsx` — Hosts promo button + `initialPromoCode` prop
+- `src/App.tsx` — `PromoCodeRedeemer` component (deep link event listener)
+- `src/main.tsx` — Deep link URL parser
+- `supabase/functions/redeem-promo/index.ts` — Server-side validation & redemption
+- `src/i18n/locales/*/paywall.json` — i18n keys under `promoCode.*`
+
 ---
 
 ## Design Guidelines

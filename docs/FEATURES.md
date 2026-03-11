@@ -1211,6 +1211,76 @@ Suite completa en `CloudSyncGate.test.tsx`:
 
 ---
 
+## 🎟️ Códigos Promocionales y Deep Links
+
+### Sistema de Códigos Promocionales
+
+Sistema completo de códigos promocionales para regalar suscripciones Pro. Bypass completo de RevenueCat — gestionado directamente en Supabase.
+
+**Tipos de código soportados:**
+- `co.smartspend.monthly` → 30 días Pro
+- `co.smartspend.annual` → 365 días Pro
+- `co.smartspend.lifetime` → Pro de por vida
+
+**Características:**
+- Validación server-side (Edge Function `redeem-promo`)
+- Rate limiting: 5 intentos por usuario por hora
+- Códigos con fecha de expiración y límite de usos
+- Auditoría completa en tablas `promo_codes` y `promo_redemptions`
+- Prevención de duplicados (un usuario no puede canjear el mismo código dos veces)
+- Detección de usuarios que ya tienen Pro lifetime
+- i18n completo (es, en, fr, pt) con mensajes de error específicos
+
+### Flujo Manual (In-App)
+
+1. Usuario abre el PaywallModal
+2. Toca "Tengo un código promocional" (icono Gift)
+3. Se abre `PromoCodeSheet` (bottom sheet con input)
+4. Ingresa el código (auto-uppercase, max 20 chars)
+5. Toca "Canjear" → Edge Function valida y activa suscripción
+6. Modal de éxito → suscripción activa
+
+### Deep Links
+
+**URL Scheme:** `smartspend://redeem?code=CODIGO`
+
+**Flujo:**
+1. Usuario toca el deep link (ej: desde email, SMS, redes sociales)
+2. `main.tsx` intercepta el deep link via `CapacitorApp.addListener('appUrlOpen')`
+3. Extrae el parámetro `code` y lo normaliza (uppercase, trim)
+4. Dispara evento custom `redeem-promo-code`
+5. `PromoCodeRedeemer` (App.tsx) captura el evento
+6. Abre `PaywallModal` con `initialPromoCode` pre-llenado
+7. `PromoCodeSheet` se abre con el código ya ingresado
+8. Usuario confirma tocando "Canjear"
+
+**Configuración nativa:**
+- **iOS**: `Info.plist` → `CFBundleURLSchemes: ["smartspend"]`
+- **Android**: `AndroidManifest.xml` → `<data android:scheme="smartspend" />`
+
+**Limitación actual:** El deep link solo funciona si la app ya está instalada. No soporta deferred deep links (el código se pierde si el usuario pasa por el App Store para instalar).
+
+### Landing Page (Uso Externo)
+
+Para compartir un código desde la web, se puede crear una página en la landing que:
+1. Intente abrir el deep link `smartspend://redeem?code=CODIGO`
+2. Si falla (app no instalada), redirija al App Store
+
+### Base de Datos
+
+**`promo_codes`:** Definición de códigos (code, product_id, max_redemptions, expires_at, is_active)
+**`promo_redemptions`:** Auditoría de canjes (code_id, user_id, redeemed_at) con UNIQUE(code_id, user_id)
+
+### Archivos Clave
+- `src/shared/components/modals/PromoCodeSheet.tsx` — UI del bottom sheet
+- `src/shared/components/modals/PaywallModal.tsx` — Botón "Tengo un código" + prop `initialPromoCode`
+- `src/App.tsx` — `PromoCodeRedeemer` component (listener de eventos)
+- `src/main.tsx` — Deep link parser (`smartspend://redeem?code=`)
+- `supabase/functions/redeem-promo/index.ts` — Edge Function de validación y canje
+- `src/i18n/locales/*/paywall.json` — Traducciones (key: `promoCode.*`)
+
+---
+
 ## 🚀 Roadmap (Futuro)
 
 Ver [ROADMAP.md](ROADMAP.md) para features planeados:

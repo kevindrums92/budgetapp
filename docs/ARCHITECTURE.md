@@ -356,6 +356,32 @@ features/pdf-export/
 
 ---
 
+### Feature: Promo Codes
+
+**Purpose**: Promotional code redemption system for gifting Pro subscriptions
+
+**Files**:
+- **Components**: `PromoCodeSheet` (bottom sheet with input), `PromoCodeRedeemer` (in App.tsx, deep link event listener)
+- **Modals**: `PaywallModal` (hosts promo code button + `initialPromoCode` prop)
+- **Edge Function**: `supabase/functions/redeem-promo/index.ts` (server-side validation & redemption)
+- **DB Tables**: `promo_codes`, `promo_redemptions` (migration: `20260221_create_promo_codes.sql`)
+
+**Routes**: N/A (modal-based, triggered via PaywallModal or deep link)
+
+**Deep Link**: `smartspend://redeem?code=XXXX`
+- Parsed in `main.tsx` → dispatches `redeem-promo-code` custom event
+- `PromoCodeRedeemer` in `App.tsx` catches event → opens PaywallModal with code pre-filled
+
+**Integration**:
+- Bypasses RevenueCat entirely — writes directly to `user_subscriptions` table via Edge Function
+- Subscription service (`subscription.service.ts`) checks Supabase for active promo subs as fallback
+- `isPromo` flag in SubscriptionState differentiates promo from App Store purchases
+- i18n: `paywall.json` → `promoCode.*` keys (4 languages)
+
+**Error Handling**: 7 specific error codes (INVALID_CODE, CODE_EXPIRED, CODE_EXHAUSTED, CODE_INACTIVE, ALREADY_REDEEMED, ALREADY_PRO, RATE_LIMIT)
+
+---
+
 ### Feature: Stats
 
 **Purpose**: Data visualization and analytics
@@ -448,6 +474,8 @@ Components in `src/shared/components/` are reusable across multiple features.
 
 - **ConfirmDialog**: Generic confirmation modal
 - **DatePicker**: Custom date picker (replaces native `<input type="date">`)
+- **PaywallModal**: Subscription paywall with plan selection + promo code entry
+- **PromoCodeSheet**: Bottom sheet for promo code redemption (auto-uppercase input, success/error states)
 
 ### Navigation (`shared/components/navigation/`)
 

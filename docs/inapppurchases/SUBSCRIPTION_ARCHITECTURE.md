@@ -737,6 +737,98 @@ If issues arise:
 
 ---
 
+## Promotional Codes System
+
+### Overview
+
+Promo codes are a **separate system from RevenueCat**. They bypass the App Store entirely and write directly to the `user_subscriptions` table via a Supabase Edge Function.
+
+### Architecture
+
+```
+User enters code (manual or deep link)
+    ↓
+PromoCodeSheet calls Edge Function `redeem-promo`
+    ↓
+Edge Function validates:
+  1. JWT auth (user must be logged in)
+  2. Rate limit (5 attempts/user/hour)
+  3. Code exists in promo_codes table
+  4. Code is active, not expired, not exhausted
+  5. User hasn't already redeemed this code
+  6. User doesn't have lifetime Pro
+    ↓
+Atomic transaction:
+  - Increment promo_codes.current_redemptions
+  - Insert promo_redemptions record
+  - Upsert user_subscriptions (status: active, expires_at based on product_id)
+  - Log to revenuecat_events (event_type: PROMO_REDEMPTION)
+    ↓
+Client calls refreshSubscription() → Pro features unlocked
+```
+
+### Deep Link Flow
+
+**URL**: `smartspend://redeem?code=XXXX`
+
+```
+Deep link opened → main.tsx parses URL
+    ↓
+Dispatches CustomEvent('redeem-promo-code', { code })
+    ↓
+PromoCodeRedeemer (App.tsx) catches event
+    ↓
+Opens PaywallModal with initialPromoCode prop
+    ↓
+PromoCodeSheet auto-opens with code pre-filled
+    ↓
+User taps "Canjear" → standard redemption flow
+```
+
+**Native config**: iOS `Info.plist` (`CFBundleURLSchemes: ["smartspend"]`), Android `AndroidManifest.xml` (`android:scheme="smartspend"`)
+
+**Limitation**: Deep links only work if the app is already installed. No deferred deep link support (code is lost through App Store install flow).
+
+### Database Tables
+
+**`promo_codes`** (migration: `20260221_create_promo_codes.sql`):
+| Column | Type | Description |
+|--------|------|-------------|
+| `code` | TEXT UNIQUE | The promotional code (e.g., "SP-MONTHLY") |
+| `product_id` | TEXT | `co.smartspend.{monthly\|annual\|lifetime}` |
+| `max_redemptions` | INT | Total uses allowed |
+| `current_redemptions` | INT | Uses so far |
+| `expires_at` | TIMESTAMPTZ | When code stops working |
+| `is_active` | BOOLEAN | Enable/disable code |
+
+**`promo_redemptions`** (audit trail):
+| Column | Type | Description |
+|--------|------|-------------|
+| `code_id` | UUID FK | Reference to promo_codes |
+| `user_id` | TEXT | Supabase auth user ID |
+| `redeemed_at` | TIMESTAMPTZ | When redeemed |
+| UNIQUE | | `(code_id, user_id)` — one redemption per user per code |
+
+### Subscription Service Integration
+
+- `subscription.service.ts` checks Supabase for active promo subs when RevenueCat returns expired/cancelled
+- Promo subs have no `original_transaction_id` → detected as `isPromo = true`
+- `isPromo` flag affects UI: shows "Expires" instead of "Renews", hides App Store management
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `src/shared/components/modals/PromoCodeSheet.tsx` | Bottom sheet UI for code entry/redemption |
+| `src/shared/components/modals/PaywallModal.tsx` | Hosts promo code button + `initialPromoCode` prop |
+| `src/App.tsx` | `PromoCodeRedeemer` component (deep link listener) |
+| `src/main.tsx` | Deep link URL parser |
+| `supabase/functions/redeem-promo/index.ts` | Edge Function: validation + atomic redemption |
+| `supabase/migrations/20260221_create_promo_codes.sql` | DB migration |
+| `src/i18n/locales/*/paywall.json` | i18n (key: `promoCode.*`) |
+
+---
+
 ## Future Enhancements
 
 ### 1. Server-Side Feature Gates
