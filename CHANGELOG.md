@@ -3,9 +3,15 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
-
-
 ## [unreleased] - {relase date}
+
+## [0.16.18] - 2026-03-11
+
+- **fix(android): responsive BalanceCard and keyboard handling for smaller screens**
+  - Make balance and income/expense text sizes responsive with `min-[400px]:` breakpoint for narrow Android screens (e.g. Samsung A53)
+  - Replace `break-all` with `truncate` on income/expense amounts to prevent text wrapping
+  - Remove double keyboard compensation on AssistantPage (`adjustResize` + `--keyboard-height` padding)
+  - Move batch review action buttons into scrollable area so they hide behind keyboard during editing
 
 ## [0.16.17] - 2026-03-09
 
