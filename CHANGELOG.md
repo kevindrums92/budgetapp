@@ -2,7 +2,10 @@
 
 All notable changes to SmartSpend will be documented in this file.
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.18] - 2026-03-11
 
 - **fix(android): responsive BalanceCard and keyboard handling for smaller screens**
   - Make balance and income/expense text sizes responsive with `min-[400px]:` breakpoint for narrow Android screens (e.g. Samsung A53)
