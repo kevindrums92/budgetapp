@@ -5,6 +5,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **security(edge-functions): validate payload size in parse-batch**
+  - Enforce 12MB global body size limit via `Content-Length` header check
+  - Validate individual field sizes: text (100KB), image base64 (7MB/~5MB decoded), audio base64 (14MB/~10MB decoded)
+  - Return HTTP 413 with `PAYLOAD_TOO_LARGE` error code for oversized requests
+  - Add security audit checklist (`docs/SECURITY_AUDIT.md`) with 15 prioritized tasks
+
 ## [0.16.18] - 2026-03-11
 
 - **fix(android): responsive BalanceCard and keyboard handling for smaller screens**

@@ -23,7 +23,7 @@ Auditoría de seguridad completa de la arquitectura SmartSpend: RLS policies, Ed
   - **Fix:** Crear lista blanca de dominios permitidos (dominio de la app, preview/staging). Para funciones nativas (Capacitor), el origin es `null` — asegurarse de manejarlo.
   - **Notas:** El webhook de RevenueCat no necesita CORS (server-to-server).
 
-- [ ] **SEC-02: Validar tamaño de payload en parse-batch**
+- [x] **SEC-02: Validar tamaño de payload en parse-batch**
   - **Riesgo:** No hay límite de tamaño en `audioBase64`, `imageBase64`, ni `data` (texto). Un atacante puede enviar payloads de GB, agotando cuota de Gemini/OpenAI y generando costos.
   - **Archivo:** `supabase/functions/parse-batch/index.ts`
   - **Fix:** Validar antes de procesar:
