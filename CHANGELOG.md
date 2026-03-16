@@ -5,6 +5,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(ui): redesign PaywallModal with toggle plan selector**
+  - Replace PricingCard components with animated Mensual/Anual toggle selector
+  - Show dynamic price display based on selected plan (monthly/annual)
+  - Add prominent promo code button above CTA for launch visibility
+  - Add app logo above title for brand recognition
+  - Remove lifetime plan from paywall UI (kept in backend)
+  - Update i18n paywall strings across 4 languages (es, en, fr, pt)
+  - Support both light and dark themes
+
 - **security(edge-functions): validate payload size in parse-batch**
   - Enforce 12MB global body size limit via `Content-Length` header check
   - Validate individual field sizes: text (100KB), image base64 (7MB/~5MB decoded), audio base64 (14MB/~10MB decoded)

@@ -1,5 +1,5 @@
 {
-  "title": "Desbloquea SmartSpend Pro",
+  "title": "SmartSpend Pro",
   "subtitle": {
     "generic": "Disfruta una experiencia sin anuncios y registros con IA ilimitados",
     "onboarding": "Comienza con 7 dias gratis sin anuncios y con IA ilimitada",
@@ -23,9 +23,9 @@
     "bestValue": "Mejor Valor"
   },
   "savings": "Ahorra {{percent}}%",
-  "equivalentMonthly": "equivale a ${{price}}/mes",
+  "equivalentMonthly": "equivale a solo ${{price}} al mes",
   "cta": {
-    "startTrial": "Iniciar prueba gratuita de 7 dias",
+    "startTrial": "Iniciar prueba de 7 dias",
     "subscribe": "Suscribirme",
     "restore": "Restaurar compras"
   },

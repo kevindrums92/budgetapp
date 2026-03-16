@@ -1,5 +1,5 @@
 {
-  "title": "Unlock SmartSpend Pro",
+  "title": "SmartSpend Pro",
   "subtitle": {
     "generic": "Enjoy an ad-free experience with unlimited AI-powered entries",
     "onboarding": "Start with 7 free days of ad-free and unlimited AI",
@@ -23,7 +23,7 @@
     "bestValue": "Best Value"
   },
   "savings": "Save {{percent}}%",
-  "equivalentMonthly": "equals ${{price}}/month",
+  "equivalentMonthly": "just ${{price}}/month",
   "cta": {
     "startTrial": "Start 7-day free trial",
     "subscribe": "Subscribe",
