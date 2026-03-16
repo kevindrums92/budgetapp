@@ -3,8 +3,9 @@
  * Shows extracted transactions for user review before saving
  */
 
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Loader2, Info, Receipt, Trash2 } from "lucide-react";
+import { Loader2, Info, Receipt, Trash2, Layers, X } from "lucide-react";
 import { useCurrency } from "@/features/currency";
 import type { TransactionDraft } from "../types/batch-entry.types";
 import TransactionDraftCard from "./TransactionDraftCard";
@@ -13,6 +14,7 @@ type Props = {
   drafts: TransactionDraft[];
   onUpdateDraft: (id: string, updates: Partial<TransactionDraft>) => void;
   onDeleteDraft: (id: string) => void;
+  onMergeDrafts?: (selectedIds: string[]) => void;
   onSaveAll: () => void;
   onCancel: () => void;
   onClose: () => void;
@@ -24,6 +26,7 @@ export default function TransactionPreview({
   drafts,
   onUpdateDraft,
   onDeleteDraft,
+  onMergeDrafts,
   onSaveAll,
   onCancel,
   onClose,
@@ -32,6 +35,39 @@ export default function TransactionPreview({
 }: Props) {
   const { t } = useTranslation("batch");
   const { formatAmount } = useCurrency();
+
+  // Selection mode state
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Clean up selectedIds when drafts change (e.g., after merge)
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      const draftIds = new Set(drafts.map((d) => d.id));
+      const cleaned = new Set([...prev].filter((id) => draftIds.has(id)));
+      return cleaned.size !== prev.size ? cleaned : prev;
+    });
+  }, [drafts]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const exitSelectMode = () => {
+    setIsSelectMode(false);
+    setSelectedIds(new Set());
+  };
+
+  // Check if selected items have mixed types
+  const selectedDrafts = drafts.filter((d) => selectedIds.has(d.id));
+  const selectedTypes = new Set(selectedDrafts.map((d) => d.type));
+  const hasMixedTypes = selectedTypes.size > 1;
+  const canMerge = selectedIds.size >= 2 && !hasMixedTypes;
 
   // Calculate totals
   const totalIncome = drafts
@@ -169,6 +205,46 @@ export default function TransactionPreview({
         </div>
       )}
 
+      {/* Merge button — visible when 2+ drafts and not in select mode */}
+      {drafts.length >= 2 && !isSelectMode && onMergeDrafts && (
+        <div className="mb-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsSelectMode(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all active:scale-[0.98]"
+          >
+            <Layers className="h-4 w-4 text-[#18B7B0]" />
+            {t("merge.startButton")}
+          </button>
+        </div>
+      )}
+
+      {/* Selection mode toolbar */}
+      {isSelectMode && (
+        <div className="mb-3 shrink-0 flex items-center justify-between rounded-xl bg-[#18B7B0]/10 dark:bg-[#18B7B0]/20 px-3 py-2.5">
+          <span className="text-sm font-medium text-[#18B7B0]">
+            {t("merge.selectedCount", { count: selectedIds.size })}
+          </span>
+          <button
+            type="button"
+            onClick={exitSelectMode}
+            className="flex items-center gap-1 text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors active:text-gray-700"
+          >
+            <X className="h-4 w-4" />
+            {t("common.cancel")}
+          </button>
+        </div>
+      )}
+
+      {/* Mixed type warning */}
+      {isSelectMode && hasMixedTypes && (
+        <div className="mb-3 shrink-0 rounded-xl bg-amber-50 dark:bg-amber-900/20 px-3 py-2">
+          <p className="text-xs text-amber-700 dark:text-amber-400">
+            {t("merge.mixedTypeWarning")}
+          </p>
+        </div>
+      )}
+
       {/* Transaction list + Actions — single scrollable area so buttons hide behind keyboard */}
       <div data-tour="batch-review-cards" className="min-h-0 flex-1 flex flex-col overflow-y-auto">
         <div className="space-y-2">
@@ -178,12 +254,32 @@ export default function TransactionPreview({
               draft={draft}
               onUpdate={onUpdateDraft}
               onDelete={onDeleteDraft}
+              isSelectMode={isSelectMode}
+              isSelected={selectedIds.has(draft.id)}
+              onToggleSelect={toggleSelect}
             />
           ))}
         </div>
 
-        {/* Actions — mt-auto pushes to bottom when space allows */}
-        {isFullScreen ? (
+        {/* Merge confirm button — inside scroll area, after cards */}
+        {isSelectMode && canMerge && (
+          <div className="pt-3">
+            <button
+              type="button"
+              onClick={() => {
+                onMergeDrafts?.(Array.from(selectedIds));
+                exitSelectMode();
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#18B7B0] py-3 text-sm font-medium text-white transition-all active:scale-[0.98]"
+            >
+              <Layers className="h-4 w-4" />
+              {t("merge.mergeButton", { count: selectedIds.size })}
+            </button>
+          </div>
+        )}
+
+        {/* Actions — hidden during select mode to avoid confusion */}
+        {!isSelectMode && (isFullScreen ? (
           <div data-tour="batch-review-actions" className="mt-auto space-y-3 pt-4">
             <button
               type="button"
@@ -235,7 +331,7 @@ export default function TransactionPreview({
               )}
             </button>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

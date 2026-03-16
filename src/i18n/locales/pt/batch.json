@@ -84,6 +84,13 @@
     "expense": "Despesa",
     "income": "Receita"
   },
+  "merge": {
+    "startButton": "Unificar transações",
+    "selectedCount_one": "{{count}} selecionada",
+    "selectedCount_other": "{{count}} selecionadas",
+    "mergeButton": "Unificar ({{count}})",
+    "mixedTypeWarning": "Você só pode unificar transações do mesmo tipo"
+  },
   "errors": {
     "generic": "Algo deu errado. Verifique sua conexão e tente novamente.",
     "loginRequired": "Você precisa estar logado para usar esta função",

@@ -5,6 +5,13 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(batch-entry): add merge/unify transaction drafts in AI Assistant**
+  - Select 2+ drafts of the same type and merge into a single transaction
+  - Merged draft sums amounts, concatenates names, picks most frequent category
+  - Selection mode with checkboxes, mixed-type warning, and dedicated merge button
+  - Hide save/cancel actions during selection mode to avoid confusion
+  - Add i18n merge keys across 4 languages (es, en, fr, pt)
+
 - **refactor(ui): redesign PaywallModal with toggle plan selector**
   - Replace PricingCard components with animated Mensual/Anual toggle selector
   - Show dynamic price display based on selected plan (monthly/annual)

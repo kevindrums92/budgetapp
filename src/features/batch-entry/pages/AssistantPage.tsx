@@ -43,6 +43,7 @@ export default function AssistantPage() {
     handleAudioCapture,
     handleUpdateDraft,
     handleDeleteDraft,
+    handleMergeDrafts,
     handleSaveAll,
     handleWatchRewardedVideo,
     handleRetry,
@@ -279,6 +280,7 @@ export default function AssistantPage() {
               drafts={drafts}
               onUpdateDraft={handleUpdateDraft}
               onDeleteDraft={handleDeleteDraft}
+              onMergeDrafts={handleMergeDrafts}
               onSaveAll={handleSaveAllAndGoBack}
               onCancel={handleRetry}
               onClose={handleClosePreview}
