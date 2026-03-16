@@ -120,6 +120,7 @@ import {
   extractPatterns,
   postProcessWithHistory,
 } from "../services/historyMatcher.service";
+import { mergeDrafts as mergeDraftsService } from "../services/mergeDrafts.service";
 import type { HistoryPattern } from "../types/batch-entry.types";
 import InputTypeSelector from "./InputTypeSelector";
 import VoiceRecorder from "./VoiceRecorder";
@@ -538,6 +539,10 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
     setDrafts((prev) => prev.filter((d) => d.id !== id));
   };
 
+  const handleMergeDrafts = (selectedIds: string[]) => {
+    setDrafts((prev) => mergeDraftsService(selectedIds, prev));
+  };
+
   const handleSaveAll = async () => {
     // Validation is done in TransactionPreview (save button is disabled if invalid)
     // This is a safety check in case it's called programmatically
@@ -765,6 +770,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
           drafts={drafts}
           onUpdateDraft={handleUpdateDraft}
           onDeleteDraft={handleDeleteDraft}
+          onMergeDrafts={handleMergeDrafts}
           onSaveAll={handleSaveAll}
           onCancel={handleRetry}
           onClose={onClose}

@@ -3,7 +3,32 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.19] - 2026-03-15
+
+- **feat(batch-entry): add merge/unify transaction drafts in AI Assistant**
+  - Select 2+ drafts of the same type and merge into a single transaction
+  - Merged draft sums amounts, concatenates names, picks most frequent category
+  - Selection mode with checkboxes, mixed-type warning, and dedicated merge button
+  - Hide save/cancel actions during selection mode to avoid confusion
+  - Add i18n merge keys across 4 languages (es, en, fr, pt)
+
+- **refactor(ui): redesign PaywallModal with toggle plan selector**
+  - Replace PricingCard components with animated Mensual/Anual toggle selector
+  - Show dynamic price display based on selected plan (monthly/annual)
+  - Add prominent promo code button above CTA for launch visibility
+  - Add app logo above title for brand recognition
+  - Remove lifetime plan from paywall UI (kept in backend)
+  - Update i18n paywall strings across 4 languages (es, en, fr, pt)
+  - Support both light and dark themes
+
+- **security(edge-functions): validate payload size in parse-batch**
+  - Enforce 12MB global body size limit via `Content-Length` header check
+  - Validate individual field sizes: text (100KB), image base64 (7MB/~5MB decoded), audio base64 (14MB/~10MB decoded)
+  - Return HTTP 413 with `PAYLOAD_TOO_LARGE` error code for oversized requests
+  - Add security audit checklist (`docs/SECURITY_AUDIT.md`) with 15 prioritized tasks
 
 ## [0.16.18] - 2026-03-11
 

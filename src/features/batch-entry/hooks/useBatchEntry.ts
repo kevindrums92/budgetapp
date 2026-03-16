@@ -26,6 +26,7 @@ import {
   extractPatterns,
   postProcessWithHistory,
 } from "../services/historyMatcher.service";
+import { mergeDrafts as mergeDraftsService } from "../services/mergeDrafts.service";
 
 // --- Category mapping constants ---
 
@@ -320,6 +321,10 @@ export function useBatchEntry() {
     setDrafts((prev) => prev.filter((d) => d.id !== id));
   };
 
+  const handleMergeDrafts = (selectedIds: string[]) => {
+    setDrafts((prev) => mergeDraftsService(selectedIds, prev));
+  };
+
   const handleSaveAll = async () => {
     const hasInvalidDrafts = drafts.some((d) => !d.category || d.amount <= 0);
     if (hasInvalidDrafts || drafts.length === 0) return;
@@ -412,6 +417,7 @@ export function useBatchEntry() {
     handleAudioCapture,
     handleUpdateDraft,
     handleDeleteDraft,
+    handleMergeDrafts,
     handleSaveAll,
     handleWatchRewardedVideo,
     handleRetry,

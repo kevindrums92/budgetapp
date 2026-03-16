@@ -84,6 +84,13 @@
     "expense": "Gasto",
     "income": "Ingreso"
   },
+  "merge": {
+    "startButton": "Unificar transacciones",
+    "selectedCount_one": "{{count}} seleccionada",
+    "selectedCount_other": "{{count}} seleccionadas",
+    "mergeButton": "Unificar ({{count}})",
+    "mixedTypeWarning": "Solo puedes unificar transacciones del mismo tipo"
+  },
   "errors": {
     "generic": "Algo salió mal. Revisa tu conexión e intenta de nuevo.",
     "loginRequired": "Debes iniciar sesión para usar esta función",

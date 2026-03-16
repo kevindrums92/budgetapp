@@ -558,7 +558,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 3. Parse request body
+    // 3. Parse request body (enforce max body size: 12MB)
+    const MAX_BODY_SIZE = 12 * 1024 * 1024; // 12MB total
+    const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
+    if (contentLength > MAX_BODY_SIZE) {
+      return new Response(
+        JSON.stringify({ success: false, error: "PAYLOAD_TOO_LARGE", message: "El archivo es demasiado grande. Máximo 10MB." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const body = await req.json();
     const { inputType, data, imageBase64, audioBase64, audioMimeType, localDate, historyPatterns } = body as {
       inputType: "text" | "image" | "audio";
@@ -575,6 +584,32 @@ Deno.serve(async (req) => {
         type: "income" | "expense";
       }>;
     };
+
+    // 3b. Validate individual field sizes
+    const MAX_TEXT_SIZE = 100 * 1024;        // 100KB for text input
+    const MAX_IMAGE_B64_SIZE = 7 * 1024 * 1024; // ~5MB decoded (base64 inflates ~33%)
+    const MAX_AUDIO_B64_SIZE = 14 * 1024 * 1024; // ~10MB decoded
+
+    if (data && data.length > MAX_TEXT_SIZE) {
+      return new Response(
+        JSON.stringify({ success: false, error: "PAYLOAD_TOO_LARGE", message: "El texto es demasiado largo. Máximo 100KB." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (imageBase64 && imageBase64.length > MAX_IMAGE_B64_SIZE) {
+      return new Response(
+        JSON.stringify({ success: false, error: "PAYLOAD_TOO_LARGE", message: "La imagen es demasiado grande. Máximo 5MB." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (audioBase64 && audioBase64.length > MAX_AUDIO_B64_SIZE) {
+      return new Response(
+        JSON.stringify({ success: false, error: "PAYLOAD_TOO_LARGE", message: "El audio es demasiado grande. Máximo 10MB." }),
+        { status: 413, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     console.log(`[parse-batch] History patterns received: ${historyPatterns?.length || 0}`);
 

@@ -84,6 +84,13 @@
     "expense": "Dépense",
     "income": "Revenu"
   },
+  "merge": {
+    "startButton": "Fusionner les transactions",
+    "selectedCount_one": "{{count}} sélectionnée",
+    "selectedCount_other": "{{count}} sélectionnées",
+    "mergeButton": "Fusionner ({{count}})",
+    "mixedTypeWarning": "Vous ne pouvez fusionner que des transactions du même type"
+  },
   "errors": {
     "generic": "Une erreur est survenue. Vérifiez votre connexion et réessayez.",
     "loginRequired": "Vous devez être connecté pour utiliser cette fonction",

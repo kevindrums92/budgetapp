@@ -84,6 +84,13 @@
     "expense": "Expense",
     "income": "Income"
   },
+  "merge": {
+    "startButton": "Merge transactions",
+    "selectedCount_one": "{{count}} selected",
+    "selectedCount_other": "{{count}} selected",
+    "mergeButton": "Merge ({{count}})",
+    "mixedTypeWarning": "You can only merge transactions of the same type"
+  },
   "errors": {
     "generic": "Something went wrong. Check your connection and try again.",
     "loginRequired": "You must be logged in to use this feature",

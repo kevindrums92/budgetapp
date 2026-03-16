@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import * as icons from "lucide-react";
-import { Trash2, AlertCircle, ChevronDown, CalendarDays } from "lucide-react";
+import { Trash2, AlertCircle, ChevronDown, CalendarDays, Circle, CheckCircle2 } from "lucide-react";
 import { useCurrency } from "@/features/currency";
 import { useBudgetStore } from "@/state/budget.store";
 import CategoryPickerDrawer from "@/features/categories/components/CategoryPickerDrawer";
@@ -17,6 +17,9 @@ type Props = {
   draft: TransactionDraft;
   onUpdate: (id: string, updates: Partial<TransactionDraft>) => void;
   onDelete: (id: string) => void;
+  isSelectMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
 };
 
 // Convert kebab-case icon name to PascalCase for lucide-react
@@ -27,7 +30,7 @@ function kebabToPascal(str: string): string {
     .join("");
 }
 
-export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Props) {
+export default function TransactionDraftCard({ draft, onUpdate, onDelete, isSelectMode, isSelected, onToggleSelect }: Props) {
   const { t, i18n } = useTranslation("batch");
   const { currencyInfo, formatAmount } = useCurrency();
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
@@ -124,12 +127,30 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
   };
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-gray-800 p-3 shadow-sm">
+    <div
+      className={`rounded-2xl bg-white dark:bg-gray-800 p-3 shadow-sm transition-all ${
+        isSelected ? "ring-2 ring-inset ring-[#18B7B0]" : ""
+      }`}
+      onClick={isSelectMode ? () => onToggleSelect?.(draft.id) : undefined}
+      role={isSelectMode ? "button" : undefined}
+    >
       <div className="flex items-center gap-3">
+        {/* Selection checkbox */}
+        {isSelectMode && (
+          <div className="shrink-0">
+            {isSelected ? (
+              <CheckCircle2 className="h-5 w-5 text-[#18B7B0]" />
+            ) : (
+              <Circle className="h-5 w-5 text-gray-300 dark:text-gray-600" />
+            )}
+          </div>
+        )}
+
         {/* Category Icon */}
         <button
           type="button"
-          onClick={() => setShowCategoryPicker(true)}
+          onClick={isSelectMode ? undefined : () => setShowCategoryPicker(true)}
+          disabled={isSelectMode}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all active:scale-95"
           style={{ backgroundColor: categoryColor + "20" }}
         >
@@ -256,14 +277,16 @@ export default function TransactionDraftCard({ draft, onUpdate, onDelete }: Prop
           )}
         </div>
 
-        {/* Delete button */}
-        <button
-          type="button"
-          onClick={() => onDelete(draft.id)}
-          className="shrink-0 rounded-full p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 active:scale-95"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        {/* Delete button - hidden in select mode */}
+        {!isSelectMode && (
+          <button
+            type="button"
+            onClick={() => onDelete(draft.id)}
+            className="shrink-0 rounded-full p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 dark:hover:text-red-400 active:scale-95"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Category Picker - showAllTypes for batch review so user can fix wrong type */}
