@@ -3,7 +3,10 @@
 All notable changes to SmartSpend will be documented in this file.
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.19] - 2026-03-15
 
 - **feat(batch-entry): add merge/unify transaction drafts in AI Assistant**
   - Select 2+ drafts of the same type and merge into a single transaction
