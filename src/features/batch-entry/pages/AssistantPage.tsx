@@ -5,7 +5,7 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, Sparkles, WifiOff, X, Loader2, Lightbulb, Mic, Camera, Type, Image as ImageIcon } from "lucide-react";
 import { isNative } from "@/shared/utils/platform";
@@ -23,10 +23,14 @@ import type { BatchInputType } from "../types/batch-entry.types";
 
 export default function AssistantPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { t } = useTranslation("batch");
   const initialMode = searchParams.get("mode") as BatchInputType | null;
+  const autoSubmit = searchParams.get("autoSubmit") === "true";
+  const batchText = (location.state as { batchText?: string } | null)?.batchText;
   const hasTriggeredInitialMode = useRef(false);
+  const hasTriggeredAutoSubmit = useRef(false);
   const {
     flowState,
     drafts,
@@ -89,6 +93,16 @@ export default function AssistantPage() {
       console.error("[AssistantPage] Image capture error:", err);
     }
   }, [handleImageCapture]);
+
+  // Auto-submit batch text from deep link (iOS Shortcut → smartspend://batch?text=...)
+  useEffect(() => {
+    if (!autoSubmit || !batchText || hasTriggeredAutoSubmit.current) return;
+    if (flowState !== "idle") return;
+
+    hasTriggeredAutoSubmit.current = true;
+    console.log('[AssistantPage] Auto-submitting batch text from shortcut:', batchText);
+    handleTextSubmit(batchText);
+  }, [autoSubmit, batchText, flowState, handleTextSubmit]);
 
   // Handle initial mode from URL params
   useEffect(() => {

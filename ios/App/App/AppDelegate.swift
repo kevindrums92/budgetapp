@@ -37,7 +37,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        // Check for pending deep link from iOS Shortcuts (App Intents)
+        if let pendingURL = UserDefaults.standard.string(forKey: "pendingShortcutDeepLink"),
+           let url = URL(string: pendingURL) {
+            UserDefaults.standard.removeObject(forKey: "pendingShortcutDeepLink")
+            // Small delay to ensure Capacitor WebView is ready
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                _ = ApplicationDelegateProxy.shared.application(application, open: url, options: [:])
+            }
+        }
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

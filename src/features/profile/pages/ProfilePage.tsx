@@ -8,9 +8,9 @@ import { useTheme } from "@/features/theme";
 import { useCurrency } from "@/features/currency";
 import { useSubscription } from "@/hooks/useSubscription";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
-import { User, UserCircle2, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown, Chrome, Apple, AlertTriangle, ArrowRight } from "lucide-react";
+import { User, UserCircle2, ChevronRight, Shield, Repeat, RefreshCw, Languages, Palette, DollarSign, FileText, Folder, ScrollText, Lock, Fingerprint, Bell, Sparkles, CloudOff, CloudCheck, Crown, Chrome, Apple, AlertTriangle, ArrowRight, Smartphone } from "lucide-react";
 import { Capacitor } from '@capacitor/core';
-import { isNative } from '@/shared/utils/platform';
+import { isNative, isIOS } from '@/shared/utils/platform';
 import PaywallModal from '@/shared/components/modals/PaywallModal';
 import { authenticateWithBiometrics, checkBiometricAvailability, getBiometryDisplayName } from "@/features/biometric/services/biometric.service";
 import { openLegalPage } from '@/shared/utils/browser.utils';
@@ -657,6 +657,14 @@ export default function ProfilePage() {
               sublabel={t('menu.scheduledSubtitle')}
               onClick={() => navigate("/scheduled")}
             />
+            {isIOS() && (
+              <MenuItem
+                icon={<Smartphone size={20} />}
+                label={t('menu.title', { ns: 'shortcuts' })}
+                sublabel={t('menu.subtitle', { ns: 'shortcuts' })}
+                onClick={() => navigate("/settings/shortcuts")}
+              />
+            )}
           </div>
         </div>
 

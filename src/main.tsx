@@ -68,9 +68,55 @@ if (isNative()) {
     }
   });
 
-  // Handle deep links (OAuth callbacks, promo code redemption)
+  // Handle deep links (OAuth callbacks, promo code redemption, quick-add)
   CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
     console.log('[DeepLink] Received URL:', url);
+
+    // Check if this is a batch entry link (smartspend://batch?text=...)
+    if (url.includes('/batch?') || url.includes('/batch')) {
+      try {
+        const urlObj = new URL(url);
+        const text = urlObj.searchParams.get('text');
+        if (text) {
+          console.log('[DeepLink] Batch entry text:', text);
+          // Store in localStorage as fallback (in case React hasn't mounted yet)
+          localStorage.setItem('pendingBatchText', text);
+          // Also dispatch event for immediate handling
+          window.dispatchEvent(new CustomEvent('batch-entry-text', {
+            detail: { text },
+          }));
+        } else {
+          console.warn('[DeepLink] Batch link missing text parameter');
+        }
+      } catch (err) {
+        console.error('[DeepLink] Error parsing batch URL:', err);
+        captureError(err, { context: 'deepLink.batch', url });
+      }
+      return;
+    }
+
+    // Check if this is a quick-add transaction link (smartspend://add?amount=X&name=Y)
+    if (url.includes('/add?') || url.match(/\/add$/)) {
+      try {
+        const urlObj = new URL(url);
+        const params = {
+          name: urlObj.searchParams.get('name') || '',
+          amount: urlObj.searchParams.get('amount') || '',
+          type: urlObj.searchParams.get('type') || 'expense',
+          date: urlObj.searchParams.get('date') || '',
+          category: urlObj.searchParams.get('category') || '',
+          notes: urlObj.searchParams.get('notes') || '',
+        };
+        console.log('[DeepLink] Quick-add transaction:', params);
+        window.dispatchEvent(new CustomEvent('quick-add-transaction', {
+          detail: params,
+        }));
+      } catch (err) {
+        console.error('[DeepLink] Error parsing add URL:', err);
+        captureError(err, { context: 'deepLink.quickAdd', url });
+      }
+      return;
+    }
 
     // Check if this is a promo code redemption link (smartspend://redeem?code=XXXX)
     if (url.includes('/redeem') || url.includes('redeem?')) {

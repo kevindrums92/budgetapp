@@ -1,0 +1,65 @@
+{
+  "title": "Atajos de iOS",
+  "subtitle": "Registra gastos automáticamente desde Apple Pay",
+  "description": "Usa los Atajos de iOS para registrar tus pagos de Apple Pay directamente en SmartSpend. Cuando hagas un pago, el atajo abrirá SmartSpend con los datos pre-llenados.",
+  "howItWorks": {
+    "title": "Cómo funciona",
+    "step1": "Realizas un pago con Apple Pay",
+    "step2": "El atajo de iOS se activa automáticamente",
+    "step3": "SmartSpend se abre con los datos del pago",
+    "step4": "Revisas y guardas la transacción"
+  },
+  "setup": {
+    "title": "Configuración",
+    "auto": {
+      "title": "Automático (iOS 17.2+)",
+      "description": "Si tu banco soporta notificaciones de transacciones en Wallet, puedes crear una automatización que se active con cada pago.",
+      "steps": {
+        "1": "Abre la app Atajos en tu iPhone",
+        "2": "Ve a la pestaña Automatización",
+        "3": "Toca + y selecciona Wallet",
+        "4": "Selecciona tu(s) tarjeta(s) y toca Siguiente",
+        "5": "Selecciona Ejecutar inmediatamente",
+        "6": "Agrega la acción Abrir URL",
+        "7": "Pega la URL de abajo — [Amount] y [Merchant] se llenan automáticamente con cada pago"
+      },
+      "note": "Disponible solo con Apple Card y bancos compatibles con la API de Wallet."
+    },
+    "manual": {
+      "title": "Manual (todas las versiones)",
+      "description": "Crea un atajo que puedas ejecutar manualmente o con Siri después de cada pago.",
+      "steps": {
+        "1": "Abre la app Atajos en tu iPhone",
+        "2": "Toca + para crear un nuevo atajo",
+        "3": "Busca SmartSpend Dev en Apps",
+        "4": "Selecciona la acción Ingreso inteligente",
+        "5": "Escribe tu gasto en texto natural",
+        "6": "Nombra el atajo (ej: \"Registrar gasto\")",
+        "7": "Ahora puedes decir: \"Oye Siri, registrar gasto\""
+      }
+    }
+  },
+  "urlFormat": {
+    "title": "Formato de URL",
+    "description": "Esta es la URL para la automatización de Wallet. Los valores [Amount] y [Merchant] son variables que iOS rellena automáticamente con los datos del pago.",
+    "params": {
+      "amount": "[Amount] — monto del pago (automático)",
+      "name": "[Merchant] — nombre del comercio (automático)",
+      "type": "Tipo: expense o income (por defecto: expense)",
+      "date": "Fecha en formato AAAA-MM-DD (por defecto: hoy)",
+      "notes": "Notas adicionales"
+    },
+    "example": "Ejemplo",
+    "copied": "URL copiada"
+  },
+  "tips": {
+    "title": "Consejos",
+    "smartCategory": "SmartSpend detecta automáticamente la categoría basándose en tu historial de transacciones y el nombre del comercio.",
+    "siri": "Nombra tu atajo algo corto como \"Registrar gasto\" para activarlo fácilmente con Siri.",
+    "widget": "Agrega el atajo a tu pantalla de inicio como widget para acceso rápido."
+  },
+  "menu": {
+    "title": "Atajos de iOS",
+    "subtitle": "Conectar Apple Pay con SmartSpend"
+  }
+}
