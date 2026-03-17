@@ -1,0 +1,65 @@
+{
+  "title": "iOS Shortcuts",
+  "subtitle": "Automatically log expenses from Apple Pay",
+  "description": "Use iOS Shortcuts to log your Apple Pay payments directly in SmartSpend. When you make a payment, the shortcut will open SmartSpend with the payment data pre-filled.",
+  "howItWorks": {
+    "title": "How it works",
+    "step1": "You make a payment with Apple Pay",
+    "step2": "The iOS shortcut triggers automatically",
+    "step3": "SmartSpend opens with the payment data",
+    "step4": "You review and save the transaction"
+  },
+  "setup": {
+    "title": "Setup",
+    "auto": {
+      "title": "Automatic (iOS 17.2+)",
+      "description": "If your bank supports Wallet transaction notifications, you can create an automation that triggers with every payment.",
+      "steps": {
+        "1": "Open the Shortcuts app on your iPhone",
+        "2": "Go to the Automation tab",
+        "3": "Tap + and select Wallet",
+        "4": "Select your card(s) and tap Next",
+        "5": "Select Run Immediately",
+        "6": "Add the Open URL action",
+        "7": "Paste the URL below — [Amount] and [Merchant] are filled automatically with each payment"
+      },
+      "note": "Only available with Apple Card and banks compatible with the Wallet API."
+    },
+    "manual": {
+      "title": "Manual (all versions)",
+      "description": "Create a shortcut you can run manually or with Siri after each payment.",
+      "steps": {
+        "1": "Open the Shortcuts app on your iPhone",
+        "2": "Tap + to create a new shortcut",
+        "3": "Search for SmartSpend Dev in Apps",
+        "4": "Select the Smart entry action",
+        "5": "Type your expense in natural text",
+        "6": "Name the shortcut (e.g., \"Log expense\")",
+        "7": "Now you can say: \"Hey Siri, log expense\""
+      }
+    }
+  },
+  "urlFormat": {
+    "title": "URL Format",
+    "description": "This is the URL for the Wallet automation. The [Amount] and [Merchant] values are variables that iOS fills automatically with the payment data.",
+    "params": {
+      "amount": "[Amount] — payment amount (automatic)",
+      "name": "[Merchant] — merchant name (automatic)",
+      "type": "Type: expense or income (default: expense)",
+      "date": "Date in YYYY-MM-DD format (default: today)",
+      "notes": "Additional notes"
+    },
+    "example": "Example",
+    "copied": "URL copied"
+  },
+  "tips": {
+    "title": "Tips",
+    "smartCategory": "SmartSpend automatically detects the category based on your transaction history and the merchant name.",
+    "siri": "Name your shortcut something short like \"Log expense\" to easily activate it with Siri.",
+    "widget": "Add the shortcut to your home screen as a widget for quick access."
+  },
+  "menu": {
+    "title": "iOS Shortcuts",
+    "subtitle": "Connect Apple Pay with SmartSpend"
+  }
+}

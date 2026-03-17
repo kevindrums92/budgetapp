@@ -95,6 +95,16 @@ export default function AddEditTransactionPage() {
   // Get virtual date from navigation state (when coming from "Editar y registrar")
   const virtualDate = location.state?.virtualDate as string | undefined;
 
+  // Get deep link pre-fill data (when coming from iOS Shortcuts / Apple Pay)
+  const deepLinkData = location.state?.deepLink as {
+    name?: string;
+    amount?: string;
+    type?: string;
+    date?: string;
+    categoryId?: string | null;
+    notes?: string;
+  } | undefined;
+
   // Get selected category object
   const selectedCategory = useMemo(() => {
     if (!categoryId) return null;
@@ -128,6 +138,22 @@ export default function AddEditTransactionPage() {
       setIsRecurring(tx.isRecurring || false);
       setSchedule(tx.schedule || null);
       setStatus(tx.status || "paid");
+    } else if (deepLinkData) {
+      // Pre-fill from deep link (iOS Shortcuts / Apple Pay)
+      if (deepLinkData.type === "income" || deepLinkData.type === "expense") {
+        setType(deepLinkData.type);
+      }
+      if (deepLinkData.name) setName(deepLinkData.name);
+      if (deepLinkData.amount) {
+        // Clean amount: remove currency symbols, spaces, keep only digits
+        const cleanAmount = deepLinkData.amount.replace(/[^0-9]/g, "");
+        setAmount(cleanAmount);
+      }
+      if (deepLinkData.date && deepLinkData.date.length === 10) {
+        setDate(deepLinkData.date);
+      }
+      if (deepLinkData.categoryId) setCategoryId(deepLinkData.categoryId);
+      if (deepLinkData.notes) setNotes(deepLinkData.notes);
     } else {
       // New transaction - check URL params
       const typeParam = searchParams.get("type");
@@ -138,14 +164,18 @@ export default function AddEditTransactionPage() {
 
     setInitialized(true);
 
-    // Auto-focus amount input for new transactions
+    // Auto-focus amount input for new transactions (skip if deep link already has amount)
     if (!tx) {
-      // Small delay to ensure the DOM is ready and keyboard opens
-      setTimeout(() => {
-        amountInputRef.current?.focus();
-      }, 100);
+      if (deepLinkData?.amount) {
+        // Deep link has amount, focus on name or don't focus
+      } else {
+        // Small delay to ensure the DOM is ready and keyboard opens
+        setTimeout(() => {
+          amountInputRef.current?.focus();
+        }, 100);
+      }
     }
-  }, [initialized, tx, searchParams]);
+  }, [initialized, tx, searchParams, deepLinkData]);
 
   // Check for draft/new category when returning from category creation
   useEffect(() => {

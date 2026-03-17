@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		042147812F68C8AD0012F3C2 /* SmartSpendShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0421477F2F68C8AD0012F3C2 /* SmartSpendShortcuts.swift */; };
+		042147822F68C8AD0012F3C2 /* AddTransactionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0421477E2F68C8AD0012F3C2 /* AddTransactionIntent.swift */; };
 		044B4EDA2F2A62940053149B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 044B4ED92F2A62940053149B /* FirebaseCore */; };
 		044B4EDC2F2A62940053149B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 044B4EDB2F2A62940053149B /* FirebaseMessaging */; };
 		044B4EE02F2AD19E0053149B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 044B4EDF2F2AD19E0053149B /* GoogleService-Info.plist */; };
@@ -21,6 +23,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0421477E2F68C8AD0012F3C2 /* AddTransactionIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionIntent.swift; sourceTree = "<group>"; };
+		0421477F2F68C8AD0012F3C2 /* SmartSpendShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartSpendShortcuts.swift; sourceTree = "<group>"; };
 		044B4ED72F2A5B110053149B /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		044B4EDF2F2AD19E0053149B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -49,6 +53,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		042147802F68C8AD0012F3C2 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				0421477E2F68C8AD0012F3C2 /* AddTransactionIntent.swift */,
+				0421477F2F68C8AD0012F3C2 /* SmartSpendShortcuts.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
@@ -69,6 +82,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				042147802F68C8AD0012F3C2 /* Intents */,
 				044B4EDF2F2AD19E0053149B /* GoogleService-Info.plist */,
 				044B4ED72F2A5B110053149B /* App.entitlements */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
@@ -168,6 +182,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				042147812F68C8AD0012F3C2 /* SmartSpendShortcuts.swift in Sources */,
+				042147822F68C8AD0012F3C2 /* AddTransactionIntent.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -308,10 +324,11 @@
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 35;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = MUAC9DX7AH;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -319,7 +336,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.16.19;
+				MARKETING_VERSION = 0.16.20;
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" \"-DDEBUG\"";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jhotech.smartspend;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -333,10 +350,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 35;
+				CURRENT_PROJECT_VERSION = 36;
 				DEVELOPMENT_TEAM = MUAC9DX7AH;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -344,7 +362,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 0.16.19;
+				MARKETING_VERSION = 0.16.20;
 				PRODUCT_BUNDLE_IDENTIFIER = com.jhotech.smartspend;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";

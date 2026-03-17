@@ -4,7 +4,22 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.20] - 2026-03-16
+
+- **feat(shortcuts): add iOS Shortcuts integration with Apple Pay and AI batch entry**
+  - Add App Intent "Ingreso inteligente" for natural language batch entry via Siri/Shortcuts
+  - Add deep link handlers for quick-add (`smartspend://add`) and batch entry (`smartspend://batch`)
+  - Add merchant-to-category auto-matching using transaction history and Levenshtein distance
+  - Pre-fill AddEditTransactionPage from deep link data (amount, name, type, date, category)
+  - Auto-submit batch text from iOS Shortcut → AssistantPage with AI parsing
+  - Add ShortcutsSetupPage with Wallet automation (iOS 17.2+) and manual App Intent setup guides
+  - Add iOS Shortcuts menu item in ProfilePage (iOS only)
+  - Switch to dev bundle ID (`com.jhotech.smartspend.dev`) and dev URL scheme (`smartspend-dev`)
+  - Add AccentColor.colorset for Shortcuts card theming
+  - Add i18n shortcuts namespace across 4 languages (es, en, fr, pt)
 
 ## [0.16.19] - 2026-03-15
 

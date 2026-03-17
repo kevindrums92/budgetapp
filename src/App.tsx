@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import * as Sentry from "@sentry/react";
 
@@ -52,6 +53,7 @@ const CurrencySettingsPage = lazy(() => import("@/features/profile/pages/Currenc
 const ExportCSVPage = lazy(() => import("@/features/profile/pages/ExportCSVPage"));
 const NotificationSettingsPage = lazy(() => import("@/features/notifications/pages/NotificationSettingsPage"));
 const SubscriptionManagementPage = lazy(() => import("@/features/profile/pages/SubscriptionManagementPage"));
+const ShortcutsSetupPage = lazy(() => import("@/features/profile/pages/ShortcutsSetupPage"));
 
 // Lazy load legal pages (now using landing site with proper i18n)
 // const TermsOfServicePage = lazy(() => import("@/features/profile/pages/TermsOfServicePage"));
@@ -160,6 +162,7 @@ function AppFrame() {
             <Route path="/settings/currency" element={<CurrencySettingsPage />} />
             <Route path="/settings/export-csv" element={<ExportCSVPage />} />
             <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
+            <Route path="/settings/shortcuts" element={<ShortcutsSetupPage />} />
 
             {/* Legal pages now redirect to landing site with proper i18n */}
             {/* <Route path="/legal/terms" element={<TermsOfServicePage />} /> */}
@@ -211,6 +214,120 @@ function PromoCodeRedeemer() {
   );
 }
 
+/**
+ * Listens for `quick-add-transaction` custom event (dispatched from deep link handler in main.tsx)
+ * and navigates to /add with the transaction data pre-filled via location.state.
+ * Uses merchantMatcher to auto-detect category from merchant name.
+ */
+function QuickAddHandler() {
+  const navigate = useNavigate();
+
+  const handleEvent = useCallback(async (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    if (!detail) return;
+
+    console.log('[QuickAddHandler] Received quick-add event:', detail);
+
+    // Import merchant matcher lazily to avoid loading on startup
+    const { matchMerchantToCategory } = await import('@/services/merchantMatcher.service');
+    const { useBudgetStore } = await import('@/state/budget.store');
+    const { todayISO } = await import('@/services/dates.service');
+
+    const state = useBudgetStore.getState();
+    const { transactions, categoryDefinitions } = state;
+
+    // Try to match merchant name to a category
+    const type = detail.type === 'income' ? 'income' : 'expense';
+    let categoryId: string | null = null;
+
+    if (detail.name) {
+      const match = matchMerchantToCategory(
+        detail.name,
+        transactions,
+        categoryDefinitions,
+        type
+      );
+      if (match) {
+        console.log(`[QuickAddHandler] Category matched: ${match.categoryId} (via ${match.source})`);
+        categoryId = match.categoryId;
+      }
+    }
+
+    // Also try matching by category param (could be a group ID like "food_drink")
+    if (!categoryId && detail.category) {
+      const categoriesOfType = categoryDefinitions.filter((c) => c.type === type);
+      // Try exact ID match
+      const exactMatch = categoriesOfType.find((c) => c.id === detail.category);
+      if (exactMatch) {
+        categoryId = exactMatch.id;
+      } else {
+        // Try group ID match
+        const groupMatch = categoriesOfType.find((c) => c.groupId === detail.category);
+        if (groupMatch) {
+          categoryId = groupMatch.id;
+        }
+      }
+    }
+
+    navigate('/add', {
+      state: {
+        deepLink: {
+          name: detail.name || '',
+          amount: detail.amount || '',
+          type,
+          date: detail.date || todayISO(),
+          categoryId,
+          notes: detail.notes || '',
+        },
+      },
+    });
+  }, [navigate]);
+
+  useEffect(() => {
+    window.addEventListener('quick-add-transaction', handleEvent);
+    return () => window.removeEventListener('quick-add-transaction', handleEvent);
+  }, [handleEvent]);
+
+  return null;
+}
+
+/**
+ * Listens for `batch-entry-text` custom event (dispatched from deep link handler in main.tsx)
+ * and navigates to /assistant with the text pre-filled for auto-submission.
+ * Also checks localStorage on mount as fallback for timing issues.
+ */
+function BatchTextHandler() {
+  const navigate = useNavigate();
+
+  const navigateToAssistant = useCallback((text: string) => {
+    console.log('[BatchTextHandler] Navigating to assistant with text:', text);
+    localStorage.removeItem('pendingBatchText');
+    navigate('/assistant?mode=text&autoSubmit=true', {
+      state: { batchText: text },
+    });
+  }, [navigate]);
+
+  // Check localStorage on mount (fallback if event fired before React mounted)
+  useEffect(() => {
+    const pendingText = localStorage.getItem('pendingBatchText');
+    if (pendingText) {
+      navigateToAssistant(pendingText);
+    }
+  }, [navigateToAssistant]);
+
+  // Listen for real-time events
+  useEffect(() => {
+    const handleEvent = (e: Event) => {
+      const text = (e as CustomEvent).detail?.text;
+      if (text) navigateToAssistant(text);
+    };
+    window.addEventListener('batch-entry-text', handleEvent);
+    return () => window.removeEventListener('batch-entry-text', handleEvent);
+  }, [navigateToAssistant]);
+
+  return null;
+}
+
 function ErrorFallback() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 px-6 dark:bg-gray-950">
@@ -249,6 +366,8 @@ export default function App() {
                     <SessionExpiredGate />
                     <UpcomingTransactionsModal />
                     <PromoCodeRedeemer />
+                    <QuickAddHandler />
+                    <BatchTextHandler />
                     <AppFrame />
                   </HeaderActionsProvider>
                 </BrowserRouter>
