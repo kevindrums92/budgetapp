@@ -4,7 +4,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.20] - 2026-03-16
 
 - **feat(shortcuts): add iOS Shortcuts integration with Apple Pay and AI batch entry**
   - Add App Intent "Ingreso inteligente" for natural language batch entry via Siri/Shortcuts
