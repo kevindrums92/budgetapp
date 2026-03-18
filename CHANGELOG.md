@@ -5,7 +5,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.21] - 2026-03-17
 
 - **fix(scheduled): correct next occurrence date for future and yearly schedules**
   - Fix ScheduleListItem showing wrong "Next" date when startDate is in the future (e.g. April 2026 instead of August 2027)
