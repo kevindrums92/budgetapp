@@ -170,10 +170,34 @@ export function calculateNextDate(
       }
       break;
 
-    case "yearly":
-      nextDate = new Date(fromDate);
-      nextDate.setFullYear(nextDate.getFullYear() + schedule.interval);
+    case "yearly": {
+      // Anchor to startDate's month and day (not from's)
+      // so yearly occurrences always fall on the same date
+      const startDateObj = new Date(schedule.startDate + "T12:00:00");
+      const startYear = startDateObj.getFullYear();
+      const startMonth = startDateObj.getMonth();
+      const startDay = startDateObj.getDate();
+
+      // Helper: build date for a given year, clamping day for leap year edge case
+      const buildYearlyDate = (year: number) => {
+        const daysInMonth = new Date(year, startMonth + 1, 0).getDate();
+        return new Date(year, startMonth, Math.min(startDay, daysInMonth), 12);
+      };
+
+      // Find the nearest series year that could be after 'from'
+      const yearsElapsed = Math.max(0, fromDate.getFullYear() - startYear);
+      const k = Math.floor(yearsElapsed / schedule.interval);
+      let candidateYear = startYear + k * schedule.interval;
+
+      nextDate = buildYearlyDate(candidateYear);
+
+      // If candidate is on or before 'from', advance by interval
+      if (nextDate.toISOString().slice(0, 10) <= from) {
+        candidateYear += schedule.interval;
+        nextDate = buildYearlyDate(candidateYear);
+      }
       break;
+    }
 
     default:
       console.error(`[Scheduler] Unknown frequency: ${schedule.frequency}`);

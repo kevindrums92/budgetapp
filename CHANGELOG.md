@@ -5,7 +5,29 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.21] - 2026-03-17
+
+- **fix(scheduled): correct next occurrence date for future and yearly schedules**
+  - Fix ScheduleListItem showing wrong "Next" date when startDate is in the future (e.g. April 2026 instead of August 2027)
+  - Fix yearly `calculateNextDate` to anchor on startDate's month/day instead of blindly adding a year to today
+  - Handle leap year edge case (Feb 29 → Feb 28) and multi-year intervals
+
+- **feat(shortcuts): add Apple Pay Wallet automation shortcut with string-based amount parameter**
+  - Add `RegisterExpenseIntent` App Intent with `amount: String` for Wallet currency type compatibility
+  - Register "Automatización de Apple Pay" shortcut with creditcard icon in SmartSpendShortcuts
+
+- **feat(widget): add iOS Home Screen Widgets with i18n and deep link navigation**
+  - Add WidgetKit extension with small, medium, and large widget sizes
+  - Show today/month expenses, safe-to-spend, and up to 5 recent transactions (large)
+  - Bridge budget data from Zustand store to widget via App Group UserDefaults
+  - Add deep link handlers for assistant navigation (`smartspend://assistant?mode=audio`)
+  - Auto-start voice recording when navigating from widget voice button
+  - Handle re-trigger when app is already on AssistantPage via key-based remount
+  - Add widget i18n namespace with translations for es, en, fr, pt
+  - Context-aware bundle ID replacement in configure-env.cjs for widget extension
 
 ## [0.16.20] - 2026-03-16
 

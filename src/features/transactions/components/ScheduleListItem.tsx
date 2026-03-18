@@ -32,9 +32,16 @@ export default function ScheduleListItem({
     : null;
 
   // Calculate next date for active schedules
+  // If startDate is in the future, calculate from startDate (not today)
+  // because the schedule hasn't begun yet
   const today = todayISO();
   const nextDate = transaction.schedule && !isEnded
-    ? calculateNextDate(transaction.schedule, today)
+    ? calculateNextDate(
+        transaction.schedule,
+        today < transaction.schedule.startDate
+          ? transaction.schedule.startDate
+          : today
+      )
     : null;
 
   const handleInactivateConfirm = () => {

@@ -1,7 +1,6 @@
 import AppIntents
 
 /// Provides pre-built shortcuts that appear in the Shortcuts app under SmartSpend's section.
-/// This is what makes the app show up like "MonAi > New transaction in MonAi".
 @available(iOS 16, *)
 struct SmartSpendShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
@@ -18,6 +17,17 @@ struct SmartSpendShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Ingreso inteligente",
             systemImageName: "sparkles"
+        )
+
+        AppShortcut(
+            intent: RegisterExpenseIntent(),
+            phrases: [
+                "Registrar gasto de Apple Pay en \(.applicationName)",
+                "Automatización de Apple Pay en \(.applicationName)",
+                "Log Apple Pay expense in \(.applicationName)",
+            ],
+            shortTitle: "Automatización de Apple Pay",
+            systemImageName: "creditcard"
         )
     }
 }

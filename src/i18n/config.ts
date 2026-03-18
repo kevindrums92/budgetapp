@@ -23,6 +23,7 @@ import esSession from './locales/es/session.json';
 import esForecasting from './locales/es/forecasting.json';
 import esMonthReview from './locales/es/monthReview.json';
 import esShortcuts from './locales/es/shortcuts.json';
+import esWidget from './locales/es/widget.json';
 
 import enCommon from './locales/en/common.json';
 import enOnboarding from './locales/en/onboarding.json';
@@ -45,6 +46,7 @@ import enSession from './locales/en/session.json';
 import enForecasting from './locales/en/forecasting.json';
 import enMonthReview from './locales/en/monthReview.json';
 import enShortcuts from './locales/en/shortcuts.json';
+import enWidget from './locales/en/widget.json';
 
 import ptCommon from './locales/pt/common.json';
 import ptOnboarding from './locales/pt/onboarding.json';
@@ -67,6 +69,7 @@ import ptSession from './locales/pt/session.json';
 import ptForecasting from './locales/pt/forecasting.json';
 import ptMonthReview from './locales/pt/monthReview.json';
 import ptShortcuts from './locales/pt/shortcuts.json';
+import ptWidget from './locales/pt/widget.json';
 
 import frCommon from './locales/fr/common.json';
 import frOnboarding from './locales/fr/onboarding.json';
@@ -89,6 +92,7 @@ import frSession from './locales/fr/session.json';
 import frForecasting from './locales/fr/forecasting.json';
 import frMonthReview from './locales/fr/monthReview.json';
 import frShortcuts from './locales/fr/shortcuts.json';
+import frWidget from './locales/fr/widget.json';
 
 const resources = {
   es: {
@@ -113,6 +117,7 @@ const resources = {
     forecasting: esForecasting,
     monthReview: esMonthReview,
     shortcuts: esShortcuts,
+    widget: esWidget,
   },
   en: {
     common: enCommon,
@@ -136,6 +141,7 @@ const resources = {
     forecasting: enForecasting,
     monthReview: enMonthReview,
     shortcuts: enShortcuts,
+    widget: enWidget,
   },
   pt: {
     common: ptCommon,
@@ -159,6 +165,7 @@ const resources = {
     forecasting: ptForecasting,
     monthReview: ptMonthReview,
     shortcuts: ptShortcuts,
+    widget: ptWidget,
   },
   fr: {
     common: frCommon,
@@ -182,6 +189,7 @@ const resources = {
     forecasting: frForecasting,
     monthReview: frMonthReview,
     shortcuts: frShortcuts,
+    widget: frWidget,
   },
 };
 
@@ -220,7 +228,7 @@ i18n
     resources,
     fallbackLng: 'es',
     defaultNS: 'common',
-    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour', 'session', 'forecasting', 'monthReview', 'shortcuts'],
+    ns: ['common', 'onboarding', 'profile', 'home', 'budget', 'stats', 'trips', 'transactions', 'categories', 'backup', 'scheduled', 'history', 'legal', 'notifications', 'paywall', 'batch', 'tour', 'session', 'forecasting', 'monthReview', 'shortcuts', 'widget'],
     interpolation: {
       escapeValue: false, // React already escapes
     },

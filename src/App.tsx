@@ -68,6 +68,8 @@ import SessionExpiredGate from "@/features/session/components/SessionExpiredGate
 import UpcomingTransactionsModal from "@/features/transactions/components/UpcomingTransactionsModal";
 import PaywallModal from "@/shared/components/modals/PaywallModal";
 import { usePaywallPurchase } from "@/hooks/usePaywallPurchase";
+import { updateWidget } from "@/services/widgetBridge.service";
+import { useBudgetStore } from "@/state/budget.store";
 
 // Loading fallback component
 function PageLoader() {
@@ -328,6 +330,48 @@ function BatchTextHandler() {
   return null;
 }
 
+/**
+ * Listens for `navigate-assistant` custom event (dispatched from deep link handler in main.tsx)
+ * and navigates to /assistant with the specified mode (voice/text).
+ */
+function AssistantNavigator() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleEvent = (e: Event) => {
+      const mode = (e as CustomEvent).detail?.mode || 'text';
+      console.log('[AssistantNavigator] Navigating to assistant, mode:', mode);
+      navigate(`/assistant?mode=${mode}`);
+    };
+    window.addEventListener('navigate-assistant', handleEvent);
+    return () => window.removeEventListener('navigate-assistant', handleEvent);
+  }, [navigate]);
+
+  return null;
+}
+
+/** Syncs budget data to the iOS Home Screen Widget */
+function WidgetDataSync() {
+  useEffect(() => {
+    const sync = () => {
+      const state = useBudgetStore.getState();
+      updateWidget(
+        state.transactions,
+        state.budgets,
+        state.carryOverBalances ?? {},
+        state.categoryDefinitions
+      );
+    };
+    // Initial sync
+    sync();
+    // Subscribe to store changes
+    const unsubscribe = useBudgetStore.subscribe(sync);
+    return unsubscribe;
+  }, []);
+
+  return null;
+}
+
 function ErrorFallback() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center bg-gray-50 px-6 dark:bg-gray-950">
@@ -368,6 +412,8 @@ export default function App() {
                     <PromoCodeRedeemer />
                     <QuickAddHandler />
                     <BatchTextHandler />
+                    <AssistantNavigator />
+                    <WidgetDataSync />
                     <AppFrame />
                   </HeaderActionsProvider>
                 </BrowserRouter>
