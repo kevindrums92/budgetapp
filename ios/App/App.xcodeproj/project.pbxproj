@@ -24,12 +24,12 @@
 		BBBB00000000000000000002 /* SmartSpendWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000002 /* SmartSpendWidgetBundle.swift */; };
 		BBBB00000000000000000003 /* SmallWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000003 /* SmallWidgetView.swift */; };
 		BBBB00000000000000000004 /* MediumWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000004 /* MediumWidgetView.swift */; };
-		BBBB0000000000000000000C /* LargeWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000C /* LargeWidgetView.swift */; };
 		BBBB00000000000000000005 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000005 /* WidgetData.swift */; };
 		BBBB00000000000000000006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000008 /* Assets.xcassets */; };
 		BBBB00000000000000000007 /* WidgetBridgePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000A /* WidgetBridgePlugin.swift */; };
 		BBBB00000000000000000008 /* BridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000B /* BridgeViewController.swift */; };
 		BBBB00000000000000000009 /* SmartSpendWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000009 /* SmartSpendWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BBBB0000000000000000000C /* LargeWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000C /* LargeWidgetView.swift */; };
 		CCCC00000000000000000001 /* RegisterExpenseIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAA00000000000000000001 /* RegisterExpenseIntent.swift */; };
 /* End PBXBuildFile section */
 
@@ -76,7 +76,6 @@
 		BBAA00000000000000000002 /* SmartSpendWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartSpendWidgetBundle.swift; sourceTree = "<group>"; };
 		BBAA00000000000000000003 /* SmallWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmallWidgetView.swift; sourceTree = "<group>"; };
 		BBAA00000000000000000004 /* MediumWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediumWidgetView.swift; sourceTree = "<group>"; };
-		BBAA0000000000000000000C /* LargeWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeWidgetView.swift; sourceTree = "<group>"; };
 		BBAA00000000000000000005 /* WidgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetData.swift; sourceTree = "<group>"; };
 		BBAA00000000000000000006 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BBAA00000000000000000007 /* SmartSpendWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmartSpendWidgetExtension.entitlements; sourceTree = "<group>"; };
@@ -84,6 +83,7 @@
 		BBAA00000000000000000009 /* SmartSpendWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SmartSpendWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBAA0000000000000000000A /* WidgetBridgePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBridgePlugin.swift; sourceTree = "<group>"; };
 		BBAA0000000000000000000B /* BridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeViewController.swift; sourceTree = "<group>"; };
+		BBAA0000000000000000000C /* LargeWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeWidgetView.swift; sourceTree = "<group>"; };
 		CCAA00000000000000000001 /* RegisterExpenseIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterExpenseIntent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -484,7 +484,7 @@
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEVELOPMENT_TEAM = MUAC9DX7AH;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
@@ -510,7 +510,7 @@
 				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = App/App.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 37;
+				CURRENT_PROJECT_VERSION = 38;
 				DEVELOPMENT_TEAM = MUAC9DX7AH;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
