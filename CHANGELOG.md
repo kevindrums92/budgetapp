@@ -8,6 +8,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **docs: add Home Screen Widgets and iOS Shortcuts documentation**
+  - Document widget architecture, data flow, sizes, and deep links in CLAUDE.md
+  - Add native widget and shortcuts feature sections to ARCHITECTURE.md
+  - Add user-facing widget and shortcuts descriptions to FEATURES.md
+
 - **feat(widget): add Android Home Screen Widget with resizable layouts**
   - Add AppWidgetProvider with small, medium, and large layouts that adapt on resize
   - Add WidgetBridgePlugin Capacitor plugin for Android (SharedPreferences bridge)

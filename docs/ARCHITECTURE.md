@@ -454,6 +454,61 @@ features/pdf-export/
 
 ---
 
+### Native: Home Screen Widgets
+
+**Purpose**: Display budget data at a glance on iOS and Android home screens
+
+**Architecture**: TypeScript bridge → Capacitor Plugin → Native widget system
+
+**Files (TypeScript)**:
+- **Service**: `src/services/widgetBridge.service.ts` (payload computation + native bridge)
+- **Integration**: `src/App.tsx` → `WidgetDataSync` component (Zustand store subscriber)
+- **i18n**: `src/i18n/locales/{es,en,fr,pt}/widget.json` (9 label keys)
+
+**Files (iOS — WidgetKit Extension)**:
+- **Widget**: `ios/App/SmartSpendWidget/SmartSpendWidget.swift` (TimelineProvider + Widget config)
+- **Views**: `ios/App/SmartSpendWidget/Views/{Small,Medium,Large}WidgetView.swift` (SwiftUI)
+- **Model**: `ios/App/SmartSpendWidget/Models/WidgetData.swift` (Codable + labels + formatting)
+- **Plugin**: `ios/App/App/Plugins/WidgetBridgePlugin.swift` (Capacitor → App Group UserDefaults)
+
+**Files (Android — AppWidget)**:
+- **Provider**: `android/app/src/main/java/com/jhotech/smartspend/widget/SmartSpendWidgetProvider.java` (resizable: small/medium/large)
+- **Plugin**: `android/app/src/main/java/com/jhotech/smartspend/widget/WidgetBridgePlugin.java` (Capacitor → SharedPreferences)
+- **Layouts**: `android/app/src/main/res/layout/widget_{small,medium,large}.xml` (RemoteViews XML)
+- **Config**: `android/app/src/main/res/xml/widget_info.xml` (resizable, 30 min auto-refresh)
+- **Drawables**: `android/app/src/main/res/drawable/widget_*.xml` (backgrounds, buttons, dots)
+
+**Widget Sizes**:
+- Small: Today's expenses + remaining/balance
+- Medium: Today + Month + Remaining + Voice/Add buttons
+- Large: All above + 5 recent transactions
+
+**Data Flow**: Store change → debounced `updateWidget()` → `sendToNative()` → plugin stores JSON → forces immediate widget refresh
+
+**Day Change**: Both platforms detect stale `lastUpdated` and zero out "today" values. iOS schedules timeline at midnight; Android uses 30 min `updatePeriodMillis`.
+
+---
+
+### Native: iOS Shortcuts (App Intents)
+
+**Purpose**: Siri/Shortcuts integration for quick transaction entry and Apple Pay Wallet automation
+
+**Files**:
+- `ios/App/App/Intents/AddTransactionIntent.swift` — AI batch entry via natural language text
+- `ios/App/App/Intents/RegisterExpenseIntent.swift` — Apple Pay Wallet automation (amount + merchant)
+- `ios/App/App/Intents/SmartSpendShortcuts.swift` — Registers shortcuts in Shortcuts app
+
+**Shortcuts**:
+1. **"Ingreso inteligente"** (AddTransactionIntent): Text input → deep link to `/assistant` for AI parsing
+2. **"Automatización de Apple Pay"** (RegisterExpenseIntent): Structured `amount: String` + `merchant: String` → deep link to `/add`
+
+**Deep Link Handling**:
+- Intents store deep link URL in `UserDefaults("pendingShortcutDeepLink")`
+- `BridgeViewController` reads it on `viewDidAppear` → passes to WebView
+- `main.tsx` parses URL → dispatches CustomEvent → React handlers navigate
+
+---
+
 ## Shared Components
 
 Components in `src/shared/components/` are reusable across multiple features.
@@ -567,6 +622,14 @@ Services that operate across features:
   - FCM token registration and refresh
   - Notification preferences (scheduled transactions, daily reminder, daily summary, quiet hours)
   - Integration with Supabase push_tokens table
+- **widgetBridge.service.ts**: Home Screen Widget data bridge (iOS + Android)
+  - Computes widget payload from Zustand store (today/month expenses, safe-to-spend, recent transactions)
+  - Debounced (800ms) to avoid excessive native calls
+  - Sends to native via `Capacitor.Plugins.WidgetBridge.updateWidgetData()`
+  - iOS: stores in App Group UserDefaults → WidgetKit TimelineProvider refreshes
+  - Android: stores in SharedPreferences → AppWidgetProvider updates RemoteViews
+  - Filters recent transactions to today or earlier (excludes future/planned)
+  - Passes i18n labels via `widget` namespace for native rendering
 
 ### State Management (`src/state/`)
 

@@ -414,6 +414,68 @@ const { data, error } = await supabase.functions.invoke('redeem-promo', {
 - `supabase/functions/redeem-promo/index.ts` — Server-side validation & redemption
 - `src/i18n/locales/*/paywall.json` — i18n keys under `promoCode.*`
 
+**Home Screen Widgets** (iOS WidgetKit + Android AppWidget):
+
+The app provides native Home Screen Widgets on both iOS and Android that display budget data at a glance (today's expenses, month expenses, safe-to-spend, recent transactions).
+
+**Architecture**:
+```
+TypeScript (widgetBridge.service.ts)
+  → Capacitor Plugin (WidgetBridgePlugin)
+    → iOS: App Group UserDefaults → WidgetKit TimelineProvider
+    → Android: SharedPreferences → AppWidgetProvider RemoteViews
+```
+
+**Data Flow**:
+1. `WidgetDataSync` component in `App.tsx` subscribes to Zustand store changes
+2. `updateWidget()` in `widgetBridge.service.ts` computes payload (debounced 800ms)
+3. Calls `Capacitor.Plugins.WidgetBridge.updateWidgetData(payload)` (cross-platform)
+4. Native plugin stores JSON → triggers immediate widget refresh
+
+**Widget Sizes**:
+- **Small** (2x2): Today's expenses + remaining/balance
+- **Medium** (4x2): Today + Month + Remaining + Voice/Add buttons
+- **Large** (4x4): All of the above + last 5 recent transactions
+
+**Day Change Handling**:
+- iOS: `getTimeline()` checks `isFromToday` on `lastUpdated` timestamp; zeros out "today" values if stale; schedules next refresh at midnight or 30 min (whichever is sooner)
+- Android: `onUpdate()` does the same `isFromToday` check; `updatePeriodMillis` = 30 min
+
+**Deep Links from Widgets**:
+- Voice button → `smartspend://assistant?mode=audio`
+- Add button → `smartspend://assistant`
+- Small widget tap → `smartspend://assistant`
+
+**i18n**: Widget labels (today, month, remaining, voice, add, etc.) are passed from the TypeScript side via `i18n.getFixedT()` using the `widget` namespace. Fallback to Spanish defaults in native code.
+
+**Key Files**:
+- `src/services/widgetBridge.service.ts` — Computes payload, sends to native (iOS + Android)
+- `src/App.tsx` — `WidgetDataSync` component (store subscriber), `AssistantNavigator` (deep link handler)
+- `src/i18n/locales/{es,en,fr,pt}/widget.json` — Widget label translations
+- iOS: `ios/App/SmartSpendWidget/` — WidgetKit extension (SwiftUI views, WidgetData model, TimelineProvider)
+- iOS: `ios/App/App/Plugins/WidgetBridgePlugin.swift` — Capacitor plugin (App Group UserDefaults)
+- Android: `android/app/src/main/java/com/jhotech/smartspend/widget/SmartSpendWidgetProvider.java` — AppWidgetProvider with 3 layouts
+- Android: `android/app/src/main/java/com/jhotech/smartspend/widget/WidgetBridgePlugin.java` — Capacitor plugin (SharedPreferences)
+
+**Recent Transactions Filter**: Only shows transactions from today or earlier (`t.date <= today`), excluding future/planned transactions.
+
+**iOS Shortcuts (App Intents)**:
+
+Two App Intents are registered in `SmartSpendShortcuts.swift`:
+
+1. **AddTransactionIntent** ("Ingreso inteligente"): Receives free-form text → deep links to `/assistant` for AI batch parsing
+2. **RegisterExpenseIntent** ("Automatización de Apple Pay"): Receives `amount: String` + `merchant: String` from Wallet automations → deep links to `/add` with pre-filled data
+
+**Apple Pay Wallet Automation**:
+- Amount parameter is `String` (not `Double`) to accept Wallet's currency amount type
+- Locale-aware parsing: COP dot-as-thousands (`7.000` → `7000`) vs USD dot-as-decimal (`7.50`)
+- Regex: `\.\d{3}(\.\d{3})*$` detects thousands separator pattern
+
+**Key Files**:
+- `ios/App/App/Intents/AddTransactionIntent.swift`
+- `ios/App/App/Intents/RegisterExpenseIntent.swift`
+- `ios/App/App/Intents/SmartSpendShortcuts.swift`
+
 ---
 
 ## Design Guidelines
