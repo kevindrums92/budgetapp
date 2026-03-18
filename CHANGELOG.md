@@ -7,6 +7,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(shortcuts): add Apple Pay Wallet automation shortcut with string-based amount parameter**
+  - Add `RegisterExpenseIntent` App Intent with `amount: String` for Wallet currency type compatibility
+  - Register "Automatización de Apple Pay" shortcut with creditcard icon in SmartSpendShortcuts
+
 - **feat(widget): add iOS Home Screen Widgets with i18n and deep link navigation**
   - Add WidgetKit extension with small, medium, and large widget sizes
   - Show today/month expenses, safe-to-spend, and up to 5 recent transactions (large)

@@ -30,6 +30,7 @@
 		BBBB00000000000000000007 /* WidgetBridgePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000A /* WidgetBridgePlugin.swift */; };
 		BBBB00000000000000000008 /* BridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000B /* BridgeViewController.swift */; };
 		BBBB00000000000000000009 /* SmartSpendWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000009 /* SmartSpendWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CCCC00000000000000000001 /* RegisterExpenseIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAA00000000000000000001 /* RegisterExpenseIntent.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +84,7 @@
 		BBAA00000000000000000009 /* SmartSpendWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SmartSpendWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBAA0000000000000000000A /* WidgetBridgePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBridgePlugin.swift; sourceTree = "<group>"; };
 		BBAA0000000000000000000B /* BridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeViewController.swift; sourceTree = "<group>"; };
+		CCAA00000000000000000001 /* RegisterExpenseIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterExpenseIntent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				0421477E2F68C8AD0012F3C2 /* AddTransactionIntent.swift */,
+				CCAA00000000000000000001 /* RegisterExpenseIntent.swift */,
 				0421477F2F68C8AD0012F3C2 /* SmartSpendShortcuts.swift */,
 			);
 			path = Intents;
@@ -313,6 +316,7 @@
 			files = (
 				042147812F68C8AD0012F3C2 /* SmartSpendShortcuts.swift in Sources */,
 				042147822F68C8AD0012F3C2 /* AddTransactionIntent.swift in Sources */,
+				CCCC00000000000000000001 /* RegisterExpenseIntent.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 				BBBB00000000000000000007 /* WidgetBridgePlugin.swift in Sources */,
 				BBBB00000000000000000008 /* BridgeViewController.swift in Sources */,
