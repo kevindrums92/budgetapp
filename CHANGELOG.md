@@ -7,6 +7,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(scheduled): correct next occurrence date for future and yearly schedules**
+  - Fix ScheduleListItem showing wrong "Next" date when startDate is in the future (e.g. April 2026 instead of August 2027)
+  - Fix yearly `calculateNextDate` to anchor on startDate's month/day instead of blindly adding a year to today
+  - Handle leap year edge case (Feb 29 → Feb 28) and multi-year intervals
+
 - **feat(shortcuts): add Apple Pay Wallet automation shortcut with string-based amount parameter**
   - Add `RegisterExpenseIntent` App Intent with `amount: String` for Wallet currency type compatibility
   - Register "Automatización de Apple Pay" shortcut with creditcard icon in SmartSpendShortcuts
