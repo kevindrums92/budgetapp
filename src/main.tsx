@@ -95,6 +95,22 @@ if (isNative()) {
       return;
     }
 
+    // Check if this is an assistant link (smartspend://assistant?mode=voice)
+    if (url.includes('/assistant')) {
+      try {
+        const urlObj = new URL(url);
+        const mode = urlObj.searchParams.get('mode') || 'text';
+        console.log('[DeepLink] Assistant navigation, mode:', mode);
+        window.dispatchEvent(new CustomEvent('navigate-assistant', {
+          detail: { mode },
+        }));
+      } catch (err) {
+        console.error('[DeepLink] Error parsing assistant URL:', err);
+        captureError(err, { context: 'deepLink.assistant', url });
+      }
+      return;
+    }
+
     // Check if this is a quick-add transaction link (smartspend://add?amount=X&name=Y)
     if (url.includes('/add?') || url.match(/\/add$/)) {
       try {

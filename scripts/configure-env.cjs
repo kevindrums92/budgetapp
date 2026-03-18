@@ -103,10 +103,24 @@ if (fs.existsSync(pbxprojPath)) {
   let pbxproj = fs.readFileSync(pbxprojPath, 'utf8');
 
   // Update PRODUCT_BUNDLE_IDENTIFIER (both Debug and Release)
-  pbxproj = pbxproj.replace(
-    /PRODUCT_BUNDLE_IDENTIFIER = .*?;/g,
-    `PRODUCT_BUNDLE_IDENTIFIER = ${config.appId};`
-  );
+  // Use context-aware replacement: widget extension configs have
+  // INFOPLIST_FILE = SmartSpendWidget/Info.plist before the bundle ID line
+  const lines = pbxproj.split('\n');
+  let inWidgetConfig = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes('INFOPLIST_FILE = SmartSpendWidget/Info.plist')) {
+      inWidgetConfig = true;
+    }
+    if (lines[i].includes('PRODUCT_BUNDLE_IDENTIFIER')) {
+      if (inWidgetConfig) {
+        lines[i] = lines[i].replace(/PRODUCT_BUNDLE_IDENTIFIER = .*?;/, `PRODUCT_BUNDLE_IDENTIFIER = ${config.appId}.widget;`);
+        inWidgetConfig = false;
+      } else {
+        lines[i] = lines[i].replace(/PRODUCT_BUNDLE_IDENTIFIER = .*?;/, `PRODUCT_BUNDLE_IDENTIFIER = ${config.appId};`);
+      }
+    }
+  }
+  pbxproj = lines.join('\n');
 
   fs.writeFileSync(pbxprojPath, pbxproj);
   console.log(`✅ Updated project.pbxproj`);

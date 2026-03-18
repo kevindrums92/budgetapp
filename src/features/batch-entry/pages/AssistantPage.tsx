@@ -31,6 +31,7 @@ export default function AssistantPage() {
   const batchText = (location.state as { batchText?: string } | null)?.batchText;
   const hasTriggeredInitialMode = useRef(false);
   const hasTriggeredAutoSubmit = useRef(false);
+  const [inputBarKey, setInputBarKey] = useState(0);
   const {
     flowState,
     drafts,
@@ -114,6 +115,19 @@ export default function AssistantPage() {
     }
     // audio and text modes are handled by ChatInputBar's autoStart props
   }, [initialMode]);
+
+  // Re-trigger recording when deep link fires while already on this page
+  useEffect(() => {
+    const handleNavigateAssistant = (e: Event) => {
+      const mode = (e as CustomEvent).detail?.mode;
+      if (mode === "audio" && flowState === "idle") {
+        // Force ChatInputBar remount to re-trigger autoStartRecording
+        setInputBarKey((prev) => prev + 1);
+      }
+    };
+    window.addEventListener("navigate-assistant", handleNavigateAssistant);
+    return () => window.removeEventListener("navigate-assistant", handleNavigateAssistant);
+  }, [flowState]);
 
   const handleBack = () => {
     navigate(-1);
@@ -346,6 +360,7 @@ export default function AssistantPage() {
       {/* Input bar - hidden during processing/preview/success */}
       {isOnline && !hideInputBar && (
         <ChatInputBar
+          key={inputBarKey}
           onSendText={handleTextSubmit}
           onSendAudio={handleAudioCapture}
           onCaptureImage={handleCaptureFromSource}

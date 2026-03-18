@@ -1,0 +1,11 @@
+{
+  "today": "Aujourd'hui",
+  "month": "Mois",
+  "remaining": "Restant",
+  "balance": "Solde",
+  "recent": "Récents",
+  "noRecent": "Aucune transaction récente",
+  "transactionsSuffix": "mouv.",
+  "voice": "Voix",
+  "add": "Ajouter"
+}

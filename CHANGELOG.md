@@ -7,6 +7,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(widget): add iOS Home Screen Widgets with i18n and deep link navigation**
+  - Add WidgetKit extension with small, medium, and large widget sizes
+  - Show today/month expenses, safe-to-spend, and up to 5 recent transactions (large)
+  - Bridge budget data from Zustand store to widget via App Group UserDefaults
+  - Add deep link handlers for assistant navigation (`smartspend://assistant?mode=audio`)
+  - Auto-start voice recording when navigating from widget voice button
+  - Handle re-trigger when app is already on AssistantPage via key-based remount
+  - Add widget i18n namespace with translations for es, en, fr, pt
+  - Context-aware bundle ID replacement in configure-env.cjs for widget extension
+
 ## [0.16.20] - 2026-03-16
 
 - **feat(shortcuts): add iOS Shortcuts integration with Apple Pay and AI batch entry**
