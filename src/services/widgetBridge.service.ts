@@ -1,7 +1,8 @@
 /**
  * Widget Bridge Service
- * Sends budget data to the iOS Home Screen Widget via native Capacitor plugin.
- * The widget reads from shared App Group UserDefaults.
+ * Sends budget data to the native Home Screen Widget via Capacitor plugin.
+ * iOS: reads from shared App Group UserDefaults.
+ * Android: reads from SharedPreferences.
  */
 
 import { Capacitor } from "@capacitor/core";
@@ -56,8 +57,8 @@ interface WidgetPayload {
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-function isIOSNative(): boolean {
-  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+function isNativePlatform(): boolean {
+  return Capacitor.isNativePlatform();
 }
 
 function getWidgetLabels(): WidgetLabels {
@@ -126,7 +127,7 @@ function computeWidgetData(
   // Recent transactions (last 5 non-planned, sorted by date desc then createdAt desc)
   const categoryMap = new Map(categoryDefinitions.map((c) => [c.id, c]));
   const recentTransactions: RecentTransactionPayload[] = transactions
-    .filter((t) => t.status !== "planned")
+    .filter((t) => t.status !== "planned" && t.date <= today)
     .sort((a, b) => {
       if (a.date !== b.date) return b.date.localeCompare(a.date);
       return b.createdAt - a.createdAt;
@@ -180,7 +181,7 @@ export function updateWidget(
   carryOverBalances: Record<string, CarryOverEntry>,
   categoryDefinitions: Category[]
 ): void {
-  if (!isIOSNative()) return;
+  if (!isNativePlatform()) return;
 
   if (debounceTimer) clearTimeout(debounceTimer);
 

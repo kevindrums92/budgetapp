@@ -8,6 +8,21 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(widget): add Android Home Screen Widget with resizable layouts**
+  - Add AppWidgetProvider with small, medium, and large layouts that adapt on resize
+  - Add WidgetBridgePlugin Capacitor plugin for Android (SharedPreferences bridge)
+  - Add deep link intent filters for widget buttons (assistant, add, batch, redeem)
+  - Extend widgetBridge.service.ts to support both iOS and Android platforms
+  - Exclude future-dated transactions from widget's recent list
+
+- **fix(widget): auto-refresh iOS widget at midnight when day changes**
+  - Detect stale data via `isFromToday` check on `lastUpdated` timestamp
+  - Zero out today's expenses/income when cached data is from a previous day
+  - Schedule timeline refresh at midnight or every 30 min (whichever comes first)
+
+- **fix(shortcuts): improve Apple Pay amount parsing for locale formats**
+  - Handle COP thousands separator (`7.000` → `7000`) vs USD decimals (`7.50`)
+
 ## [0.16.21] - 2026-03-17
 
 - **fix(scheduled): correct next occurrence date for future and yearly schedules**

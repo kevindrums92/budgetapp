@@ -94,6 +94,41 @@ struct WidgetData: Codable {
         labels: .defaultLabels
     )
 
+    /// Whether `lastUpdated` falls on the current calendar day
+    var isFromToday: Bool {
+        guard !lastUpdated.isEmpty else { return false }
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        // Try with fractional seconds first, then without
+        if let date = formatter.date(from: lastUpdated) {
+            return Calendar.current.isDateInToday(date)
+        }
+        formatter.formatOptions = [.withInternetDateTime]
+        if let date = formatter.date(from: lastUpdated) {
+            return Calendar.current.isDateInToday(date)
+        }
+        return false
+    }
+
+    /// Returns a copy with today's expenses/income zeroed out (stale day)
+    func withTodayReset() -> WidgetData {
+        WidgetData(
+            todayExpenses: 0,
+            todayIncome: 0,
+            monthExpenses: monthExpenses,
+            monthIncome: monthIncome,
+            budgetRemaining: budgetRemaining,
+            budgetTotal: budgetTotal,
+            currencySymbol: currencySymbol,
+            currencyCode: currencyCode,
+            currencyDecimals: currencyDecimals,
+            transactionCount: transactionCount,
+            lastUpdated: lastUpdated,
+            recentTransactions: recentTransactions,
+            labels: labels
+        )
+    }
+
     func formatAmount(_ value: Double) -> String {
         if currencyDecimals == 0 {
             let formatter = NumberFormatter()

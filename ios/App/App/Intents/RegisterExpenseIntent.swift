@@ -21,10 +21,21 @@ struct RegisterExpenseIntent: AppIntent {
     func perform() async throws -> some IntentResult {
         let scheme = Self.getURLScheme()
 
-        // Parse the amount string (may come as "1,234.56", "$1234", etc.)
-        let cleaned = amount
+        // Parse the amount string handling locale formats:
+        // COP: "7.000" or "1.234.567" (dot = thousands separator)
+        // USD: "1,234.56" (comma = thousands, dot = decimal)
+        var cleaned = amount
             .replacingOccurrences(of: "[^0-9.,]", with: "", options: .regularExpression)
-            .replacingOccurrences(of: ",", with: ".")
+
+        // Detect dot as thousands separator: dot followed by exactly 3 digits
+        // e.g. "7.000" → "7000", "1.234.567" → "1234567"
+        // But "7.50" stays as "7.50" (decimal)
+        if cleaned.range(of: #"\.\d{3}(?:\.\d{3})*$"#, options: .regularExpression) != nil {
+            cleaned = cleaned.replacingOccurrences(of: ".", with: "")
+        }
+
+        // Treat remaining commas as decimal separator (e.g. "7,50" → "7.50")
+        cleaned = cleaned.replacingOccurrences(of: ",", with: ".")
         let parsedAmount = Double(cleaned) ?? 0
 
         var components = URLComponents()

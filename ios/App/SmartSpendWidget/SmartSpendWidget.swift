@@ -15,12 +15,26 @@ struct SmartSpendProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<SmartSpendEntry>) -> Void) {
-        let entry = SmartSpendEntry(
-            date: Date(),
-            data: WidgetData.load() ?? .placeholder
-        )
-        // Refresh every 15 minutes
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        let now = Date()
+        let calendar = Calendar.current
+        let loaded = WidgetData.load() ?? .placeholder
+
+        // If cached data is from a previous day, zero out "today" values
+        let data: WidgetData
+        if loaded.isFromToday {
+            data = loaded
+        } else {
+            data = loaded.withTodayReset()
+        }
+
+        let entry = SmartSpendEntry(date: now, data: data)
+
+        // Schedule next refresh at midnight (start of next day) so "today" resets,
+        // but cap at 30 min so intra-day updates aren't too stale
+        let startOfTomorrow = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: now)!)
+        let thirtyMin = calendar.date(byAdding: .minute, value: 30, to: now)!
+        let nextUpdate = min(startOfTomorrow, thirtyMin)
+
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
     }
