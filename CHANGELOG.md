@@ -8,6 +8,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(shortcuts): add QuickAddModal with budget context for deep link transactions**
+  - Replace direct form navigation with contextual confirmation modal (merchant, amount, category, budget progress bar)
+  - Add inline category picker, haptic feedback, and budget awareness (remaining/exceeded status)
+  - Add i18n support for quickAdd keys in all 4 locales (es, en, fr, pt)
+
+- **fix(deep-links): handle cold start deep links when app is killed**
+  - Use `App.getLaunchUrl()` to process URLs that launched the app from a killed state
+  - Add localStorage fallback for QuickAddHandler and AssistantNavigator (widget buttons)
+  - Refactor deep link handler into shared `handleDeepLink()` function
+
 - **docs: add Home Screen Widgets and iOS Shortcuts documentation**
   - Document widget architecture, data flow, sizes, and deep links in CLAUDE.md
   - Add native widget and shortcuts feature sections to ARCHITECTURE.md

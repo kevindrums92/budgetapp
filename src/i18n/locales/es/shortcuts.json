@@ -61,5 +61,21 @@
   "menu": {
     "title": "Atajos de iOS",
     "subtitle": "Conectar Apple Pay con SmartSpend"
+  },
+  "quickAdd": {
+    "title": "Pago detectado",
+    "subtitle": "Quieres agregarlo?",
+    "addExpense": "Agregar gasto",
+    "addIncome": "Agregar ingreso",
+    "edit": "Editar",
+    "saved": "Guardado",
+    "noCategory": "Sin categoria",
+    "unknownMerchant": "Comercio",
+    "budgetLabel": "Tu presupuesto",
+    "budgetRemaining": "Te quedarán <b>{{amount}}</b> en <b>{{category}}</b> este mes.",
+    "budgetWillExceed": "Excederás tu presupuesto de <b>{{category}}</b> este mes.",
+    "budgetExceeded": "Excedido",
+    "budgetTight": "Ajustado",
+    "budgetOk": "Seguro"
   }
 }
