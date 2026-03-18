@@ -9,7 +9,7 @@ import Foundation
 @available(iOS 16, *)
 struct RegisterExpenseIntent: AppIntent {
     static var title: LocalizedStringResource = "Registrar gasto"
-    static var description = IntentDescription("Registra un gasto con monto y comercio. Ideal para automatizaciones de Apple Pay.")
+    static var description = IntentDescription("Registra un gasto con monto y comercio. Ideal para automatizaciones de pagos con tarjeta.")
     static var openAppWhenRun: Bool = true
 
     @Parameter(title: "Cantidad", description: "El monto de la transacción")
