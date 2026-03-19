@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_background"
@@ -30,7 +31,7 @@
             android:textSize="11sp" />
     </LinearLayout>
 
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="12dp" />
 
@@ -68,7 +69,8 @@
                 android:maxLines="1" />
         </LinearLayout>
 
-        <View
+        <!-- Divider -->
+        <FrameLayout
             android:layout_width="1dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
@@ -103,7 +105,8 @@
                 android:maxLines="1" />
         </LinearLayout>
 
-        <View
+        <!-- Divider -->
+        <FrameLayout
             android:layout_width="1dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
@@ -139,17 +142,17 @@
         </LinearLayout>
     </LinearLayout>
 
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="14dp" />
 
     <!-- Divider -->
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/widget_divider" />
 
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="10dp" />
 
@@ -163,7 +166,7 @@
         android:textSize="12sp"
         android:textStyle="bold" />
 
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="4dp" />
 
@@ -381,7 +384,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <View
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="8dp" />
 
@@ -405,7 +408,7 @@
                 android:id="@+id/btn_voice_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🎤 Voz"
+                android:text="&#127908; Voz"
                 android:textColor="@color/widget_teal"
                 android:textSize="12sp"
                 android:textStyle="bold" />

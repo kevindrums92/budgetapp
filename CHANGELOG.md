@@ -8,6 +8,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(voice): add Android native SpeechRecognitionPlugin**
+  - Implement android.speech.SpeechRecognizer with continuous listening and transcript accumulation
+  - Register plugin in MainActivity alongside WidgetBridgePlugin
+  - Fix VoiceRecorder safe area using var(--sat)/var(--sab) CSS variables for Android compatibility
+
+- **fix(widget): fix Android 12+ widget crash "Class not allowed to be inflated"**
+  - Replace all `<View>` elements with `<FrameLayout>` in widget layouts (RemoteViews restriction)
+  - Add root click handler so tapping widget content opens the app
+  - Adjust layout height thresholds for better small/medium/large switching
+
 - **feat(voice): replace audio recording with real-time speech recognition**
   - Add custom SpeechRecognitionPlugin (iOS native SFSpeechRecognizer + Web Speech API fallback)
   - Fullscreen voice recorder with live transcription, gradient background, and pulsing mic indicator

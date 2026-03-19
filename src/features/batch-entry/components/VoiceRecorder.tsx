@@ -210,8 +210,8 @@ export default function VoiceRecorder({
     <div className="fixed inset-0 z-[70] flex flex-col bg-gradient-to-b from-gray-900 via-violet-950 to-gray-900">
       {/* Header: cancel button + language selector */}
       <div
-        className="flex shrink-0 items-center justify-between px-6 pt-4"
-        style={{ paddingTop: "max(env(safe-area-inset-top), 16px)" }}
+        className="flex shrink-0 items-center justify-between px-6"
+        style={{ paddingTop: "calc(var(--sat) + 16px)" }}
       >
         <button
           type="button"
@@ -269,8 +269,8 @@ export default function VoiceRecorder({
 
       {/* Bottom controls */}
       <div
-        className="flex shrink-0 items-center justify-center gap-6 pb-4"
-        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 24px)" }}
+        className="flex shrink-0 items-center justify-center gap-6"
+        style={{ paddingBottom: "calc(var(--sab) + 48px)" }}
       >
         {/* Pulsing mic indicator */}
         <div className="relative flex items-center justify-center">

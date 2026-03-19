@@ -48,9 +48,9 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         int minHeight = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110);
 
         RemoteViews views;
-        if (minHeight >= 200) {
+        if (minHeight >= 220) {
             views = buildLargeLayout(context);
-        } else if (minHeight >= 100) {
+        } else if (minHeight >= 120) {
             views = buildMediumLayout(context);
         } else {
             views = buildSmallLayout(context);
@@ -155,10 +155,12 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_small);
         JSONObject data = loadData(context);
 
+        // Make entire widget clickable → open app
+        views.setOnClickPendingIntent(R.id.widget_root, makeLaunchIntent(context));
+
         if (data == null) {
             views.setTextViewText(R.id.amount_today, "$ 0");
             views.setTextViewText(R.id.amount_remaining, "$ 0");
-            views.setOnClickPendingIntent(R.id.label_today, makeLaunchIntent(context));
             return views;
         }
 
@@ -184,10 +186,6 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
                     net >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444"));
         }
 
-        // Click opens assistant
-        views.setOnClickPendingIntent(R.id.label_today,
-                makeDeepLinkIntent(context, "smartspend://assistant", 10));
-
         return views;
     }
 
@@ -197,8 +195,10 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_medium);
         JSONObject data = loadData(context);
 
+        // Make entire widget clickable → open app
+        views.setOnClickPendingIntent(R.id.widget_root, makeLaunchIntent(context));
+
         if (data == null) {
-            views.setOnClickPendingIntent(R.id.btn_add, makeLaunchIntent(context));
             return views;
         }
 
@@ -258,9 +258,11 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_large);
         JSONObject data = loadData(context);
 
+        // Make entire widget clickable → open app
+        views.setOnClickPendingIntent(R.id.widget_root, makeLaunchIntent(context));
+
         if (data == null) {
             views.setViewVisibility(R.id.empty_state, View.VISIBLE);
-            views.setOnClickPendingIntent(R.id.btn_add, makeLaunchIntent(context));
             return views;
         }
 
