@@ -5,7 +5,6 @@ import {
   Smartphone,
   CreditCard,
   ArrowRight,
-  Copy,
   Check,
   Lightbulb,
   Mic,
@@ -15,24 +14,13 @@ import {
 } from "lucide-react";
 import PageHeader from "@/shared/components/layout/PageHeader";
 
-const WALLET_URL = "smartspend://add?amount=[Amount]&name=[Merchant]&type=expense";
-const EXAMPLE_URL = "smartspend://add?amount=45000&name=Almuerzo&type=expense";
-
 export default function ShortcutsSetupPage() {
   const { t } = useTranslation("shortcuts");
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [expandedSection, setExpandedSection] = useState<"auto" | "manual" | null>("auto");
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  function handleCopy(url: string, id: string) {
-    navigator.clipboard.writeText(url).then(() => {
-      setCopiedUrl(id);
-      setTimeout(() => setCopiedUrl(null), 2000);
-    });
-  }
 
   function toggleSection(section: "auto" | "manual") {
     setExpandedSection((prev) => (prev === section ? null : section));
@@ -119,7 +107,7 @@ export default function ShortcutsSetupPage() {
             {expandedSection === "auto" && (
               <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
                 <ol className="space-y-2.5">
-                  {(["1", "2", "3", "4", "5", "6", "7"] as const).map((step) => (
+                  {(["1", "2", "3", "4", "5", "6"] as const).map((step) => (
                     <li key={step} className="flex items-start gap-2.5">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5">
                         {step}
@@ -130,30 +118,6 @@ export default function ShortcutsSetupPage() {
                     </li>
                   ))}
                 </ol>
-
-                {/* URL template for Wallet automation */}
-                <div className="mt-4 rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
-                  <code className="block text-xs text-gray-600 dark:text-gray-300 break-all leading-relaxed">
-                    {WALLET_URL}
-                  </code>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(WALLET_URL, "auto")}
-                    className="mt-2 flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400"
-                  >
-                    {copiedUrl === "auto" ? (
-                      <>
-                        <Check className="h-3.5 w-3.5" />
-                        {t("urlFormat.copied")}
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5" />
-                        Copiar URL
-                      </>
-                    )}
-                  </button>
-                </div>
 
                 <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 leading-relaxed">
                   {t("setup.auto.note")}
@@ -204,58 +168,6 @@ export default function ShortcutsSetupPage() {
 
               </div>
             )}
-          </div>
-        </div>
-
-        {/* URL Format Reference */}
-        <div className="rounded-2xl bg-white dark:bg-gray-900 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">
-            {t("urlFormat.title")}
-          </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
-            {t("urlFormat.description")}
-          </p>
-
-          <div className="space-y-2">
-            {(["amount", "name", "type", "date", "notes"] as const).map((param) => (
-              <div key={param} className="flex items-start gap-2">
-                <code className="shrink-0 rounded bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-mono text-blue-600 dark:text-blue-400">
-                  {param}
-                </code>
-                <span className="text-xs text-gray-600 dark:text-gray-400">
-                  {t(`urlFormat.params.${param}`)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Example */}
-          <div className="mt-4">
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
-              {t("urlFormat.example")}
-            </p>
-            <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-3">
-              <code className="block text-xs text-gray-600 dark:text-gray-300 break-all leading-relaxed">
-                {EXAMPLE_URL}
-              </code>
-              <button
-                type="button"
-                onClick={() => handleCopy(EXAMPLE_URL, "example")}
-                className="mt-2 flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400"
-              >
-                {copiedUrl === "example" ? (
-                  <>
-                    <Check className="h-3.5 w-3.5" />
-                    {t("urlFormat.copied")}
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3.5 w-3.5" />
-                    Copiar URL
-                  </>
-                )}
-              </button>
-            </div>
           </div>
         </div>
 

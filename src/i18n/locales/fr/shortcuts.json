@@ -12,45 +12,31 @@
   "setup": {
     "title": "Configuration",
     "auto": {
-      "title": "Automatique (iOS 17.2+)",
-      "description": "Si votre banque prend en charge les notifications de transactions Wallet, vous pouvez créer une automatisation qui se déclenche à chaque paiement.",
+      "title": "Automatique (Wallet)",
+      "description": "Créez une automatisation qui enregistre chaque paiement Apple Pay directement dans SmartSpend.",
       "steps": {
         "1": "Ouvrez l'app Raccourcis sur votre iPhone",
-        "2": "Allez dans l'onglet Automatisation",
-        "3": "Appuyez sur + et sélectionnez Wallet",
-        "4": "Sélectionnez votre/vos carte(s) et appuyez sur Suivant",
-        "5": "Sélectionnez Exécuter immédiatement",
-        "6": "Ajoutez l'action Ouvrir l'URL",
-        "7": "Collez l'URL ci-dessous — [Amount] et [Merchant] sont remplis automatiquement à chaque paiement"
+        "2": "Allez dans Automatisation → + → Transaction",
+        "3": "Sélectionnez votre/vos carte(s) et appuyez sur Suivant",
+        "4": "Sélectionnez Exécuter immédiatement",
+        "5": "Recherchez SmartSpend et sélectionnez « Automatisation de paiement »",
+        "6": "Le montant et le commerçant sont transmis automatiquement depuis Wallet"
       },
-      "note": "Disponible uniquement avec Apple Card et les banques compatibles avec l'API Wallet."
+      "note": "Nécessite iOS 17.2+ et des cartes compatibles avec les notifications Wallet (Apple Card, banques compatibles)."
     },
     "manual": {
-      "title": "Manuel (toutes versions)",
+      "title": "Manuel (Siri)",
       "description": "Créez un raccourci que vous pouvez exécuter manuellement ou avec Siri après chaque paiement.",
       "steps": {
         "1": "Ouvrez l'app Raccourcis sur votre iPhone",
         "2": "Appuyez sur + pour créer un nouveau raccourci",
-        "3": "Recherchez SmartSpend Dev dans Apps",
+        "3": "Recherchez SmartSpend dans Apps",
         "4": "Sélectionnez l'action Entrée intelligente",
         "5": "Tapez votre dépense en texte naturel",
         "6": "Nommez le raccourci (ex : « Enregistrer dépense »)",
         "7": "Vous pouvez maintenant dire : « Dis Siri, enregistrer dépense »"
       }
     }
-  },
-  "urlFormat": {
-    "title": "Format de l'URL",
-    "description": "Voici l'URL pour l'automatisation Wallet. Les valeurs [Amount] et [Merchant] sont des variables qu'iOS remplit automatiquement avec les données du paiement.",
-    "params": {
-      "amount": "[Amount] — montant du paiement (automatique)",
-      "name": "[Merchant] — nom du commerçant (automatique)",
-      "type": "Type : expense ou income (par défaut : expense)",
-      "date": "Date au format AAAA-MM-JJ (par défaut : aujourd'hui)",
-      "notes": "Notes supplémentaires"
-    },
-    "example": "Exemple",
-    "copied": "URL copiée"
   },
   "tips": {
     "title": "Conseils",

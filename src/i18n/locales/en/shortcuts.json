@@ -12,45 +12,31 @@
   "setup": {
     "title": "Setup",
     "auto": {
-      "title": "Automatic (iOS 17.2+)",
-      "description": "If your bank supports Wallet transaction notifications, you can create an automation that triggers with every payment.",
+      "title": "Automatic (Wallet)",
+      "description": "Create an automation that logs every Apple Pay payment directly in SmartSpend.",
       "steps": {
         "1": "Open the Shortcuts app on your iPhone",
-        "2": "Go to the Automation tab",
-        "3": "Tap + and select Wallet",
-        "4": "Select your card(s) and tap Next",
-        "5": "Select Run Immediately",
-        "6": "Add the Open URL action",
-        "7": "Paste the URL below — [Amount] and [Merchant] are filled automatically with each payment"
+        "2": "Go to Automation → + → Transaction",
+        "3": "Select your card(s) and tap Next",
+        "4": "Select Run Immediately",
+        "5": "Search SmartSpend and select \"Payment automation\"",
+        "6": "Amount and merchant are passed automatically from Wallet"
       },
-      "note": "Only available with Apple Card and banks compatible with the Wallet API."
+      "note": "Requires iOS 17.2+ and cards compatible with Wallet notifications (Apple Card, compatible banks)."
     },
     "manual": {
-      "title": "Manual (all versions)",
+      "title": "Manual (Siri)",
       "description": "Create a shortcut you can run manually or with Siri after each payment.",
       "steps": {
         "1": "Open the Shortcuts app on your iPhone",
         "2": "Tap + to create a new shortcut",
-        "3": "Search for SmartSpend Dev in Apps",
+        "3": "Search for SmartSpend in Apps",
         "4": "Select the Smart entry action",
         "5": "Type your expense in natural text",
         "6": "Name the shortcut (e.g., \"Log expense\")",
         "7": "Now you can say: \"Hey Siri, log expense\""
       }
     }
-  },
-  "urlFormat": {
-    "title": "URL Format",
-    "description": "This is the URL for the Wallet automation. The [Amount] and [Merchant] values are variables that iOS fills automatically with the payment data.",
-    "params": {
-      "amount": "[Amount] — payment amount (automatic)",
-      "name": "[Merchant] — merchant name (automatic)",
-      "type": "Type: expense or income (default: expense)",
-      "date": "Date in YYYY-MM-DD format (default: today)",
-      "notes": "Additional notes"
-    },
-    "example": "Example",
-    "copied": "URL copied"
   },
   "tips": {
     "title": "Tips",

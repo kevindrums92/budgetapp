@@ -12,45 +12,31 @@
   "setup": {
     "title": "Configuración",
     "auto": {
-      "title": "Automático (iOS 17.2+)",
-      "description": "Si tu banco soporta notificaciones de transacciones en Wallet, puedes crear una automatización que se active con cada pago.",
+      "title": "Automático (Wallet)",
+      "description": "Crea una automatización que registre cada pago de Apple Pay directamente en SmartSpend.",
       "steps": {
         "1": "Abre la app Atajos en tu iPhone",
-        "2": "Ve a la pestaña Automatización",
-        "3": "Toca + y selecciona Wallet",
-        "4": "Selecciona tu(s) tarjeta(s) y toca Siguiente",
-        "5": "Selecciona Ejecutar inmediatamente",
-        "6": "Agrega la acción Abrir URL",
-        "7": "Pega la URL de abajo — [Amount] y [Merchant] se llenan automáticamente con cada pago"
+        "2": "Ve a Automatización → + → Transacción",
+        "3": "Selecciona tu(s) tarjeta(s) y toca Siguiente",
+        "4": "Selecciona Ejecutar inmediatamente",
+        "5": "Busca SmartSpend y selecciona \"Automatización de pago\"",
+        "6": "El monto y comercio se pasan automáticamente desde Wallet"
       },
-      "note": "Disponible solo con Apple Card y bancos compatibles con la API de Wallet."
+      "note": "Requiere iOS 17.2+ y tarjetas compatibles con notificaciones de Wallet (Apple Card, bancos compatibles)."
     },
     "manual": {
-      "title": "Manual (todas las versiones)",
+      "title": "Manual (Siri)",
       "description": "Crea un atajo que puedas ejecutar manualmente o con Siri después de cada pago.",
       "steps": {
         "1": "Abre la app Atajos en tu iPhone",
         "2": "Toca + para crear un nuevo atajo",
-        "3": "Busca SmartSpend Dev en Apps",
+        "3": "Busca SmartSpend en Apps",
         "4": "Selecciona la acción Ingreso inteligente",
         "5": "Escribe tu gasto en texto natural",
         "6": "Nombra el atajo (ej: \"Registrar gasto\")",
         "7": "Ahora puedes decir: \"Oye Siri, registrar gasto\""
       }
     }
-  },
-  "urlFormat": {
-    "title": "Formato de URL",
-    "description": "Esta es la URL para la automatización de Wallet. Los valores [Amount] y [Merchant] son variables que iOS rellena automáticamente con los datos del pago.",
-    "params": {
-      "amount": "[Amount] — monto del pago (automático)",
-      "name": "[Merchant] — nombre del comercio (automático)",
-      "type": "Tipo: expense o income (por defecto: expense)",
-      "date": "Fecha en formato AAAA-MM-DD (por defecto: hoy)",
-      "notes": "Notas adicionales"
-    },
-    "example": "Ejemplo",
-    "copied": "URL copiada"
   },
   "tips": {
     "title": "Consejos",

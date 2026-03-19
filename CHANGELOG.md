@@ -9,6 +9,15 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(shortcuts): improve Apple Pay integration UX and merchant matching**
+  - Add QuickAddModal instant save (remove confirmation dialog, close immediately after saving)
+  - Rewrite merchantMatcher with 5-tier strategy: exact → fuzzy → token overlap → keyword hints → fallback (always returns a category)
+  - Expand MERCHANT_CATEGORY_HINTS with 200+ keywords covering LatAm merchants, gas stations, pharmacies, airlines, etc.
+  - Fix duplicate QuickAddModal on app reopen (clear pendingQuickAdd localStorage on warm-start event path)
+  - Update ShortcutsSetupPage to reflect native App Intents (Wallet automation + Siri) instead of URL-pasting approach
+  - Add cold-start deep link support via getLaunchUrl + localStorage fallback for assistant and promo code handlers
+  - Add haptics feedback (Capacitor Haptics plugin) on QuickAddModal open and save
+
 ## [0.16.22] - 2026-03-18
 
 - **feat(voice): add Android native SpeechRecognitionPlugin**

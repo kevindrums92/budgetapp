@@ -236,6 +236,9 @@ function QuickAddHandler() {
     const detail = (e as CustomEvent).detail;
     if (!detail) return;
 
+    // Clear pending storage immediately to prevent duplicate on next app open
+    localStorage.removeItem('pendingQuickAdd');
+
     console.log('[QuickAddHandler] Received quick-add event:', detail);
 
     // Import merchant matcher lazily to avoid loading on startup
