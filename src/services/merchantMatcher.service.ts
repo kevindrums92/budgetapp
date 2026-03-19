@@ -45,7 +45,7 @@ const STOP_WORDS = new Set([
  * Ropa, Entretenimiento, Salud, Educación, Cuidado Personal) we use a
  * second-level map (LIFESTYLE_SUBCATEGORY_HINTS) to pick the right one.
  */
-const MERCHANT_CATEGORY_HINTS: Record<string, string[]> = {
+export const MERCHANT_CATEGORY_HINTS: Record<string, string[]> = {
   /* ── food_drink (Mercado, Restaurantes) ── */
   food_drink: [
     // Generic food words
@@ -175,7 +175,7 @@ const MERCHANT_CATEGORY_HINTS: Record<string, string[]> = {
  * by checking keywords associated with each subcategory name.
  * Keys are normalized default category names.
  */
-const LIFESTYLE_SUBCATEGORY_HINTS: Record<string, string[]> = {
+export const LIFESTYLE_SUBCATEGORY_HINTS: Record<string, string[]> = {
   // Ropa (Clothing / Shopping)
   ropa: [
     "zara", "h&m", "nike", "adidas", "shein", "forever 21", "pull&bear",

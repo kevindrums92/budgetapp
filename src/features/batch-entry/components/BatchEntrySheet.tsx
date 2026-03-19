@@ -119,6 +119,7 @@ import { parseText, parseImage } from "../services/batchEntry.service";
 import {
   extractPatterns,
   postProcessWithHistory,
+  refineWithKeywordHints,
 } from "../services/historyMatcher.service";
 import { mergeDrafts as mergeDraftsService } from "../services/mergeDrafts.service";
 import type { HistoryPattern } from "../types/batch-entry.types";
@@ -435,6 +436,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
           // Process AI results and apply history-based improvements
           let processedDrafts = processAIResults(result.transactions, interpretation);
           processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          processedDrafts = refineWithKeywordHints(processedDrafts, categoryDefinitions);
           setDrafts(processedDrafts);
           setConfidence(result.confidence);
           setFlowState("preview");
@@ -461,6 +463,7 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
           // Process AI results and apply history-based improvements
           let processedDrafts = processAIResults(result.transactions, interpretation);
           processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          processedDrafts = refineWithKeywordHints(processedDrafts, categoryDefinitions);
           setDrafts(processedDrafts);
           setConfidence(result.confidence);
           setFlowState("preview");

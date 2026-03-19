@@ -9,6 +9,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(batch-entry): integrate merchant keyword hints into batch entry pipeline**
+  - Share MERCHANT_CATEGORY_HINTS (200+ keywords) with AI batch entry for category refinement
+  - Add `refineWithKeywordHints()` post-processing step after history matching in text, image, and audio flows
+  - Drafts with generic categories (Otros Gastos) now get matched via keyword hints to specific categories
+
 - **feat(shortcuts): improve Apple Pay integration UX and merchant matching**
   - Add QuickAddModal instant save (remove confirmation dialog, close immediately after saving)
   - Rewrite merchantMatcher with 5-tier strategy: exact → fuzzy → token overlap → keyword hints → fallback (always returns a category)
