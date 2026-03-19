@@ -6,7 +6,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.22] - 2026-03-18
 
 - **feat(voice): add Android native SpeechRecognitionPlugin**
   - Implement android.speech.SpeechRecognizer with continuous listening and transcript accumulation
