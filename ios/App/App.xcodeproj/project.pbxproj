@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		042147812F68C8AD0012F3C2 /* SmartSpendShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0421477F2F68C8AD0012F3C2 /* SmartSpendShortcuts.swift */; };
 		042147822F68C8AD0012F3C2 /* AddTransactionIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0421477E2F68C8AD0012F3C2 /* AddTransactionIntent.swift */; };
+		04474D692F6B878600A5ADE9 /* SpeechRecognitionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04474D682F6B878600A5ADE9 /* SpeechRecognitionPlugin.swift */; };
 		044B4EDA2F2A62940053149B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 044B4ED92F2A62940053149B /* FirebaseCore */; };
 		044B4EDC2F2A62940053149B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 044B4EDB2F2A62940053149B /* FirebaseMessaging */; };
 		044B4EE02F2AD19E0053149B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 044B4EDF2F2AD19E0053149B /* GoogleService-Info.plist */; };
@@ -60,6 +61,7 @@
 /* Begin PBXFileReference section */
 		0421477E2F68C8AD0012F3C2 /* AddTransactionIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionIntent.swift; sourceTree = "<group>"; };
 		0421477F2F68C8AD0012F3C2 /* SmartSpendShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartSpendShortcuts.swift; sourceTree = "<group>"; };
+		04474D682F6B878600A5ADE9 /* SpeechRecognitionPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionPlugin.swift; sourceTree = "<group>"; };
 		044B4ED72F2A5B110053149B /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		044B4EDF2F2AD19E0053149B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 		BBCC00000000000000000004 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				04474D682F6B878600A5ADE9 /* SpeechRecognitionPlugin.swift */,
 				BBAA0000000000000000000A /* WidgetBridgePlugin.swift */,
 			);
 			path = Plugins;
@@ -318,6 +321,7 @@
 				042147822F68C8AD0012F3C2 /* AddTransactionIntent.swift in Sources */,
 				CCCC00000000000000000001 /* RegisterExpenseIntent.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				04474D692F6B878600A5ADE9 /* SpeechRecognitionPlugin.swift in Sources */,
 				BBBB00000000000000000007 /* WidgetBridgePlugin.swift in Sources */,
 				BBBB00000000000000000008 /* BridgeViewController.swift in Sources */,
 			);

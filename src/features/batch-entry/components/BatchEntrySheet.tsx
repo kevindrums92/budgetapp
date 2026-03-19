@@ -115,7 +115,7 @@ function mapAICategoryToStoreCategory(
   return null;
 }
 
-import { parseText, parseImage, parseAudio } from "../services/batchEntry.service";
+import { parseText, parseImage } from "../services/batchEntry.service";
 import {
   extractPatterns,
   postProcessWithHistory,
@@ -476,30 +476,9 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
     });
   };
 
-  const handleAudioCapture = async (audioBase64: string, mimeType: string) => {
-    await checkAndProceed(async () => {
-      setFlowState("processing");
-      try {
-        const result = await parseAudio(audioBase64, mimeType, historyPatterns);
-        if (result.success && result.transactions.length > 0) {
-          const interpretation = result.rawInterpretation || "";
-          setRawInterpretation(interpretation);
-          // Process AI results and apply history-based improvements
-          let processedDrafts = processAIResults(result.transactions, interpretation);
-          processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
-          setDrafts(processedDrafts);
-          setConfidence(result.confidence);
-          setFlowState("preview");
-          incrementBatchDailyCount();
-        } else {
-          setError(result.error || "No se encontraron transacciones");
-          setFlowState("error");
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Error inesperado");
-        setFlowState("error");
-      }
-    });
+  const handleVoiceTranscript = async (transcript: string) => {
+    // Voice now produces text via speech recognition — reuse text pipeline
+    await handleTextSubmit(transcript);
   };
 
   const handleCancel = () => {
@@ -733,13 +712,8 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
       const isProcessing = flowState === "processing";
 
       if (inputType === "audio") {
-        return (
-          <VoiceRecorder
-            onRecordingComplete={handleAudioCapture}
-            onCancel={handleCancel}
-            isProcessing={isProcessing}
-          />
-        );
+        // VoiceRecorder is rendered as a fullscreen overlay outside the sheet
+        return null;
       }
 
       if (inputType === "image") {
@@ -939,6 +913,15 @@ export default function BatchEntrySheet({ open, onClose, initialInputType }: Pro
         isActive={isTourActive}
         onComplete={completeTour}
       />
+
+      {/* Voice recorder — rendered as fullscreen overlay outside the sheet */}
+      {inputType === "audio" && (flowState === "capturing" || flowState === "processing") && (
+        <VoiceRecorder
+          onTranscriptComplete={handleVoiceTranscript}
+          onCancel={handleCancel}
+          isProcessing={flowState === "processing"}
+        />
+      )}
     </div>
   );
 }

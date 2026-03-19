@@ -32,7 +32,11 @@
     "transcribing": "Transcribiendo y extrayendo transacciones",
     "recording": "Grabando...",
     "starting": "Iniciando...",
-    "maxDuration": "Máximo {{duration}}"
+    "maxDuration": "Máximo {{duration}}",
+    "placeholder": "Cuéntame todos los detalles de tu transacción",
+    "notAvailable": "Reconocimiento de voz no disponible en este dispositivo",
+    "permissionDenied": "Permiso de micrófono denegado",
+    "noSpeechDetected": "No se detectó ninguna frase. Intenta de nuevo."
   },
   "imageInput": {
     "processing": "Analizando imagen...",

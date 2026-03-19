@@ -8,6 +8,12 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(voice): replace audio recording with real-time speech recognition**
+  - Add custom SpeechRecognitionPlugin (iOS native SFSpeechRecognizer + Web Speech API fallback)
+  - Fullscreen voice recorder with live transcription, gradient background, and pulsing mic indicator
+  - Add language selector (ES/EN/FR/PT) independent from app UI language, persisted in localStorage
+  - Skip Whisper transcription step — speech-to-text happens on-device, transcript sent directly to AI
+
 - **feat(shortcuts): add QuickAddModal with budget context for deep link transactions**
   - Replace direct form navigation with contextual confirmation modal (merchant, amount, category, budget progress bar)
   - Add inline category picker, haptic feedback, and budget awareness (remaining/exceeded status)
