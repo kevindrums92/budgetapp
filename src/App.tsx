@@ -16,6 +16,7 @@ import BottomBar from "@/shared/components/layout/BottomBar";
 import TopHeader from "@/shared/components/layout/TopHeader";
 import { HeaderActionsProvider } from "@/shared/contexts/headerActions.context";
 import RevenueCatProvider from "@/shared/components/providers/RevenueCatProvider";
+import QuickAddModal from "@/features/transactions/components/QuickAddModal";
 
 // Eager load core pages (HomePage, PlanPage)
 import HomePage from "@/features/transactions/pages/HomePage";
@@ -218,11 +219,18 @@ function PromoCodeRedeemer() {
 
 /**
  * Listens for `quick-add-transaction` custom event (dispatched from deep link handler in main.tsx)
- * and navigates to /add with the transaction data pre-filled via location.state.
+ * and shows QuickAddModal with the transaction data for review.
  * Uses merchantMatcher to auto-detect category from merchant name.
  */
 function QuickAddHandler() {
-  const navigate = useNavigate();
+  const [modalData, setModalData] = useState<{
+    name: string;
+    amount: number;
+    type: "income" | "expense";
+    date: string;
+    categoryId: string | null;
+    notes?: string;
+  } | null>(null);
 
   const handleEvent = useCallback(async (e: Event) => {
     const detail = (e as CustomEvent).detail;
@@ -258,12 +266,10 @@ function QuickAddHandler() {
     // Also try matching by category param (could be a group ID like "food_drink")
     if (!categoryId && detail.category) {
       const categoriesOfType = categoryDefinitions.filter((c) => c.type === type);
-      // Try exact ID match
       const exactMatch = categoriesOfType.find((c) => c.id === detail.category);
       if (exactMatch) {
         categoryId = exactMatch.id;
       } else {
-        // Try group ID match
         const groupMatch = categoriesOfType.find((c) => c.groupId === detail.category);
         if (groupMatch) {
           categoryId = groupMatch.id;
@@ -271,26 +277,44 @@ function QuickAddHandler() {
       }
     }
 
-    navigate('/add', {
-      state: {
-        deepLink: {
-          name: detail.name || '',
-          amount: detail.amount || '',
-          type,
-          date: detail.date || todayISO(),
-          categoryId,
-          notes: detail.notes || '',
-        },
-      },
+    const amount = Number(String(detail.amount || '0').replace(/[^0-9]/g, '')) || 0;
+
+    setModalData({
+      name: detail.name || '',
+      amount,
+      type,
+      date: detail.date || todayISO(),
+      categoryId,
+      notes: detail.notes || '',
     });
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     window.addEventListener('quick-add-transaction', handleEvent);
+
+    // Check for pending quick-add from cold start (deep link arrived before React mounted)
+    const pending = localStorage.getItem('pendingQuickAdd');
+    if (pending) {
+      localStorage.removeItem('pendingQuickAdd');
+      try {
+        const params = JSON.parse(pending);
+        console.log('[QuickAddHandler] Found pending cold-start quick-add:', params);
+        handleEvent(new CustomEvent('quick-add-transaction', { detail: params }));
+      } catch (err) {
+        console.error('[QuickAddHandler] Error parsing pending quick-add:', err);
+      }
+    }
+
     return () => window.removeEventListener('quick-add-transaction', handleEvent);
   }, [handleEvent]);
 
-  return null;
+  return (
+    <QuickAddModal
+      open={modalData !== null}
+      data={modalData}
+      onClose={() => setModalData(null)}
+    />
+  );
 }
 
 /**
@@ -337,15 +361,29 @@ function BatchTextHandler() {
 function AssistantNavigator() {
   const navigate = useNavigate();
 
+  const navigateToAssistant = useCallback((mode: string) => {
+    console.log('[AssistantNavigator] Navigating to assistant, mode:', mode);
+    localStorage.removeItem('pendingAssistant');
+    navigate(`/assistant?mode=${mode}`);
+  }, [navigate]);
+
+  // Check localStorage on mount (fallback if event fired before React mounted — cold start)
+  useEffect(() => {
+    const pendingMode = localStorage.getItem('pendingAssistant');
+    if (pendingMode) {
+      navigateToAssistant(pendingMode);
+    }
+  }, [navigateToAssistant]);
+
+  // Listen for real-time events
   useEffect(() => {
     const handleEvent = (e: Event) => {
       const mode = (e as CustomEvent).detail?.mode || 'text';
-      console.log('[AssistantNavigator] Navigating to assistant, mode:', mode);
-      navigate(`/assistant?mode=${mode}`);
+      navigateToAssistant(mode);
     };
     window.addEventListener('navigate-assistant', handleEvent);
     return () => window.removeEventListener('navigate-assistant', handleEvent);
-  }, [navigate]);
+  }, [navigateToAssistant]);
 
   return null;
 }

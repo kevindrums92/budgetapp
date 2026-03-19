@@ -45,7 +45,6 @@ export default function AssistantPage() {
     rewardedWasConsumed,
     handleTextSubmit,
     handleImageCapture,
-    handleAudioCapture,
     handleUpdateDraft,
     handleDeleteDraft,
     handleMergeDrafts,
@@ -362,7 +361,6 @@ export default function AssistantPage() {
         <ChatInputBar
           key={inputBarKey}
           onSendText={handleTextSubmit}
-          onSendAudio={handleAudioCapture}
           onCaptureImage={handleCaptureFromSource}
           disabled={!isOnline}
           autoFocusText={initialMode === "text"}

@@ -1281,6 +1281,77 @@ Para compartir un código desde la web, se puede crear una página en la landing
 
 ---
 
+## 📱 Home Screen Widgets (iOS + Android)
+
+### Descripción
+Widgets nativos para la pantalla de inicio que muestran datos de presupuesto de un vistazo, sin necesidad de abrir la app.
+
+### Tamaños Disponibles
+- **Pequeño (2×2)**: Gastos de hoy + restante/balance
+- **Mediano (4×2)**: Hoy + Mes + Restante + botones Voz/Agregar
+- **Grande (4×4)**: Todo lo anterior + últimas 5 transacciones recientes
+
+### Características
+- **Datos en tiempo real**: Se actualiza automáticamente cuando cambian los datos en la app (debounce 800ms)
+- **Refresh automático al cambiar de día**: Detecta datos del día anterior y resetea "Hoy" a $0
+  - iOS: Programa refresh a medianoche o cada 30 min
+  - Android: `updatePeriodMillis` de 30 minutos
+- **Internacionalización**: Labels traducidos en 4 idiomas (es, en, fr, pt)
+- **Deep links**: Botón "Voz" → asistente con grabación, botón "Agregar" → asistente de texto
+- **Moneda dinámica**: Respeta la moneda configurada del usuario (COP, USD, etc.)
+- **Transacciones recientes**: Muestra solo transacciones de hoy o anteriores (excluye futuras/planeadas)
+
+### Arquitectura
+```
+Zustand Store → widgetBridge.service.ts (TypeScript)
+  → Capacitor Plugin (WidgetBridge)
+    → iOS: App Group UserDefaults → WidgetKit TimelineProvider → SwiftUI Views
+    → Android: SharedPreferences → AppWidgetProvider → RemoteViews XML
+```
+
+### Android (Widget resizable)
+- Un solo widget que adapta su layout según el tamaño (small/medium/large)
+- `SmartSpendWidgetProvider` detecta `OPTION_APPWIDGET_MIN_HEIGHT` para elegir layout
+- Layouts XML con `RemoteViews` (LinearLayout, TextView, ImageView)
+- Dot de categoría coloreado via `setColorFilter()`
+
+### iOS (WidgetKit Extension)
+- Extensión separada (`SmartSpendWidgetExtension`) con 3 familias: systemSmall, systemMedium, systemLarge
+- SwiftUI views con `containerBackground` (iOS 17+) y fallback (iOS 15-16)
+- `WidgetData` modelo Codable con `WidgetLabels` para i18n
+- `isFromToday` y `withTodayReset()` para manejo de cambio de día
+
+---
+
+## ⌨️ iOS Shortcuts (App Intents)
+
+### Descripción
+Integración con iOS Shortcuts para registro rápido de transacciones y automatización de Apple Pay/Wallet.
+
+### Atajos Disponibles
+1. **"Ingreso inteligente"** — Recibe texto en lenguaje natural → abre asistente AI para parseo
+2. **"Automatización de Apple Pay"** — Recibe monto y comercio de transacciones Wallet → registra gasto directo
+
+### Apple Pay / Wallet Automation
+- Compatible con automatizaciones de iOS 17.2+ (trigger al pagar con Apple Pay)
+- Parámetro `amount` es `String` (no `Double`) para aceptar el tipo currency del Wallet
+- Parsing locale-aware:
+  - COP: `7.000` → `7000` (punto = separador de miles)
+  - USD: `7.50` → `7.50` (punto = decimal)
+  - Regex: `\.\d{3}(\.\d{3})*$` detecta patrón de miles
+
+### Flujo
+1. Usuario configura automatización en Shortcuts (trigger: Apple Pay)
+2. iOS ejecuta `RegisterExpenseIntent` con Amount y Merchant del Wallet
+3. Intent construye deep link: `smartspend://add?amount=X&name=Y&type=expense`
+4. App se abre → `AddEditTransactionPage` pre-llenado con los datos
+
+### Configuración
+- Página de setup: `ShortcutsSetupPage` (accesible desde ProfilePage en iOS)
+- Guía paso a paso para automatización de Wallet y configuración manual
+
+---
+
 ## 🚀 Roadmap (Futuro)
 
 Ver [ROADMAP.md](ROADMAP.md) para features planeados:

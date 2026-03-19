@@ -1,7 +1,7 @@
 {
   "name": "budget-app",
   "private": true,
-  "version": "0.16.21",
+  "version": "0.16.22",
   "type": "module",
   "engines": {
     "node": "20.x"
@@ -65,6 +65,7 @@
     "@capacitor/cli": "^8.0.1",
     "@capacitor/core": "^8.0.1",
     "@capacitor/filesystem": "^8.1.0",
+    "@capacitor/haptics": "^8.0.1",
     "@capacitor/ios": "^8.0.1",
     "@capacitor/network": "^8.0.0",
     "@capacitor/share": "^8.0.0",

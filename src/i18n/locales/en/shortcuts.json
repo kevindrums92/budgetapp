@@ -61,5 +61,21 @@
   "menu": {
     "title": "iOS Shortcuts",
     "subtitle": "Connect Apple Pay with SmartSpend"
+  },
+  "quickAdd": {
+    "title": "Payment detected",
+    "subtitle": "Would you like to add it?",
+    "addExpense": "Add expense",
+    "addIncome": "Add income",
+    "edit": "Edit",
+    "saved": "Saved",
+    "noCategory": "No category",
+    "unknownMerchant": "Merchant",
+    "budgetLabel": "Your budget",
+    "budgetRemaining": "You'll have <b>{{amount}}</b> left in <b>{{category}}</b> this month.",
+    "budgetWillExceed": "You'll exceed your <b>{{category}}</b> budget this month.",
+    "budgetExceeded": "Exceeded",
+    "budgetTight": "Tight",
+    "budgetOk": "On track"
   }
 }

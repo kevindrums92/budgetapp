@@ -68,9 +68,9 @@ if (isNative()) {
     }
   });
 
-  // Handle deep links (OAuth callbacks, promo code redemption, quick-add)
-  CapacitorApp.addListener('appUrlOpen', async ({ url }) => {
-    console.log('[DeepLink] Received URL:', url);
+  // ── Deep link handler (shared between appUrlOpen and getLaunchUrl) ──
+  async function handleDeepLink(url: string) {
+    console.log('[DeepLink] Processing URL:', url);
 
     // Check if this is a batch entry link (smartspend://batch?text=...)
     if (url.includes('/batch?') || url.includes('/batch')) {
@@ -101,6 +101,7 @@ if (isNative()) {
         const urlObj = new URL(url);
         const mode = urlObj.searchParams.get('mode') || 'text';
         console.log('[DeepLink] Assistant navigation, mode:', mode);
+        localStorage.setItem('pendingAssistant', mode);
         window.dispatchEvent(new CustomEvent('navigate-assistant', {
           detail: { mode },
         }));
@@ -124,6 +125,8 @@ if (isNative()) {
           notes: urlObj.searchParams.get('notes') || '',
         };
         console.log('[DeepLink] Quick-add transaction:', params);
+        // Store in localStorage so QuickAddHandler can pick it up on cold start
+        localStorage.setItem('pendingQuickAdd', JSON.stringify(params));
         window.dispatchEvent(new CustomEvent('quick-add-transaction', {
           detail: params,
         }));
@@ -141,6 +144,7 @@ if (isNative()) {
         const code = urlObj.searchParams.get('code');
         if (code) {
           console.log('[DeepLink] Promo code redemption:', code);
+          localStorage.setItem('pendingPromoCode', code.trim().toUpperCase());
           window.dispatchEvent(new CustomEvent('redeem-promo-code', {
             detail: { code: code.trim().toUpperCase() },
           }));
@@ -158,11 +162,6 @@ if (isNative()) {
     if (url.includes('auth/callback') || url.includes('code=') || url.includes('access_token')) {
       try {
         // Close in-app browser IMMEDIATELY when deep link arrives.
-        // The deep link means OAuth completed in the browser — close it before
-        // processing the code. This prevents the browser staying open if
-        // exchangeCodeForSession() deadlocks with navigator.locks (which happens
-        // when linkIdentity's SIGNED_IN handler calls getSession() while the
-        // code exchange still holds the lock).
         const { closeBrowser } = await import('@/shared/utils/browser.utils');
         await closeBrowser();
         console.log('[DeepLink] In-app browser closed');
@@ -170,9 +169,6 @@ if (isNative()) {
         // Parse URL parameters
         const urlObj = new URL(url);
 
-        // Check for OAuth error in callback URL (e.g., identity_already_exists from linkIdentity)
-        // Note: Supabase errors have both `error` + `error_code`, but Google/OAuth errors
-        // may only have `error` (e.g., interaction_required). We check `errorParam` alone.
         const errorParam = urlObj.searchParams.get('error');
         const errorCode = urlObj.searchParams.get('error_code');
         const errorDescription = urlObj.searchParams.get('error_description');
@@ -181,14 +177,9 @@ if (isNative()) {
           console.warn(`[DeepLink] OAuth error in callback: ${errorCode || errorParam} - ${errorDescription}`);
 
           if (errorCode === 'identity_already_exists') {
-            // The OAuth identity is already linked to another Supabase user.
-            // This happens when an anonymous user tries linkIdentity() with a Google/Apple
-            // account that was previously linked to a different user.
-            // Solution: retry with regular signInWithOAuth (signs in as existing user).
             console.log('[DeepLink] Identity already exists, dispatching retry event');
             window.dispatchEvent(new CustomEvent('oauth-identity-exists'));
           } else {
-            // Other OAuth errors — show to user
             window.dispatchEvent(new CustomEvent('oauth-error', {
               detail: {
                 error: errorDescription?.replace(/\+/g, ' ') || errorParam,
@@ -200,7 +191,6 @@ if (isNative()) {
           return;
         }
 
-        // Use existing supabase client to avoid multiple instances warning
         const { supabase } = await import('@/lib/supabaseClient');
 
         const code = urlObj.searchParams.get('code');
@@ -209,13 +199,11 @@ if (isNative()) {
         const refreshToken = hashParams.get('refresh_token');
 
         if (code) {
-          // PKCE flow: exchange code for session
           console.log('[DeepLink] Exchanging code for session...');
           const { error } = await supabase.auth.exchangeCodeForSession(code);
 
           if (error) {
             console.error('[DeepLink] Error exchanging code:', error);
-            // Dispatch custom event to notify UI of OAuth error
             window.dispatchEvent(new CustomEvent('oauth-error', {
               detail: {
                 error: error.message || 'Error al conectar con Google',
@@ -225,11 +213,8 @@ if (isNative()) {
             }));
           } else {
             console.log('[DeepLink] Session established successfully');
-            // Don't redirect here - LoginScreen's auth listener will handle navigation
-            // This prevents double navigation and allows proper data sync
           }
         } else if (accessToken && refreshToken) {
-          // Implicit flow: set session directly
           console.log('[DeepLink] Setting session from tokens...');
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
@@ -238,7 +223,6 @@ if (isNative()) {
 
           if (error) {
             console.error('[DeepLink] Error setting session:', error);
-            // Dispatch custom event to notify UI of OAuth error
             window.dispatchEvent(new CustomEvent('oauth-error', {
               detail: {
                 error: error.message || 'Error al configurar sesión',
@@ -248,11 +232,9 @@ if (isNative()) {
             }));
           } else {
             console.log('[DeepLink] Session set successfully');
-            // Don't redirect here - LoginScreen's auth listener will handle navigation
           }
         } else {
           console.warn('[DeepLink] No code or tokens found in URL');
-          // Dispatch custom event for missing parameters
           window.dispatchEvent(new CustomEvent('oauth-error', {
             detail: {
               error: 'No se recibió código de autenticación',
@@ -265,6 +247,17 @@ if (isNative()) {
         console.error('[DeepLink] Error processing OAuth callback:', err);
         captureError(err, { context: 'deepLink.oauth', url });
       }
+    }
+  }
+
+  // Handle deep links when app is already running (background → foreground)
+  CapacitorApp.addListener('appUrlOpen', ({ url }) => handleDeepLink(url));
+
+  // Handle deep links on cold start (app was killed, launched via URL)
+  CapacitorApp.getLaunchUrl().then((result) => {
+    if (result?.url) {
+      console.log('[DeepLink] Cold start launch URL:', result.url);
+      handleDeepLink(result.url);
     }
   });
 }

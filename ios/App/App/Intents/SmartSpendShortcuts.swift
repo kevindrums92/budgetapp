@@ -22,11 +22,11 @@ struct SmartSpendShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: RegisterExpenseIntent(),
             phrases: [
-                "Registrar gasto de Apple Pay en \(.applicationName)",
-                "Automatización de Apple Pay en \(.applicationName)",
-                "Log Apple Pay expense in \(.applicationName)",
+                "Registrar gasto de tarjeta en \(.applicationName)",
+                "Automatización de pago en \(.applicationName)",
+                "Log card expense in \(.applicationName)",
             ],
-            shortTitle: "Automatización de Apple Pay",
+            shortTitle: "Automatización de pago",
             systemImageName: "creditcard"
         )
     }

@@ -6,10 +6,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.graphics.Insets;
 import com.getcapacitor.BridgeActivity;
+import com.jhotech.smartspend.plugins.SpeechRecognitionPlugin;
+import com.jhotech.smartspend.widget.WidgetBridgePlugin;
 
 public class MainActivity extends BridgeActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        registerPlugin(WidgetBridgePlugin.class);
+        registerPlugin(SpeechRecognitionPlugin.class);
         super.onCreate(savedInstanceState);
         // Edge-to-edge: let WebView draw behind system bars
         // This makes env(safe-area-inset-*) work in CSS

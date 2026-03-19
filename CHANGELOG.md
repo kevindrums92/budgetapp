@@ -6,7 +6,56 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.22] - 2026-03-18
+
+- **feat(voice): add Android native SpeechRecognitionPlugin**
+  - Implement android.speech.SpeechRecognizer with continuous listening and transcript accumulation
+  - Register plugin in MainActivity alongside WidgetBridgePlugin
+  - Fix VoiceRecorder safe area using var(--sat)/var(--sab) CSS variables for Android compatibility
+
+- **fix(widget): fix Android 12+ widget crash "Class not allowed to be inflated"**
+  - Replace all `<View>` elements with `<FrameLayout>` in widget layouts (RemoteViews restriction)
+  - Add root click handler so tapping widget content opens the app
+  - Adjust layout height thresholds for better small/medium/large switching
+
+- **feat(voice): replace audio recording with real-time speech recognition**
+  - Add custom SpeechRecognitionPlugin (iOS native SFSpeechRecognizer + Web Speech API fallback)
+  - Fullscreen voice recorder with live transcription, gradient background, and pulsing mic indicator
+  - Add language selector (ES/EN/FR/PT) independent from app UI language, persisted in localStorage
+  - Skip Whisper transcription step — speech-to-text happens on-device, transcript sent directly to AI
+
+- **feat(shortcuts): add QuickAddModal with budget context for deep link transactions**
+  - Replace direct form navigation with contextual confirmation modal (merchant, amount, category, budget progress bar)
+  - Add inline category picker, haptic feedback, and budget awareness (remaining/exceeded status)
+  - Add i18n support for quickAdd keys in all 4 locales (es, en, fr, pt)
+
+- **fix(deep-links): handle cold start deep links when app is killed**
+  - Use `App.getLaunchUrl()` to process URLs that launched the app from a killed state
+  - Add localStorage fallback for QuickAddHandler and AssistantNavigator (widget buttons)
+  - Refactor deep link handler into shared `handleDeepLink()` function
+
+- **docs: add Home Screen Widgets and iOS Shortcuts documentation**
+  - Document widget architecture, data flow, sizes, and deep links in CLAUDE.md
+  - Add native widget and shortcuts feature sections to ARCHITECTURE.md
+  - Add user-facing widget and shortcuts descriptions to FEATURES.md
+
+- **feat(widget): add Android Home Screen Widget with resizable layouts**
+  - Add AppWidgetProvider with small, medium, and large layouts that adapt on resize
+  - Add WidgetBridgePlugin Capacitor plugin for Android (SharedPreferences bridge)
+  - Add deep link intent filters for widget buttons (assistant, add, batch, redeem)
+  - Extend widgetBridge.service.ts to support both iOS and Android platforms
+  - Exclude future-dated transactions from widget's recent list
+
+- **fix(widget): auto-refresh iOS widget at midnight when day changes**
+  - Detect stale data via `isFromToday` check on `lastUpdated` timestamp
+  - Zero out today's expenses/income when cached data is from a previous day
+  - Schedule timeline refresh at midnight or every 30 min (whichever comes first)
+
+- **fix(shortcuts): improve Apple Pay amount parsing for locale formats**
+  - Handle COP thousands separator (`7.000` → `7000`) vs USD decimals (`7.50`)
 
 ## [0.16.21] - 2026-03-17
 

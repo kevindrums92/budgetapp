@@ -1,56 +1,112 @@
 /**
- * Voice Recorder Component
- * Records audio for voice-based transaction input
+ * Voice Recorder Component — Fullscreen with Live Transcription
+ *
+ * Immersive voice recording experience inspired by MonAi:
+ * - Fullscreen gradient background
+ * - Real-time transcription displayed as the user speaks
+ * - Pulsing microphone indicator
+ * - Simple cancel (X) and send (checkmark) buttons
+ *
+ * Uses speech recognition (native plugin or Web Speech API) for
+ * real-time text display, then sends the transcript as text to the AI.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Mic, Square, X, Loader2 } from "lucide-react";
+import { Mic, X, Send, Loader2 } from "lucide-react";
 import {
-  startRecording,
-  stopRecording,
-  cancelRecording,
-  getMaxDuration,
-  formatDuration,
-} from "../services/audioCapture.service";
+  checkSpeechAvailability,
+  startSpeechRecognition,
+  stopSpeechRecognition,
+} from "../services/speechRecognition.service";
 import { useFakeProgress } from "../hooks/useFakeProgress";
-import AudioWaveform from "./AudioWaveform";
 
 type Props = {
-  onRecordingComplete: (audioBase64: string, mimeType: string) => void;
+  onTranscriptComplete: (transcript: string) => void;
   onCancel: () => void;
   isProcessing: boolean;
 };
 
+const MAX_DURATION = 60; // seconds
+
+const SPEECH_LANGUAGES = [
+  { code: "es", locale: "es-ES", label: "ES" },
+  { code: "en", locale: "en-US", label: "EN" },
+  { code: "fr", locale: "fr-FR", label: "FR" },
+  { code: "pt", locale: "pt-BR", label: "PT" },
+];
+
 export default function VoiceRecorder({
-  onRecordingComplete,
+  onTranscriptComplete,
   onCancel,
   isProcessing,
 }: Props) {
-  const { t } = useTranslation("batch");
-  const [isRecording, setIsRecording] = useState(false);
-  const [duration, setDuration] = useState(0);
+  const { t, i18n } = useTranslation("batch");
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isStarting, setIsStarting] = useState(true);
+  const mountedRef = useRef(true);
 
-  const maxDuration = getMaxDuration();
+  // Speech language (independent from app UI language, persisted)
+  const [selectedLang, setSelectedLang] = useState(() => {
+    const saved = localStorage.getItem("speechLang");
+    if (saved && SPEECH_LANGUAGES.some((l) => l.code === saved)) return saved;
+    const appLang = i18n.language || "es";
+    return SPEECH_LANGUAGES.find((l) => l.code === appLang)?.code || "es";
+  });
+
+  const speechLocale = useMemo(() => {
+    return SPEECH_LANGUAGES.find((l) => l.code === selectedLang)?.locale || "es-ES";
+  }, [selectedLang]);
 
   // Fake progress for processing state
   const progress = useFakeProgress({ isProcessing });
 
-  // Start recording on mount
+  // Start speech recognition on mount
   useEffect(() => {
-    let mounted = true;
+    mountedRef.current = true;
 
     async function start() {
+      const available = await checkSpeechAvailability();
+      if (!mountedRef.current) return;
+
+      if (!available) {
+        setError(t("voiceInput.notAvailable", { defaultValue: "Reconocimiento de voz no disponible en este dispositivo" }));
+        setIsStarting(false);
+        return;
+      }
+
       try {
-        await startRecording();
-        if (mounted) {
-          setIsRecording(true);
-          setError(null);
+        await startSpeechRecognition(
+          speechLocale,
+          (text) => {
+            if (mountedRef.current) {
+              setTranscript(text);
+            }
+          },
+          (err) => {
+            if (mountedRef.current) {
+              console.error("[VoiceRecorder] Speech recognition error:", err);
+              // Don't show error for minor issues, only permission denials
+              if (err === "Permission denied" || err === "not-allowed") {
+                setError(t("voiceInput.permissionDenied", { defaultValue: "Permiso de micrófono denegado" }));
+              }
+            }
+          }
+        );
+        if (mountedRef.current) {
+          setIsListening(true);
+          setIsStarting(false);
         }
       } catch (err) {
-        if (mounted) {
-          setError(err instanceof Error ? err.message : t("errors.recordingError"));
+        if (mountedRef.current) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : t("errors.recordingError")
+          );
+          setIsStarting(false);
         }
       }
     }
@@ -58,86 +114,90 @@ export default function VoiceRecorder({
     start();
 
     return () => {
-      mounted = false;
-      cancelRecording();
+      mountedRef.current = false;
+      stopSpeechRecognition();
     };
-  }, [t]);
+  }, [t, speechLocale]);
 
-  const handleStop = useCallback(async () => {
-    if (!isRecording) return;
-
-    try {
-      setIsRecording(false);
-      const { audioBase64, mimeType } = await stopRecording();
-      onRecordingComplete(audioBase64, mimeType);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.stopRecordingError"));
-    }
-  }, [isRecording, onRecordingComplete, t]);
-
-  // Timer for duration
+  // Auto-stop after MAX_DURATION
   useEffect(() => {
-    if (!isRecording) return;
+    if (!isListening) return;
 
-    const interval = setInterval(() => {
-      setDuration((d) => {
-        const newDuration = d + 1;
-        // Auto-stop at max duration
-        if (newDuration >= maxDuration) {
-          handleStop();
-        }
-        return newDuration;
-      });
-    }, 1000);
+    const timeout = setTimeout(() => {
+      handleSend();
+    }, MAX_DURATION * 1000);
 
-    return () => clearInterval(interval);
-  }, [isRecording, maxDuration, handleStop]);
+    return () => clearTimeout(timeout);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isListening]);
+
+  const handleSend = useCallback(async () => {
+    if (!isListening) return;
+    setIsListening(false);
+    const finalTranscript = await stopSpeechRecognition();
+    // Use the latest transcript from state if stopSpeechRecognition returns empty
+    const textToSend = finalTranscript || transcript;
+    if (textToSend.trim()) {
+      onTranscriptComplete(textToSend.trim());
+    } else {
+      setError(t("voiceInput.noSpeechDetected", { defaultValue: "No se detectó ninguna frase. Intenta de nuevo." }));
+    }
+  }, [isListening, transcript, onTranscriptComplete, t]);
 
   const handleCancel = useCallback(async () => {
-    await cancelRecording();
-    setIsRecording(false);
+    setIsListening(false);
+    await stopSpeechRecognition();
     onCancel();
   }, [onCancel]);
 
-  // Show processing state
+  // --- Processing state ---
   if (isProcessing) {
     return (
-      <div className="flex flex-col items-center py-8">
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/50">
-          <Loader2 className="h-10 w-10 animate-spin text-violet-600 dark:text-violet-400" />
+      <div className="fixed inset-0 z-[70] flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 via-violet-950 to-gray-900">
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/10">
+          <Loader2 className="h-12 w-12 animate-spin text-violet-400" />
         </div>
-        <p className="text-base font-medium text-gray-900 dark:text-gray-50">
+        <p className="text-lg font-semibold text-white">
           {t("voiceInput.processing")}
         </p>
-        <p className="mt-1 mb-4 text-sm text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-sm text-violet-300/80">
           {t("voiceInput.transcribing")} {progress}%
         </p>
         {/* Progress bar */}
-        <div className="h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+        <div className="mt-4 h-1.5 w-64 overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-amber-500 transition-all duration-150"
+            className="h-full rounded-full bg-gradient-to-r from-violet-500 to-amber-400 transition-all duration-150"
             style={{ width: `${progress}%` }}
           />
         </div>
+
+        {/* Show captured transcript */}
+        {transcript && (
+          <div className="mx-8 mt-8 max-h-32 overflow-y-auto rounded-2xl bg-white/5 px-6 py-4">
+            <p className="text-center text-base leading-relaxed text-white/70">
+              "{transcript}"
+            </p>
+          </div>
+        )}
       </div>
     );
   }
 
-  // Show error state
+  // --- Error state ---
   if (error) {
     return (
-      <div className="flex flex-col items-center py-8">
-        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
-          <X className="h-10 w-10 text-red-500" />
+      <div className="fixed inset-0 z-[70] flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 via-violet-950 to-gray-900">
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-red-500/20">
+          <X className="h-12 w-12 text-red-400" />
         </div>
-        <p className="text-base font-medium text-gray-900 dark:text-gray-50">{t("common.error")}</p>
-        <p className="mt-1 text-center text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-lg font-semibold text-white">{t("common.error")}</p>
+        <p className="mt-2 max-w-xs text-center text-sm text-white/60">
           {error}
         </p>
         <button
           type="button"
           onClick={onCancel}
-          className="mt-4 rounded-xl bg-gray-100 dark:bg-gray-800 px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+          className="mt-6 rounded-2xl bg-white/10 px-8 py-3 text-sm font-medium text-white transition-all active:scale-95"
         >
           {t("common.back")}
         </button>
@@ -145,66 +205,103 @@ export default function VoiceRecorder({
     );
   }
 
-  // Recording state
+  // --- Recording / listening state ---
   return (
-    <div className="flex flex-col items-center py-8">
-      {/* Recording indicator with waveform */}
-      <div className="relative mb-4">
-        {isRecording ? (
-          // Waveform visualization when recording
-          <div className="relative">
-            <div className="w-48">
-              <AudioWaveform isRecording={isRecording} barCount={24} />
-            </div>
-            {/* Red recording dot */}
-            <div className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-red-500 animate-pulse" />
-          </div>
-        ) : (
-          // Static mic icon when starting
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/50">
-            <Mic className="h-12 w-12 text-violet-600 dark:text-violet-400" />
-          </div>
-        )}
-      </div>
-
-      {/* Duration */}
-      <p className="mb-1 text-3xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">
-        {formatDuration(duration)}
-      </p>
-      <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
-        {isRecording ? t("voiceInput.recording") : t("voiceInput.starting")}
-      </p>
-
-      {/* Progress bar */}
-      <div className="mb-4 h-1 w-full max-w-xs overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-        <div
-          className="h-full rounded-full bg-violet-500 transition-all duration-1000"
-          style={{ width: `${(duration / maxDuration) * 100}%` }}
-        />
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-4">
+    <div className="fixed inset-0 z-[70] flex flex-col bg-gradient-to-b from-gray-900 via-violet-950 to-gray-900">
+      {/* Header: cancel button + language selector */}
+      <div
+        className="flex shrink-0 items-center justify-between px-6"
+        style={{ paddingTop: "calc(var(--sat) + 16px)" }}
+      >
         <button
           type="button"
           onClick={handleCancel}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 transition-all active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all active:scale-95"
+          aria-label={t("common.cancel")}
         >
-          <X className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+          <X size={20} className="text-white/80" />
         </button>
-        <button
-          type="button"
-          onClick={handleStop}
-          disabled={!isRecording || duration < 1}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500 transition-all active:scale-95 disabled:opacity-50"
-        >
-          <Square className="h-6 w-6 text-white" fill="white" />
-        </button>
+
+        {/* Language selector */}
+        <div className="flex gap-1.5">
+          {SPEECH_LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              onClick={() => {
+                if (lang.code !== selectedLang) {
+                  setTranscript("");
+                  setIsStarting(true);
+                  setSelectedLang(lang.code);
+                  localStorage.setItem("speechLang", lang.code);
+                }
+              }}
+              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 ${
+                selectedLang === lang.code
+                  ? "bg-white/20 text-white"
+                  : "bg-white/5 text-white/40"
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
-        {t("voiceInput.maxDuration", { duration: formatDuration(maxDuration) })}
-      </p>
+      {/* Main content — transcript area */}
+      <div className="flex flex-1 items-center justify-center px-8">
+        <div className="w-full max-w-sm">
+          {transcript ? (
+            // Show live transcript
+            <p className="text-center text-2xl font-semibold leading-relaxed text-white">
+              {transcript}
+            </p>
+          ) : (
+            // Placeholder when no speech detected yet
+            <p className="text-center text-2xl font-medium text-white/30">
+              {isStarting
+                ? t("voiceInput.starting")
+                : t("voiceInput.placeholder", { defaultValue: "Cuéntame todos los detalles de tu transacción" })}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom controls */}
+      <div
+        className="flex shrink-0 items-center justify-center gap-6"
+        style={{ paddingBottom: "calc(var(--sab) + 48px)" }}
+      >
+        {/* Pulsing mic indicator */}
+        <div className="relative flex items-center justify-center">
+          {/* Pulse rings */}
+          {isListening && (
+            <>
+              <span className="absolute h-20 w-20 animate-ping rounded-full bg-violet-500/20" />
+              <span
+                className="absolute h-16 w-16 rounded-full bg-violet-500/10"
+                style={{ animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite 0.5s" }}
+              />
+            </>
+          )}
+          <div className={`relative flex h-14 w-14 items-center justify-center rounded-full ${
+            isListening ? "bg-violet-500" : "bg-white/20"
+          }`}>
+            <Mic size={26} className="text-white" strokeWidth={2} />
+          </div>
+        </div>
+
+        {/* Send button */}
+        <button
+          type="button"
+          onClick={handleSend}
+          disabled={!isListening || !transcript.trim()}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#18B7B0] shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-95 disabled:opacity-30 disabled:shadow-none"
+          aria-label={t("common.save")}
+        >
+          <Send size={22} className="text-white" strokeWidth={2.2} />
+        </button>
+      </div>
     </div>
   );
 }
