@@ -9,6 +9,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sync): prevent scheduled transactions from being wiped on app resume**
+  - Reset `cloudSyncReady` on SIGNED_IN (token refresh) so scheduler waits for re-sync to complete
+  - Cancel pending debounced push before re-init to avoid race condition
+  - Reset scheduler flag when cloudSyncReady goes false, ensuring it re-runs after fresh cloud pull
+
+- **feat(diagnostics): add hidden log buffer with long-press diagnostic report**
+  - Circular buffer (300 entries) captures all console.log/warn/error
+  - Long-press SmartSpend logo for 5s sends logs to Sentry for remote debugging
+  - Unique fingerprint per report prevents Sentry Dedupe from dropping repeats
+
 - **feat(widget): add privacy toggle button to iOS and Android Home Screen Widgets**
   - Eye button in widget header toggles amount visibility on/off without opening the app
   - iOS: uses AppIntent (WidgetKit interactive button, iOS 17+) with App Group UserDefaults

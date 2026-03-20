@@ -85,6 +85,15 @@ export default function HomePage() {
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [today]);
 
+  // Reset scheduler flag when cloudSyncReady goes false (re-init started).
+  // This ensures the scheduler re-runs AFTER the re-init completes (pulls fresh cloud data),
+  // instead of running between the first and second init and getting its output wiped.
+  useEffect(() => {
+    if (!cloudSyncReady) {
+      hasAutoConfirmedRef.current = false;
+    }
+  }, [cloudSyncReady]);
+
   // Auto-confirm past-due scheduled transactions (gated behind cloudSyncReady)
   useEffect(() => {
     // Wait for cloud sync to complete before running scheduler (guest mode doesn't need to wait)

@@ -2,8 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./i18n/config"; // IMPORTANT: Import before React
 import { initSentry, captureError } from "@/lib/sentry";
+import { installLogBuffer } from "@/services/logBuffer.service";
 import App from "./App";
 import "./index.css";
+
+// Install log buffer FIRST so all subsequent console output is captured
+installLogBuffer();
 
 // Initialize Sentry early, before any React rendering
 initSentry();
