@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { icons, CreditCard, Check, X, ChevronRight } from "lucide-react";
+import { icons, CreditCard, X, ChevronRight } from "lucide-react";
 import { useCurrency } from "@/features/currency";
 import { useBudgetStore } from "@/state/budget.store";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -37,7 +37,6 @@ export default function QuickAddModal({
   onClose,
 }: QuickAddModalProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [overrideCategoryId, setOverrideCategoryId] = useState<string | null>(null);
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const { t } = useTranslation("shortcuts");
@@ -102,7 +101,6 @@ export default function QuickAddModal({
       hapticSuccess();
     } else {
       setIsVisible(false);
-      setSaved(false);
       setOverrideCategoryId(null);
       document.body.style.overflow = "";
     }
@@ -130,10 +128,7 @@ export default function QuickAddModal({
       await maybeShowInterstitial("after_transaction_create");
     }
 
-    setSaved(true);
-    setTimeout(() => {
-      onClose();
-    }, 1200);
+    onClose();
   };
 
   const handleEdit = () => {
@@ -187,7 +182,7 @@ export default function QuickAddModal({
         {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm dark:bg-black/70"
-          onClick={saved ? undefined : onClose}
+          onClick={onClose}
         />
 
         {/* Modal Card */}
@@ -196,18 +191,6 @@ export default function QuickAddModal({
             isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
           }`}
         >
-          {saved ? (
-            /* ── Success state ── */
-            <div className="flex flex-col items-center py-10">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                <Check size={28} className="text-emerald-500" />
-              </div>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-                {t("quickAdd.saved", "Guardado")}
-              </p>
-            </div>
-          ) : (
-            /* ── Main state ── */
             <>
               {/* Header: small icon + title + close button */}
               <div className="flex items-center justify-between px-5 pt-5 pb-1">
@@ -342,7 +325,6 @@ export default function QuickAddModal({
                 </button>
               </div>
             </>
-          )}
         </div>
       </div>
 

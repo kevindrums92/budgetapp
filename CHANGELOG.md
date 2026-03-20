@@ -7,7 +7,46 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.23] - 2026-03-19
+
+- **fix(sync): prevent scheduled transactions from being wiped on app resume**
+  - Reset `cloudSyncReady` on SIGNED_IN (token refresh) so scheduler waits for re-sync to complete
+  - Cancel pending debounced push before re-init to avoid race condition
+  - Reset scheduler flag when cloudSyncReady goes false, ensuring it re-runs after fresh cloud pull
+
+- **feat(diagnostics): add hidden log buffer with long-press diagnostic report**
+  - Circular buffer (300 entries) captures all console.log/warn/error
+  - Long-press SmartSpend logo for 5s sends logs to Sentry for remote debugging
+  - Unique fingerprint per report prevents Sentry Dedupe from dropping repeats
+
+- **feat(widget): add privacy toggle button to iOS and Android Home Screen Widgets**
+  - Eye button in widget header toggles amount visibility on/off without opening the app
+  - iOS: uses AppIntent (WidgetKit interactive button, iOS 17+) with App Group UserDefaults
+  - Android: uses broadcast PendingIntent with SharedPreferences toggle
+  - Amounts masked with "$ •••••", colors neutralized when private, transaction names remain visible
+
+- **docs(shortcuts): improve Apple Pay automation setup guide with detailed variable configuration**
+  - Add step-by-step instructions for configuring Amount and Merchant variables in Shortcuts
+  - Note that some devices show "Wallet" instead of "Transaction" in automation trigger
+
+- **fix(batch-entry): reduce API timeout from 60s to 25s to prevent app hanging**
+
+- **feat(batch-entry): integrate merchant keyword hints into batch entry pipeline**
+  - Share MERCHANT_CATEGORY_HINTS (200+ keywords) with AI batch entry for category refinement
+  - Add `refineWithKeywordHints()` post-processing step after history matching in text, image, and audio flows
+  - Drafts with generic categories (Otros Gastos) now get matched via keyword hints to specific categories
+
+- **feat(shortcuts): improve Apple Pay integration UX and merchant matching**
+  - Add QuickAddModal instant save (remove confirmation dialog, close immediately after saving)
+  - Rewrite merchantMatcher with 5-tier strategy: exact → fuzzy → token overlap → keyword hints → fallback (always returns a category)
+  - Expand MERCHANT_CATEGORY_HINTS with 200+ keywords covering LatAm merchants, gas stations, pharmacies, airlines, etc.
+  - Fix duplicate QuickAddModal on app reopen (clear pendingQuickAdd localStorage on warm-start event path)
+  - Update ShortcutsSetupPage to reflect native App Intents (Wallet automation + Siri) instead of URL-pasting approach
+  - Add cold-start deep link support via getLaunchUrl + localStorage fallback for assistant and promo code handlers
+  - Add haptics feedback (Capacitor Haptics plugin) on QuickAddModal open and save
 
 ## [0.16.22] - 2026-03-18
 

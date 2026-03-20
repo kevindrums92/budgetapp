@@ -12,7 +12,7 @@ import type {
 } from "../types/batch-entry.types";
 
 /** Timeout for API calls in milliseconds */
-const API_TIMEOUT_MS = 60000; // 60 seconds
+const API_TIMEOUT_MS = 25000; // 25 seconds
 
 /** Edge Function URL */
 const EDGE_FUNCTION_NAME = "parse-batch";

@@ -198,6 +198,7 @@ type BudgetStore = BudgetState & {
   // Scheduler
   setLastSchedulerRun: (date: string) => void;
   setCloudSyncReady: () => void;
+  resetCloudSyncReady: () => void;
 
   // Stats preferences
   excludedFromStats: string[];
@@ -1351,6 +1352,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     setCloudSyncReady: () => {
       set({ cloudSyncReady: true });
       // No need to saveState - this is a runtime flag only
+    },
+    resetCloudSyncReady: () => {
+      set({ cloudSyncReady: false });
     },
 
     // Carry-over balance (hydrated)

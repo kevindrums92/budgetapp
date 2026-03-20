@@ -170,6 +170,18 @@ export default function CloudSyncGate() {
   }
 
   async function initForSession() {
+    // Guard: if already initialized, skip duplicate calls.
+    // This prevents a race condition where Supabase's token refresh fires SIGNED_IN
+    // during the initial getSession(), scheduling a second initForSession() that would
+    // run concurrently with the first one.
+    if (initializedRef.current) {
+      console.log("[CloudSyncGate] initForSession() skipped — already initialized");
+      // Restore cloudSyncReady in case it was reset by the SIGNED_IN handler
+      // before this guard blocked the call (scheduler needs it to be true).
+      useBudgetStore.getState().setCloudSyncReady();
+      return;
+    }
+
     const _localTxCount = useBudgetStore.getState().transactions.length;
     const _localMode = useBudgetStore.getState().cloudMode;
     console.log("[CloudSyncGate] initForSession() called", { localTransactions: _localTxCount, cloudMode: _localMode, initialized: initializedRef.current });
@@ -1001,8 +1013,21 @@ export default function CloudSyncGate() {
           return;
         }
 
-        // Authenticated SIGNED_IN (real login or linkIdentity upgrade)
+        // Authenticated SIGNED_IN (real login, linkIdentity upgrade, OR token refresh)
         console.log("[CloudSyncGate] Authenticated SIGNED_IN, re-initializing...");
+
+        // ✅ Reset cloudSyncReady so the scheduler (HomePage) waits for this
+        // re-init to complete before generating scheduled transactions.
+        // Without this, the scheduler runs after the FIRST init, then this
+        // SIGNED_IN re-init pulls cloud and replaces local data, wiping
+        // any scheduled transactions that were generated but not yet pushed.
+        useBudgetStore.getState().resetCloudSyncReady();
+
+        // Cancel any pending debounced push — we're about to re-sync
+        if (debounceRef.current) {
+          window.clearTimeout(debounceRef.current);
+          debounceRef.current = null;
+        }
 
         // ✅ Clear session expired state — user successfully re-authenticated
         useBudgetStore.getState().setSessionExpired(false);

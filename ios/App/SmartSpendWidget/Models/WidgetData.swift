@@ -56,6 +56,17 @@ struct WidgetData: Codable {
 
     static let appGroupID = "group.com.jhotech.smartspend"
     static let storageKey = "widgetData"
+    private static let privacyKey = "widgetPrivacyEnabled"
+
+    /// Whether widget privacy mode is enabled (amounts hidden)
+    static var isPrivacyEnabled: Bool {
+        UserDefaults(suiteName: appGroupID)?.bool(forKey: privacyKey) ?? false
+    }
+
+    /// Masked amount string (e.g. "$ •••••")
+    var maskedAmount: String {
+        "\(currencySymbol) •••••"
+    }
 
     static func load() -> WidgetData? {
         guard let defaults = UserDefaults(suiteName: appGroupID),

@@ -30,6 +30,8 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
 
     static final String PREFS_NAME = "SmartSpendWidget";
     static final String DATA_KEY = "widgetData";
+    private static final String PRIVACY_KEY = "widgetPrivacyEnabled";
+    private static final String ACTION_TOGGLE_PRIVACY = "com.jhotech.smartspend.widget.TOGGLE_PRIVACY";
 
     @Override
     public void onUpdate(Context context, AppWidgetManager manager, int[] appWidgetIds) {
@@ -41,6 +43,18 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager manager, int appWidgetId, Bundle newOptions) {
         updateWidget(context, manager, appWidgetId);
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (ACTION_TOGGLE_PRIVACY.equals(intent.getAction())) {
+            SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            boolean current = prefs.getBoolean(PRIVACY_KEY, false);
+            prefs.edit().putBoolean(PRIVACY_KEY, !current).apply();
+            updateAllWidgets(context);
+        } else {
+            super.onReceive(context, intent);
+        }
     }
 
     static void updateWidget(Context context, AppWidgetManager manager, int appWidgetId) {
@@ -66,6 +80,32 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         for (int id : ids) {
             updateWidget(context, manager, id);
         }
+    }
+
+    // ── Privacy ──
+
+    private static boolean isPrivacyEnabled(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return prefs.getBoolean(PRIVACY_KEY, false);
+    }
+
+    private static String getMaskedAmount(JSONObject data) {
+        String symbol = data.optString("currencySymbol", "$");
+        return symbol + " \u2022\u2022\u2022\u2022\u2022";
+    }
+
+    private static PendingIntent makeTogglePrivacyIntent(Context context) {
+        Intent intent = new Intent(context, SmartSpendWidgetProvider.class);
+        intent.setAction(ACTION_TOGGLE_PRIVACY);
+        return PendingIntent.getBroadcast(context, 99, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    private static void setupPrivacyButton(Context context, RemoteViews views) {
+        boolean isPrivate = isPrivacyEnabled(context);
+        // 👁 = visible, 🔒 = hidden (using simple unicode)
+        views.setTextViewText(R.id.btn_privacy, isPrivate ? "\uD83D\uDD12" : "\uD83D\uDC41");
+        views.setOnClickPendingIntent(R.id.btn_privacy, makeTogglePrivacyIntent(context));
     }
 
     // ── Data loading ──
@@ -122,6 +162,11 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         }
     }
 
+    /** Returns masked amount if privacy is on, otherwise formatted amount */
+    private static String displayAmount(Context context, JSONObject data, double value) {
+        return isPrivacyEnabled(context) ? getMaskedAmount(data) : formatAmount(data, value);
+    }
+
     // ── Labels ──
 
     private static String getLabel(JSONObject data, String key, String fallback) {
@@ -158,12 +203,16 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         // Make entire widget clickable → open app
         views.setOnClickPendingIntent(R.id.widget_root, makeLaunchIntent(context));
 
+        // Privacy toggle button
+        setupPrivacyButton(context, views);
+
         if (data == null) {
             views.setTextViewText(R.id.amount_today, "$ 0");
             views.setTextViewText(R.id.amount_remaining, "$ 0");
             return views;
         }
 
+        boolean isPrivate = isPrivacyEnabled(context);
         boolean today = isFromToday(data);
         double todayExp = today ? data.optDouble("todayExpenses", 0) : 0;
         Double budgetRemaining = data.isNull("budgetRemaining") ? null : data.optDouble("budgetRemaining", 0);
@@ -171,19 +220,21 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         double monthExpenses = data.optDouble("monthExpenses", 0);
 
         views.setTextViewText(R.id.label_today, getLabel(data, "today", "Hoy"));
-        views.setTextViewText(R.id.amount_today, formatAmount(data, todayExp));
+        views.setTextViewText(R.id.amount_today, displayAmount(context, data, todayExp));
 
         if (budgetRemaining != null) {
             views.setTextViewText(R.id.label_remaining, getLabel(data, "remaining", "Restante"));
-            views.setTextViewText(R.id.amount_remaining, formatAmount(data, budgetRemaining));
+            views.setTextViewText(R.id.amount_remaining, displayAmount(context, data, budgetRemaining));
             views.setTextColor(R.id.amount_remaining,
-                    budgetRemaining >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444"));
+                    isPrivate ? Color.parseColor("#1F2937") :
+                    (budgetRemaining >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444")));
         } else {
             double net = monthIncome - monthExpenses;
             views.setTextViewText(R.id.label_remaining, getLabel(data, "balance", "Balance"));
-            views.setTextViewText(R.id.amount_remaining, formatAmount(data, net));
+            views.setTextViewText(R.id.amount_remaining, displayAmount(context, data, net));
             views.setTextColor(R.id.amount_remaining,
-                    net >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444"));
+                    isPrivate ? Color.parseColor("#1F2937") :
+                    (net >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444")));
         }
 
         return views;
@@ -198,10 +249,14 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         // Make entire widget clickable → open app
         views.setOnClickPendingIntent(R.id.widget_root, makeLaunchIntent(context));
 
+        // Privacy toggle button
+        setupPrivacyButton(context, views);
+
         if (data == null) {
             return views;
         }
 
+        boolean isPrivate = isPrivacyEnabled(context);
         boolean today = isFromToday(data);
         double todayExp = today ? data.optDouble("todayExpenses", 0) : 0;
         double monthExpenses = data.optDouble("monthExpenses", 0);
@@ -218,8 +273,8 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         views.setTextViewText(R.id.btn_add_label, btnAddText);
 
         // Amounts
-        views.setTextViewText(R.id.amount_today, formatAmount(data, todayExp));
-        views.setTextViewText(R.id.amount_month, formatAmount(data, monthExpenses));
+        views.setTextViewText(R.id.amount_today, displayAmount(context, data, todayExp));
+        views.setTextViewText(R.id.amount_month, displayAmount(context, data, monthExpenses));
 
         // Transaction count
         if (txCount > 0) {
@@ -232,15 +287,17 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         // Remaining / Balance
         if (budgetRemaining != null) {
             views.setTextViewText(R.id.label_remaining, getLabel(data, "remaining", "Restante"));
-            views.setTextViewText(R.id.amount_remaining, formatAmount(data, budgetRemaining));
+            views.setTextViewText(R.id.amount_remaining, displayAmount(context, data, budgetRemaining));
             views.setTextColor(R.id.amount_remaining,
-                    budgetRemaining >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444"));
+                    isPrivate ? Color.parseColor("#1F2937") :
+                    (budgetRemaining >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444")));
         } else {
             double net = monthIncome - monthExpenses;
             views.setTextViewText(R.id.label_remaining, getLabel(data, "balance", "Balance"));
-            views.setTextViewText(R.id.amount_remaining, formatAmount(data, net));
+            views.setTextViewText(R.id.amount_remaining, displayAmount(context, data, net));
             views.setTextColor(R.id.amount_remaining,
-                    net >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444"));
+                    isPrivate ? Color.parseColor("#1F2937") :
+                    (net >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444")));
         }
 
         // Buttons
@@ -261,11 +318,15 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         // Make entire widget clickable → open app
         views.setOnClickPendingIntent(R.id.widget_root, makeLaunchIntent(context));
 
+        // Privacy toggle button
+        setupPrivacyButton(context, views);
+
         if (data == null) {
             views.setViewVisibility(R.id.empty_state, View.VISIBLE);
             return views;
         }
 
+        boolean isPrivate = isPrivacyEnabled(context);
         boolean today = isFromToday(data);
         double todayExp = today ? data.optDouble("todayExpenses", 0) : 0;
         double monthExpenses = data.optDouble("monthExpenses", 0);
@@ -283,8 +344,8 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         views.setTextViewText(R.id.btn_add_label, btnAddText);
 
         // Amounts
-        views.setTextViewText(R.id.amount_today, formatAmount(data, todayExp));
-        views.setTextViewText(R.id.amount_month, formatAmount(data, monthExpenses));
+        views.setTextViewText(R.id.amount_today, displayAmount(context, data, todayExp));
+        views.setTextViewText(R.id.amount_month, displayAmount(context, data, monthExpenses));
 
         // Transaction count
         if (txCount > 0) {
@@ -297,15 +358,17 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
         // Remaining / Balance
         if (budgetRemaining != null) {
             views.setTextViewText(R.id.label_remaining, getLabel(data, "remaining", "Restante"));
-            views.setTextViewText(R.id.amount_remaining, formatAmount(data, budgetRemaining));
+            views.setTextViewText(R.id.amount_remaining, displayAmount(context, data, budgetRemaining));
             views.setTextColor(R.id.amount_remaining,
-                    budgetRemaining >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444"));
+                    isPrivate ? Color.parseColor("#1F2937") :
+                    (budgetRemaining >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444")));
         } else {
             double net = monthIncome - monthExpenses;
             views.setTextViewText(R.id.label_remaining, getLabel(data, "balance", "Balance"));
-            views.setTextViewText(R.id.amount_remaining, formatAmount(data, net));
+            views.setTextViewText(R.id.amount_remaining, displayAmount(context, data, net));
             views.setTextColor(R.id.amount_remaining,
-                    net >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444"));
+                    isPrivate ? Color.parseColor("#1F2937") :
+                    (net >= 0 ? Color.parseColor("#18B7B0") : Color.parseColor("#EF4444")));
         }
 
         // Recent transactions
@@ -329,12 +392,18 @@ public class SmartSpendWidgetProvider extends AppWidgetProvider {
                     double amt = tx.optDouble("amount", 0);
                     String type = tx.optString("type", "expense");
                     boolean isIncome = "income".equals(type);
-                    String amtText = isIncome
-                            ? "+" + formatAmount(data, amt)
-                            : formatAmount(data, amt);
-                    views.setTextViewText(amountIds[i], amtText);
-                    views.setTextColor(amountIds[i],
-                            isIncome ? Color.parseColor("#10B981") : Color.parseColor("#1F2937"));
+
+                    if (isPrivate) {
+                        views.setTextViewText(amountIds[i], getMaskedAmount(data));
+                        views.setTextColor(amountIds[i], Color.parseColor("#1F2937"));
+                    } else {
+                        String amtText = isIncome
+                                ? "+" + formatAmount(data, amt)
+                                : formatAmount(data, amt);
+                        views.setTextViewText(amountIds[i], amtText);
+                        views.setTextColor(amountIds[i],
+                                isIncome ? Color.parseColor("#10B981") : Color.parseColor("#1F2937"));
+                    }
 
                     // Tint category dot
                     String colorHex = tx.optString("categoryColor", "#9CA3AF");

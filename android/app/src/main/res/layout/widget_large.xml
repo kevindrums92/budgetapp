@@ -24,6 +24,15 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/btn_privacy"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:gravity="center"
+            android:layout_marginEnd="6dp"
+            android:textSize="14sp"
+            android:textColor="@color/widget_text_secondary" />
+
+        <TextView
             android:id="@+id/transaction_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

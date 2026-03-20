@@ -3,7 +3,11 @@
  * Analyzes user's transaction history to improve AI category matching and fill missing data
  */
 
-import type { Transaction } from "@/types/budget.types";
+import type { Transaction, Category } from "@/types/budget.types";
+import {
+  MERCHANT_CATEGORY_HINTS,
+  LIFESTYLE_SUBCATEGORY_HINTS,
+} from "@/services/merchantMatcher.service";
 
 /** Minimum similarity score to consider a match (0-1) */
 const MIN_SIMILARITY_THRESHOLD = 0.6;
@@ -348,5 +352,56 @@ export function postProcessWithHistory<T extends {
     }
 
     return { ...draft, ...updates };
+  });
+}
+
+/**
+ * Refine drafts that still have generic categories (miscellaneous / other_income)
+ * by checking transaction names against MERCHANT_CATEGORY_HINTS keywords.
+ *
+ * This runs AFTER postProcessWithHistory, so it only touches drafts where
+ * neither the AI nor history matching found a specific category.
+ */
+export function refineWithKeywordHints<T extends {
+  name: string;
+  category: string;
+  type: "income" | "expense";
+}>(
+  drafts: T[],
+  categoryDefinitions: Category[]
+): T[] {
+  return drafts.map((draft) => {
+    // Only refine generic categories
+    const cat = categoryDefinitions.find((c) => c.id === draft.category);
+    const isGeneric = !cat || cat.groupId === "miscellaneous" || cat.groupId === "other_income";
+    if (!isGeneric) return draft;
+
+    const normalizedName = removeAccents(draft.name.toLowerCase().trim());
+    const categoriesOfType = categoryDefinitions.filter((c) => c.type === draft.type);
+
+    // Check each hint group for keyword matches in the draft name
+    for (const [groupId, keywords] of Object.entries(MERCHANT_CATEGORY_HINTS)) {
+      const matched = keywords.some((kw) => normalizedName.includes(kw.toLowerCase()));
+      if (!matched) continue;
+
+      // For lifestyle, try to find the specific subcategory
+      if (groupId === "lifestyle") {
+        for (const [subName, subKeywords] of Object.entries(LIFESTYLE_SUBCATEGORY_HINTS)) {
+          const subMatched = subKeywords.some((kw) => normalizedName.includes(kw.toLowerCase()));
+          if (subMatched) {
+            const subCat = categoriesOfType.find(
+              (c) => removeAccents(c.name.toLowerCase()) === subName
+            );
+            if (subCat) return { ...draft, category: subCat.id };
+          }
+        }
+      }
+
+      // Fall back to first category in this group
+      const groupCat = categoriesOfType.find((c) => c.groupId === groupId);
+      if (groupCat) return { ...draft, category: groupCat.id };
+    }
+
+    return draft;
   });
 }

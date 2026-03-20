@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useBudgetStore } from "@/state/budget.store";
@@ -9,6 +9,7 @@ import { useSpotlightTour } from "@/features/tour/hooks/useSpotlightTour";
 import SpotlightTour from "@/features/tour/components/SpotlightTour";
 import { privacyTour } from "@/features/tour/tours/privacyTour";
 import MonthSelector from "@/shared/components/navigation/MonthSelector";
+import { sendDiagnosticReport } from "@/services/logBuffer.service";
 import { User, Eye, EyeOff, EyeClosed } from "lucide-react";
 
 type Props = {
@@ -94,6 +95,28 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
   // Header actions from context (page-specific buttons)
   const { action: headerAction } = useHeaderActions();
 
+  // ── Diagnostic long-press (5s on logo → send logs to Sentry) ──
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [diagnosticSent, setDiagnosticSent] = useState(false);
+
+  const handleLogoTouchStart = useCallback(() => {
+    longPressTimer.current = setTimeout(() => {
+      const sent = sendDiagnosticReport();
+      if (sent) {
+        setDiagnosticSent(true);
+        setTimeout(() => setDiagnosticSent(false), 2000);
+        console.log("[TopHeader] Diagnostic report sent to Sentry");
+      }
+    }, 5000);
+  }, []);
+
+  const handleLogoTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
   // Safe area padding for status bar (edge-to-edge on both platforms)
   const headerPaddingTop = 'var(--sat)';
 
@@ -107,14 +130,32 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
         <div className="flex items-start justify-between">
           {/* Left: Logo + Content */}
           <div className="flex items-center gap-3">
-            {/* Logo */}
-            <div className="h-11 w-11 shrink-0 flex items-center justify-center rounded-xl bg-[#18B7B0] shadow-lg shadow-[#18B7B0]/20">
-              <svg width="26" height="26" viewBox="0 0 60 60" fill="none">
-                <rect x="10" y="35" width="8" height="15" rx="1" fill="white" fillOpacity="0.5"/>
-                <rect x="26" y="25" width="8" height="25" rx="1" fill="white" fillOpacity="0.5"/>
-                <rect x="42" y="20" width="8" height="30" rx="1" fill="white" fillOpacity="0.5"/>
-                <path d="M8 40 L22 28 L36 32 L52 14" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+            {/* Logo — long-press 5s sends diagnostic report */}
+            <div
+              className={`h-11 w-11 shrink-0 flex items-center justify-center rounded-xl shadow-lg transition-colors ${
+                diagnosticSent
+                  ? "bg-emerald-500 shadow-emerald-500/20"
+                  : "bg-[#18B7B0] shadow-[#18B7B0]/20"
+              }`}
+              onTouchStart={handleLogoTouchStart}
+              onTouchEnd={handleLogoTouchEnd}
+              onTouchCancel={handleLogoTouchEnd}
+              onMouseDown={handleLogoTouchStart}
+              onMouseUp={handleLogoTouchEnd}
+              onMouseLeave={handleLogoTouchEnd}
+            >
+              {diagnosticSent ? (
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <svg width="26" height="26" viewBox="0 0 60 60" fill="none">
+                  <rect x="10" y="35" width="8" height="15" rx="1" fill="white" fillOpacity="0.5"/>
+                  <rect x="26" y="25" width="8" height="25" rx="1" fill="white" fillOpacity="0.5"/>
+                  <rect x="42" y="20" width="8" height="30" rx="1" fill="white" fillOpacity="0.5"/>
+                  <path d="M8 40 L22 28 L36 32 L52 14" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
             </div>
 
             {/* Profile Mode: Configuration Title */}

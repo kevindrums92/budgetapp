@@ -6,6 +6,7 @@ struct SmallWidgetView: View {
 
     private let tealColor = Color(red: 0.094, green: 0.718, blue: 0.690)
     private let labelColor = Color.gray
+    private let isPrivate = WidgetData.isPrivacyEnabled
 
     var body: some View {
         if #available(iOSApplicationExtension 17.0, *) {
@@ -20,6 +21,10 @@ struct SmallWidgetView: View {
         }
     }
 
+    private func displayAmount(_ value: Double) -> String {
+        isPrivate ? data.maskedAmount : data.formatAmount(value)
+    }
+
     private var content: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
@@ -31,9 +36,7 @@ struct SmallWidgetView: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.primary)
                 Spacer()
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 18))
-                    .foregroundColor(tealColor)
+                privacyButton
             }
 
             Spacer()
@@ -43,7 +46,7 @@ struct SmallWidgetView: View {
                 Text(data.l.today)
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundColor(labelColor)
-                Text(data.formatAmount(data.todayExpenses))
+                Text(displayAmount(data.todayExpenses))
                     .font(.system(size: 18, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .minimumScaleFactor(0.6)
@@ -58,9 +61,9 @@ struct SmallWidgetView: View {
                     Text(data.l.remaining)
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(labelColor)
-                    Text(data.formatAmount(remaining))
+                    Text(displayAmount(remaining))
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundColor(remaining >= 0 ? tealColor : Color.red)
+                        .foregroundColor(isPrivate ? .primary : (remaining >= 0 ? tealColor : Color.red))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
                 } else {
@@ -68,14 +71,30 @@ struct SmallWidgetView: View {
                     Text(data.l.balance)
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundColor(labelColor)
-                    Text(data.formatAmount(net))
+                    Text(displayAmount(net))
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundColor(net >= 0 ? tealColor : Color.red)
+                        .foregroundColor(isPrivate ? .primary : (net >= 0 ? tealColor : Color.red))
                         .minimumScaleFactor(0.6)
                         .lineLimit(1)
                 }
             }
         }
         .widgetURL(URL(string: "smartspend://assistant"))
+    }
+
+    @ViewBuilder
+    private var privacyButton: some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            Button(intent: ToggleWidgetPrivacyIntent()) {
+                Image(systemName: isPrivate ? "eye.slash.fill" : "eye.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(labelColor)
+            }
+            .buttonStyle(.plain)
+        } else {
+            Image(systemName: "plus.circle.fill")
+                .font(.system(size: 18))
+                .foregroundColor(tealColor)
+        }
     }
 }

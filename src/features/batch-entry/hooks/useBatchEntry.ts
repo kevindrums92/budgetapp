@@ -25,6 +25,7 @@ import { parseText, parseImage, parseAudio } from "../services/batchEntry.servic
 import {
   extractPatterns,
   postProcessWithHistory,
+  refineWithKeywordHints,
 } from "../services/historyMatcher.service";
 import { mergeDrafts as mergeDraftsService } from "../services/mergeDrafts.service";
 
@@ -248,6 +249,7 @@ export function useBatchEntry() {
           const interpretation = result.rawInterpretation || "";
           let processedDrafts = processAIResults(result.transactions, interpretation);
           processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          processedDrafts = refineWithKeywordHints(processedDrafts, categoryDefinitions);
           setDrafts(processedDrafts);
           setFlowState("preview");
           incrementBatchDailyCount();
@@ -272,6 +274,7 @@ export function useBatchEntry() {
           const interpretation = result.rawInterpretation || "";
           let processedDrafts = processAIResults(result.transactions, interpretation);
           processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          processedDrafts = refineWithKeywordHints(processedDrafts, categoryDefinitions);
           setDrafts(processedDrafts);
           setFlowState("preview");
           incrementBatchDailyCount();
@@ -296,6 +299,7 @@ export function useBatchEntry() {
           const interpretation = result.rawInterpretation || "";
           let processedDrafts = processAIResults(result.transactions, interpretation);
           processedDrafts = postProcessWithHistory(processedDrafts, historyPatterns);
+          processedDrafts = refineWithKeywordHints(processedDrafts, categoryDefinitions);
           setDrafts(processedDrafts);
           setFlowState("preview");
           incrementBatchDailyCount();
