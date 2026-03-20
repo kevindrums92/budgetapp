@@ -9,6 +9,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(batch-entry): reduce API timeout from 60s to 25s to prevent app hanging**
+
 - **feat(batch-entry): integrate merchant keyword hints into batch entry pipeline**
   - Share MERCHANT_CATEGORY_HINTS (200+ keywords) with AI batch entry for category refinement
   - Add `refineWithKeywordHints()` post-processing step after history matching in text, image, and audio flows
