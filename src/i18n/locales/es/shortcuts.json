@@ -16,11 +16,12 @@
       "description": "Crea una automatización que registre cada pago de Apple Pay directamente en SmartSpend.",
       "steps": {
         "1": "Abre la app Atajos en tu iPhone",
-        "2": "Ve a Automatización → + → Transacción",
+        "2": "Ve a Automatización → + → Transacción (o Wallet)",
         "3": "Selecciona tu(s) tarjeta(s) y toca Siguiente",
         "4": "Selecciona Ejecutar inmediatamente",
-        "5": "Busca SmartSpend y selecciona \"Automatización de pago\"",
-        "6": "El monto y comercio se pasan automáticamente desde Wallet"
+        "5": "Busca SmartSpend y selecciona \"Registrar gasto\"",
+        "6": "Toca el campo Cantidad y selecciona la variable Monto (Amount)",
+        "7": "Toca el campo Comercio y selecciona la variable Comercio (Merchant)"
       },
       "note": "Requiere iOS 17.2+ y tarjetas compatibles con notificaciones de Wallet (Apple Card, bancos compatibles)."
     },

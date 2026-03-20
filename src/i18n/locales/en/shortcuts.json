@@ -16,11 +16,12 @@
       "description": "Create an automation that logs every Apple Pay payment directly in SmartSpend.",
       "steps": {
         "1": "Open the Shortcuts app on your iPhone",
-        "2": "Go to Automation → + → Transaction",
+        "2": "Go to Automation → + → Transaction (or Wallet)",
         "3": "Select your card(s) and tap Next",
         "4": "Select Run Immediately",
-        "5": "Search SmartSpend and select \"Payment automation\"",
-        "6": "Amount and merchant are passed automatically from Wallet"
+        "5": "Search SmartSpend and select \"Log expense\"",
+        "6": "Tap the Amount field and select the Amount variable",
+        "7": "Tap the Merchant field and select the Merchant variable"
       },
       "note": "Requires iOS 17.2+ and cards compatible with Wallet notifications (Apple Card, compatible banks)."
     },

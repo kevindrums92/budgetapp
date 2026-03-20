@@ -6,6 +6,7 @@ struct MediumWidgetView: View {
 
     private let tealColor = Color(red: 0.094, green: 0.718, blue: 0.690)
     private let labelColor = Color.gray
+    private let isPrivate = WidgetData.isPrivacyEnabled
 
     var body: some View {
         if #available(iOSApplicationExtension 17.0, *) {
@@ -20,6 +21,10 @@ struct MediumWidgetView: View {
         }
     }
 
+    private func displayAmount(_ value: Double) -> String {
+        isPrivate ? data.maskedAmount : data.formatAmount(value)
+    }
+
     private var content: some View {
         VStack(spacing: 0) {
             // Header
@@ -31,6 +36,7 @@ struct MediumWidgetView: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.primary)
                 Spacer()
+                privacyButton
                 if data.transactionCount > 0 {
                     Text("\(data.transactionCount) \(data.l.transactionsSuffix)")
                         .font(.system(size: 11, weight: .medium))
@@ -62,14 +68,14 @@ struct MediumWidgetView: View {
                     statColumn(
                         label: data.l.remaining,
                         amount: remaining,
-                        color: remaining >= 0 ? tealColor : Color.red
+                        color: isPrivate ? .primary : (remaining >= 0 ? tealColor : Color.red)
                     )
                 } else {
                     let net = data.monthIncome - data.monthExpenses
                     statColumn(
                         label: data.l.balance,
                         amount: net,
-                        color: net >= 0 ? tealColor : Color.red
+                        color: isPrivate ? .primary : (net >= 0 ? tealColor : Color.red)
                     )
                 }
             }
@@ -114,7 +120,7 @@ struct MediumWidgetView: View {
             Text(label)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(labelColor)
-            Text(data.formatAmount(amount))
+            Text(displayAmount(amount))
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(color)
                 .minimumScaleFactor(0.5)
@@ -127,5 +133,19 @@ struct MediumWidgetView: View {
         Rectangle()
             .fill(Color.gray.opacity(0.3))
             .frame(width: 1, height: 30)
+    }
+
+    @ViewBuilder
+    private var privacyButton: some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            Button(intent: ToggleWidgetPrivacyIntent()) {
+                Image(systemName: isPrivate ? "eye.slash.fill" : "eye.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(labelColor)
+            }
+            .buttonStyle(.plain)
+        } else {
+            EmptyView()
+        }
     }
 }

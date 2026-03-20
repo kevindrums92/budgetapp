@@ -9,6 +9,16 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(widget): add privacy toggle button to iOS and Android Home Screen Widgets**
+  - Eye button in widget header toggles amount visibility on/off without opening the app
+  - iOS: uses AppIntent (WidgetKit interactive button, iOS 17+) with App Group UserDefaults
+  - Android: uses broadcast PendingIntent with SharedPreferences toggle
+  - Amounts masked with "$ •••••", colors neutralized when private, transaction names remain visible
+
+- **docs(shortcuts): improve Apple Pay automation setup guide with detailed variable configuration**
+  - Add step-by-step instructions for configuring Amount and Merchant variables in Shortcuts
+  - Note that some devices show "Wallet" instead of "Transaction" in automation trigger
+
 - **fix(batch-entry): reduce API timeout from 60s to 25s to prevent app hanging**
 
 - **feat(batch-entry): integrate merchant keyword hints into batch entry pipeline**

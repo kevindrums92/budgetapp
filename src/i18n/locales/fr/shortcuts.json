@@ -16,11 +16,12 @@
       "description": "Créez une automatisation qui enregistre chaque paiement Apple Pay directement dans SmartSpend.",
       "steps": {
         "1": "Ouvrez l'app Raccourcis sur votre iPhone",
-        "2": "Allez dans Automatisation → + → Transaction",
+        "2": "Allez dans Automatisation → + → Transaction (ou Wallet)",
         "3": "Sélectionnez votre/vos carte(s) et appuyez sur Suivant",
         "4": "Sélectionnez Exécuter immédiatement",
-        "5": "Recherchez SmartSpend et sélectionnez « Automatisation de paiement »",
-        "6": "Le montant et le commerçant sont transmis automatiquement depuis Wallet"
+        "5": "Recherchez SmartSpend et sélectionnez « Enregistrer dépense »",
+        "6": "Appuyez sur le champ Montant et sélectionnez la variable Montant (Amount)",
+        "7": "Appuyez sur le champ Commerçant et sélectionnez la variable Commerçant (Merchant)"
       },
       "note": "Nécessite iOS 17.2+ et des cartes compatibles avec les notifications Wallet (Apple Card, banques compatibles)."
     },

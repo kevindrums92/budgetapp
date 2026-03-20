@@ -7,6 +7,7 @@ struct LargeWidgetView: View {
     private let tealColor = Color(red: 0.094, green: 0.718, blue: 0.690)
     private let labelColor = Color.gray
     private let incomeColor = Color(red: 0.06, green: 0.73, blue: 0.51)
+    private let isPrivate = WidgetData.isPrivacyEnabled
 
     var body: some View {
         if #available(iOSApplicationExtension 17.0, *) {
@@ -21,6 +22,10 @@ struct LargeWidgetView: View {
         }
     }
 
+    private func displayAmount(_ value: Double) -> String {
+        isPrivate ? data.maskedAmount : data.formatAmount(value)
+    }
+
     private var content: some View {
         VStack(spacing: 0) {
             // Header
@@ -32,6 +37,7 @@ struct LargeWidgetView: View {
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.primary)
                 Spacer()
+                privacyButton
                 if data.transactionCount > 0 {
                     Text("\(data.transactionCount) \(data.l.transactionsSuffix)")
                         .font(.system(size: 11, weight: .medium))
@@ -63,13 +69,13 @@ struct LargeWidgetView: View {
                     statColumn(
                         label: data.l.remaining,
                         amount: remaining,
-                        color: remaining >= 0 ? tealColor : Color.red
+                        color: isPrivate ? .primary : (remaining >= 0 ? tealColor : Color.red)
                     )
                 } else {
                     statColumn(
                         label: data.l.balance,
                         amount: data.monthIncome - data.monthExpenses,
-                        color: (data.monthIncome - data.monthExpenses) >= 0 ? tealColor : Color.red
+                        color: isPrivate ? .primary : ((data.monthIncome - data.monthExpenses) >= 0 ? tealColor : Color.red)
                     )
                 }
             }
@@ -177,13 +183,21 @@ struct LargeWidgetView: View {
 
             Spacer()
 
-            Text(tx.type == "income"
-                 ? "+\(data.formatAmount(tx.amount))"
-                 : data.formatAmount(tx.amount))
-                .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(tx.type == "income" ? incomeColor : .primary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
+            if isPrivate {
+                Text(data.maskedAmount)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            } else {
+                Text(tx.type == "income"
+                     ? "+\(data.formatAmount(tx.amount))"
+                     : data.formatAmount(tx.amount))
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(tx.type == "income" ? incomeColor : .primary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+            }
         }
         .padding(.vertical, 8)
     }
@@ -195,7 +209,7 @@ struct LargeWidgetView: View {
             Text(label)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(labelColor)
-            Text(data.formatAmount(amount))
+            Text(displayAmount(amount))
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundColor(color)
                 .minimumScaleFactor(0.5)
@@ -230,5 +244,19 @@ struct LargeWidgetView: View {
             green: Double((val >> 8) & 0xFF) / 255.0,
             blue: Double(val & 0xFF) / 255.0
         )
+    }
+
+    @ViewBuilder
+    private var privacyButton: some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            Button(intent: ToggleWidgetPrivacyIntent()) {
+                Image(systemName: isPrivate ? "eye.slash.fill" : "eye.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(labelColor)
+            }
+            .buttonStyle(.plain)
+        } else {
+            EmptyView()
+        }
     }
 }

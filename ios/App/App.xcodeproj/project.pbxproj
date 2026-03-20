@@ -31,6 +31,7 @@
 		BBBB00000000000000000008 /* BridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000B /* BridgeViewController.swift */; };
 		BBBB00000000000000000009 /* SmartSpendWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = BBAA00000000000000000009 /* SmartSpendWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BBBB0000000000000000000C /* LargeWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000C /* LargeWidgetView.swift */; };
+		BBBB0000000000000000000D /* ToggleWidgetPrivacyIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBAA0000000000000000000D /* ToggleWidgetPrivacyIntent.swift */; };
 		CCCC00000000000000000001 /* RegisterExpenseIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAA00000000000000000001 /* RegisterExpenseIntent.swift */; };
 /* End PBXBuildFile section */
 
@@ -86,6 +87,7 @@
 		BBAA0000000000000000000A /* WidgetBridgePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetBridgePlugin.swift; sourceTree = "<group>"; };
 		BBAA0000000000000000000B /* BridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeViewController.swift; sourceTree = "<group>"; };
 		BBAA0000000000000000000C /* LargeWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LargeWidgetView.swift; sourceTree = "<group>"; };
+		BBAA0000000000000000000D /* ToggleWidgetPrivacyIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToggleWidgetPrivacyIntent.swift; sourceTree = "<group>"; };
 		CCAA00000000000000000001 /* RegisterExpenseIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterExpenseIntent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -166,6 +168,7 @@
 				BBAA00000000000000000002 /* SmartSpendWidgetBundle.swift */,
 				BBCC00000000000000000002 /* Views */,
 				BBCC00000000000000000003 /* Models */,
+				BBCC00000000000000000005 /* Intents */,
 				BBAA00000000000000000008 /* Assets.xcassets */,
 				BBAA00000000000000000006 /* Info.plist */,
 				BBAA00000000000000000007 /* SmartSpendWidgetExtension.entitlements */,
@@ -189,6 +192,14 @@
 				BBAA00000000000000000005 /* WidgetData.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		BBCC00000000000000000005 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				BBAA0000000000000000000D /* ToggleWidgetPrivacyIntent.swift */,
+			);
+			path = Intents;
 			sourceTree = "<group>";
 		};
 		BBCC00000000000000000004 /* Plugins */ = {
@@ -337,6 +348,7 @@
 				BBBB00000000000000000004 /* MediumWidgetView.swift in Sources */,
 				BBBB0000000000000000000C /* LargeWidgetView.swift in Sources */,
 				BBBB00000000000000000005 /* WidgetData.swift in Sources */,
+				BBBB0000000000000000000D /* ToggleWidgetPrivacyIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

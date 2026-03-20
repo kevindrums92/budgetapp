@@ -107,7 +107,7 @@ export default function ShortcutsSetupPage() {
             {expandedSection === "auto" && (
               <div className="px-5 pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
                 <ol className="space-y-2.5">
-                  {(["1", "2", "3", "4", "5", "6"] as const).map((step) => (
+                  {(["1", "2", "3", "4", "5", "6", "7"] as const).map((step) => (
                     <li key={step} className="flex items-start gap-2.5">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5">
                         {step}

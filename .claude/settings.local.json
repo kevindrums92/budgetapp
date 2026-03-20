@@ -92,7 +92,8 @@
       "Bash(mkdir -p /Users/mac/Documents/development/budgetapp/ios/App/SmartSpendWidget/Assets.xcassets/AccentColor.colorset)",
       "Bash(mkdir -p /Users/mac/Documents/development/budgetapp/ios/App/SmartSpendWidget/Assets.xcassets/WidgetBackground.colorset)",
       "Bash(mkdir -p /Users/mac/Documents/development/budgetapp/ios/App/App/Plugins)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(./gradlew assembleDebug)"
     ]
   }
 }
