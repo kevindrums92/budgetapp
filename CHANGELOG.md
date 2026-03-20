@@ -7,7 +7,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.23] - 2026-03-19
 
 - **fix(sync): prevent scheduled transactions from being wiped on app resume**
   - Reset `cloudSyncReady` on SIGNED_IN (token refresh) so scheduler waits for re-sync to complete
