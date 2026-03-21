@@ -137,12 +137,13 @@ export default function CloudSyncGate() {
       return;
     }
 
-    // ⚠️ CRITICAL SAFEGUARD: Verify snapshot before pushing
-    const hasData = snapshot.transactions.length > 0 ||
-                   snapshot.trips.length > 0;
+    // ⚠️ CRITICAL SAFEGUARD: Verify snapshot before pushing.
+    // A valid state ALWAYS has categoryDefinitions (created during onboarding).
+    // 0 transactions is valid (user deleted all), but 0 categories means corrupt state.
+    const hasCoreData = snapshot.categoryDefinitions.length > 0;
 
-    if (!hasData) {
-      logger.warn("CloudSync", "⚠️ Attempting to push empty snapshot. Blocking to prevent data loss.");
+    if (!hasCoreData) {
+      logger.warn("CloudSync", "⚠️ Attempting to push snapshot with no categories. Blocking to prevent data loss.");
       logger.warn("CloudSync", "Snapshot details:", {
         transactions: snapshot.transactions.length,
         trips: snapshot.trips.length,
@@ -486,13 +487,11 @@ export default function CloudSyncGate() {
       const pending = getPendingSnapshot();
       console.log("[CloudSyncGate] Checking for pending snapshot:", { hasPending: !!pending });
       if (pending) {
-        // ⚠️ CRITICAL: Check if pending snapshot has actual data
-        // Don't push if it's just an empty state (only schemaVersion, no transactions/categories)
+        // ⚠️ CRITICAL: Check if pending snapshot has core data (categories).
+        // A valid state always has categoryDefinitions (created during onboarding).
+        // 0 transactions is valid (user deleted all), but 0 categories = corrupt state.
         const hasActualData =
-          (pending.transactions && pending.transactions.length > 0) ||
-          (pending.categoryDefinitions && pending.categoryDefinitions.length > 0) ||
-          (pending.trips && pending.trips.length > 0) ||
-          (pending.budgets && pending.budgets.length > 0);
+          (pending.categoryDefinitions && pending.categoryDefinitions.length > 0);
 
         if (!hasActualData) {
           logger.warn("CloudSync", "Pending snapshot is empty, clearing it and pulling from cloud instead");

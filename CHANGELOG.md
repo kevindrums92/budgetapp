@@ -10,6 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(sync): allow deleting last transaction by using categories as empty-state guard**
+  - Changed push safeguard from `transactions.length > 0` to `categoryDefinitions.length > 0`
+  - Prevents the "ghost transaction" bug where deleted last transaction reappears on app reopen
+
 - **fix(month-review): use cloud-synced state instead of localStorage for month review modal**
   - Prevents the "Welcome to {month}" modal from reappearing on reinstall, device switch, or app resume
   - Only evaluates once per app launch (not on every token refresh)
