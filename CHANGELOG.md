@@ -10,6 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(month-review): use cloud-synced state instead of localStorage for month review modal**
+  - Prevents the "Welcome to {month}" modal from reappearing on reinstall, device switch, or app resume
+  - Only evaluates once per app launch (not on every token refresh)
+
 ## [0.16.23] - 2026-03-19
 
 - **fix(sync): prevent scheduled transactions from being wiped on app resume**

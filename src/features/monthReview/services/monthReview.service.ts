@@ -1,8 +1,6 @@
 import { currentMonthKey } from "@/services/dates.service";
 import type { CarryOverEntry } from "@/types/budget.types";
 
-const LAST_REVIEW_KEY = "budget.lastMonthReviewShown";
-
 /**
  * Returns the previous month key (YYYY-MM) given a month key.
  */
@@ -15,9 +13,12 @@ export function getPreviousMonth(monthKey: string): string {
 /**
  * Determines if the Month Review modal should be shown.
  *
+ * Uses ONLY cloud-synced state (carryOverBalances + monthReviewDismissed)
+ * so the decision is consistent across devices, reinstalls, etc.
+ *
  * Conditions:
- * 1. Current month is different from the stored "last shown" month
- * 2. User hasn't already accepted or dismissed for this month
+ * 1. User hasn't already accepted carry-over for this month
+ * 2. User hasn't already dismissed for this month
  * 3. The previous month has at least 1 transaction
  * 4. Previous month balance is not exactly 0
  */
@@ -34,12 +35,6 @@ export function shouldShowMonthReview(
   // Already dismissed for this month
   if (monthReviewDismissed.includes(currentMonth)) return false;
 
-  // Already shown this app session
-  try {
-    const lastShown = localStorage.getItem(LAST_REVIEW_KEY);
-    if (lastShown === currentMonth) return false;
-  } catch { /* ignore */ }
-
   // Check previous month has transactions
   const prevMonth = getPreviousMonth(currentMonth);
   const prevMonthTxs = transactions.filter(tx => tx.date.slice(0, 7) === prevMonth);
@@ -50,15 +45,6 @@ export function shouldShowMonthReview(
   if (summary.balance === 0) return false;
 
   return true;
-}
-
-/**
- * Marks the month review as shown for this app session.
- */
-export function markMonthReviewShown(): void {
-  try {
-    localStorage.setItem(LAST_REVIEW_KEY, currentMonthKey());
-  } catch { /* ignore */ }
 }
 
 /**

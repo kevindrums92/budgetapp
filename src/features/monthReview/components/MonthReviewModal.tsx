@@ -5,7 +5,6 @@ import FullscreenLayout from "@/shared/components/layout/FullscreenLayout";
 import { useCurrency } from "@/features/currency";
 import { monthLabel } from "@/services/dates.service";
 import { useBudgetStore } from "@/state/budget.store";
-import { markMonthReviewShown } from "@/features/monthReview/services/monthReview.service";
 
 type MonthReviewModalProps = {
   open: boolean;
@@ -62,13 +61,11 @@ export default function MonthReviewModal({
       fromMonth: previousMonth,
       acceptedAt: Date.now(),
     });
-    markMonthReviewShown();
     onClose();
   }
 
   function handleDecline() {
     dismissMonthReview(currentMonth);
-    markMonthReviewShown();
     onClose();
   }
 

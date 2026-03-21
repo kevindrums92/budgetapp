@@ -17,7 +17,7 @@ import { shouldShowBanner, recordDismiss, markAsEnabled } from "@/services/pushB
 import SafeToSpendCard from "@/features/forecasting/components/SafeToSpendCard";
 import AutoConfirmedModal from "@/features/transactions/components/AutoConfirmedModal";
 import MonthReviewModal from "@/features/monthReview/components/MonthReviewModal";
-import { shouldShowMonthReview, markMonthReviewShown, getPreviousMonth, calculatePreviousMonthBalance } from "@/features/monthReview/services/monthReview.service";
+import { shouldShowMonthReview, getPreviousMonth, calculatePreviousMonthBalance } from "@/features/monthReview/services/monthReview.service";
 import { currentMonthKey } from "@/services/dates.service";
 import type { Transaction } from "@/types/budget.types";
 
@@ -110,11 +110,15 @@ export default function HomePage() {
     }
   }, [transactions, today, addTransaction, cloudSyncReady, cloudMode]);
 
-  // Month review modal detection (gated behind cloudSyncReady)
-  // MUST wait for cloudSyncReady regardless of mode, so cloud data
-  // (including monthReviewDismissed) is loaded before deciding.
+  // Month review modal detection (gated behind cloudSyncReady).
+  // Only evaluates ONCE per app launch — uses cloud-synced state
+  // (carryOverBalances + monthReviewDismissed) so it's consistent
+  // across devices, reinstalls, etc. Does NOT re-trigger on token refresh.
+  const hasCheckedMonthReviewRef = useRef(false);
   useEffect(() => {
     if (!cloudSyncReady) return;
+    if (hasCheckedMonthReviewRef.current) return;
+    hasCheckedMonthReviewRef.current = true;
 
     if (shouldShowMonthReview(monthReviewDismissed ?? [], carryOverBalances ?? {}, transactions)) {
       // Delay to let AutoConfirmedModal show first
@@ -483,7 +487,6 @@ export default function HomePage() {
             open={showMonthReview}
             onClose={() => {
               setShowMonthReview(false);
-              markMonthReviewShown();
             }}
             previousMonth={prevMonth}
             currentMonth={curMonth}
