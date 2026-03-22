@@ -2,7 +2,7 @@
   "welcome": {
     "screen1": {
       "title1": "Bienvenue sur",
-      "title2": "SmartSpend",
+      "title2": "Lukas",
       "subtitle": "La façon la plus intelligente de gérer vos finances personnelles",
       "feature1Title": "Fonctionne hors ligne",
       "feature1Desc": "Vos données sont sur votre appareil, toujours disponibles",
@@ -82,7 +82,7 @@
     },
     "screen7": {
       "title": "Choisissez votre plan",
-      "subtitle": "Commencez avec 7 jours gratuits de toutes les fonctionnalités Pro, ou utilisez SmartSpend Lite sans limite de temps",
+      "subtitle": "Commencez avec 7 jours gratuits de toutes les fonctionnalités Pro, ou utilisez Lukas Lite sans limite de temps",
       "proTrialBadge": "Essai gratuit",
       "proTrialTitle": "Essayez Pro gratuitement pendant 7 jours",
       "proTrialDescription": "Accès complet à toutes les fonctionnalités premium. Annulez quand vous voulez.",
@@ -107,13 +107,13 @@
   },
   "language": {
     "title": "Choisissez votre langue",
-    "description": "Sélectionnez la langue dans laquelle vous préférez utiliser SmartSpend. Vous pourrez la modifier plus tard depuis votre profil.",
+    "description": "Sélectionnez la langue dans laquelle vous préférez utiliser Lukas. Vous pourrez la modifier plus tard depuis votre profil.",
     "continue": "Continuer",
     "skip": "Passer la configuration"
   },
   "theme": {
     "title": "Choisissez votre thème",
-    "description": "Personnalisez l'apparence de SmartSpend selon vos préférences.",
+    "description": "Personnalisez l'apparence de Lukas selon vos préférences.",
     "continue": "Continuer",
     "skip": "Passer la configuration",
     "note": "Le thème sera appliqué lors de l'implémentation du mode sombre",
@@ -168,7 +168,7 @@
     "feature2Desc": "Contrôlez vos dépenses par catégories",
     "feature3": "📈 Analysez vos données",
     "feature3Desc": "Visualisez vos habitudes de dépenses",
-    "start": "Commencer à utiliser SmartSpend",
+    "start": "Commencer à utiliser Lukas",
     "note": "Vous pouvez modifier ces options depuis votre profil à tout moment"
   },
   "login": {

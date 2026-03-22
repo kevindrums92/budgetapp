@@ -21,9 +21,9 @@
     "notificationsSubtitle": "Rappels et alertes"
   },
   "biometricLock": {
-    "unlockReason": "Déverrouiller SmartSpend",
+    "unlockReason": "Déverrouiller Lukas",
     "enableReason": "Activer l'authentification biométrique",
-    "title": "SmartSpend est verrouillée",
+    "title": "Lukas est verrouillée",
     "subtitle": "Utilisez Face ID ou votre code pour déverrouiller",
     "unlockButton": "Déverrouiller"
   },
@@ -171,7 +171,7 @@
         "topDay": "Jour de plus grandes dépenses",
         "daysInRange": "Jours dans la période",
         "transactionDetails": "Détail des Transactions",
-        "generatedWith": "Généré avec SmartSpend",
+        "generatedWith": "Généré avec Lukas",
         "tripTitle": "Rapport de Voyage",
         "budget": "Budget",
         "spent": "Dépensé",

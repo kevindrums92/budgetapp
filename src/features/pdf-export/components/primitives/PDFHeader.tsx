@@ -17,7 +17,7 @@ interface Props {
 export default function PDFHeader({ title, startDate, endDate, locale }: Props) {
   return (
     <View style={styles.headerBar}>
-      <Text style={styles.brandName}>SmartSpend</Text>
+      <Text style={styles.brandName}>Lukas</Text>
       <View>
         <Text style={styles.reportTitle}>{title}</Text>
         <Text style={styles.dateRange}>

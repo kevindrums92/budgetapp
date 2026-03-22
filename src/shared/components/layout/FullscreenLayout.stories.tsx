@@ -34,7 +34,7 @@ export const WithHeaderAndCTA: Story = {
     children: (
       <div className="space-y-4">
         <h1 className="text-3xl font-extrabold leading-tight text-gray-900 dark:text-gray-50">
-          Bienvenido a SmartSpend
+          Bienvenido a Lukas
         </h1>
         <p className="text-base leading-relaxed text-gray-600 dark:text-gray-400">
           La forma más inteligente de controlar tus finanzas personales.

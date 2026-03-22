@@ -30,7 +30,7 @@ const mockLabels: FinancialReportLabels = {
   topDay: 'Top day',
   daysInRange: 'Days in range',
   transactionDetails: 'Transaction Details',
-  generatedWith: 'Generated with SmartSpend',
+  generatedWith: 'Generated with Lukas',
 };
 
 const mockTripLabels: TripReportLabels = {
@@ -43,7 +43,7 @@ const mockTripLabels: TripReportLabels = {
   expensesByCategory: 'Expenses by Category',
   expenseDetails: 'Expense Details',
   total: 'Total',
-  generatedWith: 'Generated with SmartSpend',
+  generatedWith: 'Generated with Lukas',
   since: 'Since',
   statusPlanning: 'Planning',
   statusActive: 'Active',

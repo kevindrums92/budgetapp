@@ -156,7 +156,7 @@ export default function PaywallModal({ open, onClose, trigger, onSelectPlan, ini
         <div className="mb-6 text-center">
           <img
             src="/icons/icon-96.png"
-            alt="SmartSpend"
+            alt="Lukas"
             className="mx-auto mb-4 h-16 w-16 rounded-2xl"
           />
           <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">

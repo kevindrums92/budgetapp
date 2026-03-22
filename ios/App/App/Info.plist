@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>SmartSpend</string>
+	<string>Lukas</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -50,17 +50,17 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
-	<string>SmartSpend necesita acceso a Face ID para desbloquear la app de forma segura.</string>
+	<string>Lukas necesita acceso a Face ID para desbloquear la app de forma segura.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>SmartSpend necesita acceso a la cámara para escanear recibos y notas de gastos.</string>
+	<string>Lukas necesita acceso a la cámara para escanear recibos y notas de gastos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>SmartSpend necesita acceso a tu galería para seleccionar fotos de recibos.</string>
+	<string>Lukas necesita acceso a tu galería para seleccionar fotos de recibos.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>SmartSpend necesita guardar fotos en tu galería.</string>
+	<string>Lukas necesita guardar fotos en tu galería.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>SmartSpend necesita acceso al reconocimiento de voz para transcribir tus notas de voz.</string>
+	<string>Lukas necesita acceso al reconocimiento de voz para transcribir tus notas de voz.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>SmartSpend necesita acceso al micrófono para dictar tus transacciones por voz.</string>
+	<string>Lukas necesita acceso al micrófono para dictar tus transacciones por voz.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
@@ -70,6 +70,6 @@
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-1664291794679786~7314308108</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>SmartSpend utiliza tu información de seguimiento para mostrarte anuncios personalizados y mejorar tu experiencia.</string>
+	<string>Lukas utiliza tu información de seguimiento para mostrarte anuncios personalizados y mejorar tu experiencia.</string>
 </dict>
 </plist>

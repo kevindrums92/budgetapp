@@ -2,7 +2,7 @@
   "welcome": {
     "screen1": {
       "title1": "Welcome to",
-      "title2": "SmartSpend",
+      "title2": "Lukas",
       "subtitle": "The smartest way to manage your personal finances",
       "feature1Title": "Works offline",
       "feature1Desc": "Your data is on your device, always available",
@@ -82,7 +82,7 @@
     },
     "screen7": {
       "title": "Choose your plan",
-      "subtitle": "Start with 7 free days of all Pro features, or use SmartSpend Lite without time limits",
+      "subtitle": "Start with 7 free days of all Pro features, or use Lukas Lite without time limits",
       "proTrialBadge": "Free trial",
       "proTrialTitle": "Try Pro free for 7 days",
       "proTrialDescription": "Full access to all premium features. Cancel anytime.",
@@ -107,13 +107,13 @@
   },
   "language": {
     "title": "Choose your language",
-    "description": "Select the language you prefer to use SmartSpend. You can change it later from your profile.",
+    "description": "Select the language you prefer to use Lukas. You can change it later from your profile.",
     "continue": "Continue",
     "skip": "Skip setup"
   },
   "theme": {
     "title": "Choose your theme",
-    "description": "Customize SmartSpend's appearance to your preference.",
+    "description": "Customize Lukas's appearance to your preference.",
     "continue": "Continue",
     "skip": "Skip setup",
     "note": "The theme will be applied when dark mode is implemented",
@@ -168,7 +168,7 @@
     "feature2Desc": "Control your spending by category",
     "feature3": "📈 Analyze your data",
     "feature3Desc": "Visualize your spending patterns",
-    "start": "Start using SmartSpend",
+    "start": "Start using Lukas",
     "note": "You can modify these options from your profile at any time"
   },
   "login": {

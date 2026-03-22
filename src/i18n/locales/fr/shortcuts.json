@@ -1,25 +1,25 @@
 {
   "title": "Raccourcis iOS",
   "subtitle": "Enregistrez automatiquement les dépenses depuis Apple Pay",
-  "description": "Utilisez les Raccourcis iOS pour enregistrer vos paiements Apple Pay directement dans SmartSpend. Lorsque vous effectuez un paiement, le raccourci ouvrira SmartSpend avec les données de paiement pré-remplies.",
+  "description": "Utilisez les Raccourcis iOS pour enregistrer vos paiements Apple Pay directement dans Lukas. Lorsque vous effectuez un paiement, le raccourci ouvrira Lukas avec les données de paiement pré-remplies.",
   "howItWorks": {
     "title": "Comment ça marche",
     "step1": "Vous effectuez un paiement avec Apple Pay",
     "step2": "Le raccourci iOS se déclenche automatiquement",
-    "step3": "SmartSpend s'ouvre avec les données du paiement",
+    "step3": "Lukas s'ouvre avec les données du paiement",
     "step4": "Vous vérifiez et enregistrez la transaction"
   },
   "setup": {
     "title": "Configuration",
     "auto": {
       "title": "Automatique (Wallet)",
-      "description": "Créez une automatisation qui enregistre chaque paiement Apple Pay directement dans SmartSpend.",
+      "description": "Créez une automatisation qui enregistre chaque paiement Apple Pay directement dans Lukas.",
       "steps": {
         "1": "Ouvrez l'app Raccourcis sur votre iPhone",
         "2": "Allez dans Automatisation → + → Transaction (ou Wallet)",
         "3": "Sélectionnez votre/vos carte(s) et appuyez sur Suivant",
         "4": "Sélectionnez Exécuter immédiatement",
-        "5": "Recherchez SmartSpend et sélectionnez « Enregistrer dépense »",
+        "5": "Recherchez Lukas et sélectionnez « Enregistrer dépense »",
         "6": "Appuyez sur le champ Montant et sélectionnez la variable Montant (Amount)",
         "7": "Appuyez sur le champ Commerçant et sélectionnez la variable Commerçant (Merchant)"
       },
@@ -31,7 +31,7 @@
       "steps": {
         "1": "Ouvrez l'app Raccourcis sur votre iPhone",
         "2": "Appuyez sur + pour créer un nouveau raccourci",
-        "3": "Recherchez SmartSpend dans Apps",
+        "3": "Recherchez Lukas dans Apps",
         "4": "Sélectionnez l'action Entrée intelligente",
         "5": "Tapez votre dépense en texte naturel",
         "6": "Nommez le raccourci (ex : « Enregistrer dépense »)",
@@ -41,13 +41,13 @@
   },
   "tips": {
     "title": "Conseils",
-    "smartCategory": "SmartSpend détecte automatiquement la catégorie en fonction de votre historique de transactions et du nom du commerçant.",
+    "smartCategory": "Lukas détecte automatiquement la catégorie en fonction de votre historique de transactions et du nom du commerçant.",
     "siri": "Nommez votre raccourci quelque chose de court comme « Enregistrer dépense » pour l'activer facilement avec Siri.",
     "widget": "Ajoutez le raccourci à votre écran d'accueil en tant que widget pour un accès rapide."
   },
   "menu": {
     "title": "Raccourcis iOS",
-    "subtitle": "Connecter Apple Pay avec SmartSpend"
+    "subtitle": "Connecter Apple Pay avec Lukas"
   },
   "quickAdd": {
     "title": "Paiement detecte",

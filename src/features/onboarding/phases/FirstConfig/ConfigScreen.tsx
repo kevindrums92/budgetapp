@@ -84,7 +84,7 @@ export default function ConfigScreen() {
             onClick={handleComplete}
             className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-[#18B7B0] py-4 font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
           >
-            <span>Comenzar a usar SmartSpend</span>
+            <span>Comenzar a usar Lukas</span>
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </button>
 

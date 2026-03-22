@@ -1,25 +1,25 @@
 {
   "title": "Atajos de iOS",
   "subtitle": "Registra gastos automáticamente desde Apple Pay",
-  "description": "Usa los Atajos de iOS para registrar tus pagos de Apple Pay directamente en SmartSpend. Cuando hagas un pago, el atajo abrirá SmartSpend con los datos pre-llenados.",
+  "description": "Usa los Atajos de iOS para registrar tus pagos de Apple Pay directamente en Lukas. Cuando hagas un pago, el atajo abrirá Lukas con los datos pre-llenados.",
   "howItWorks": {
     "title": "Cómo funciona",
     "step1": "Realizas un pago con Apple Pay",
     "step2": "El atajo de iOS se activa automáticamente",
-    "step3": "SmartSpend se abre con los datos del pago",
+    "step3": "Lukas se abre con los datos del pago",
     "step4": "Revisas y guardas la transacción"
   },
   "setup": {
     "title": "Configuración",
     "auto": {
       "title": "Automático (Wallet)",
-      "description": "Crea una automatización que registre cada pago de Apple Pay directamente en SmartSpend.",
+      "description": "Crea una automatización que registre cada pago de Apple Pay directamente en Lukas.",
       "steps": {
         "1": "Abre la app Atajos en tu iPhone",
         "2": "Ve a Automatización → + → Transacción (o Wallet)",
         "3": "Selecciona tu(s) tarjeta(s) y toca Siguiente",
         "4": "Selecciona Ejecutar inmediatamente",
-        "5": "Busca SmartSpend y selecciona \"Registrar gasto\"",
+        "5": "Busca Lukas y selecciona \"Registrar gasto\"",
         "6": "Toca el campo Cantidad y selecciona la variable Monto (Amount)",
         "7": "Toca el campo Comercio y selecciona la variable Comercio (Merchant)"
       },
@@ -31,7 +31,7 @@
       "steps": {
         "1": "Abre la app Atajos en tu iPhone",
         "2": "Toca + para crear un nuevo atajo",
-        "3": "Busca SmartSpend en Apps",
+        "3": "Busca Lukas en Apps",
         "4": "Selecciona la acción Ingreso inteligente",
         "5": "Escribe tu gasto en texto natural",
         "6": "Nombra el atajo (ej: \"Registrar gasto\")",
@@ -41,13 +41,13 @@
   },
   "tips": {
     "title": "Consejos",
-    "smartCategory": "SmartSpend detecta automáticamente la categoría basándose en tu historial de transacciones y el nombre del comercio.",
+    "smartCategory": "Lukas detecta automáticamente la categoría basándose en tu historial de transacciones y el nombre del comercio.",
     "siri": "Nombra tu atajo algo corto como \"Registrar gasto\" para activarlo fácilmente con Siri.",
     "widget": "Agrega el atajo a tu pantalla de inicio como widget para acceso rápido."
   },
   "menu": {
     "title": "Atajos de iOS",
-    "subtitle": "Conectar Apple Pay con SmartSpend"
+    "subtitle": "Conectar Apple Pay con Lukas"
   },
   "quickAdd": {
     "title": "Pago detectado",

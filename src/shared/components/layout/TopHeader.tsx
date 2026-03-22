@@ -167,7 +167,7 @@ export default function TopHeader({ showMonthSelector = true, isProfilePage = fa
             ) : (
               /* Default Mode: App Name + Month Selector */
               <div>
-                <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-50">SmartSpend</h1>
+                <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-50">Lukas</h1>
                 {showMonthSelector && (
                   <div className="mt-1">
                     <MonthSelector />

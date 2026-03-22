@@ -38,7 +38,7 @@ export default function TermsOfServicePage() {
                 1. {t('terms.introduction.title', 'Introducción')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.introduction.content', 'Bienvenido a SmartSpend. Al usar nuestra aplicación, aceptas estos términos de servicio. SmartSpend es una aplicación de gestión de finanzas personales diseñada para ayudarte a rastrear tus gastos, ingresos y presupuestos.')}
+                {t('terms.introduction.content', 'Bienvenido a Lukas. Al usar nuestra aplicación, aceptas estos términos de servicio. Lukas es una aplicación de gestión de finanzas personales diseñada para ayudarte a rastrear tus gastos, ingresos y presupuestos.')}
               </p>
             </section>
 
@@ -48,7 +48,7 @@ export default function TermsOfServicePage() {
                 2. {t('terms.service.title', 'Descripción del Servicio')}
               </h2>
               <p className="mb-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.service.content', 'SmartSpend ofrece:')}
+                {t('terms.service.content', 'Lukas ofrece:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <li>{t('terms.service.features.transactions', 'Seguimiento de transacciones (ingresos y gastos)')}</li>
@@ -66,7 +66,7 @@ export default function TermsOfServicePage() {
                 3. {t('terms.accounts.title', 'Cuentas de Usuario')}
               </h2>
               <p className="mb-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.accounts.content', 'Puedes usar SmartSpend en dos modos:')}
+                {t('terms.accounts.content', 'Puedes usar Lukas en dos modos:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <li><strong>{t('terms.accounts.guestMode', 'Modo Invitado:')}</strong> {t('terms.accounts.guestDescription', 'Tus datos se almacenan localmente en tu dispositivo. No se requiere cuenta.')}</li>
@@ -80,7 +80,7 @@ export default function TermsOfServicePage() {
                 4. {t('terms.subscription.title', 'Suscripciones y Pagos')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.subscription.content', 'SmartSpend ofrece una suscripción Pro opcional que desbloquea funciones premium. Los pagos se procesan de forma segura a través de RevenueCat y las tiendas de aplicaciones (App Store, Google Play). Las suscripciones se renuevan automáticamente a menos que las canceles antes de la fecha de renovación. Puedes gestionar tu suscripción desde la configuración de tu cuenta en la tienda de aplicaciones correspondiente.')}
+                {t('terms.subscription.content', 'Lukas ofrece una suscripción Pro opcional que desbloquea funciones premium. Los pagos se procesan de forma segura a través de RevenueCat y las tiendas de aplicaciones (App Store, Google Play). Las suscripciones se renuevan automáticamente a menos que las canceles antes de la fecha de renovación. Puedes gestionar tu suscripción desde la configuración de tu cuenta en la tienda de aplicaciones correspondiente.')}
               </p>
             </section>
 
@@ -90,7 +90,7 @@ export default function TermsOfServicePage() {
                 5. {t('terms.ownership.title', 'Propiedad de Datos')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.ownership.content', 'Todos tus datos financieros son de tu propiedad. SmartSpend no comparte, vende ni utiliza tus datos para publicidad. Puedes exportar o eliminar tus datos en cualquier momento desde la configuración de la aplicación.')}
+                {t('terms.ownership.content', 'Todos tus datos financieros son de tu propiedad. Lukas no comparte, vende ni utiliza tus datos para publicidad. Puedes exportar o eliminar tus datos en cualquier momento desde la configuración de la aplicación.')}
               </p>
             </section>
 
@@ -100,7 +100,7 @@ export default function TermsOfServicePage() {
                 6. {t('terms.use.title', 'Uso Aceptable')}
               </h2>
               <p className="mb-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.use.content', 'Al usar SmartSpend, aceptas:')}
+                {t('terms.use.content', 'Al usar Lukas, aceptas:')}
               </p>
               <ul className="ml-4 list-disc space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <li>{t('terms.use.rules.legal', 'Usar la aplicación solo para fines legales y personales')}</li>
@@ -116,7 +116,7 @@ export default function TermsOfServicePage() {
                 7. {t('terms.limitations.title', 'Limitación de Responsabilidad')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.limitations.content', 'SmartSpend se proporciona "tal cual" sin garantías de ningún tipo. No somos responsables de pérdidas financieras, daños o imprecisiones en los datos. Es tu responsabilidad verificar la exactitud de tus registros financieros y realizar respaldos regulares de tus datos.')}
+                {t('terms.limitations.content', 'Lukas se proporciona "tal cual" sin garantías de ningún tipo. No somos responsables de pérdidas financieras, daños o imprecisiones en los datos. Es tu responsabilidad verificar la exactitud de tus registros financieros y realizar respaldos regulares de tus datos.')}
               </p>
             </section>
 
@@ -126,7 +126,7 @@ export default function TermsOfServicePage() {
                 8. {t('terms.availability.title', 'Disponibilidad del Servicio')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.availability.content', 'Hacemos nuestro mejor esfuerzo para mantener SmartSpend disponible, pero no garantizamos un tiempo de actividad del 100%. Podemos suspender o descontinuar el servicio en cualquier momento con previo aviso.')}
+                {t('terms.availability.content', 'Hacemos nuestro mejor esfuerzo para mantener Lukas disponible, pero no garantizamos un tiempo de actividad del 100%. Podemos suspender o descontinuar el servicio en cualquier momento con previo aviso.')}
               </p>
             </section>
 
@@ -136,7 +136,7 @@ export default function TermsOfServicePage() {
                 9. {t('terms.changes.title', 'Cambios a los Términos')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('terms.changes.content', 'Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios se publicarán en esta página con una fecha de actualización. Tu uso continuado de SmartSpend después de los cambios constituye tu aceptación de los nuevos términos.')}
+                {t('terms.changes.content', 'Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios se publicarán en esta página con una fecha de actualización. Tu uso continuado de Lukas después de los cambios constituye tu aceptación de los nuevos términos.')}
               </p>
             </section>
 

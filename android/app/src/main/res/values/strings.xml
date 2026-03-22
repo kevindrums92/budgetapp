@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">SmartSpend</string>
-    <string name="title_activity_main">SmartSpend</string>
+    <string name="app_name">Lukas</string>
+    <string name="title_activity_main">Lukas</string>
     <string name="package_name">com.jhotech.smartspend</string>
     <string name="custom_url_scheme">com.jhotech.smartspend</string>
     <string name="widget_description">Ve tus gastos del día y mes de un vistazo</string>

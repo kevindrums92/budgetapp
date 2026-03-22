@@ -22,7 +22,7 @@ export default function SplashScreen({ visible }: Props) {
       <div className="flex flex-col items-center gap-3">
         <LogoMark size={56} className="splash-logo" />
         <span className="text-lg font-semibold tracking-tight">
-          SmartSpend
+          Lukas
         </span>
       </div>
     </div>
