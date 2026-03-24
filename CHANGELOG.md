@@ -10,6 +10,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **refactor(onboarding): simplify flow from 11 screens to 1 (Categories only)**
+  - Remove language, currency, and complete screens from FirstConfig (auto-detected now)
+  - New 2-column grid layout with toggleable category cards and "Crear nueva" option
+  - Onboarding is 100% offline-first — no session checks or cloud calls during setup
+  - CloudSyncGate handles anonymous auth + sync only after user reaches Home
+
+- **chore: rebrand SmartSpend → Lukas in native app name and build scripts**
+  - Update capacitor.config.ts, configure-env.cjs, and Info.plist display names
+  - Bundle IDs and URL schemes remain as `smartspend`
+
+- **test(onboarding): update unit and E2E tests for simplified onboarding flow**
+  - Fix 6 unit tests for new config phase (1 screen, skip → config/1)
+  - Fix 2 E2E tests: update indicators for Categories screen, fix returning-user navigation
+
 - **fix(sync): allow deleting last transaction by using categories as empty-state guard**
   - Changed push safeguard from `transactions.length > 0` to `categoryDefinitions.length > 0`
   - Prevents the "ghost transaction" bug where deleted last transaction reappears on app reopen

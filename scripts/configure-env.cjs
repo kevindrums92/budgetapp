@@ -5,7 +5,7 @@
  *
  * This script modifies:
  * - Bundle ID (com.jhotech.smartspend vs com.jhotech.smartspend.dev)
- * - Display Name (SmartSpend vs SmartSpend Dev)
+ * - Display Name (Lukas vs Lukas Dev)
  * - URL Scheme (smartspend vs smartspend-dev) for OAuth deep linking
  * - Xcode project settings
  * - APNs environment (development vs production)
@@ -25,15 +25,15 @@ const env = process.argv[2] || 'development';
 const configs = {
   development: {
     appId: 'com.jhotech.smartspend.dev',
-    appName: 'SmartSpend Dev',
-    displayName: 'SmartSpend Dev',
+    appName: 'Lukas Dev',
+    displayName: 'Lukas Dev',
     urlScheme: 'smartspend-dev',
     apnsEnvironment: 'development'
   },
   production: {
     appId: 'com.jhotech.smartspend',
-    appName: 'SmartSpend',
-    displayName: 'SmartSpend',
+    appName: 'Lukas',
+    displayName: 'Lukas',
     urlScheme: 'smartspend',
     apnsEnvironment: 'production'
   }

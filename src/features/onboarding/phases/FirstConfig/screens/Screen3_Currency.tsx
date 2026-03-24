@@ -65,13 +65,13 @@ export default function Screen3_Currency() {
     setCurrency(selected);
     // También guardar en localStorage para CurrencyProvider
     localStorage.setItem(STORAGE_KEY, selected);
-    navigate('/onboarding/config/4', { replace: true });
+    navigate('/onboarding/config/3', { replace: true });
   };
 
   const handleSkip = () => {
     // Guardar la moneda recomendada como default
     localStorage.setItem(STORAGE_KEY, recommendedCurrency.code);
-    navigate('/onboarding/config/5', { replace: true });
+    navigate('/onboarding/config/3', { replace: true });
   };
 
   const renderCurrencyButton = (currency: CurrencyInfo, highlighted = false) => (
@@ -131,7 +131,7 @@ export default function Screen3_Currency() {
 
   return (
     <FullscreenLayout
-      headerCenter={<ProgressDots total={5} current={3} />}
+      headerCenter={<ProgressDots total={3} current={2} />}
       headerRight={
         <button
           type="button"

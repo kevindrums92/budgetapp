@@ -30,7 +30,7 @@ export const WELCOME_SCREENS = {
 export const PHASE_SCREEN_COUNTS = {
   welcome: 6,
   login: 1,
-  config: 5, // Language → Theme → Currency → Categories → Complete
+  config: 1, // Categories only (language & currency auto-detected)
 } as const;
 
 // Animation durations (ms)

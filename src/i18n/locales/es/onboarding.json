@@ -141,11 +141,13 @@
     "note": "Por ahora solo se usa como referencia visual. Multi-moneda estará disponible próximamente."
   },
   "categories": {
-    "title": "Categorías por defecto",
-    "description": "Selecciona las categorías que quieres usar. Puedes deseleccionar las que no necesites.",
+    "title": "Tus categorías",
+    "description": "Elige las que usarás. Siempre puedes cambiarlas después.",
     "expenses": "Gastos",
     "income": "Ingresos",
     "continue": "Continuar",
+    "continueWith": "Continuar con {{count}}",
+    "createNew": "Crear nueva",
     "note": "Nota: Podrás crear categorías personalizadas más adelante desde la sección de Configuración."
   },
   "complete": {

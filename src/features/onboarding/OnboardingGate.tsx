@@ -62,12 +62,12 @@ export default function OnboardingGate() {
 
       console.log('[OnboardingGate] Start screen:', startScreen, 'Current path:', location.pathname);
 
-      // CASO 1: Debe ir a onboarding completo (primera vez, sin progreso)
+      // CASO 1: Debe ir a onboarding (primera vez, sin progreso) → config directo
       if (startScreen === 'onboarding') {
-        // Si no estamos en welcome, redirigir
-        if (!location.pathname.startsWith('/onboarding/welcome')) {
-          console.log('[OnboardingGate] Redirecting to welcome/1');
-          navigate('/onboarding/welcome/1', { replace: true });
+        // Ir directo a config (sin welcome screens)
+        if (!location.pathname.startsWith('/onboarding/config')) {
+          console.log('[OnboardingGate] Redirecting to config/1 (skipping welcome)');
+          navigate('/onboarding/config/1', { replace: true });
         } else {
           setIsChecking(false);
         }
@@ -82,13 +82,19 @@ export default function OnboardingGate() {
           const savedProgress = getSavedProgress();
 
           if (savedProgress && savedProgress.phase && savedProgress.step) {
-            // Build the expected path from saved progress
-            const savedPath = savedProgress.phase === 'login'
-              ? '/onboarding/login'
-              : `/onboarding/${savedProgress.phase}/${savedProgress.step}`;
+            // Welcome phase no longer used for new users → redirect to config/1
+            if (savedProgress.phase === 'welcome') {
+              console.log('[OnboardingGate] Saved progress was in welcome, redirecting to config/1');
+              navigate('/onboarding/config/1', { replace: true });
+            } else {
+              // Build the expected path from saved progress
+              const savedPath = savedProgress.phase === 'login'
+                ? '/onboarding/login'
+                : `/onboarding/${savedProgress.phase}/${savedProgress.step}`;
 
-            console.log('[OnboardingGate] Not in onboarding, redirecting to saved progress:', savedPath);
-            navigate(savedPath, { replace: true });
+              console.log('[OnboardingGate] Not in onboarding, redirecting to saved progress:', savedPath);
+              navigate(savedPath, { replace: true });
+            }
           } else {
             // Fallback: si no hay progreso válido y está fuera de onboarding, ir a config/1
             console.log('[OnboardingGate] No valid progress, redirecting to First Config');

@@ -141,11 +141,13 @@
     "note": "Por enquanto, é usado apenas como referência visual. Multi-moeda estará disponível em breve."
   },
   "categories": {
-    "title": "Categorias padrão",
-    "description": "Selecione as categorias que você deseja usar. Você pode desmarcar as que não precisa.",
+    "title": "Suas categorias",
+    "description": "Escolha as que você vai usar. Você pode mudá-las depois.",
     "expenses": "Despesas",
     "income": "Receitas",
     "continue": "Continuar",
+    "continueWith": "Continuar com {{count}}",
+    "createNew": "Criar nova",
     "note": "Nota: Você pode criar categorias personalizadas mais tarde na seção de Configurações."
   },
   "complete": {

@@ -1,22 +1,14 @@
 /**
  * ConfigFlow
- * Router para las 5 pantallas de First Config
- * (Notifications are now handled automatically in HomePage)
+ * Router para la pantalla única de First Config: Categorías
+ * Language y currency se auto-detectan
  */
 
 import { useParams, Navigate } from 'react-router-dom';
-import Screen1_Language from './screens/Screen1_Language';
-import Screen2_Theme from './screens/Screen2_Theme';
-import Screen3_Currency from './screens/Screen3_Currency';
 import Screen4_Categories from './screens/Screen4_Categories';
-import Screen5_Complete from './screens/Screen5_Complete';
 
 const SCREENS = [
-  Screen1_Language,
-  Screen2_Theme,
-  Screen3_Currency,
   Screen4_Categories,
-  Screen5_Complete,
 ];
 
 export default function ConfigFlow() {

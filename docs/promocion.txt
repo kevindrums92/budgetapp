@@ -79,3 +79,88 @@ La IA primero porque es el feature mas "wow" y viral. Privacidad temprano porque
 
 Tutorial en reels
 
+
+
+Telling story
+
+
+Video: "Me hice mi propia app de finanzas"
+Tono: Personal, auténtico, indie developer story | Duración: 45-60 seg | Formato: Narración con imágenes/clips
+
+HOOK (0-3s):
+
+[Clip tuyo en el comercio o imagen de código/pantalla de desarrollo]
+
+"Cuando empezó el año me propuse organizar mejor mis finanzas."
+
+EL CAMINO (3-18s):
+
+[Imágenes de hojas de cálculo, capturas de Google Sheets/Excel]
+
+"Empecé con hojas de cálculo... funcionaba, pero era tedioso."
+
+[Capturas de la App Store, scrolleando entre apps de finanzas]
+
+"Probé varias apps de la App Store. Unas muy complicadas, otras muy básicas, ninguna tenía exactamente lo que yo necesitaba."
+
+[Beat, pausa breve — transición a pantalla de código o Xcode]
+
+"Así que decidí hacerla yo mismo."
+
+LA TRANSFORMACIÓN (18-35s):
+
+[Screenshots de las primeras versiones, UI fea/básica, prototipos]
+
+"Después de meses de desarrollo, pasé de esto..."
+
+[Transición rápida — TU CLIP pagando con Apple Pay y se registra solo]
+
+"...a esto."
+
+[Secuencia rápida de clips/screenshots de la app actual (1-2 seg cada uno):]
+
+Home con Safe-to-Spend
+Gráfico de torta de gastos
+Presupuestos con barras de progreso
+Entrada por voz con IA
+Dark mode
+[El clip de Apple Pay es el hero moment — déjalo respirar unos 3-4 segundos]
+
+EL CIERRE (35-50s):
+
+[Tú hablando a cámara, tono cercano]
+
+"La decidí publicar porque pensé: si a mí me sirvió, quizá a alguien más también le puede servir."
+
+[Pausa natural, tono honesto]
+
+"Todas las funciones son gratis, sin límites. Lo único que tiene costo es el acceso ilimitado a la inteligencia artificial, que te permite registrar gastos con voz, texto o foto."
+
+[Texto en pantalla: SmartSpend — disponible en App Store]
+
+"Se llama SmartSpend. El link está en mi bio."
+
+Notas de producción
+Música: algo inspiracional pero sutil, tipo piano ambient o lo-fi con build-up suave cuando llega la transformación
+El clip de Apple Pay es tu momento estrella — ponlo con sonido real del beep del pago, que se sienta genuino
+Las imágenes "antes" deben verse imperfectas a propósito — refuerzan que es un journey real
+La secuencia de la app actual debe ser rápida y fluida, como un montage de 5-6 segundos
+El cierre a cámara debe sentirse como si le hablaras a un amigo, no a una audiencia
+No digas "descárgala" — el "quizá a alguien más le puede servir" es un CTA mucho más poderoso porque no vende, invita
+Estructura del timeline visual
+
+0s   ─── Clip comercio o código ─── HOOK
+3s   ─── Hojas de cálculo ──────── Camino
+8s   ─── App Store scrolling ───── Frustración  
+14s  ─── Código / Xcode ────────── "Decidí hacerla"
+18s  ─── Screenshots viejos ────── "Pasé de esto..."
+22s  ─── CLIP APPLE PAY ────────── HERO MOMENT ★
+26s  ─── Montage app actual ────── Secuencia rápida
+35s  ─── Tú a cámara ──────────── Cierre honesto
+50s  ─── Texto + logo ──────────── CTA suave
+Por qué este video puede funcionar muy bien
+"Indie dev builds his own app" es un formato probado en TikTok — la gente ama historias de creadores
+La transformación antes/después genera satisfacción visual
+El clip de Apple Pay es un momento "wow" tangible que nadie espera
+El cierre honesto sobre pricing genera confianza — decir "todo gratis, solo la IA cuesta" desarma objeciones
+No es un ad, es tu historia — y eso el algoritmo lo premia

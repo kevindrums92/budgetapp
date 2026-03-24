@@ -141,11 +141,13 @@
     "note": "Pour l'instant, elle est utilisée uniquement comme référence visuelle. Multi-devises sera bientôt disponible."
   },
   "categories": {
-    "title": "Catégories par défaut",
-    "description": "Sélectionnez les catégories que vous souhaitez utiliser. Vous pouvez décocher celles dont vous n'avez pas besoin.",
+    "title": "Vos catégories",
+    "description": "Choisissez celles que vous utiliserez. Vous pourrez les modifier plus tard.",
     "expenses": "Dépenses",
     "income": "Revenus",
     "continue": "Continuer",
+    "continueWith": "Continuer avec {{count}}",
+    "createNew": "Créer nouvelle",
     "note": "Note : Vous pourrez créer des catégories personnalisées plus tard depuis la section Paramètres."
   },
   "complete": {

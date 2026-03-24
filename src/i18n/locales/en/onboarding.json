@@ -141,11 +141,13 @@
     "note": "For now it's only used as a visual reference. Multi-currency will be available soon."
   },
   "categories": {
-    "title": "Default categories",
-    "description": "Select the categories you want to use. You can deselect the ones you don't need.",
+    "title": "Your categories",
+    "description": "Pick the ones you'll use. You can always change them later.",
     "expenses": "Expenses",
     "income": "Income",
     "continue": "Continue",
+    "continueWith": "Continue with {{count}}",
+    "createNew": "Create new",
     "note": "Note: You can create custom categories later from the Settings section."
   },
   "complete": {
