@@ -10,6 +10,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(store): preserve all optional fields across every store mutation**
+  - Introduce `nextState()` helper that explicitly picks only BudgetState data fields
+  - Prevents carry-over balance, security, tour flags, and stats preferences from being dropped on any mutation
+  - Fixes runtime-only Zustand fields (`cloudStatus`, `cloudMode`, actions) leaking into localStorage
+
 - **refactor(onboarding): simplify flow from 11 screens to 1 (Categories only)**
   - Remove language, currency, and complete screens from FirstConfig (auto-detected now)
   - New 2-column grid layout with toggleable category cards and "Crear nueva" option
