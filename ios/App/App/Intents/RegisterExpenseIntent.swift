@@ -49,6 +49,9 @@ struct RegisterExpenseIntent: AppIntent {
 
         if let url = components.url {
             UserDefaults.standard.set(url.absoluteString, forKey: "pendingShortcutDeepLink")
+            // Notify AppDelegate to deliver the deep link NOW.
+            // applicationDidBecomeActive fires BEFORE perform(), so it misses the URL.
+            NotificationCenter.default.post(name: Notification.Name("ShortcutDeepLinkReady"), object: nil)
         }
 
         return .result()

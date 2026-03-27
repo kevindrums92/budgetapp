@@ -11,6 +11,8 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- fix iOS Shortcuts deep link race condition: use NotificationCenter to deliver URL immediately when intent runs (previously only worked on next cold start)
+
 ## [0.16.24] - 2026-03-27
 
 - **feat(profile): add "Connect with the dev" Instagram card**
