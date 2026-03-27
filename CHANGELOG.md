@@ -12,6 +12,7 @@ All notable changes to SmartSpend will be documented in this file.
 ## [unreleased] - {relase date}
 
 - fix iOS Shortcuts deep link race condition: use NotificationCenter to deliver URL immediately when intent runs (previously only worked on next cold start)
+- fix Sentry diagnostic reports: sanitize JWTs, tokens, and secrets before sending so `@password:filter` no longer scrubs `recentLogs` and breadcrumbs
 
 ## [0.16.24] - 2026-03-27
 
