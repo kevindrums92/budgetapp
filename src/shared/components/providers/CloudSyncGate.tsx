@@ -747,17 +747,6 @@ export default function CloudSyncGate() {
       initializePushNotifications().then((enabled) => {
         logger.info("CloudSync", `Push notifications initialized: ${enabled ? "enabled" : "not enabled"}`);
       });
-
-      // ✅ Single-device policy: revoke all other sessions on every authenticated init.
-      // This runs on every app start (not just first login), ensuring the most recently
-      // opened device is always the only active one. Fire-and-forget (non-blocking).
-      if (session.user.email && !session.user.is_anonymous) {
-        supabase.auth.signOut({ scope: 'others' }).then(() => {
-          console.log("[CloudSyncGate] Revoked other sessions (single-device policy)");
-        }).catch((err: unknown) => {
-          console.warn("[CloudSyncGate] Failed to revoke other sessions:", err);
-        });
-      }
     } catch (err) {
       logger.error("CloudSync", "Init failed:", err);
       setCloudStatus(isNetworkOrServerError(err) ? "offline" : "error");
@@ -896,7 +885,6 @@ export default function CloudSyncGate() {
 
           console.log("[CloudSyncGate] SIGNED_OUT with wasAuthenticated flag — session expired, showing recovery modal");
           useBudgetStore.getState().setSessionExpired(true);
-          initializedRef.current = false; // Reset so re-login triggers full init (not token-refresh skip)
           setCloudMode("guest");
           setCloudStatus("idle");
           return; // DON'T clear data, DON'T create anonymous session
@@ -1097,17 +1085,6 @@ export default function CloudSyncGate() {
 
           await initForSession();
 
-          // ✅ Set wasAuthenticated immediately — needed so SIGNED_OUT handler
-          // knows this is a session expiration (not explicit logout) and shows
-          // recovery modal instead of wiping data.
-          if (session?.user?.email && !session.user.is_anonymous) {
-            localStorage.setItem('budget.wasAuthenticated', 'true');
-            localStorage.setItem('budget.lastAuthEmail', session.user.email);
-            const appMeta = session.user.app_metadata ?? {};
-            const prov = (appMeta.provider as string) || session.user.identities?.[0]?.provider || null;
-            if (prov) localStorage.setItem('budget.lastAuthProvider', prov);
-          }
-
           // Revoke all other sessions — only this device should be active
           try {
             await supabase.auth.signOut({ scope: 'others' });
@@ -1132,62 +1109,6 @@ export default function CloudSyncGate() {
     });
 
     return () => sub.subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ✅ Single-device policy: validate session when app returns to foreground.
-  // If another device logged in and revoked our refresh token, refreshSession()
-  // will fail → triggers SIGNED_OUT → wasAuthenticated flag ensures recovery modal
-  // (not data wipe). This makes revocation near-instant instead of waiting for
-  // the access token to expire (~1 hour).
-  useEffect(() => {
-    const THROTTLE_MS = 30_000; // Max once per 30s
-    let lastCheckTs = 0;
-
-    async function validateSession() {
-      if (!initializedRef.current) return;
-      const { cloudMode, user } = useBudgetStore.getState();
-      if (cloudMode !== 'cloud') return;
-      // Only validate for authenticated users (anonymous sessions aren't revoked)
-      if (!user.email) return;
-
-      const now = Date.now();
-      if (now - lastCheckTs < THROTTLE_MS) return;
-      lastCheckTs = now;
-
-      const isOnline = await getNetworkStatus();
-      if (!isOnline) return;
-
-      console.log("[CloudSyncGate] Validating session on foreground resume...");
-
-      const { error } = await supabase.auth.refreshSession();
-      if (error) {
-        // refreshSession() failed while online → refresh token was revoked.
-        // This triggers SIGNED_OUT which is handled by the auth state change listener.
-        // As a safety net, also set sessionExpired directly.
-        console.log("[CloudSyncGate] Session revoked by another device:", error.message);
-        useBudgetStore.getState().setSessionExpired(true);
-        initializedRef.current = false; // Reset so re-login triggers full init
-      } else {
-        // Session is valid → THIS is the active device.
-        // Revoke all other sessions so other devices detect revocation on their next resume.
-        console.log("[CloudSyncGate] Session still valid, revoking other sessions");
-        supabase.auth.signOut({ scope: 'others' }).then(() => {
-          console.log("[CloudSyncGate] Revoked other sessions (single-device policy)");
-        }).catch(() => {
-          // Non-blocking — best effort
-        });
-      }
-    }
-
-    function handleVisibilityChange() {
-      if (document.visibilityState === 'visible') {
-        validateSession();
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
