@@ -10,6 +10,11 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(shortcuts): fast deep link detection and race condition protection for Apple Pay**
+  - Add localStorage polling (300ms × 15s) in QuickAddHandler to detect deep links that arrive after React mount during cold start
+  - Protect against `replaceAllData(cloud)` wiping transactions added locally during cloud pull (e.g., Apple Pay shortcut on flaky network)
+  - Merge locally-added transactions into cloud state before replacing, preserving offline-first guarantees
+
 - **chore(widgets): rebrand SmartSpend → Lukas in native widgets and shortcuts**
   - Update display name in iOS WidgetKit views (small, medium, large) and Android XML layouts
   - Update iOS App Intent descriptions
