@@ -1085,14 +1085,6 @@ export default function CloudSyncGate() {
 
           await initForSession();
 
-          // Revoke all other sessions — only this device should be active
-          try {
-            await supabase.auth.signOut({ scope: 'others' });
-            console.log("[CloudSyncGate] Revoked all other sessions (single-device policy)");
-          } catch (err) {
-            console.warn("[CloudSyncGate] Failed to revoke other sessions (non-blocking):", err);
-          }
-
           // Clean up orphaned anonymous user data (if this was an OAuth transition)
           const previousAnonUserId = localStorage.getItem('budget.previousAnonUserId');
           if (previousAnonUserId) {

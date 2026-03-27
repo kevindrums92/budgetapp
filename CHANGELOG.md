@@ -19,9 +19,6 @@ All notable changes to SmartSpend will be documented in this file.
   - Replace full-width tabs with centered pill-style tab selector
   - Fix selectedCount double-count flash using stable ref
 
-- **feat(auth): revoke other sessions on login (single-device policy)**
-  - On first authenticated SIGNED_IN, calls `signOut({ scope: 'others' })` to invalidate all other sessions
-  - Ensures only one device has an active session at a time
 
 - **refactor(sync): switch cloud sync to push-only architecture**
   - Local is always the source of truth; cloud (`user_state`) is a backup
