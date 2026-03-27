@@ -26,7 +26,7 @@
 
 **v1.0 (Old):**
 - Subscription stored in `user_state.state.subscription` (mixed with budget data)
-- CloudSyncGate used pull-first sync that merged subscriptions from 3 sources (RevenueCat, cloud, local)
+- CloudSyncGate merged subscriptions from 3 sources (RevenueCat, cloud, local)
 - Complex merge logic prone to bugs
 - No server-side subscription updates
 - No audit trail
@@ -508,7 +508,16 @@ async function handlePurchase(plan: PricingPlanKey) {
 
 **File:** `src/shared/components/providers/CloudSyncGate.tsx`
 
-**Note:** CloudSyncGate now uses push-only architecture (local is always source of truth). Subscription is fetched separately and never merged with cloud data. `replaceAllData()` is only used for intentional restores (new device, backup restore, OAuth into existing account).
+Remove subscription merge logic:
+
+```typescript
+// OLD CODE (REMOVE):
+const currentSubscription = useBudgetStore.getState().subscription;
+replaceAllData({ ...cloud, subscription: currentSubscription });
+
+// NEW CODE:
+replaceAllData(cloud); // Just apply cloud data, no subscription
+```
 
 ### 5. Deploy Client App
 
@@ -723,7 +732,8 @@ If issues arise:
 1. Revert client code changes
 2. Keep `user_subscriptions` table (doesn't hurt to have it)
 3. Re-add `subscription` field to `BudgetState` type
-4. Disable RevenueCat webhook in dashboard
+4. Re-add merge logic to CloudSyncGate
+5. Disable RevenueCat webhook in dashboard
 
 ---
 

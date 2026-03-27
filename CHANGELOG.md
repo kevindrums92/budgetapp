@@ -19,13 +19,6 @@ All notable changes to SmartSpend will be documented in this file.
   - Replace full-width tabs with centered pill-style tab selector
   - Fix selectedCount double-count flash using stable ref
 
-
-- **refactor(sync): switch cloud sync to push-only architecture**
-  - Local is always the source of truth; cloud (`user_state`) is a backup
-  - Remove pull-first and merge logic from CloudSyncGate — `replaceAllData()` now only used for intentional restores (new device, backup restore, logout wipe)
-  - Token refresh (SIGNED_IN) skips re-init instead of triggering full cloud pull
-  - Extract `migrateCloudData()` helper for legacy schema migrations on cloud restore
-
 - **fix(store): preserve all optional fields across every store mutation**
   - Introduce `nextState()` helper that explicitly picks only BudgetState data fields
   - Prevents carry-over balance, security, tour flags, and stats preferences from being dropped on any mutation

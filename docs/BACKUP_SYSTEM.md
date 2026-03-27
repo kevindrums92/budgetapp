@@ -381,7 +381,7 @@ export async function restoreCloudBackup(backupId: string): Promise<void> {
 Use Supabase Edge Function or client-side scheduler:
 
 ```typescript
-// In BackupScheduler component (rendered by CloudSyncGate)
+// In CloudSyncGate.tsx or BackupScheduler component
 useEffect(() => {
   if (cloudMode !== 'cloud') return;
 

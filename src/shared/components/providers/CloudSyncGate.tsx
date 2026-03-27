@@ -100,114 +100,6 @@ function releaseSyncLock() {
   }
 }
 
-/**
- * Migrate cloud data: inject defaults for missing fields, run schema migrations.
- * Returns the migrated data + whether it needs to be pushed back to cloud.
- */
-function migrateCloudData(cloud: any): { data: any; needsPush: boolean } {
-  let needsPush = false;
-
-  // Inject default categoryDefinitions for legacy users with transactions but no categories
-  if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
-    if (cloud.transactions && cloud.transactions.length > 0) {
-      logger.info("CloudSync", "Cloud missing categoryDefinitions for legacy user, injecting defaults");
-      cloud.categoryDefinitions = createDefaultCategories();
-      needsPush = true;
-    } else {
-      cloud.categoryDefinitions = [];
-    }
-  }
-
-  // Inject default categoryGroups (migration to v3)
-  if (!Array.isArray(cloud.categoryGroups) || cloud.categoryGroups.length === 0) {
-    logger.info("CloudSync", "Cloud missing categoryGroups, injecting defaults (migration to v3)");
-    cloud.categoryGroups = createDefaultCategoryGroups();
-    cloud.schemaVersion = 3;
-    needsPush = true;
-  }
-
-  // Migrate v3/v4 → v5: scheduled transactions support
-  if (cloud.schemaVersion === 4 || cloud.schemaVersion === 3) {
-    const recurringCount = cloud.transactions.filter((tx: any) => tx.isRecurring).length;
-    logger.info("CloudSync", `Migrating cloud data from v${cloud.schemaVersion} to v5 (${recurringCount} recurring)`);
-
-    // Step 1: Convert isRecurring to schedule
-    cloud.transactions = cloud.transactions.map((tx: any) => {
-      if (tx.isRecurring) {
-        const schedule = convertLegacyRecurringToSchedule(tx);
-        return { ...tx, schedule };
-      }
-      return tx;
-    });
-
-    // Step 2: Deduplicate schedule templates
-    const templatesMap = new Map<string, any>();
-    const nonTemplates: any[] = [];
-
-    for (const tx of cloud.transactions) {
-      if (tx.schedule?.enabled) {
-        const key = `${tx.name}|${tx.category}|${tx.amount}`;
-        const existing = templatesMap.get(key);
-        if (!existing || tx.date > existing.date ||
-            (tx.date === existing.date && tx.createdAt > existing.createdAt)) {
-          if (existing) nonTemplates.push({ ...existing, schedule: undefined });
-          templatesMap.set(key, tx);
-        } else {
-          nonTemplates.push({ ...tx, schedule: undefined });
-        }
-      } else {
-        nonTemplates.push(tx);
-      }
-    }
-
-    // Step 3: Add sourceTemplateId to link transactions to templates
-    const finalTransactions: any[] = [...templatesMap.values()];
-    for (const tx of nonTemplates) {
-      if (tx.sourceTemplateId) {
-        finalTransactions.push(tx);
-        continue;
-      }
-      const key = `${tx.name}|${tx.category}`;
-      let matchedTemplate: any = null;
-      for (const template of templatesMap.values()) {
-        if (`${template.name}|${template.category}` === key) {
-          matchedTemplate = template;
-          break;
-        }
-      }
-      finalTransactions.push(matchedTemplate ? { ...tx, sourceTemplateId: matchedTemplate.id } : tx);
-    }
-
-    cloud.transactions = finalTransactions;
-    cloud.schemaVersion = 5;
-    needsPush = true;
-    logger.info("CloudSync", `Migration v4→v5 complete: ${templatesMap.size} templates`);
-  }
-
-  // Always repair: ensure sourceTemplateId on matching transactions
-  if (cloud.schemaVersion >= 5) {
-    const templates = cloud.transactions.filter((tx: any) => tx.schedule?.enabled);
-    if (templates.length > 0) {
-      let repairCount = 0;
-      cloud.transactions = cloud.transactions.map((tx: any) => {
-        if (tx.schedule?.enabled || tx.sourceTemplateId) return tx;
-        const matched = templates.find((t: any) => t.name === tx.name && t.category === tx.category);
-        if (matched) {
-          repairCount++;
-          return { ...tx, sourceTemplateId: matched.id };
-        }
-        return tx;
-      });
-      if (repairCount > 0) {
-        needsPush = true;
-        logger.info("CloudSync", `Repaired ${repairCount} transactions with missing sourceTemplateId`);
-      }
-    }
-  }
-
-  return { data: cloud, needsPush };
-}
-
 export default function CloudSyncGate() {
   const getSnapshot = useBudgetStore((s) => s.getSnapshot);
   const replaceAllData = useBudgetStore((s) => s.replaceAllData);
@@ -617,56 +509,186 @@ export default function CloudSyncGate() {
         }
       }
 
-      // ✅ 2) PUSH-ONLY SYNC: Local is ALWAYS the source of truth.
-      //    Cloud is a backup — we push local → cloud on every change.
-      //    We only pull from cloud when local is empty (new device / fresh install).
-      const localSnapshot = getSnapshot();
-      const localHasData = localSnapshot.categoryDefinitions.length > 0;
+      // ✅ 2) No hay pendientes: flujo normal (pull)
+      logger.info("CloudSync", "No pending changes, pulling from cloud...");
+      console.log("[CloudSyncGate] About to call getCloudState()");
+      const cloud = await retryAsync("getCloudState", () => getCloudState());
+      console.log("[CloudSyncGate] getCloudState() returned:", { hasCloud: !!cloud, cloudData: cloud ? { transactions: cloud.transactions?.length, categories: cloud.categoryDefinitions?.length } : null });
 
-      if (localHasData) {
-        // ═══════════════════════════════════════════════════════════════════
-        // LOCAL HAS DATA → Push to cloud (no pull needed)
-        // ═══════════════════════════════════════════════════════════════════
+      if (cloud) {
+        logger.info("CloudSync", "Cloud data found:", {
+          transactions: cloud.transactions.length,
+          trips: cloud.trips?.length ?? 0,
+          schemaVersion: cloud.schemaVersion,
+        });
 
-        // Special case: OAuth transition into an EXISTING account.
-        // When an anonymous user logs into an account that already has cloud data,
-        // the cloud data represents the user's real account — restore it.
-        const isOAuthTransition = !!localStorage.getItem('budget.previousAnonUserId');
+        let needsPush = false;
 
-        if (isOAuthTransition) {
-          logger.info("CloudSync", "OAuth transition detected, checking if target account has cloud data...");
-          const cloud = await retryAsync("getCloudState", () => getCloudState());
+        // ✅ IMPORTANT: If cloud has data (categories or transactions), mark onboarding as complete
+        // This handles the case where localStorage was cleared but cloud has user's data
+        const hasCloudData = (cloud.categoryDefinitions && cloud.categoryDefinitions.length > 0) ||
+                             (cloud.transactions && cloud.transactions.length > 0) ||
+                             (cloud.trips && cloud.trips.length > 0);
 
-          if (cloud && cloud.categoryDefinitions && cloud.categoryDefinitions.length > 0) {
-            // Existing account with real data → restore from cloud (user's real account)
-            logger.info("CloudSync", "OAuth into existing account with data, restoring cloud state:", {
-              transactions: cloud.transactions.length,
-              categories: cloud.categoryDefinitions.length,
-            });
+        const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
 
-            // Run migrations on cloud data before restoring
-            const migrated = migrateCloudData(cloud);
-            replaceAllData(migrated.data);
-
-            if (migrated.needsPush) {
-              await retryAsync("pushMigration", () => upsertCloudState(migrated.data));
-            }
-          } else {
-            // New account (no cloud data) → push local anonymous data to cloud
-            logger.info("CloudSync", "OAuth into new account, pushing local data to cloud:", {
-              transactions: localSnapshot.transactions.length,
-              categories: localSnapshot.categoryDefinitions.length,
-            });
-            await retryAsync("pushLocalToCloud", () => upsertCloudState(localSnapshot));
-          }
-        } else {
-          // Normal app start / token refresh → just push local to cloud
-          logger.info("CloudSync", "Local has data, pushing to cloud (push-only mode):", {
-            transactions: localSnapshot.transactions.length,
-            categories: localSnapshot.categoryDefinitions.length,
-          });
-          await retryAsync("pushLocalToCloud", () => upsertCloudState(localSnapshot));
+        if (hasCloudData && !onboardingCompleted) {
+          logger.info("CloudSync", "Cloud has data but localStorage was cleared, marking onboarding as complete");
+          localStorage.setItem('budget.onboarding.completed.v2', 'true');
+          localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
         }
+
+        // Check if cloud data has empty categoryDefinitions
+        // Only inject defaults for legacy users who completed onboarding but have no categories
+        // New users will create categories during onboarding
+        if (!Array.isArray(cloud.categoryDefinitions) || cloud.categoryDefinitions.length === 0) {
+          if (hasCloudData && cloud.transactions && cloud.transactions.length > 0) {
+            // Legacy user with transactions but no categories - inject defaults
+            logger.info("CloudSync", "Cloud missing categoryDefinitions for legacy user, injecting defaults");
+            cloud.categoryDefinitions = createDefaultCategories();
+            needsPush = true;
+          } else {
+            // New user or user in onboarding - leave empty
+            logger.info("CloudSync", "Cloud missing categoryDefinitions, leaving empty for onboarding");
+            cloud.categoryDefinitions = [];
+          }
+        }
+
+        // Check if cloud data has empty categoryGroups - inject defaults (migration to v3)
+        if (!Array.isArray(cloud.categoryGroups) || cloud.categoryGroups.length === 0) {
+          logger.info("CloudSync", "Cloud missing categoryGroups, injecting defaults (migration to v3)");
+          cloud.categoryGroups = createDefaultCategoryGroups();
+          cloud.schemaVersion = 3;
+          needsPush = true;
+        }
+
+        // Migrate v4 (or v3) to v5: Full scheduled transactions support
+        // - Convert isRecurring to schedule
+        // - Deduplicate templates (keep only one per name+category+amount)
+        // - Add sourceTemplateId to link generated transactions to their template
+        logger.info("CloudSync", `Schema version check: cloud.schemaVersion=${cloud.schemaVersion}`);
+
+        if (cloud.schemaVersion === 4 || cloud.schemaVersion === 3) {
+          const recurringCount = cloud.transactions.filter((tx: any) => tx.isRecurring).length;
+          logger.info("CloudSync", `Migrating cloud data from v${cloud.schemaVersion} to v5`);
+          logger.info("CloudSync", `Found ${recurringCount} transactions with isRecurring=true`);
+
+          // Step 1: Convert isRecurring to schedule
+          cloud.transactions = cloud.transactions.map((tx: any) => {
+            if (tx.isRecurring) {
+              const schedule = convertLegacyRecurringToSchedule(tx);
+              logger.info("CloudSync", `Converting "${tx.name}" to scheduled:`, schedule);
+              return { ...tx, schedule };
+            }
+            return tx;
+          });
+
+          // Step 2: Deduplicate schedule templates
+          const templatesMap = new Map<string, any>();
+          const nonTemplates: any[] = [];
+
+          for (const tx of cloud.transactions) {
+            if (tx.schedule?.enabled) {
+              const key = `${tx.name}|${tx.category}|${tx.amount}`;
+              const existing = templatesMap.get(key);
+
+              if (!existing || tx.date > existing.date ||
+                  (tx.date === existing.date && tx.createdAt > existing.createdAt)) {
+                if (existing) {
+                  nonTemplates.push({ ...existing, schedule: undefined });
+                }
+                templatesMap.set(key, tx);
+              } else {
+                nonTemplates.push({ ...tx, schedule: undefined });
+              }
+            } else {
+              nonTemplates.push(tx);
+            }
+          }
+
+          // Step 3: Add sourceTemplateId to link transactions to their templates
+          const finalTransactions: any[] = [...templatesMap.values()];
+
+          for (const tx of nonTemplates) {
+            if (tx.sourceTemplateId) {
+              finalTransactions.push(tx);
+              continue;
+            }
+
+            const key = `${tx.name}|${tx.category}`;
+            let matchedTemplate: any = null;
+
+            for (const template of templatesMap.values()) {
+              const templateKey = `${template.name}|${template.category}`;
+              if (templateKey === key) {
+                matchedTemplate = template;
+                break;
+              }
+            }
+
+            if (matchedTemplate) {
+              finalTransactions.push({ ...tx, sourceTemplateId: matchedTemplate.id });
+            } else {
+              finalTransactions.push(tx);
+            }
+          }
+
+          cloud.transactions = finalTransactions;
+          cloud.schemaVersion = 5;
+          needsPush = true;
+          logger.info("CloudSync", `Migration v4→v5 complete: ${templatesMap.size} templates, transactions linked`);
+        }
+
+        // Always repair: Ensure all transactions have sourceTemplateId if they match a template
+        // This fixes transactions that were confirmed before sourceTemplateId was added
+        if (cloud.schemaVersion >= 5) {
+          logger.info("CloudSync", `Schema version is ${cloud.schemaVersion}, checking for sourceTemplateId repairs...`);
+
+          // Find all templates
+          const templates = cloud.transactions.filter((tx: any) => tx.schedule?.enabled);
+
+          if (templates.length > 0) {
+            let repairCount = 0;
+
+            cloud.transactions = cloud.transactions.map((tx: any) => {
+              // Skip templates themselves and transactions that already have sourceTemplateId
+              if (tx.schedule?.enabled || tx.sourceTemplateId) {
+                return tx;
+              }
+
+              // Try to find a matching template by name + category
+              const matchedTemplate = templates.find((template: any) =>
+                template.name === tx.name && template.category === tx.category
+              );
+
+              if (matchedTemplate) {
+                repairCount++;
+                logger.info("CloudSync", `Repairing sourceTemplateId for "${tx.name}" (${tx.id}) -> template ${matchedTemplate.id}`);
+                return { ...tx, sourceTemplateId: matchedTemplate.id };
+              }
+
+              return tx;
+            });
+
+            if (repairCount > 0) {
+              needsPush = true;
+              logger.info("CloudSync", `Repaired ${repairCount} transactions with missing sourceTemplateId`);
+            }
+          }
+        }
+
+        // Subscription is NO LONGER merged here (v2.0)
+        // It's managed separately by RevenueCat SDK + subscription.service.ts
+        const _localBefore = useBudgetStore.getState().transactions.length;
+        console.log("[CloudSyncGate] 🔍 REPLACING local data with cloud:", {
+          localTransactionsBefore: _localBefore,
+          cloudTransactions: cloud.transactions.length,
+          cloudCategories: cloud.categoryDefinitions.length,
+        });
+        if (_localBefore > 0 && cloud.transactions.length === 0) {
+          console.warn("[CloudSyncGate] ⚠️ DATA LOSS RISK: Replacing", _localBefore, "local transactions with EMPTY cloud state!");
+        }
+        replaceAllData(cloud);
 
         // Fetch subscription separately from RevenueCat/Supabase
         try {
@@ -678,61 +700,48 @@ export default function CloudSyncGate() {
           console.error("[CloudSyncGate] Failed to load subscription:", subError);
         }
 
+        // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
         updateLastAuthTimestamp();
+
+        // ✅ Renew expired budgets after loading cloud data
         useBudgetStore.getState().renewExpiredBudgets();
+
+        // Push the fixed data back to cloud if we added defaults
+        if (needsPush) {
+          logger.info("CloudSync", "Pushing migrated data back to cloud");
+          await retryAsync("pushMigration", () => upsertCloudState(cloud));
+        }
       } else {
-        // ═══════════════════════════════════════════════════════════════════
-        // LOCAL IS EMPTY → One-time restore from cloud (new device / fresh install)
-        // ═══════════════════════════════════════════════════════════════════
-        logger.info("CloudSync", "Local is empty, pulling from cloud for one-time restore...");
-        const cloud = await retryAsync("getCloudState", () => getCloudState());
+        // ⚠️ CRITICAL SAFEGUARD: NEVER overwrite cloud with empty state
+        // This prevents data loss if there's a race condition or auth issue
+        const localSnapshot = getSnapshot();
+        const hasData = localSnapshot.transactions.length > 0 ||
+                       localSnapshot.trips.length > 0;
 
-        if (cloud) {
-          logger.info("CloudSync", "Cloud data found, restoring:", {
-            transactions: cloud.transactions.length,
-            trips: cloud.trips?.length ?? 0,
-            schemaVersion: cloud.schemaVersion,
+        console.log("[CloudSyncGate] 🔍 Cloud is NULL (new user). Local snapshot:", {
+          transactions: localSnapshot.transactions.length,
+          categories: localSnapshot.categoryDefinitions.length,
+          trips: localSnapshot.trips.length,
+          hasData,
+        });
+
+        if (hasData) {
+          // Safe to push: local has actual user data
+          logger.info("CloudSync", "New account detected, pushing local data to cloud:", {
+            transactions: localSnapshot.transactions.length,
+            trips: localSnapshot.trips.length,
+            categoryDefinitions: localSnapshot.categoryDefinitions.length,
           });
+          await retryAsync("pushNewAccount", () => upsertCloudState(localSnapshot));
 
-          // Mark onboarding as complete if cloud has real data
-          const hasCloudData = (cloud.categoryDefinitions && cloud.categoryDefinitions.length > 0) ||
-                               (cloud.transactions && cloud.transactions.length > 0) ||
-                               (cloud.trips && cloud.trips.length > 0);
-
-          if (hasCloudData) {
-            const onboardingCompleted = localStorage.getItem('budget.onboarding.completed.v2') === 'true';
-            if (!onboardingCompleted) {
-              logger.info("CloudSync", "Cloud has data, marking onboarding as complete");
-              localStorage.setItem('budget.onboarding.completed.v2', 'true');
-              localStorage.setItem('budget.onboarding.timestamp.v2', Date.now().toString());
-            }
-          }
-
-          // Run migrations and restore
-          const migrated = migrateCloudData(cloud);
-          replaceAllData(migrated.data);
-
-          // Fetch subscription
-          try {
-            const { getSubscription } = await import('@/services/subscription.service');
-            const subscription = await getSubscription(session.user.id);
-            useBudgetStore.getState().setSubscription(subscription);
-            console.log("[CloudSyncGate] Subscription loaded:", subscription?.status ?? 'free');
-          } catch (subError) {
-            console.error("[CloudSyncGate] Failed to load subscription:", subError);
-          }
-
+          // ✅ Mark that user just authenticated (prevent BiometricGate from prompting on login)
           updateLastAuthTimestamp();
-          useBudgetStore.getState().renewExpiredBudgets();
-
-          // Push migrated data back to cloud if migrations were applied
-          if (migrated.needsPush) {
-            logger.info("CloudSync", "Pushing migrated data back to cloud");
-            await retryAsync("pushMigration", () => upsertCloudState(migrated.data));
-          }
         } else {
-          // Cloud is also empty → truly fresh user, nothing to restore
-          logger.info("CloudSync", "Both local and cloud are empty. Fresh start.");
+          // WARNING: Local is empty, do NOT overwrite cloud
+          // This could be a SIGNED_OUT->SIGNED_IN race condition
+          logger.warn("CloudSync", "⚠️ Cloud is null but local is also empty. NOT pushing to prevent data loss.");
+          logger.warn("CloudSync", "If this is truly a new account, defaults will be used.");
+          // Keep the defaults that were hydrated from defaultState
         }
       }
 
@@ -1004,53 +1013,22 @@ export default function CloudSyncGate() {
         }
 
         // Authenticated SIGNED_IN (real login, linkIdentity upgrade, OR token refresh)
+        console.log("[CloudSyncGate] Authenticated SIGNED_IN, re-initializing...");
 
-        // ✅ TOKEN REFRESH: If already initialized AND not an OAuth transition,
-        // this is just a token refresh. Local is source of truth — skip re-init.
-        const isOAuthUpgrade = !!localStorage.getItem('budget.previousAnonUserId');
-        if (initializedRef.current && !isOAuthUpgrade) {
-          console.log("[CloudSyncGate] Token refresh detected, skipping re-init (local is source of truth)");
-
-          // Update user metadata in case it changed
-          if (session?.user) {
-            const meta = session.user.user_metadata ?? {};
-            const appMeta = session.user.app_metadata ?? {};
-            const provider = (appMeta.provider as string) || session.user.identities?.[0]?.provider || null;
-
-            setUser({
-              email: session.user.email ?? null,
-              name: (meta.full_name as string) || (meta.name as string) || null,
-              avatarUrl: (meta.avatar_url as string) || (meta.picture as string) || null,
-              provider: provider as 'google' | 'apple' | null,
-            });
-
-            // Re-persist auth flags
-            if (session.user.email && !session.user.is_anonymous) {
-              localStorage.setItem('budget.wasAuthenticated', 'true');
-              localStorage.setItem('budget.lastAuthEmail', session.user.email);
-              if (provider) localStorage.setItem('budget.lastAuthProvider', provider);
-            }
-          }
-
-          // Clear session expired state if it was set
-          useBudgetStore.getState().setSessionExpired(false);
-          // Ensure cloudSyncReady is true
-          useBudgetStore.getState().setCloudSyncReady();
-          return;
-        }
-
-        // ✅ FIRST AUTHENTICATED SIGNED_IN → full init (login, OAuth upgrade)
-        console.log("[CloudSyncGate] First authenticated SIGNED_IN, running full init...");
-
+        // ✅ Reset cloudSyncReady so the scheduler (HomePage) waits for this
+        // re-init to complete before generating scheduled transactions.
+        // Without this, the scheduler runs after the FIRST init, then this
+        // SIGNED_IN re-init pulls cloud and replaces local data, wiping
+        // any scheduled transactions that were generated but not yet pushed.
         useBudgetStore.getState().resetCloudSyncReady();
 
-        // Cancel any pending debounced push — we're about to init
+        // Cancel any pending debounced push — we're about to re-sync
         if (debounceRef.current) {
           window.clearTimeout(debounceRef.current);
           debounceRef.current = null;
         }
 
-        // ✅ Clear session expired state — user successfully authenticated
+        // ✅ Clear session expired state — user successfully re-authenticated
         useBudgetStore.getState().setSessionExpired(false);
         localStorage.removeItem('budget.wasAuthenticated');
         localStorage.removeItem('budget.lastAuthEmail');
