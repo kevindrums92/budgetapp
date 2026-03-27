@@ -10,6 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(profile): add "Connect with the dev" Instagram card**
+  - Links to @kevindrums92 Instagram profile via in-app browser
+  - i18n translations for es, en, fr, pt
+
 - **fix(shortcuts): fast deep link detection and race condition protection for Apple Pay**
   - Add localStorage polling (300ms × 15s) in QuickAddHandler to detect deep links that arrive after React mount during cold start
   - Protect against `replaceAllData(cloud)` wiping transactions added locally during cloud pull (e.g., Apple Pay shortcut on flaky network)

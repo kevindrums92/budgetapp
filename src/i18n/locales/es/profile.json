@@ -202,6 +202,9 @@
       "title": "Política de Privacidad"
     }
   },
+  "connect": {
+    "title": "Conéctate con el dev"
+  },
   "subscription": {
     "title": "Mi Suscripción",
     "currentPlan": "Plan Actual",

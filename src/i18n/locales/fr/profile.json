@@ -202,6 +202,9 @@
       "title": "Politique de confidentialité"
     }
   },
+  "connect": {
+    "title": "Connecte-toi avec le dev"
+  },
   "subscription": {
     "loginBanner": {
       "title": "Protégez votre abonnement",
