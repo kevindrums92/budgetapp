@@ -32,7 +32,7 @@ struct SmallWidgetView: View {
                 Image(systemName: "dollarsign.circle.fill")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(tealColor)
-                Text("SmartSpend")
+                Text("Lukas")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundColor(.primary)
                 Spacer()

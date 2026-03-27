@@ -6,7 +6,7 @@ import Foundation
 @available(iOS 16, *)
 struct AddTransactionIntent: AppIntent {
     static var title: LocalizedStringResource = "Registrar transacción"
-    static var description = IntentDescription("Registra gastos o ingresos en SmartSpend usando texto natural con IA")
+    static var description = IntentDescription("Registra gastos o ingresos en Lukas usando texto natural con IA")
     static var openAppWhenRun: Bool = true
 
     @Parameter(title: "Texto", description: "Describe tus gastos en lenguaje natural. Ej: 25k de mercado, 12 mil en taxi")

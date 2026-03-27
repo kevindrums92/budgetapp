@@ -54,23 +54,15 @@ export default function Screen4_Categories() {
     [categoryDefinitions, activeTab]
   );
 
+  // Stable count of custom categories created via "Crear nueva" (before handleComplete runs).
+  // Using a ref prevents the double-count flash when handleComplete adds defaults to the store.
+  const customCountRef = useRef(categoryDefinitions.length);
+  useEffect(() => { customCountRef.current = categoryDefinitions.length; }, [categoryDefinitions.length]);
+
   // Total selected count (defaults selected + customs already in store)
   const selectedCount = useMemo(() => {
-    const selectedDefaults = defaultCategoriesForTab.filter((cat) => {
-      const idx = DEFAULT_CATEGORIES.indexOf(cat);
-      return selectedIds.has(`default-${idx}`);
-    }).length;
-
-    // Also count selected defaults from the OTHER tab
-    const otherTab = activeTab === 'expense' ? 'income' : 'expense';
-    const otherDefaults = DEFAULT_CATEGORIES.filter((c) => c.type === otherTab);
-    const selectedOtherDefaults = otherDefaults.filter((cat) => {
-      const idx = DEFAULT_CATEGORIES.indexOf(cat);
-      return selectedIds.has(`default-${idx}`);
-    }).length;
-
-    return selectedDefaults + selectedOtherDefaults + categoryDefinitions.length;
-  }, [selectedIds, defaultCategoriesForTab, activeTab, categoryDefinitions]);
+    return selectedIds.size + customCountRef.current;
+  }, [selectedIds]);
 
   // Sync local state FROM context
   useEffect(() => {
@@ -187,15 +179,15 @@ export default function Screen4_Categories() {
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 pb-4">
+      {/* Tabs — pill style */}
+      <div className="mx-auto mb-5 flex w-fit gap-1 rounded-full bg-gray-200/60 p-1 dark:bg-gray-800/80">
         <button
           type="button"
           onClick={() => setActiveTab('expense')}
-          className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+          className={`rounded-full px-6 py-2 text-sm font-semibold transition-colors ${
             activeTab === 'expense'
-              ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-              : 'bg-white text-gray-600 dark:bg-gray-900 dark:text-gray-400'
+              ? 'bg-emerald-500 text-white shadow-sm'
+              : 'text-gray-500 dark:text-gray-400'
           }`}
         >
           {t('categories.expenses')}
@@ -203,19 +195,19 @@ export default function Screen4_Categories() {
         <button
           type="button"
           onClick={() => setActiveTab('income')}
-          className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+          className={`rounded-full px-6 py-2 text-sm font-semibold transition-colors ${
             activeTab === 'income'
-              ? 'bg-emerald-500 text-white'
-              : 'bg-white text-gray-600 dark:bg-gray-900 dark:text-gray-400'
+              ? 'bg-emerald-500 text-white shadow-sm'
+              : 'text-gray-500 dark:text-gray-400'
           }`}
         >
           {t('categories.income')}
         </button>
       </div>
 
-      {/* Categories grid */}
+      {/* Categories grid — 3 columns */}
       <div className="flex-1">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {/* Default categories */}
           {defaultCategoriesForTab.map((category) => {
             const catId = `default-${DEFAULT_CATEGORIES.indexOf(category)}`;
@@ -228,31 +220,48 @@ export default function Screen4_Categories() {
                 key={catId}
                 type="button"
                 onClick={() => toggleCategory(catId)}
-                className={`relative flex flex-col items-center gap-2.5 rounded-2xl border-2 p-4 transition-all active:scale-[0.98] ${
+                className={`relative flex flex-col items-center gap-2 rounded-2xl p-3 pt-4 transition-all active:scale-[0.97] ${
                   isSelected
-                    ? 'border-emerald-500 bg-white dark:bg-gray-900'
-                    : 'border-transparent bg-white opacity-50 dark:bg-gray-900'
+                    ? ''
+                    : 'bg-gray-100 dark:bg-gray-800/80'
                 }`}
+                style={isSelected ? { backgroundColor: category.color + '20' } : undefined}
               >
                 {/* Check badge */}
                 {isSelected && (
-                  <div className="absolute top-2.5 right-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500">
-                    <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                  <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm dark:bg-gray-100">
+                    <Check className="h-3 w-3 text-gray-900" strokeWidth={3} />
                   </div>
                 )}
 
-                {/* Icon */}
+                {/* Icon circle */}
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: category.color + '18' }}
+                  className="flex h-14 w-14 items-center justify-center rounded-full transition-colors"
+                  style={{
+                    backgroundColor: isSelected
+                      ? category.color + '30'
+                      : category.color + '15',
+                  }}
                 >
                   {IconComponent && (
-                    <IconComponent className="h-6 w-6" style={{ color: category.color }} />
+                    <IconComponent
+                      className="h-6 w-6 transition-opacity"
+                      style={{
+                        color: category.color,
+                        opacity: isSelected ? 1 : 0.7,
+                      }}
+                    />
                   )}
                 </div>
 
                 {/* Name */}
-                <span className="text-xs font-semibold text-gray-900 dark:text-gray-50">
+                <span
+                  className={`text-center text-xs font-semibold leading-tight transition-colors ${
+                    isSelected
+                      ? 'text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
                   {categoryName}
                 </span>
               </button>
@@ -266,17 +275,18 @@ export default function Screen4_Categories() {
             return (
               <div
                 key={category.id}
-                className="relative flex flex-col items-center gap-2.5 rounded-2xl border-2 border-emerald-500 bg-white p-4 dark:bg-gray-900"
+                className="relative flex flex-col items-center gap-2 rounded-2xl p-3 pt-4 ring-1 ring-white/20 dark:ring-white/10"
+                style={{ backgroundColor: category.color + '20' }}
               >
                 {/* Check badge (always selected) */}
-                <div className="absolute top-2.5 right-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500">
-                  <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm dark:bg-gray-100">
+                  <Check className="h-3 w-3 text-gray-900" strokeWidth={3} />
                 </div>
 
-                {/* Icon */}
+                {/* Icon circle */}
                 <div
-                  className="flex h-12 w-12 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: category.color + '18' }}
+                  className="flex h-14 w-14 items-center justify-center rounded-full"
+                  style={{ backgroundColor: category.color + '30' }}
                 >
                   {IconComponent && (
                     <IconComponent className="h-6 w-6" style={{ color: category.color }} />
@@ -284,7 +294,7 @@ export default function Screen4_Categories() {
                 </div>
 
                 {/* Name */}
-                <span className="text-xs font-semibold text-gray-900 dark:text-gray-50">
+                <span className="text-center text-xs font-semibold leading-tight text-gray-900 dark:text-white">
                   {category.name}
                 </span>
               </div>
@@ -295,12 +305,12 @@ export default function Screen4_Categories() {
           <button
             type="button"
             onClick={handleCreateNew}
-            className="flex flex-col items-center gap-2.5 rounded-2xl border-2 border-dashed border-gray-300 p-4 transition-all active:scale-[0.98] dark:border-gray-600"
+            className="flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 p-3 pt-4 transition-all active:scale-[0.97] dark:border-gray-700"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
               <Plus className="h-6 w-6 text-gray-400 dark:text-gray-500" />
             </div>
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+            <span className="text-center text-xs font-semibold leading-tight text-gray-500 dark:text-gray-400">
               {t('categories.createNew')}
             </span>
           </button>

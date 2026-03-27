@@ -10,6 +10,20 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **fix(auth): fix offline mode after re-login from session expired state**
+  - Reset `initializedRef` when session expiration is detected so re-login triggers full cloud sync init instead of being misclassified as token refresh
+  - Add foreground session validation via `visibilitychange` — detects revoked sessions near-instantly on app resume
+  - Persist `wasAuthenticated` flag immediately after first login to prevent data wipe on session expiry
+
+- **chore(widgets): rebrand SmartSpend → Lukas in native widgets and shortcuts**
+  - Update display name in iOS WidgetKit views (small, medium, large) and Android XML layouts
+  - Update iOS App Intent descriptions
+
+- **refactor(onboarding): redesign category selection with 3-column grid and pill tabs**
+  - Switch from 2-column to 3-column category grid with compact card style
+  - Replace full-width tabs with centered pill-style tab selector
+  - Fix selectedCount double-count flash using stable ref
+
 - **feat(auth): revoke other sessions on login (single-device policy)**
   - On first authenticated SIGNED_IN, calls `signOut({ scope: 'others' })` to invalidate all other sessions
   - Ensures only one device has an active session at a time

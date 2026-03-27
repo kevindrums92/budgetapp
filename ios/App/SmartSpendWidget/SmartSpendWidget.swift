@@ -52,7 +52,7 @@ struct SmartSpendWidget: Widget {
         StaticConfiguration(kind: kind, provider: SmartSpendProvider()) { entry in
             SmartSpendWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("SmartSpend")
+        .configurationDisplayName("Lukas")
         .description("Ve tus gastos del día y mes de un vistazo")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
