@@ -10,6 +10,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 ## [unreleased] - {relase date}
 
+- **feat(auth): revoke other sessions on login (single-device policy)**
+  - On first authenticated SIGNED_IN, calls `signOut({ scope: 'others' })` to invalidate all other sessions
+  - Ensures only one device has an active session at a time
+
 - **refactor(sync): switch cloud sync to push-only architecture**
   - Local is always the source of truth; cloud (`user_state`) is a backup
   - Remove pull-first and merge logic from CloudSyncGate — `replaceAllData()` now only used for intentional restores (new device, backup restore, logout wipe)

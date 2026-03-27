@@ -575,7 +575,7 @@ Components in `src/shared/components/` are reusable across multiple features.
 
 **Auth Event Handlers** (via `onAuthStateChange`):
 - **SIGNED_IN (token refresh)**: If already initialized and NOT an OAuth transition, skips re-init (local is source of truth). Only updates user metadata.
-- **SIGNED_IN (first login / OAuth)**: Full `initForSession()`. For OAuth, migrates push tokens and cleans up orphaned anonymous user via RPC.
+- **SIGNED_IN (first login / OAuth)**: Full `initForSession()`. For OAuth, migrates push tokens, revokes all other sessions (`signOut({ scope: 'others' })`) enforcing single-device policy, and cleans up orphaned anonymous user via RPC.
 - **SIGNED_OUT**: If `budget.oauthTransition` flag is fresh (<2 min), skips cleanup (OAuth in progress). Otherwise clears state, re-creates anonymous session → SIGNED_IN handler activates cloud sync.
 
 **OAuth Transition Protection**:
