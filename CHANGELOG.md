@@ -8,7 +8,10 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.24] - 2026-03-27
 
 - **feat(profile): add "Connect with the dev" Instagram card**
   - Links to @kevindrums92 Instagram profile via in-app browser
