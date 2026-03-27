@@ -113,7 +113,7 @@ export interface TourConfig {
 "budget.addTransactionTour.v1"
 ```
 
-Sync a cloud via `getSnapshot()` + `replaceAllData()`.
+Pushed to cloud via `getSnapshot()`. Included in `nextState()` for local persistence.
 
 ---
 

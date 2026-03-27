@@ -87,56 +87,13 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
 
 ---
 
-### 2. Update CloudSyncGate
+### 2. Update CloudSyncGate ✅ (DONE)
 
 **File:** `src/shared/components/providers/CloudSyncGate.tsx`
 
-**What to change:**
+**Status:** CloudSyncGate now uses push-only architecture. Local is always source of truth. Subscription merge logic was removed as part of the v2.0 migration. Subscription is fetched separately via `subscription.service.ts` and `RevenueCatProvider`.
 
-#### Remove subscription merge logic (lines 434-449)
-
-```typescript
-// BEFORE (lines 434-449):
-const localSubscription = useBudgetStore.getState().subscription;
-const cloudSubscription = cloud.subscription ?? null;
-const mergedSubscription =
-  (localSubscription?.status === 'active' ? localSubscription : null) ??
-  (cloudSubscription?.status === 'active' ? cloudSubscription : null) ??
-  localSubscription ??
-  cloudSubscription;
-
-console.log("[CloudSyncGate] Applying cloud data to local state:", {
-  transactions: cloud.transactions.length,
-  categories: cloud.categoryDefinitions.length,
-  subscriptionSource: localSubscription?.status === 'active' ? 'local' : cloudSubscription?.status === 'active' ? 'cloud' : 'none',
-});
-replaceAllData({ ...cloud, subscription: mergedSubscription });
-
-// AFTER:
-console.log("[CloudSyncGate] Applying cloud data to local state:", {
-  transactions: cloud.transactions.length,
-  categories: cloud.categoryDefinitions.length,
-});
-replaceAllData(cloud); // No subscription merge
-```
-
-#### Add subscription fetch after cloud data loads
-
-Add this AFTER `replaceAllData(cloud);`:
-
-```typescript
-import { getSubscription } from '@/services/subscription.service';
-
-// ... inside initForSession() after replaceAllData(cloud)
-replaceAllData(cloud);
-
-// Fetch subscription separately
-const { data: { user } } = await supabase.auth.getUser();
-if (user) {
-  const subscription = await getSubscription(user.id);
-  useBudgetStore.getState().setSubscription(subscription);
-  console.log('[CloudSyncGate] Subscription loaded:', subscription);
-}
+`replaceAllData()` is only used for intentional operations (new device restore, OAuth into existing account, backup restore, logout wipe). It never includes subscription data.
 ```
 
 ---

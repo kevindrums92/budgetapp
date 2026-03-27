@@ -1262,8 +1262,10 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       // NOTE: tour flags are NOT synced from cloud - they are local-only per device
       // Their source of truth is individual localStorage keys (smartspend.*Tour.v1)
 
-      // set explícito (NO meter funciones del store dentro)
+      // Snapshot current local state for tour flags (local-only, not synced from cloud)
       const current = get();
+
+      // set explícito (NO meter funciones del store dentro)
       set({
         schemaVersion: 9,
         transactions: data.transactions,

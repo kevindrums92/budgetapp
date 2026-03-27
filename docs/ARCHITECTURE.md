@@ -557,30 +557,47 @@ Components in `src/shared/components/` are reusable across multiple features.
 
 `CloudSyncGate` (`src/shared/components/providers/CloudSyncGate.tsx`) is the core provider that manages authentication state, cloud synchronization, and session lifecycle. It renders no UI (only `BackupScheduler` and `CloudBackupScheduler` children).
 
+**Push-Only Architecture**: Local is ALWAYS the source of truth. Cloud (`user_state` table) is a backup. Data flows one way: local → cloud. Pull from cloud ONLY when local is empty (new device / fresh install).
+
 **Initialization Flow** (`initForSession()`):
 1. Calls `supabase.auth.getSession()` to check for existing session
 2. If no session → calls `signInAnonymously()` → returns (SIGNED_IN handler will re-init)
-3. If session exists (anonymous or authenticated) → sets `cloudMode = "cloud"` → pulls cloud state → merges or replaces local data
+3. If session exists → sets `cloudMode = "cloud"` → decides based on local state:
+   - **Local has data**: Push local to cloud (normal case). On OAuth transition, check cloud for existing account data first — if cloud has data for the authenticated account, restore it; otherwise push local.
+   - **Local is empty** (new device / fresh install): One-time restore from cloud via `replaceAllData()`. Applies `migrateCloudData()` for legacy schema migrations.
+
+**`migrateCloudData()` helper** (module-level function):
+- Injects default `categoryDefinitions` for legacy users who don't have them
+- Injects default `categoryGroups` (v3 migration)
+- Migrates v3/v4 → v5: scheduled transactions support
+- Repairs `sourceTemplateId` on matching transactions
+- Returns `{ data, needsPush }` — if migrations were applied, pushes corrected data back to cloud
 
 **Auth Event Handlers** (via `onAuthStateChange`):
-- **SIGNED_IN (anonymous)**: Initializes cloud sync if not already initialized (guard prevents loop)
-- **SIGNED_IN (authenticated)**: Migrates push tokens, calls `initForSession()`, cleans up orphaned anonymous user via RPC
-- **SIGNED_OUT**: If `budget.oauthTransition` flag is fresh (<2 min), skips cleanup (OAuth in progress). Otherwise clears state, re-creates anonymous session → SIGNED_IN handler activates cloud sync
+- **SIGNED_IN (token refresh)**: If already initialized and NOT an OAuth transition, skips re-init (local is source of truth). Only updates user metadata.
+- **SIGNED_IN (first login / OAuth)**: Full `initForSession()`. For OAuth, migrates push tokens and cleans up orphaned anonymous user via RPC.
+- **SIGNED_OUT**: If `budget.oauthTransition` flag is fresh (<2 min), skips cleanup (OAuth in progress). Otherwise clears state, re-creates anonymous session → SIGNED_IN handler activates cloud sync.
 
 **OAuth Transition Protection**:
 - `budget.oauthTransition` localStorage flag prevents data clearing during OAuth (SIGNED_OUT fires when replacing anonymous session)
-- `budget.previousAnonUserId` localStorage flag stores anonymous user ID for post-OAuth cleanup
+- `budget.previousAnonUserId` localStorage flag stores anonymous user ID for post-OAuth cleanup and distinguishes OAuth from token refresh
 - After successful authenticated SIGNED_IN, calls `cleanup_orphaned_anonymous_user` RPC (SECURITY DEFINER)
 
 **Key Guards**:
-- `initializedRef`: Prevents duplicate initialization and SIGNED_IN loops
+- `initializedRef`: Prevents duplicate initialization and SIGNED_IN loops. Token refreshes are short-circuited when already initialized.
 - Empty snapshot guard: Blocks push if data is empty (prevents accidental data wipe)
 - Sync lock (`navigator.locks`): Prevents concurrent pushes in multi-tab scenarios
 - Debounced push (1.2s): Batches rapid mutations into a single cloud push
 
 **Cloud Mode Semantics**:
-- `"cloud"` = Has Supabase session (anonymous OR authenticated). Data syncs.
+- `"cloud"` = Has Supabase session (anonymous OR authenticated). Data pushes to cloud.
 - `"guest"` = No session possible (Supabase down, offline on first launch). localStorage only. Rare fallback.
+
+**`replaceAllData()` usage** (intentional operations only):
+- Logout wipe: replaces with empty default state
+- OAuth into existing account: restores cloud data for the authenticated account
+- New device restore: one-time pull when local is empty
+- Backup restore: explicit user action from backup UI
 
 **Tests**: 13 unit tests covering all 5 OAuth transition cases + 8 edge cases (`CloudSyncGate.test.tsx`)
 

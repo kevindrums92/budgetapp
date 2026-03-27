@@ -73,13 +73,16 @@ This is a **local-first PWA** budget tracking app built with React 19 + TypeScri
 **State Management**: Zustand store (`src/state/budget.store.ts`) is the single source of truth. It:
 - Hydrates from localStorage on init via `loadState()`
 - Auto-persists on every mutation via `saveState()`
-- Exposes `getSnapshot()` and `replaceAllData()` for cloud sync
+- Exposes `getSnapshot()` for cloud push and `replaceAllData()` for intentional restores only
 
-**Cloud Sync Flow** (`src/shared/components/providers/CloudSyncGate.tsx`):
-- Cloud mode: users with a Supabase session (anonymous OR authenticated) sync to `user_state` table
+**Cloud Sync Flow — Push-Only** (`src/shared/components/providers/CloudSyncGate.tsx`):
+- **Local is ALWAYS the source of truth.** Cloud (`user_state` table) is a backup.
+- Every local mutation is pushed to cloud via debounced push (1.2s)
+- Cloud data is pulled ONLY when local is empty (new device / fresh install)
+- `replaceAllData()` is used ONLY for intentional operations: logout wipe, backup restore, one-time cloud restore on new device
+- Cloud mode: users with a Supabase session (anonymous OR authenticated)
 - Guest mode: fallback only when no session is possible (Supabase down, offline on first launch)
 - Offline-first: pending changes stored via `pendingSync.service.ts`, pushed when online
-- Debounced push (1.2s) on data changes
 
 **Anonymous Auth & OAuth Transition**:
 - All new users get an anonymous Supabase session (`signInAnonymously()`) with cloud sync from day one

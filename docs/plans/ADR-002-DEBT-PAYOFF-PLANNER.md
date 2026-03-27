@@ -517,7 +517,7 @@ if (parsed.schemaVersion === 8) {
 - `defaultState` en `budget.store.ts`: agregar `debts: [], debtPayments: []`
 - Actualizar tipo literal `schemaVersion: 8` → `9` en el store
 - `getSnapshot()`: incluir `debts` y `debtPayments`
-- `replaceAllData()`: incluir `debts` y `debtPayments`
+- `nextState()`: incluir `debts` y `debtPayments`
 - Safety check en `loadState()`:
   ```typescript
   if (!Array.isArray(parsed.debts)) parsed.debts = [];
@@ -713,7 +713,7 @@ Crear namespace `debts.json` en cada locale: `src/i18n/locales/{es,en,pt,fr}/deb
 | Archivo | Cambio |
 |---------|--------|
 | `src/types/budget.types.ts` | Agregar Debt, DebtPayment, AmortizationRow, PayoffStrategy, actualizar BudgetState a v9 |
-| `src/state/budget.store.ts` | CRUD debts/payments, getSnapshot, replaceAllData, defaultState, schemaVersion |
+| `src/state/budget.store.ts` | CRUD debts/payments, getSnapshot, nextState, defaultState, schemaVersion |
 | `src/services/storage.service.ts` | Migracion v8→v9 + safety checks |
 | `src/features/budget/pages/PlanPage.tsx` | Tabs "Presupuestos" / "Deudas" |
 | `src/App.tsx` | Nuevas rutas /debts/*, isFormRoute |
