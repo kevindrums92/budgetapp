@@ -18,7 +18,7 @@ export const LEGACY_WELCOME_KEY = 'budget.welcomeSeen.v1';
 
 // Welcome Onboarding Screen Titles
 export const WELCOME_SCREENS = {
-  1: 'Bienvenido a SmartSpend',
+  1: 'Bienvenido a Lukas',
   2: 'Registro Instantáneo',
   3: 'Presupuestos Tranquilos',
   4: 'Análisis de Hábitos',
@@ -30,7 +30,7 @@ export const WELCOME_SCREENS = {
 export const PHASE_SCREEN_COUNTS = {
   welcome: 6,
   login: 1,
-  config: 5, // Language → Theme → Currency → Categories → Complete
+  config: 1, // Categories only (language & currency auto-detected)
 } as const;
 
 // Animation durations (ms)

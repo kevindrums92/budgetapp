@@ -117,7 +117,7 @@ export default function BiometricPrompt({
 
         {/* Message */}
         <p className="mb-6 text-center text-sm text-gray-600">
-          {error || reason || `Usa ${biometryDisplayName} para desbloquear SmartSpend`}
+          {error || reason || `Usa ${biometryDisplayName} para desbloquear Lukas`}
         </p>
 
         {/* Actions */}

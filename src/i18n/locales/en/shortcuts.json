@@ -1,25 +1,25 @@
 {
   "title": "iOS Shortcuts",
   "subtitle": "Automatically log expenses from Apple Pay",
-  "description": "Use iOS Shortcuts to log your Apple Pay payments directly in SmartSpend. When you make a payment, the shortcut will open SmartSpend with the payment data pre-filled.",
+  "description": "Use iOS Shortcuts to log your Apple Pay payments directly in Lukas. When you make a payment, the shortcut will open Lukas with the payment data pre-filled.",
   "howItWorks": {
     "title": "How it works",
     "step1": "You make a payment with Apple Pay",
     "step2": "The iOS shortcut triggers automatically",
-    "step3": "SmartSpend opens with the payment data",
+    "step3": "Lukas opens with the payment data",
     "step4": "You review and save the transaction"
   },
   "setup": {
     "title": "Setup",
     "auto": {
       "title": "Automatic (Wallet)",
-      "description": "Create an automation that logs every Apple Pay payment directly in SmartSpend.",
+      "description": "Create an automation that logs every Apple Pay payment directly in Lukas.",
       "steps": {
         "1": "Open the Shortcuts app on your iPhone",
         "2": "Go to Automation → + → Transaction (or Wallet)",
         "3": "Select your card(s) and tap Next",
         "4": "Select Run Immediately",
-        "5": "Search SmartSpend and select \"Log expense\"",
+        "5": "Search Lukas and select \"Log expense\"",
         "6": "Tap the Amount field and select the Amount variable",
         "7": "Tap the Merchant field and select the Merchant variable"
       },
@@ -31,7 +31,7 @@
       "steps": {
         "1": "Open the Shortcuts app on your iPhone",
         "2": "Tap + to create a new shortcut",
-        "3": "Search for SmartSpend in Apps",
+        "3": "Search for Lukas in Apps",
         "4": "Select the Smart entry action",
         "5": "Type your expense in natural text",
         "6": "Name the shortcut (e.g., \"Log expense\")",
@@ -41,13 +41,13 @@
   },
   "tips": {
     "title": "Tips",
-    "smartCategory": "SmartSpend automatically detects the category based on your transaction history and the merchant name.",
+    "smartCategory": "Lukas automatically detects the category based on your transaction history and the merchant name.",
     "siri": "Name your shortcut something short like \"Log expense\" to easily activate it with Siri.",
     "widget": "Add the shortcut to your home screen as a widget for quick access."
   },
   "menu": {
     "title": "iOS Shortcuts",
-    "subtitle": "Connect Apple Pay with SmartSpend"
+    "subtitle": "Connect Apple Pay with Lukas"
   },
   "quickAdd": {
     "title": "Payment detected",

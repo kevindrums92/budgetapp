@@ -88,7 +88,7 @@ This is a **local-first PWA** budget tracking app built with React 19 + TypeScri
 - Login screens use `signInWithOAuth()` (never `linkIdentity()`) → creates NEW `user_id` on OAuth
 - `budget.oauthTransition` localStorage flag prevents SIGNED_OUT handler from clearing data during OAuth
 - `budget.previousAnonUserId` localStorage flag stores old anonymous ID for cleanup after OAuth
-- After successful OAuth SIGNED_IN, `CloudSyncGate` calls `cleanup_orphaned_anonymous_user` RPC to delete orphaned anonymous user data
+- After successful OAuth SIGNED_IN, `CloudSyncGate` revokes all other sessions (`signOut({ scope: 'others' })`) enforcing single-device policy, then calls `cleanup_orphaned_anonymous_user` RPC to delete orphaned anonymous user data
 - SECURITY DEFINER SQL function handles cleanup (new user can't delete old user's rows due to RLS)
 - Stale anonymous users (60+ days inactive, app uninstalled) cleaned by `pg_cron` weekly job
 

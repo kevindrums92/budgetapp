@@ -93,7 +93,7 @@ export default function TripDetailPage() {
     expensesByCategory: tProfile('export.pdf.labels.expensesByCategory', 'Expenses by Category'),
     expenseDetails: tProfile('export.pdf.labels.expenseDetails', 'Expense Details'),
     total: tProfile('export.pdf.labels.total', 'Total'),
-    generatedWith: tProfile('export.pdf.labels.generatedWith', 'Generated with SmartSpend'),
+    generatedWith: tProfile('export.pdf.labels.generatedWith', 'Generated with Lukas'),
     since: tProfile('export.pdf.labels.since', 'Since'),
     statusPlanning: tProfile('export.pdf.labels.statusPlanning', 'Planning'),
     statusActive: tProfile('export.pdf.labels.statusActive', 'In progress'),

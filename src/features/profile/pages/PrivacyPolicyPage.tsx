@@ -38,7 +38,7 @@ export default function PrivacyPolicyPage() {
                 1. {t('privacy.introduction.title', 'Introducción')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('privacy.introduction.content', 'En SmartSpend, respetamos tu privacidad y nos comprometemos a proteger tus datos personales. Esta política explica cómo recopilamos, usamos y protegemos tu información.')}
+                {t('privacy.introduction.content', 'En Lukas, respetamos tu privacidad y nos comprometemos a proteger tus datos personales. Esta política explica cómo recopilamos, usamos y protegemos tu información.')}
               </p>
             </section>
 
@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
                 5. {t('privacy.thirdParty.title', 'Servicios de Terceros')}
               </h2>
               <p className="mb-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('privacy.thirdParty.intro', 'SmartSpend utiliza los siguientes servicios:')}
+                {t('privacy.thirdParty.intro', 'Lukas utiliza los siguientes servicios:')}
               </p>
               <ul className="ml-4 list-disc space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <li>
@@ -173,7 +173,7 @@ export default function PrivacyPolicyPage() {
                 8. {t('privacy.cookies.title', 'Cookies y Almacenamiento Local')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('privacy.cookies.content', 'SmartSpend usa localStorage del navegador para almacenar tus preferencias (idioma, tema, moneda) y datos financieros (en modo invitado). No usamos cookies de seguimiento publicitario. La sesión de autenticación se gestiona mediante tokens seguros de Supabase.')}
+                {t('privacy.cookies.content', 'Lukas usa localStorage del navegador para almacenar tus preferencias (idioma, tema, moneda) y datos financieros (en modo invitado). No usamos cookies de seguimiento publicitario. La sesión de autenticación se gestiona mediante tokens seguros de Supabase.')}
               </p>
             </section>
 
@@ -183,7 +183,7 @@ export default function PrivacyPolicyPage() {
                 9. {t('privacy.children.title', 'Privacidad de Menores')}
               </h2>
               <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {t('privacy.children.content', 'SmartSpend no está dirigida a menores de 13 años. No recopilamos intencionalmente información de niños. Si descubres que un menor ha proporcionado datos personales, contacta con nosotros para eliminarlos.')}
+                {t('privacy.children.content', 'Lukas no está dirigida a menores de 13 años. No recopilamos intencionalmente información de niños. Si descubres que un menor ha proporcionado datos personales, contacta con nosotros para eliminarlos.')}
               </p>
             </section>
 

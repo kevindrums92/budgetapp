@@ -8,7 +8,55 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.24] - 2026-03-27
+
+- **feat(profile): add "Connect with the dev" Instagram card**
+  - Links to @kevindrums92 Instagram profile via in-app browser
+  - i18n translations for es, en, fr, pt
+
+- **fix(shortcuts): fast deep link detection and race condition protection for Apple Pay**
+  - Add localStorage polling (300ms × 15s) in QuickAddHandler to detect deep links that arrive after React mount during cold start
+  - Protect against `replaceAllData(cloud)` wiping transactions added locally during cloud pull (e.g., Apple Pay shortcut on flaky network)
+  - Merge locally-added transactions into cloud state before replacing, preserving offline-first guarantees
+
+- **chore(widgets): rebrand SmartSpend → Lukas in native widgets and shortcuts**
+  - Update display name in iOS WidgetKit views (small, medium, large) and Android XML layouts
+  - Update iOS App Intent descriptions
+
+- **refactor(onboarding): redesign category selection with 3-column grid and pill tabs**
+  - Switch from 2-column to 3-column category grid with compact card style
+  - Replace full-width tabs with centered pill-style tab selector
+  - Fix selectedCount double-count flash using stable ref
+
+- **fix(store): preserve all optional fields across every store mutation**
+  - Introduce `nextState()` helper that explicitly picks only BudgetState data fields
+  - Prevents carry-over balance, security, tour flags, and stats preferences from being dropped on any mutation
+  - Fixes runtime-only Zustand fields (`cloudStatus`, `cloudMode`, actions) leaking into localStorage
+
+- **refactor(onboarding): simplify flow from 11 screens to 1 (Categories only)**
+  - Remove language, currency, and complete screens from FirstConfig (auto-detected now)
+  - New 2-column grid layout with toggleable category cards and "Crear nueva" option
+  - Onboarding is 100% offline-first — no session checks or cloud calls during setup
+  - CloudSyncGate handles anonymous auth + sync only after user reaches Home
+
+- **chore: rebrand SmartSpend → Lukas in native app name and build scripts**
+  - Update capacitor.config.ts, configure-env.cjs, and Info.plist display names
+  - Bundle IDs and URL schemes remain as `smartspend`
+
+- **test(onboarding): update unit and E2E tests for simplified onboarding flow**
+  - Fix 6 unit tests for new config phase (1 screen, skip → config/1)
+  - Fix 2 E2E tests: update indicators for Categories screen, fix returning-user navigation
+
+- **fix(sync): allow deleting last transaction by using categories as empty-state guard**
+  - Changed push safeguard from `transactions.length > 0` to `categoryDefinitions.length > 0`
+  - Prevents the "ghost transaction" bug where deleted last transaction reappears on app reopen
+
+- **fix(month-review): use cloud-synced state instead of localStorage for month review modal**
+  - Prevents the "Welcome to {month}" modal from reappearing on reinstall, device switch, or app resume
+  - Only evaluates once per app launch (not on every token refresh)
 
 ## [0.16.23] - 2026-03-19
 

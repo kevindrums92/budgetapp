@@ -21,9 +21,9 @@
     "notificationsSubtitle": "Lembretes e alertas"
   },
   "biometricLock": {
-    "unlockReason": "Desbloquear SmartSpend",
+    "unlockReason": "Desbloquear Lukas",
     "enableReason": "Ativar autenticação biométrica",
-    "title": "SmartSpend está bloqueado",
+    "title": "Lukas está bloqueado",
     "subtitle": "Use Face ID ou seu código para desbloquear",
     "unlockButton": "Desbloquear"
   },
@@ -171,7 +171,7 @@
         "topDay": "Dia de maior gasto",
         "daysInRange": "Dias no período",
         "transactionDetails": "Detalhe das Transações",
-        "generatedWith": "Gerado com SmartSpend",
+        "generatedWith": "Gerado com Lukas",
         "tripTitle": "Relatório de Viagem",
         "budget": "Orçamento",
         "spent": "Gasto",
@@ -201,6 +201,9 @@
     "privacy": {
       "title": "Política de Privacidade"
     }
+  },
+  "connect": {
+    "title": "Conecte-se com o dev"
   },
   "subscription": {
     "loginBanner": {

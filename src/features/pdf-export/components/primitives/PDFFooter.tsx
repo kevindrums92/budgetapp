@@ -16,7 +16,7 @@ export default function PDFFooter({ generatedAt, pageNumber, totalPages }: Props
   return (
     <View style={styles.footer} fixed>
       <Text style={styles.footerText}>
-        Generado con SmartSpend • {generatedAt}
+        Generado con Lukas • {generatedAt}
       </Text>
       <Text style={styles.footerText}>
         {pageNumber} / {totalPages}

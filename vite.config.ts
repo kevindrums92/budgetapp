@@ -60,8 +60,8 @@ export default defineConfig(({ mode }) => {
       ],
 
       manifest: {
-        name: "SmartSpend",
-        short_name: "SmartSpend",
+        name: "Lukas",
+        short_name: "Lukas",
         description: "Gasta inteligente. Controla ingresos y gastos con claridad.",
         theme_color: "#3ED598",
         background_color: "#FFFFFF",
@@ -109,7 +109,7 @@ export default defineConfig(({ mode }) => {
           project: env.SENTRY_PROJECT,
           authToken: env.SENTRY_AUTH_TOKEN,
           release: {
-            name: `smartspend@${process.env.npm_package_version || "0.0.0"}`,
+            name: `lukas@${process.env.npm_package_version || "0.0.0"}`,
           },
           sourcemaps: {
             filesToDeleteAfterUpload: ["./dist/**/*.map"],

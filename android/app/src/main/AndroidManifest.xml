@@ -48,7 +48,7 @@
         <receiver
             android:name=".widget.SmartSpendWidgetProvider"
             android:exported="true"
-            android:label="SmartSpend">
+            android:label="Lukas">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

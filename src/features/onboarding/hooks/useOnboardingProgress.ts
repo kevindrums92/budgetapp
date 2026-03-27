@@ -101,12 +101,11 @@ export function useOnboardingProgress() {
     const { phase } = state;
 
     if (phase === 'welcome') {
-      // Skip directly to Complete screen in FirstConfig
-      navigateToPhase('config', 5);
+      // Skip directly to Categories (only config screen)
+      navigateToPhase('config', 1);
     } else if (phase === 'config') {
-      // Skip directly to Complete screen (screen 5)
-      // Don't call skipConfig() as it would mark config as skipped
-      navigateToPhase('config', 5);
+      // Config is a single screen, skip = complete
+      navigateToPhase('complete');
     }
   }, [state, navigateToPhase]);
 

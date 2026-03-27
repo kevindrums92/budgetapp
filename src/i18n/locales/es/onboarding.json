@@ -2,7 +2,7 @@
   "welcome": {
     "screen1": {
       "title1": "Bienvenido a",
-      "title2": "SmartSpend",
+      "title2": "Lukas",
       "subtitle": "La forma más inteligente de gestionar tus finanzas personales",
       "feature1Title": "Funciona sin conexión",
       "feature1Desc": "Tus datos están en tu dispositivo, siempre disponibles",
@@ -82,7 +82,7 @@
     },
     "screen7": {
       "title": "Elige tu plan",
-      "subtitle": "Comienza con 7 días gratis de todas las funciones Pro, o usa SmartSpend Lite sin límites de tiempo",
+      "subtitle": "Comienza con 7 días gratis de todas las funciones Pro, o usa Lukas Lite sin límites de tiempo",
       "proTrialBadge": "Prueba gratis",
       "proTrialTitle": "Prueba Pro gratis por 7 días",
       "proTrialDescription": "Acceso completo a todas las funciones premium. Cancela cuando quieras.",
@@ -107,13 +107,13 @@
   },
   "language": {
     "title": "Elige tu idioma",
-    "description": "Selecciona el idioma en el que prefieres usar SmartSpend. Podrás cambiarlo después desde tu perfil.",
+    "description": "Selecciona el idioma en el que prefieres usar Lukas. Podrás cambiarlo después desde tu perfil.",
     "continue": "Continuar",
     "skip": "Omitir configuración"
   },
   "theme": {
     "title": "Elige tu tema",
-    "description": "Personaliza la apariencia de SmartSpend según tu preferencia.",
+    "description": "Personaliza la apariencia de Lukas según tu preferencia.",
     "continue": "Continuar",
     "skip": "Omitir configuración",
     "note": "El tema se aplicará cuando se implemente el modo oscuro",
@@ -141,11 +141,13 @@
     "note": "Por ahora solo se usa como referencia visual. Multi-moneda estará disponible próximamente."
   },
   "categories": {
-    "title": "Categorías por defecto",
-    "description": "Selecciona las categorías que quieres usar. Puedes deseleccionar las que no necesites.",
+    "title": "Tus categorías",
+    "description": "Elige las que usarás. Siempre puedes cambiarlas después.",
     "expenses": "Gastos",
     "income": "Ingresos",
     "continue": "Continuar",
+    "continueWith": "Continuar con {{count}}",
+    "createNew": "Crear nueva",
     "note": "Nota: Podrás crear categorías personalizadas más adelante desde la sección de Configuración."
   },
   "complete": {
@@ -168,7 +170,7 @@
     "feature2Desc": "Controla tus gastos por categorías",
     "feature3": "📈 Analiza tus datos",
     "feature3Desc": "Visualiza tus patrones de gasto",
-    "start": "Comenzar a usar SmartSpend",
+    "start": "Comenzar a usar Lukas",
     "note": "Podrás modificar estas opciones desde tu perfil en cualquier momento"
   },
   "login": {

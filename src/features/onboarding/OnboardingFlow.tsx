@@ -28,7 +28,7 @@ import {
 function OnboardingRouter() {
   return (
     <Routes>
-      {/* Welcome Onboarding - 6 screens */}
+      {/* Welcome Onboarding - 6 screens (legacy, kept for backward compat) */}
       <Route path="welcome/:step" element={<WelcomeOnboardingFlow />} />
 
       {/* Login Flow (for logout/re-login, not part of initial onboarding) */}
@@ -42,11 +42,11 @@ function OnboardingRouter() {
       <Route path="reset-password/verify" element={<ResetPasswordOTPPage />} />
       <Route path="reset-password" element={<ResetPasswordPage />} />
 
-      {/* First Config - 4 screens */}
+      {/* First Config - 3 screens: Language → Currency → Categories */}
       <Route path="config/:step" element={<FirstConfigFlow />} />
 
       {/* Default redirect */}
-      <Route path="*" element={<Navigate to="/onboarding/welcome/1" replace />} />
+      <Route path="*" element={<Navigate to="/onboarding/config/1" replace />} />
     </Routes>
   );
 }

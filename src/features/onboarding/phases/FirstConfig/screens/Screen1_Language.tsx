@@ -32,13 +32,13 @@ export default function Screen1_Language() {
   };
 
   const handleSkip = () => {
-    // Omitir toda la configuración → ir directo a pantalla final (Screen5_Complete)
-    navigate('/onboarding/config/5', { replace: true });
+    // Omitir → ir directo a categorías (pantalla final)
+    navigate('/onboarding/config/3', { replace: true });
   };
 
   return (
     <FullscreenLayout
-      headerCenter={<ProgressDots total={5} current={1} />}
+      headerCenter={<ProgressDots total={3} current={1} />}
       headerRight={
         <button
           type="button"

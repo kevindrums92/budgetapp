@@ -37,7 +37,7 @@ export default function TripReportDocument({ data }: Props) {
         {/* Header */}
         <View style={styles.headerBar}>
           <View>
-            <Text style={styles.brandName}>SmartSpend</Text>
+            <Text style={styles.brandName}>Lukas</Text>
             <Text style={{ fontSize: 8, color: COLORS.gray400, marginTop: 2 }}>
               {labels.title}
             </Text>

@@ -135,6 +135,8 @@ Auditoría de seguridad completa de la arquitectura SmartSpend: RLS policies, Ed
 - **Cero XSS** — no hay `dangerouslySetInnerHTML`, React escapa todo
 - **Sin secrets hardcodeados** — todo por env vars, client solo usa anon key
 - **Session expiration** — modal bloqueante que fuerza re-auth
+- **Single-device session policy** — al hacer login, se revocan todas las demás sesiones (`signOut({ scope: 'others' })`)
+- **Push-only cloud sync** — local es siempre source of truth, cloud es backup. Sin pull-first ni merge logic.
 - **Cleanup de anónimos huérfanos** — verifica `is_anonymous = true`
 - **SECURITY DEFINER functions** — todas con uso legítimo y verificaciones
 - **Delete account** — verifica JWT, cascade correcto

@@ -231,7 +231,7 @@ const MOCK_OFFERINGS: RevenueCatOffering = {
       offeringIdentifier: 'default',
       product: {
         identifier: PRICING_PLANS.monthly.id,
-        title: 'SmartSpend Pro (Monthly)',
+        title: 'Lukas Pro (Monthly)',
         description: 'Monthly subscription with 7-day free trial',
         price: PRICING_PLANS.monthly.price,
         priceString: `$${PRICING_PLANS.monthly.price}`,
@@ -250,7 +250,7 @@ const MOCK_OFFERINGS: RevenueCatOffering = {
       offeringIdentifier: 'default',
       product: {
         identifier: PRICING_PLANS.annual.id,
-        title: 'SmartSpend Pro (Annual)',
+        title: 'Lukas Pro (Annual)',
         description: `Annual subscription with 7-day free trial. Save ${PRICING_PLANS.annual.savingsPercent}%!`,
         price: PRICING_PLANS.annual.price,
         priceString: `$${PRICING_PLANS.annual.price}`,
@@ -269,7 +269,7 @@ const MOCK_OFFERINGS: RevenueCatOffering = {
       offeringIdentifier: 'default',
       product: {
         identifier: PRICING_PLANS.lifetime.id,
-        title: 'SmartSpend Pro (Lifetime)',
+        title: 'Lukas Pro (Lifetime)',
         description: 'One-time purchase. Pay once, use forever.',
         price: PRICING_PLANS.lifetime.price,
         priceString: `$${PRICING_PLANS.lifetime.price}`,

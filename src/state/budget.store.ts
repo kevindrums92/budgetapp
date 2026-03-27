@@ -253,6 +253,54 @@ function uniqSorted(arr: string[]) {
   );
 }
 
+/**
+ * Build a full BudgetState from the current store state + overrides.
+ * Explicitly picks only BudgetState data fields — excludes Zustand actions
+ * and runtime-only fields (cloudMode, cloudStatus, subscription, etc.)
+ * so that saveState() never persists non-data fields to localStorage.
+ */
+function nextState(state: BudgetState, overrides: Partial<BudgetState>): BudgetState {
+  return {
+    schemaVersion: 9,
+    // Core data
+    transactions: state.transactions,
+    categories: state.categories,
+    categoryDefinitions: state.categoryDefinitions,
+    categoryGroups: state.categoryGroups,
+    budgets: state.budgets,
+    trips: state.trips,
+    tripExpenses: state.tripExpenses,
+    // Onboarding
+    welcomeSeen: state.welcomeSeen,
+    budgetOnboardingSeen: state.budgetOnboardingSeen,
+    savingsGoalOnboardingSeen: state.savingsGoalOnboardingSeen,
+    // Tour flags (local-only, per-device)
+    homeTourSeen: state.homeTourSeen,
+    statsTourSeen: state.statsTourSeen,
+    addTransactionTourSeen: state.addTransactionTourSeen,
+    batchReviewTourSeen: state.batchReviewTourSeen,
+    historyTourSeen: state.historyTourSeen,
+    scheduleTourSeen: state.scheduleTourSeen,
+    scheduledBannerTourSeen: state.scheduledBannerTourSeen,
+    categoriesTourSeen: state.categoriesTourSeen,
+    scheduledPageTourSeen: state.scheduledPageTourSeen,
+    privacyTourSeen: state.privacyTourSeen,
+    // Scheduler
+    lastSchedulerRun: state.lastSchedulerRun,
+    cloudSyncReady: state.cloudSyncReady,
+    // Stats preferences
+    excludedFromStats: state.excludedFromStats,
+    statsLayout: state.statsLayout,
+    // Security
+    security: state.security,
+    // Carry-over
+    carryOverBalances: state.carryOverBalances,
+    monthReviewDismissed: state.monthReviewDismissed,
+    // Apply overrides last
+    ...overrides,
+  };
+}
+
 export const useBudgetStore = create<BudgetStore>((set, get) => {
   const hydrated = loadState() ?? defaultState;
 
@@ -488,16 +536,10 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
 
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
+        const next = nextState(state, {
           transactions: [tx, ...state.transactions],
           categories: uniqSorted([...state.categories, category]),
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
+        });
 
         // cache local (guest o cloud cache)
         saveState(next);
@@ -541,16 +583,10 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           ? uniqSorted([...state.categories, updatedTx.category])
           : state.categories;
 
-        const next: BudgetState = {
-          schemaVersion: 9,
+        const next = nextState(state, {
           transactions: nextTransactions,
           categories: nextCategories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
+        });
 
         saveState(next);
         return next;
@@ -559,16 +595,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     deleteTransaction: (id) => {
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
+        const next = nextState(state, {
           transactions: state.transactions.filter((t) => t.id !== id),
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
+        });
 
         saveState(next);
         return next;
@@ -584,8 +613,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
         const existing = template.schedule.skippedOccurrences ?? [];
         if (existing.includes(periodKey)) return state;
 
-        const next: BudgetState = {
-          schemaVersion: 9,
+        const next = nextState(state, {
           transactions: state.transactions.map((t) =>
             t.id === templateId
               ? {
@@ -597,13 +625,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
                 }
               : t
           ),
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
+        });
 
         saveState(next);
         return next;
@@ -630,16 +652,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
 
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
+        const next = nextState(state, {
           trips: [trip, ...state.trips],
-          tripExpenses: state.tripExpenses,
-        };
+        });
 
         saveState(next);
         return next;
@@ -648,21 +663,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     updateTrip: (id, patch) => {
       set((state) => {
-        const nextTrips = state.trips.map((t) => {
-          if (t.id !== id) return t;
-          return { ...t, ...patch };
+        const next = nextState(state, {
+          trips: state.trips.map((t) => t.id !== id ? t : { ...t, ...patch }),
         });
-
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: nextTrips,
-          tripExpenses: state.tripExpenses,
-        };
 
         saveState(next);
         return next;
@@ -671,17 +674,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     deleteTrip: (id) => {
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
+        const next = nextState(state, {
           trips: state.trips.filter((t) => t.id !== id),
           // También eliminar los gastos asociados al viaje
           tripExpenses: state.tripExpenses.filter((e) => e.tripId !== id),
-        };
+        });
 
         saveState(next);
         return next;
@@ -707,17 +704,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
 
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
+        const next = nextState(state, {
           tripExpenses: [expense, ...state.tripExpenses],
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -725,22 +714,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     updateTripExpense: (id, patch) => {
       set((state) => {
-        const nextExpenses = state.tripExpenses.map((e) => {
-          if (e.id !== id) return e;
-          return { ...e, ...patch };
+        const next = nextState(state, {
+          tripExpenses: state.tripExpenses.map((e) =>
+            e.id !== id ? e : { ...e, ...patch }
+          ),
         });
-
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: nextExpenses,
-        };
-
         saveState(next);
         return next;
       });
@@ -748,17 +726,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     deleteTripExpense: (id) => {
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
+        const next = nextState(state, {
           tripExpenses: state.tripExpenses.filter((e) => e.id !== id),
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -781,17 +751,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
 
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
+        const next = nextState(state, {
           categoryDefinitions: [...state.categoryDefinitions, newCategory],
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -801,22 +763,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     updateCategory: (id, patch) => {
       set((state) => {
-        const nextCategoryDefinitions = state.categoryDefinitions.map((c) => {
-          if (c.id !== id) return c;
-          return { ...c, ...patch };
+        const next = nextState(state, {
+          categoryDefinitions: state.categoryDefinitions.map((c) =>
+            c.id !== id ? c : { ...c, ...patch }
+          ),
         });
-
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: nextCategoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
         saveState(next);
         return next;
       });
@@ -824,17 +775,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     deleteCategory: (id) => {
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
+        const next = nextState(state, {
           categoryDefinitions: state.categoryDefinitions.filter((c) => c.id !== id),
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -859,17 +802,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
 
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
+        const next = nextState(state, {
           categoryGroups: [...state.categoryGroups, newGroup],
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -879,22 +814,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     updateCategoryGroup: (id, patch) => {
       set((state) => {
-        const nextCategoryGroups = state.categoryGroups.map((g) => {
-          if (g.id !== id) return g;
-          return { ...g, ...patch };
+        const next = nextState(state, {
+          categoryGroups: state.categoryGroups.map((g) =>
+            g.id !== id ? g : { ...g, ...patch }
+          ),
         });
-
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: nextCategoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
         saveState(next);
         return next;
       });
@@ -916,17 +840,10 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           return c;
         });
 
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
+        const next = nextState(state, {
           categoryDefinitions: nextCategoryDefinitions,
           categoryGroups: state.categoryGroups.filter((g) => g.id !== id),
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -975,30 +892,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       };
 
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
+        const next = nextState(state, {
           budgets: [...state.budgets, newBudget],
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-          welcomeSeen: state.welcomeSeen,
-          budgetOnboardingSeen: state.budgetOnboardingSeen,
-          homeTourSeen: state.homeTourSeen,
-          statsTourSeen: state.statsTourSeen,
-          addTransactionTourSeen: state.addTransactionTourSeen,
-          batchReviewTourSeen: state.batchReviewTourSeen,
-          historyTourSeen: state.historyTourSeen,
-          scheduleTourSeen: state.scheduleTourSeen,
-          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
-          categoriesTourSeen: state.categoriesTourSeen,
-          scheduledPageTourSeen: state.scheduledPageTourSeen,
-          privacyTourSeen: state.privacyTourSeen,
-          lastSchedulerRun: state.lastSchedulerRun,
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -1039,30 +935,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           return { ...b, ...patch };
         });
 
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: nextBudgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-          welcomeSeen: state.welcomeSeen,
-          budgetOnboardingSeen: state.budgetOnboardingSeen,
-          homeTourSeen: state.homeTourSeen,
-          statsTourSeen: state.statsTourSeen,
-          addTransactionTourSeen: state.addTransactionTourSeen,
-          batchReviewTourSeen: state.batchReviewTourSeen,
-          historyTourSeen: state.historyTourSeen,
-          scheduleTourSeen: state.scheduleTourSeen,
-          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
-          categoriesTourSeen: state.categoriesTourSeen,
-          scheduledPageTourSeen: state.scheduledPageTourSeen,
-          privacyTourSeen: state.privacyTourSeen,
-          lastSchedulerRun: state.lastSchedulerRun,
-        };
-
+        const next = nextState(state, { budgets: nextBudgets });
         saveState(next);
         return next;
       });
@@ -1070,17 +943,9 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     deleteBudget: (id) => {
       set((state) => {
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
+        const next = nextState(state, {
           budgets: state.budgets.filter((b) => b.id !== id),
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-        };
-
+        });
         saveState(next);
         return next;
       });
@@ -1088,35 +953,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     archiveBudget: (id) => {
       set((state) => {
-        const nextBudgets = state.budgets.map((b) => {
-          if (b.id !== id) return b;
-          return { ...b, status: "archived" as BudgetStatus };
+        const next = nextState(state, {
+          budgets: state.budgets.map((b) =>
+            b.id !== id ? b : { ...b, status: "archived" as BudgetStatus }
+          ),
         });
-
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: nextBudgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-          welcomeSeen: state.welcomeSeen,
-          budgetOnboardingSeen: state.budgetOnboardingSeen,
-          homeTourSeen: state.homeTourSeen,
-          statsTourSeen: state.statsTourSeen,
-          addTransactionTourSeen: state.addTransactionTourSeen,
-          batchReviewTourSeen: state.batchReviewTourSeen,
-          historyTourSeen: state.historyTourSeen,
-          scheduleTourSeen: state.scheduleTourSeen,
-          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
-          categoriesTourSeen: state.categoriesTourSeen,
-          scheduledPageTourSeen: state.scheduledPageTourSeen,
-          privacyTourSeen: state.privacyTourSeen,
-          lastSchedulerRun: state.lastSchedulerRun,
-        };
-
         saveState(next);
         return next;
       });
@@ -1153,30 +994,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
           nextBudgets.push(newBudget);
         });
 
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: nextBudgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-          welcomeSeen: state.welcomeSeen,
-          budgetOnboardingSeen: state.budgetOnboardingSeen,
-          homeTourSeen: state.homeTourSeen,
-          statsTourSeen: state.statsTourSeen,
-          addTransactionTourSeen: state.addTransactionTourSeen,
-          batchReviewTourSeen: state.batchReviewTourSeen,
-          historyTourSeen: state.historyTourSeen,
-          scheduleTourSeen: state.scheduleTourSeen,
-          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
-          categoriesTourSeen: state.categoriesTourSeen,
-          scheduledPageTourSeen: state.scheduledPageTourSeen,
-          privacyTourSeen: state.privacyTourSeen,
-          lastSchedulerRun: state.lastSchedulerRun,
-        };
-
+        const next = nextState(state, { budgets: nextBudgets });
         saveState(next);
         return next;
       });
@@ -1368,37 +1186,11 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
       set((state) => {
         const current = state.excludedFromStats ?? [];
         const isExcluded = current.includes(categoryId);
-        const next: BudgetState = {
-          schemaVersion: 9,
-          transactions: state.transactions,
-          categories: state.categories,
-          categoryDefinitions: state.categoryDefinitions,
-          categoryGroups: state.categoryGroups,
-          budgets: state.budgets,
-          trips: state.trips,
-          tripExpenses: state.tripExpenses,
-          welcomeSeen: state.welcomeSeen,
-          budgetOnboardingSeen: state.budgetOnboardingSeen,
-          homeTourSeen: state.homeTourSeen,
-          statsTourSeen: state.statsTourSeen,
-          addTransactionTourSeen: state.addTransactionTourSeen,
-          batchReviewTourSeen: state.batchReviewTourSeen,
-          historyTourSeen: state.historyTourSeen,
-          scheduleTourSeen: state.scheduleTourSeen,
-          scheduledBannerTourSeen: state.scheduledBannerTourSeen,
-          categoriesTourSeen: state.categoriesTourSeen,
-          scheduledPageTourSeen: state.scheduledPageTourSeen,
-          privacyTourSeen: state.privacyTourSeen,
-          lastSchedulerRun: state.lastSchedulerRun,
-          cloudSyncReady: state.cloudSyncReady,
+        const next = nextState(state, {
           excludedFromStats: isExcluded
             ? current.filter((id) => id !== categoryId)
             : [...current, categoryId],
-          statsLayout: state.statsLayout,
-          security: state.security,
-          carryOverBalances: state.carryOverBalances,
-          monthReviewDismissed: state.monthReviewDismissed,
-        };
+        });
         saveState(next);
         return next;
       });
@@ -1411,14 +1203,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
     // Security
     toggleBiometricAuth: () => {
       set((state) => {
-        const next: BudgetState = {
-          ...state,
-          schemaVersion: 9,
+        const next = nextState(state, {
           security: {
             biometricEnabled: !(state.security?.biometricEnabled ?? false),
             lastAuthTimestamp: state.security?.lastAuthTimestamp,
           },
-        };
+        });
         saveState(next);
         return next;
       });
@@ -1426,14 +1216,12 @@ export const useBudgetStore = create<BudgetStore>((set, get) => {
 
     updateLastAuthTimestamp: () => {
       set((state) => {
-        const next: BudgetState = {
-          ...state,
-          schemaVersion: 9,
+        const next = nextState(state, {
           security: {
             biometricEnabled: state.security?.biometricEnabled ?? false,
             lastAuthTimestamp: Date.now(),
           },
-        };
+        });
         saveState(next);
         return next;
       });

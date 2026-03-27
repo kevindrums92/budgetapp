@@ -106,7 +106,7 @@ export async function authenticateWithBiometrics(
 
     // Perform authentication using verifyIdentity
     await NativeBiometric.verifyIdentity({
-      reason: reason || 'Desbloquear SmartSpend',
+      reason: reason || 'Desbloquear Lukas',
       title: 'Autenticación Biométrica',
       subtitle: 'Verifica tu identidad',
       description: reason || 'Usa Face ID o Touch ID para continuar',

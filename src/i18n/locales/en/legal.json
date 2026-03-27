@@ -5,11 +5,11 @@
     "title": "Terms of Service",
     "introduction": {
       "title": "Introduction",
-      "content": "Welcome to SmartSpend. By using our application, you accept these terms of service. SmartSpend is a personal finance management application designed to help you track your expenses, income, and budgets."
+      "content": "Welcome to Lukas. By using our application, you accept these terms of service. Lukas is a personal finance management application designed to help you track your expenses, income, and budgets."
     },
     "service": {
       "title": "Service Description",
-      "content": "SmartSpend offers:",
+      "content": "Lukas offers:",
       "features": {
         "transactions": "Transaction tracking (income and expenses)",
         "categories": "Category and budget management",
@@ -21,7 +21,7 @@
     },
     "accounts": {
       "title": "User Accounts",
-      "content": "You can use SmartSpend in two modes:",
+      "content": "You can use Lukas in two modes:",
       "guestMode": "Guest Mode:",
       "guestDescription": "Your data is stored locally on your device. No account required.",
       "cloudMode": "Cloud Mode:",
@@ -29,15 +29,15 @@
     },
     "subscription": {
       "title": "Subscriptions and Payments",
-      "content": "SmartSpend offers an optional Pro subscription that unlocks premium features. Payments are processed securely through RevenueCat and app stores (App Store, Google Play). Subscriptions automatically renew unless you cancel before the renewal date. You can manage your subscription from your app store account settings."
+      "content": "Lukas offers an optional Pro subscription that unlocks premium features. Payments are processed securely through RevenueCat and app stores (App Store, Google Play). Subscriptions automatically renew unless you cancel before the renewal date. You can manage your subscription from your app store account settings."
     },
     "ownership": {
       "title": "Data Ownership",
-      "content": "All your financial data belongs to you. SmartSpend does not share, sell, or use your data for advertising. You can export or delete your data at any time from the app settings."
+      "content": "All your financial data belongs to you. Lukas does not share, sell, or use your data for advertising. You can export or delete your data at any time from the app settings."
     },
     "use": {
       "title": "Acceptable Use",
-      "content": "By using SmartSpend, you agree to:",
+      "content": "By using Lukas, you agree to:",
       "rules": {
         "legal": "Use the app only for legal and personal purposes",
         "noAccess": "Not attempt to access other users' data",
@@ -47,15 +47,15 @@
     },
     "limitations": {
       "title": "Limitation of Liability",
-      "content": "SmartSpend is provided \"as is\" without warranties of any kind. We are not responsible for financial losses, damages, or inaccuracies in the data. It is your responsibility to verify the accuracy of your financial records and perform regular backups of your data."
+      "content": "Lukas is provided \"as is\" without warranties of any kind. We are not responsible for financial losses, damages, or inaccuracies in the data. It is your responsibility to verify the accuracy of your financial records and perform regular backups of your data."
     },
     "availability": {
       "title": "Service Availability",
-      "content": "We make our best effort to keep SmartSpend available, but we do not guarantee 100% uptime. We may suspend or discontinue the service at any time with prior notice."
+      "content": "We make our best effort to keep Lukas available, but we do not guarantee 100% uptime. We may suspend or discontinue the service at any time with prior notice."
     },
     "changes": {
       "title": "Changes to Terms",
-      "content": "We reserve the right to modify these terms at any time. Changes will be posted on this page with an update date. Your continued use of SmartSpend after changes constitutes your acceptance of the new terms."
+      "content": "We reserve the right to modify these terms at any time. Changes will be posted on this page with an update date. Your continued use of Lukas after changes constitutes your acceptance of the new terms."
     },
     "contact": {
       "title": "Contact",
@@ -66,7 +66,7 @@
     "title": "Privacy Policy",
     "introduction": {
       "title": "Introduction",
-      "content": "At SmartSpend, we respect your privacy and are committed to protecting your personal data. This policy explains how we collect, use, and protect your information."
+      "content": "At Lukas, we respect your privacy and are committed to protecting your personal data. This policy explains how we collect, use, and protect your information."
     },
     "collection": {
       "title": "Information We Collect",
@@ -111,7 +111,7 @@
     },
     "thirdParty": {
       "title": "Third-Party Services",
-      "intro": "SmartSpend uses the following services:",
+      "intro": "Lukas uses the following services:",
       "supabase": "Supabase:",
       "supabaseDesc": "Data storage and authentication.",
       "supabaseLink": "View privacy policy",
@@ -140,11 +140,11 @@
     },
     "cookies": {
       "title": "Cookies and Local Storage",
-      "content": "SmartSpend uses browser localStorage to store your preferences (language, theme, currency) and financial data (in guest mode). We do not use advertising tracking cookies. Authentication sessions are managed through secure Supabase tokens."
+      "content": "Lukas uses browser localStorage to store your preferences (language, theme, currency) and financial data (in guest mode). We do not use advertising tracking cookies. Authentication sessions are managed through secure Supabase tokens."
     },
     "children": {
       "title": "Children's Privacy",
-      "content": "SmartSpend is not directed at children under 13 years old. We do not intentionally collect information from children. If you discover that a minor has provided personal data, contact us to delete it."
+      "content": "Lukas is not directed at children under 13 years old. We do not intentionally collect information from children. If you discover that a minor has provided personal data, contact us to delete it."
     },
     "changes": {
       "title": "Changes to This Policy",

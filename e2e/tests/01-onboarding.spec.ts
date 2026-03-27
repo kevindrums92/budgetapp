@@ -2,11 +2,9 @@
  * E2E Tests: Onboarding Flow (CRITICAL - Tier 1)
  *
  * Tests the complete onboarding experience for new users.
- * Based on v0.16.0 architecture:
- * - Welcome Flow (6 screens)
- * - Anonymous auth automatic
- * - FirstConfig Flow (6 screens)
- * - NO ChoosePlan/LoginPro screens
+ * - Welcome Flow (6 screens) — skipped for new direct users
+ * - Anonymous auth automatic (handled by CloudSyncGate after onboarding)
+ * - FirstConfig Flow (1 screen: Categories)
  */
 
 import { test, expect } from '@playwright/test';
@@ -36,12 +34,13 @@ test.describe('Onboarding Flow', () => {
     await page.waitForSelector('#app-splash', { state: 'hidden', timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(500);
 
-    // Should show Welcome Flow or Config screen
+    // Should show Categories config screen (single onboarding screen)
     // Note: Actual text may vary, using flexible matcher
     const onboardingIndicators = [
       page.locator('h1').filter({ hasText: /bienvenido|welcome/i }).first(),
+      page.locator('h1').filter({ hasText: /categor/i }).first(),
       page.locator('h1').filter({ hasText: /all set|listo|comenzar/i }).first(),
-      page.locator('button').filter({ hasText: /siguiente|next|continuar|start using/i }).first(),
+      page.locator('button').filter({ hasText: /siguiente|next|continu|start using/i }).first(),
     ];
 
     // Wait for any onboarding indicator
@@ -141,7 +140,7 @@ test.describe('Onboarding Flow', () => {
     if (await skipButton.isVisible({ timeout: 3000 })) {
       await skipButton.click();
 
-      // Skip should navigate to Screen5_Complete (config/5)
+      // Skip should navigate to Categories (config/1)
       await page.waitForTimeout(1000);
 
       // Look for the complete onboarding button
@@ -185,8 +184,10 @@ test.describe('Onboarding Flow', () => {
       localStorage.setItem('app_currency', 'COP');
     });
 
-    // Reload page (simulating returning user)
-    await page.reload();
+    // Navigate to root (simulating returning user opening the app)
+    // Using goto('/') instead of reload() because the Gate may have
+    // redirected to /onboarding/config/1 and reload would stay there
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
 
     // Should NOT show onboarding screens
@@ -197,7 +198,7 @@ test.describe('Onboarding Flow', () => {
     await expect(homePage).toBeVisible({ timeout: 5000 });
 
     // Should NOT see welcome text
-    const welcomeText = page.locator('text=/bienvenido a smartspend|welcome to smartspend/i');
+    const welcomeText = page.locator('text=/bienvenido a lukas|welcome to lukas/i');
     await expect(welcomeText).not.toBeVisible();
   });
 

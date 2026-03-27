@@ -1,18 +1,18 @@
 /**
  * Onboarding Flow Tests
  *
- * Validates the new onboarding flow after removing Screen7_ChoosePlan and LoginProScreen.
+ * Validates the simplified onboarding flow.
  *
- * New flow: Welcome (6 screens) → Config (5 screens) → App
+ * New flow: Welcome (6 screens) → Config (1 screen: Categories) → App
  * Login phase is only for logout/re-login, NOT part of initial onboarding.
  *
  * Critical cases tested:
  * 1. Welcome/6 → Config/1 (not Login)
  * 2. Config/1 back → Welcome/6 (not Login)
- * 3. Skip from Welcome → Config/5 (not Welcome/7)
- * 4. Logout → determineStartScreen → 'login'
- * 5. DEVICE_INITIALIZED persists across logout
- * 6. ProgressDots total = 6 (via constants)
+ * 3. Skip from Welcome → Config/1 (Categories)
+ * 4. Skip from Config → complete (navigates to /)
+ * 5. Logout → determineStartScreen → 'login'
+ * 6. DEVICE_INITIALIZED persists across logout
  */
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
@@ -120,8 +120,8 @@ describe('Onboarding Flow', () => {
       expect((WELCOME_SCREENS as Record<string, string>)[7]).toBeUndefined();
     });
 
-    it('config phase has exactly 5 screens', () => {
-      expect(PHASE_SCREEN_COUNTS.config).toBe(5);
+    it('config phase has exactly 1 screen (Categories only)', () => {
+      expect(PHASE_SCREEN_COUNTS.config).toBe(1);
     });
 
     it('default state starts at welcome phase, step 1', () => {
@@ -195,7 +195,7 @@ describe('Onboarding Flow', () => {
       expect(mockNavigate).not.toHaveBeenCalledWith('/onboarding/login');
     });
 
-    it('config/1 → config/2 (next step within config phase)', async () => {
+    it('config/1 → complete (only 1 config screen, completes onboarding)', async () => {
       setProgress('config', 1);
 
       const { result } = renderHook(() => useOnboardingProgress(), {
@@ -205,25 +205,6 @@ describe('Onboarding Flow', () => {
       await waitFor(() => {
         expect(result.current.currentPhase).toBe('config');
         expect(result.current.currentStep).toBe(1);
-      });
-
-      act(() => {
-        result.current.handleNext();
-      });
-
-      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/2');
-    });
-
-    it('config/5 → /home (completes onboarding)', async () => {
-      setProgress('config', 5);
-
-      const { result } = renderHook(() => useOnboardingProgress(), {
-        wrapper: createWrapper(),
-      });
-
-      await waitFor(() => {
-        expect(result.current.currentPhase).toBe('config');
-        expect(result.current.currentStep).toBe(5);
       });
 
       act(() => {
@@ -302,7 +283,7 @@ describe('Onboarding Flow', () => {
   // =============================================
 
   describe('useOnboardingProgress - handleSkip', () => {
-    it('skip from welcome → config/5 (CRITICAL: goes to Screen5_Complete, NOT welcome/7)', async () => {
+    it('skip from welcome → config/1 (CRITICAL: goes to Categories, NOT welcome/7)', async () => {
       setProgress('welcome', 2);
 
       const { result } = renderHook(() => useOnboardingProgress(), {
@@ -317,13 +298,13 @@ describe('Onboarding Flow', () => {
         result.current.handleSkip();
       });
 
-      // CRITICAL: Must skip to config/5, NOT welcome/7
-      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/5');
+      // CRITICAL: Must skip to config/1 (Categories), NOT welcome/7
+      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/1');
       expect(mockNavigate).not.toHaveBeenCalledWith('/onboarding/welcome/7');
     });
 
-    it('skip from config → config/5 (goes to Screen5_Complete)', async () => {
-      setProgress('config', 2);
+    it('skip from config → complete (navigates to /)', async () => {
+      setProgress('config', 1);
 
       const { result } = renderHook(() => useOnboardingProgress(), {
         wrapper: createWrapper(),
@@ -337,10 +318,10 @@ describe('Onboarding Flow', () => {
         result.current.handleSkip();
       });
 
-      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/5');
+      expect(mockNavigate).toHaveBeenCalledWith('/');
     });
 
-    it('skip from welcome/1 → config/5 (skip at very beginning)', async () => {
+    it('skip from welcome/1 → config/1 (skip at very beginning)', async () => {
       // Default state is welcome/1, no need to set progress
 
       const { result } = renderHook(() => useOnboardingProgress(), {
@@ -356,7 +337,7 @@ describe('Onboarding Flow', () => {
         result.current.handleSkip();
       });
 
-      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/5');
+      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/1');
     });
   });
 
@@ -510,7 +491,7 @@ describe('Onboarding Flow', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/1');
     });
 
-    it('Flow 2: user skips welcome from screen 3 → lands on Config/5 (Complete)', async () => {
+    it('Flow 2: user skips welcome from screen 3 → lands on Config/1 (Categories)', async () => {
       setProgress('welcome', 3);
 
       const { result } = renderHook(() => useOnboardingProgress(), {
@@ -525,7 +506,7 @@ describe('Onboarding Flow', () => {
         result.current.handleSkip();
       });
 
-      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/5');
+      expect(mockNavigate).toHaveBeenCalledWith('/onboarding/config/1');
     });
 
     it('Flow 3: user goes back from Config/1 → returns to Welcome/6', async () => {

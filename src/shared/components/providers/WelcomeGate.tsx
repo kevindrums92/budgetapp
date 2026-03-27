@@ -91,7 +91,7 @@ export default function WelcomeGate() {
                         Welcome to
                     </h1>
                     <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                        SmartSpend
+                        Lukas
                     </h1>
 
                     {/* Subtitle */}

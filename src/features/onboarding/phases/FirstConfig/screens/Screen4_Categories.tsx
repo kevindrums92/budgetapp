@@ -1,10 +1,10 @@
 /**
  * Screen4_Categories
- * Pantalla 4 de First Config: Categorías por defecto
- * Usuario puede ver y pre-seleccionar las categorías que quiere
+ * Pantalla final de First Config: Categorías (grid layout)
+ * Usuario selecciona categorías en un grid de 2 columnas y al confirmar se completa el onboarding
  */
 
-import { FolderKanban, Check } from 'lucide-react';
+import { Plus, Check, ArrowRight } from 'lucide-react';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,11 +12,11 @@ import { DEFAULT_CATEGORIES } from '@/constants/categories/default-categories';
 import { getCategoryDisplayName } from '@/utils/getCategoryDisplayName';
 import * as icons from 'lucide-react';
 import { useOnboarding } from '../../../OnboardingContext';
+import { markOnboardingComplete } from '../../../utils/onboarding.helpers';
+import { ONBOARDING_KEYS } from '../../../utils/onboarding.constants';
 import { useBudgetStore } from '@/state/budget.store';
 import FullscreenLayout from '@/shared/components/layout/FullscreenLayout';
-import ProgressDots from '../../../components/ProgressDots';
 
-// Helper para convertir kebab-case a PascalCase
 function kebabToPascal(str: string): string {
   return str
     .split('-')
@@ -30,53 +30,50 @@ export default function Screen4_Categories() {
   const { t } = useTranslation(['onboarding', 'common']);
   const navigate = useNavigate();
   const { state, setSelectedCategories } = useOnboarding();
-  const categoryGroups = useBudgetStore((s) => s.categoryGroups);
+  const categoryDefinitions = useBudgetStore((s) => s.categoryDefinitions);
+  const addCategory = useBudgetStore((s) => s.addCategory);
   const [activeTab, setActiveTab] = useState<TabType>('expense');
-  const isSyncingFromContext = useRef(false); // Flag para evitar loop infinito
+  const isSyncingFromContext = useRef(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
-    // Inicializar con todas las categorías seleccionadas
     const allIds = DEFAULT_CATEGORIES.map((_, idx) => `default-${idx}`);
-    // Si hay categorías guardadas en el contexto, usar esas (incluso si está vacío)
     if (state.selections.selectedCategories !== undefined) {
       return new Set(state.selections.selectedCategories);
     }
     return new Set(allIds);
   });
 
-  // Filtrar categorías por defecto según el tab activo
-  const allCategories = DEFAULT_CATEGORIES.filter((c) => c.type === activeTab);
+  // Default categories filtered by active tab
+  const defaultCategoriesForTab = useMemo(
+    () => DEFAULT_CATEGORIES.filter((c) => c.type === activeTab),
+    [activeTab]
+  );
 
-  // Agrupar categorías por grupo
-  const categoriesByGroup = useMemo(() => {
-    const groups = categoryGroups.filter((g) => g.type === activeTab);
-    const result: Array<{ group: typeof categoryGroups[0]; categories: typeof allCategories }> = [];
+  // Custom categories already created in store (e.g. from "Crear nueva")
+  const customCategoriesForTab = useMemo(
+    () => categoryDefinitions.filter((c) => c.type === activeTab),
+    [categoryDefinitions, activeTab]
+  );
 
-    for (const group of groups) {
-      const cats = allCategories.filter((c) => c.groupId === group.id);
+  // Stable count of custom categories created via "Crear nueva" (before handleComplete runs).
+  // Using a ref prevents the double-count flash when handleComplete adds defaults to the store.
+  const customCountRef = useRef(categoryDefinitions.length);
+  useEffect(() => { customCountRef.current = categoryDefinitions.length; }, [categoryDefinitions.length]);
 
-      if (cats.length > 0) {
-        result.push({ group, categories: cats });
-      }
-    }
+  // Total selected count (defaults selected + customs already in store)
+  const selectedCount = useMemo(() => {
+    return selectedIds.size + customCountRef.current;
+  }, [selectedIds]);
 
-    // Ordenar grupos alfabéticamente
-    result.sort((a, b) => a.group.name.localeCompare(b.group.name, 'es'));
-
-    return result;
-  }, [allCategories, categoryGroups, activeTab]);
-
-  // [1] Sincronizar el estado local DESDE el contexto cuando el contexto cambia
+  // Sync local state FROM context
   useEffect(() => {
     if (state.selections.selectedCategories !== undefined && !isSyncingFromContext.current) {
       const contextIds = state.selections.selectedCategories;
       const currentIds = Array.from(selectedIds);
 
-      // Solo actualizar si son diferentes
       if (
         contextIds.length !== currentIds.length ||
         !contextIds.every((id) => selectedIds.has(id))
       ) {
-        console.log('[Categories] Syncing from context:', contextIds.length, 'categories');
         isSyncingFromContext.current = true;
         setSelectedIds(new Set(contextIds));
       }
@@ -84,16 +81,12 @@ export default function Screen4_Categories() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.selections.selectedCategories]);
 
-  // [2] Sincronizar el estado local CON el contexto cada vez que selectedIds cambie localmente
-  // IMPORTANTE: Solo si el cambio NO vino del contexto (evitar loop)
+  // Sync local state TO context
   useEffect(() => {
     if (isSyncingFromContext.current) {
-      // Reset flag después de sincronizar desde contexto
       isSyncingFromContext.current = false;
       return;
     }
-
-    // Si llegamos aquí, el cambio vino del usuario (toggle)
     setSelectedCategories(Array.from(selectedIds));
   }, [selectedIds, setSelectedCategories]);
 
@@ -109,30 +102,74 @@ export default function Screen4_Categories() {
     });
   };
 
-  const handleContinue = () => {
-    navigate('/onboarding/config/5', { replace: true });
+  const handleCreateNew = () => {
+    navigate(`/category/new?returnTo=onboarding&type=${activeTab}`);
+  };
+
+  const handleComplete = () => {
+    console.log('[Categories] Completing onboarding → App');
+
+    const selectedCategoryIds = Array.from(selectedIds);
+
+    if (selectedCategoryIds.length > 0) {
+      console.log('[Categories] Creating selected categories:', selectedCategoryIds.length);
+
+      selectedCategoryIds.forEach((catId) => {
+        if (catId.startsWith('default-')) {
+          const index = parseInt(catId.replace('default-', ''));
+          const categoryDef = DEFAULT_CATEGORIES[index];
+
+          if (categoryDef) {
+            const translatedName = getCategoryDisplayName(categoryDef.name, t);
+            addCategory({
+              name: translatedName,
+              icon: categoryDef.icon,
+              color: categoryDef.color,
+              type: categoryDef.type,
+              groupId: categoryDef.groupId,
+            });
+          }
+        }
+      });
+    } else {
+      console.log('[Categories] No categories selected, creating all defaults');
+
+      DEFAULT_CATEGORIES.forEach((categoryDef) => {
+        const translatedName = getCategoryDisplayName(categoryDef.name, t);
+        addCategory({
+          name: translatedName,
+          icon: categoryDef.icon,
+          color: categoryDef.color,
+          type: categoryDef.type,
+          groupId: categoryDef.groupId,
+        });
+      });
+    }
+
+    // Onboarding es 100% local. CloudSyncGate se encarga de
+    // sesión anónima + sincronización cuando el usuario llegue al Home.
+    localStorage.setItem(ONBOARDING_KEYS.DEVICE_INITIALIZED, 'true');
+    markOnboardingComplete();
+    navigate('/', { replace: true });
   };
 
   return (
     <FullscreenLayout
-      headerCenter={<ProgressDots total={5} current={4} />}
       contentClassName="pb-8 md:pb-12 flex flex-col"
       ctaButton={
         <button
           type="button"
-          onClick={handleContinue}
-          className="w-full rounded-2xl bg-[#18B7B0] py-4 text-base font-semibold text-white shadow-lg shadow-[#18B7B0]/30 transition-all active:scale-[0.98]"
+          data-testid="complete-onboarding-button"
+          onClick={handleComplete}
+          className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-4 font-semibold text-white shadow-lg shadow-emerald-500/30 transition-all active:scale-[0.98]"
         >
-          {t('categories.continue')}
+          <span>{t('categories.continueWith', { count: selectedCount })}</span>
+          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
         </button>
       }
     >
       {/* Header */}
       <div className="flex flex-col items-center pb-6">
-        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[#18B7B0] to-[#0F8580] shadow-lg">
-          <FolderKanban size={40} className="text-white" strokeWidth={2.5} />
-        </div>
-
         <h1 className="mb-3 text-center text-3xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-gray-50">
           {t('categories.title')}
         </h1>
@@ -142,15 +179,15 @@ export default function Screen4_Categories() {
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 pb-4">
+      {/* Tabs — pill style */}
+      <div className="mx-auto mb-5 flex w-fit gap-1 rounded-full bg-gray-200/60 p-1 dark:bg-gray-800/80">
         <button
           type="button"
           onClick={() => setActiveTab('expense')}
-          className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+          className={`rounded-full px-6 py-2 text-sm font-semibold transition-colors ${
             activeTab === 'expense'
-              ? 'bg-gray-900 text-white'
-              : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400'
+              ? 'bg-emerald-500 text-white shadow-sm'
+              : 'text-gray-500 dark:text-gray-400'
           }`}
         >
           {t('categories.expenses')}
@@ -158,77 +195,130 @@ export default function Screen4_Categories() {
         <button
           type="button"
           onClick={() => setActiveTab('income')}
-          className={`flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors ${
+          className={`rounded-full px-6 py-2 text-sm font-semibold transition-colors ${
             activeTab === 'income'
-              ? 'bg-emerald-500 text-white'
-              : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400'
+              ? 'bg-emerald-500 text-white shadow-sm'
+              : 'text-gray-500 dark:text-gray-400'
           }`}
         >
           {t('categories.income')}
         </button>
       </div>
 
-      {/* Categories list */}
-      <div className="space-y-4 flex-1">
-        {categoriesByGroup.map(({ group, categories }) => (
-          <div key={group.id}>
-            {/* Group header */}
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              {group.name}
-            </h3>
+      {/* Categories grid — 3 columns */}
+      <div className="flex-1">
+        <div className="grid grid-cols-3 gap-3">
+          {/* Default categories */}
+          {defaultCategoriesForTab.map((category) => {
+            const catId = `default-${DEFAULT_CATEGORIES.indexOf(category)}`;
+            const isSelected = selectedIds.has(catId);
+            const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons] as React.ComponentType<{ className?: string; style?: React.CSSProperties }> | undefined;
+            const categoryName = getCategoryDisplayName(category.name, t);
 
-            {/* Categories in this group */}
-            <div className="space-y-2">
-              {categories.map((category) => {
-                const catId = `default-${DEFAULT_CATEGORIES.indexOf(category)}`;
-                const isSelected = selectedIds.has(catId);
-                const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons] as any;
-                const categoryName = getCategoryDisplayName(category.name, t);
+            return (
+              <button
+                key={catId}
+                type="button"
+                onClick={() => toggleCategory(catId)}
+                className={`relative flex flex-col items-center gap-2 rounded-2xl p-3 pt-4 transition-all active:scale-[0.97] ${
+                  isSelected
+                    ? ''
+                    : 'bg-gray-100 dark:bg-gray-800/80'
+                }`}
+                style={isSelected ? { backgroundColor: category.color + '20' } : undefined}
+              >
+                {/* Check badge */}
+                {isSelected && (
+                  <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm dark:bg-gray-100">
+                    <Check className="h-3 w-3 text-gray-900" strokeWidth={3} />
+                  </div>
+                )}
 
-                return (
-                  <button
-                    key={catId}
-                    type="button"
-                    onClick={() => toggleCategory(catId)}
-                    className={`flex w-full items-center justify-between rounded-xl bg-white dark:bg-gray-900 p-3 shadow-sm transition-all active:scale-[0.98] ${
-                      !isSelected ? 'opacity-50' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: category.color + '20' }}
-                      >
-                        {IconComponent && (
-                          <IconComponent className="h-5 w-5" style={{ color: category.color }} />
-                        )}
-                      </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                        {categoryName}
-                      </span>
-                    </div>
+                {/* Icon circle */}
+                <div
+                  className="flex h-14 w-14 items-center justify-center rounded-full transition-colors"
+                  style={{
+                    backgroundColor: isSelected
+                      ? category.color + '30'
+                      : category.color + '15',
+                  }}
+                >
+                  {IconComponent && (
+                    <IconComponent
+                      className="h-6 w-6 transition-opacity"
+                      style={{
+                        color: category.color,
+                        opacity: isSelected ? 1 : 0.7,
+                      }}
+                    />
+                  )}
+                </div>
 
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
-                        isSelected
-                          ? 'bg-emerald-500'
-                          : 'bg-gray-200 dark:bg-gray-700'
-                      }`}
-                    >
-                      {isSelected && (
-                        <Check className="h-5 w-5 text-white" strokeWidth={3} />
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                {/* Name */}
+                <span
+                  className={`text-center text-xs font-semibold leading-tight transition-colors ${
+                    isSelected
+                      ? 'text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {categoryName}
+                </span>
+              </button>
+            );
+          })}
+
+          {/* Custom categories already in store */}
+          {customCategoriesForTab.map((category) => {
+            const IconComponent = icons[kebabToPascal(category.icon) as keyof typeof icons] as React.ComponentType<{ className?: string; style?: React.CSSProperties }> | undefined;
+
+            return (
+              <div
+                key={category.id}
+                className="relative flex flex-col items-center gap-2 rounded-2xl p-3 pt-4 ring-1 ring-white/20 dark:ring-white/10"
+                style={{ backgroundColor: category.color + '20' }}
+              >
+                {/* Check badge (always selected) */}
+                <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-white shadow-sm dark:bg-gray-100">
+                  <Check className="h-3 w-3 text-gray-900" strokeWidth={3} />
+                </div>
+
+                {/* Icon circle */}
+                <div
+                  className="flex h-14 w-14 items-center justify-center rounded-full"
+                  style={{ backgroundColor: category.color + '30' }}
+                >
+                  {IconComponent && (
+                    <IconComponent className="h-6 w-6" style={{ color: category.color }} />
+                  )}
+                </div>
+
+                {/* Name */}
+                <span className="text-center text-xs font-semibold leading-tight text-gray-900 dark:text-white">
+                  {category.name}
+                </span>
+              </div>
+            );
+          })}
+
+          {/* "Crear nueva" card */}
+          <button
+            type="button"
+            onClick={handleCreateNew}
+            className="flex flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 p-3 pt-4 transition-all active:scale-[0.97] dark:border-gray-700"
+          >
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+              <Plus className="h-6 w-6 text-gray-400 dark:text-gray-500" />
             </div>
-          </div>
-        ))}
+            <span className="text-center text-xs font-semibold leading-tight text-gray-500 dark:text-gray-400">
+              {t('categories.createNew')}
+            </span>
+          </button>
+        </div>
 
         {/* Disclaimer */}
-        <div className="mt-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 p-4">
-          <p className="text-sm text-blue-900 dark:text-blue-200 leading-relaxed">
+        <div className="mt-6 rounded-xl bg-blue-50 p-4 dark:bg-blue-900/20">
+          <p className="text-sm leading-relaxed text-blue-900 dark:text-blue-200">
             {t('categories.note')}
           </p>
         </div>

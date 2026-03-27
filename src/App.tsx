@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState, useCallback } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, useCallback, useRef } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -232,9 +232,16 @@ function QuickAddHandler() {
     notes?: string;
   } | null>(null);
 
+  // Track whether a quick-add has been processed to avoid duplicates
+  const processedRef = useRef(false);
+
   const handleEvent = useCallback(async (e: Event) => {
     const detail = (e as CustomEvent).detail;
     if (!detail) return;
+
+    // Prevent duplicate processing (event + poll could race)
+    if (processedRef.current) return;
+    processedRef.current = true;
 
     // Clear pending storage immediately to prevent duplicate on next app open
     localStorage.removeItem('pendingQuickAdd');
@@ -293,6 +300,9 @@ function QuickAddHandler() {
   }, []);
 
   useEffect(() => {
+    // Reset processed flag on mount (fresh lifecycle)
+    processedRef.current = false;
+
     window.addEventListener('quick-add-transaction', handleEvent);
 
     // Check for pending quick-add from cold start (deep link arrived before React mounted)
@@ -308,7 +318,37 @@ function QuickAddHandler() {
       }
     }
 
-    return () => window.removeEventListener('quick-add-transaction', handleEvent);
+    // ── Poll localStorage for deep links that arrive after mount ──
+    // On cold start, the Capacitor bridge may deliver the URL several seconds
+    // after React mounts (especially with heavy CloudSyncGate init on flaky network).
+    // Polling ensures the QuickAddModal appears ASAP regardless of bridge timing.
+    const POLL_TIMEOUT = 15_000; // stop after 15 seconds
+    const POLL_INTERVAL = 300;   // check every 300ms
+    const pollStart = Date.now();
+
+    const pollId = setInterval(() => {
+      if (processedRef.current || Date.now() - pollStart > POLL_TIMEOUT) {
+        clearInterval(pollId);
+        return;
+      }
+      const pendingData = localStorage.getItem('pendingQuickAdd');
+      if (pendingData) {
+        try {
+          const params = JSON.parse(pendingData);
+          console.log('[QuickAddHandler] Found pending quick-add via polling:', params);
+          handleEvent(new CustomEvent('quick-add-transaction', { detail: params }));
+        } catch (err) {
+          console.error('[QuickAddHandler] Error parsing pending quick-add (poll):', err);
+          localStorage.removeItem('pendingQuickAdd');
+        }
+        clearInterval(pollId);
+      }
+    }, POLL_INTERVAL);
+
+    return () => {
+      clearInterval(pollId);
+      window.removeEventListener('quick-add-transaction', handleEvent);
+    };
   }, [handleEvent]);
 
   return (

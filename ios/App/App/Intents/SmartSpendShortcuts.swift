@@ -1,6 +1,6 @@
 import AppIntents
 
-/// Provides pre-built shortcuts that appear in the Shortcuts app under SmartSpend's section.
+/// Provides pre-built shortcuts that appear in the Shortcuts app under Lukas's section.
 @available(iOS 16, *)
 struct SmartSpendShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {

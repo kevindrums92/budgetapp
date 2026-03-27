@@ -161,7 +161,7 @@ export default function ExportPDFSheet({
     topDay: t('export.pdf.labels.topDay', 'Highest spending day'),
     daysInRange: t('export.pdf.labels.daysInRange', 'Days in period'),
     transactionDetails: t('export.pdf.labels.transactionDetails', 'Transaction Details'),
-    generatedWith: t('export.pdf.labels.generatedWith', 'Generated with SmartSpend'),
+    generatedWith: t('export.pdf.labels.generatedWith', 'Generated with Lukas'),
   });
 
   const handleGenerate = async () => {

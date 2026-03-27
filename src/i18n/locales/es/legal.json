@@ -5,11 +5,11 @@
     "title": "Términos de Servicio",
     "introduction": {
       "title": "Introducción",
-      "content": "Bienvenido a SmartSpend. Al usar nuestra aplicación, aceptas estos términos de servicio. SmartSpend es una aplicación de gestión de finanzas personales diseñada para ayudarte a rastrear tus gastos, ingresos y presupuestos."
+      "content": "Bienvenido a Lukas. Al usar nuestra aplicación, aceptas estos términos de servicio. Lukas es una aplicación de gestión de finanzas personales diseñada para ayudarte a rastrear tus gastos, ingresos y presupuestos."
     },
     "service": {
       "title": "Descripción del Servicio",
-      "content": "SmartSpend ofrece:",
+      "content": "Lukas ofrece:",
       "features": {
         "transactions": "Seguimiento de transacciones (ingresos y gastos)",
         "categories": "Gestión de categorías y presupuestos",
@@ -21,7 +21,7 @@
     },
     "accounts": {
       "title": "Cuentas de Usuario",
-      "content": "Puedes usar SmartSpend en dos modos:",
+      "content": "Puedes usar Lukas en dos modos:",
       "guestMode": "Modo Invitado:",
       "guestDescription": "Tus datos se almacenan localmente en tu dispositivo. No se requiere cuenta.",
       "cloudMode": "Modo Cloud:",
@@ -29,15 +29,15 @@
     },
     "subscription": {
       "title": "Suscripciones y Pagos",
-      "content": "SmartSpend ofrece una suscripción Pro opcional que desbloquea funciones premium. Los pagos se procesan de forma segura a través de RevenueCat y las tiendas de aplicaciones (App Store, Google Play). Las suscripciones se renuevan automáticamente a menos que las canceles antes de la fecha de renovación. Puedes gestionar tu suscripción desde la configuración de tu cuenta en la tienda de aplicaciones correspondiente."
+      "content": "Lukas ofrece una suscripción Pro opcional que desbloquea funciones premium. Los pagos se procesan de forma segura a través de RevenueCat y las tiendas de aplicaciones (App Store, Google Play). Las suscripciones se renuevan automáticamente a menos que las canceles antes de la fecha de renovación. Puedes gestionar tu suscripción desde la configuración de tu cuenta en la tienda de aplicaciones correspondiente."
     },
     "ownership": {
       "title": "Propiedad de Datos",
-      "content": "Todos tus datos financieros son de tu propiedad. SmartSpend no comparte, vende ni utiliza tus datos para publicidad. Puedes exportar o eliminar tus datos en cualquier momento desde la configuración de la aplicación."
+      "content": "Todos tus datos financieros son de tu propiedad. Lukas no comparte, vende ni utiliza tus datos para publicidad. Puedes exportar o eliminar tus datos en cualquier momento desde la configuración de la aplicación."
     },
     "use": {
       "title": "Uso Aceptable",
-      "content": "Al usar SmartSpend, aceptas:",
+      "content": "Al usar Lukas, aceptas:",
       "rules": {
         "legal": "Usar la aplicación solo para fines legales y personales",
         "noAccess": "No intentar acceder a datos de otros usuarios",
@@ -47,15 +47,15 @@
     },
     "limitations": {
       "title": "Limitación de Responsabilidad",
-      "content": "SmartSpend se proporciona \"tal cual\" sin garantías de ningún tipo. No somos responsables de pérdidas financieras, daños o imprecisiones en los datos. Es tu responsabilidad verificar la exactitud de tus registros financieros y realizar respaldos regulares de tus datos."
+      "content": "Lukas se proporciona \"tal cual\" sin garantías de ningún tipo. No somos responsables de pérdidas financieras, daños o imprecisiones en los datos. Es tu responsabilidad verificar la exactitud de tus registros financieros y realizar respaldos regulares de tus datos."
     },
     "availability": {
       "title": "Disponibilidad del Servicio",
-      "content": "Hacemos nuestro mejor esfuerzo para mantener SmartSpend disponible, pero no garantizamos un tiempo de actividad del 100%. Podemos suspender o descontinuar el servicio en cualquier momento con previo aviso."
+      "content": "Hacemos nuestro mejor esfuerzo para mantener Lukas disponible, pero no garantizamos un tiempo de actividad del 100%. Podemos suspender o descontinuar el servicio en cualquier momento con previo aviso."
     },
     "changes": {
       "title": "Cambios a los Términos",
-      "content": "Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios se publicarán en esta página con una fecha de actualización. Tu uso continuado de SmartSpend después de los cambios constituye tu aceptación de los nuevos términos."
+      "content": "Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios se publicarán en esta página con una fecha de actualización. Tu uso continuado de Lukas después de los cambios constituye tu aceptación de los nuevos términos."
     },
     "contact": {
       "title": "Contacto",
@@ -66,7 +66,7 @@
     "title": "Política de Privacidad",
     "introduction": {
       "title": "Introducción",
-      "content": "En SmartSpend, respetamos tu privacidad y nos comprometemos a proteger tus datos personales. Esta política explica cómo recopilamos, usamos y protegemos tu información."
+      "content": "En Lukas, respetamos tu privacidad y nos comprometemos a proteger tus datos personales. Esta política explica cómo recopilamos, usamos y protegemos tu información."
     },
     "collection": {
       "title": "Información que Recopilamos",
@@ -111,7 +111,7 @@
     },
     "thirdParty": {
       "title": "Servicios de Terceros",
-      "intro": "SmartSpend utiliza los siguientes servicios:",
+      "intro": "Lukas utiliza los siguientes servicios:",
       "supabase": "Supabase:",
       "supabaseDesc": "Almacenamiento de datos y autenticación.",
       "supabaseLink": "Ver política de privacidad",
@@ -140,11 +140,11 @@
     },
     "cookies": {
       "title": "Cookies y Almacenamiento Local",
-      "content": "SmartSpend usa localStorage del navegador para almacenar tus preferencias (idioma, tema, moneda) y datos financieros (en modo invitado). No usamos cookies de seguimiento publicitario. La sesión de autenticación se gestiona mediante tokens seguros de Supabase."
+      "content": "Lukas usa localStorage del navegador para almacenar tus preferencias (idioma, tema, moneda) y datos financieros (en modo invitado). No usamos cookies de seguimiento publicitario. La sesión de autenticación se gestiona mediante tokens seguros de Supabase."
     },
     "children": {
       "title": "Privacidad de Menores",
-      "content": "SmartSpend no está dirigida a menores de 13 años. No recopilamos intencionalmente información de niños. Si descubres que un menor ha proporcionado datos personales, contacta con nosotros para eliminarlos."
+      "content": "Lukas no está dirigida a menores de 13 años. No recopilamos intencionalmente información de niños. Si descubres que un menor ha proporcionado datos personales, contacta con nosotros para eliminarlos."
     },
     "changes": {
       "title": "Cambios a esta Política",
