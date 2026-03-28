@@ -19,6 +19,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Request notification authorization
         UNUserNotificationCenter.current().delegate = self
 
+        // Listen for deep links from App Intents (Shortcuts).
+        // perform() runs AFTER applicationDidBecomeActive, so the intent
+        // posts this notification once the URL is saved to UserDefaults.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleShortcutDeepLink),
+            name: Notification.Name("ShortcutDeepLinkReady"),
+            object: nil
+        )
+
         return true
     }
 
@@ -37,14 +47,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Check for pending deep link from iOS Shortcuts (App Intents)
-        if let pendingURL = UserDefaults.standard.string(forKey: "pendingShortcutDeepLink"),
-           let url = URL(string: pendingURL) {
-            UserDefaults.standard.removeObject(forKey: "pendingShortcutDeepLink")
-            // Small delay to ensure Capacitor WebView is ready
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                _ = ApplicationDelegateProxy.shared.application(application, open: url, options: [:])
-            }
+        // Fallback: check for pending deep link on app activation (covers cold start).
+        // On warm start the intent's NotificationCenter post handles delivery.
+        deliverPendingShortcutDeepLink()
+    }
+
+    /// Called by the intent's NotificationCenter post (warm start) or
+    /// applicationDidBecomeActive (cold start / fallback).
+    @objc func handleShortcutDeepLink() {
+        deliverPendingShortcutDeepLink()
+    }
+
+    private func deliverPendingShortcutDeepLink() {
+        guard let pendingURL = UserDefaults.standard.string(forKey: "pendingShortcutDeepLink"),
+              let url = URL(string: pendingURL) else { return }
+
+        UserDefaults.standard.removeObject(forKey: "pendingShortcutDeepLink")
+
+        // Small delay to ensure Capacitor WebView is ready (matters on cold start)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            _ = ApplicationDelegateProxy.shared.application(
+                UIApplication.shared, open: url, options: [:]
+            )
         }
     }
 

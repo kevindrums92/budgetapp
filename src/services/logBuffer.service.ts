@@ -81,6 +81,25 @@ export function installLogBuffer() {
 }
 
 /**
+ * Redact tokens, keys, and secrets so Sentry's @password:filter
+ * doesn't scrub the entire recentLogs field.
+ */
+function sanitize(text: string): string {
+  return text
+    // JWT tokens (eyJ…)
+    .replace(/eyJ[A-Za-z0-9_-]{20,}/g, "[JWT]")
+    // Quoted token/key/secret values: "access_token":"value" or "apikey":"value"
+    .replace(
+      /("(?:access_token|refresh_token|token|apikey|api_key|secret|password|authorization|anon_key)"\s*:\s*")([^"]{8,})"/gi,
+      '$1[REDACTED]"',
+    )
+    // Bearer tokens in headers
+    .replace(/Bearer\s+[A-Za-z0-9._-]{20,}/gi, "Bearer [REDACTED]")
+    // Supabase key patterns (sb-…)
+    .replace(/sb-[a-z0-9]+-auth-token[^\s"]*/gi, "[SB_TOKEN]");
+}
+
+/**
  * Send the current log buffer to Sentry as a manual diagnostic report.
  * Returns true if the event was captured, false if nothing to send.
  */
@@ -89,10 +108,12 @@ export function sendDiagnosticReport(): boolean {
 
   const snapshot = [...buffer];
 
-  // Format as readable text for Sentry
-  const logText = snapshot
-    .map((e) => `[${e.ts}] ${e.level.toUpperCase()} ${e.args}`)
-    .join("\n");
+  // Format as readable text and sanitize secrets so Sentry doesn't scrub the whole field
+  const logText = sanitize(
+    snapshot
+      .map((e) => `[${e.ts}] ${e.level.toUpperCase()} ${e.args}`)
+      .join("\n"),
+  );
 
   Sentry.withScope((scope) => {
     scope.setLevel("info");

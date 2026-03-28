@@ -2,6 +2,14 @@ import * as Sentry from "@sentry/react";
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
 
+/** Strip tokens/keys/secrets from a string to avoid Sentry's @password:filter scrubbing. */
+function redactSecrets(text: string): string {
+  return text
+    .replace(/eyJ[A-Za-z0-9_-]{20,}/g, "[JWT]")
+    .replace(/Bearer\s+[A-Za-z0-9._-]{20,}/gi, "Bearer [REDACTED]")
+    .replace(/sb-[a-z0-9]+-auth-token[^\s"]*/gi, "[SB_TOKEN]");
+}
+
 /**
  * Initialize Sentry for error-only tracking.
  * No performance tracing, no session replay — just errors.
@@ -70,6 +78,20 @@ export function initSentry() {
 
     // Limit breadcrumbs to reduce payload size
     maxBreadcrumbs: 30,
+
+    // Sanitize breadcrumb data so Sentry's @password:filter
+    // doesn't scrub entries containing tokens/keys
+    beforeBreadcrumb(breadcrumb) {
+      if (breadcrumb.message) {
+        breadcrumb.message = redactSecrets(breadcrumb.message);
+      }
+      if (breadcrumb.data?.arguments && Array.isArray(breadcrumb.data.arguments)) {
+        breadcrumb.data.arguments = breadcrumb.data.arguments.map(
+          (arg: unknown) => (typeof arg === "string" ? redactSecrets(arg) : arg),
+        );
+      }
+      return breadcrumb;
+    },
 
     // Ignore common non-actionable errors
     ignoreErrors: [
