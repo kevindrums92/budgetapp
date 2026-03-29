@@ -10,7 +10,14 @@ All notable changes to SmartSpend will be documented in this file.
 
 
 
+
 ## [unreleased] - {relase date}
+
+## [0.16.26] - 2026-03-29
+
+- fix iOS Shortcuts deep link: use Darwin notifications (cross-process) instead of NotificationCenter (process-local) so intents running in Shortcuts process reach AppDelegate
+- fix QuickAddHandler: make event handler synchronous to prevent replaceAllData race condition, reset processedRef on modal close to allow multiple deep links per session
+- fix QuickAddModal: parse `<b>` tags in budgetWillExceed text (was rendering raw HTML)
 
 ## [0.16.25] - 2026-03-27
 

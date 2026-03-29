@@ -284,20 +284,21 @@ export default function QuickAddModal({
 
                   {/* Budget remaining text */}
                   <p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400">
-                    {budgetContext.willExceed
-                      ? t("quickAdd.budgetWillExceed", "Excederás tu presupuesto de {{category}} este mes.", {
+                    {(budgetContext.willExceed
+                      ? t("quickAdd.budgetWillExceed", "Excederás tu presupuesto de <b>{{category}}</b> este mes.", {
                           category: category.name,
                         })
                       : t("quickAdd.budgetRemaining", "Te quedarán <b>{{amount}}</b> en <b>{{category}}</b> este mes.", {
                           amount: formatAmount(budgetContext.projectedRemaining),
                           category: category.name,
-                        }).split(/<b>|<\/b>/).map((part, i) =>
-                          i % 2 === 1 ? (
-                            <span key={i} className="font-semibold text-gray-700 dark:text-gray-200">{part}</span>
-                          ) : (
-                            <span key={i}>{part}</span>
-                          )
-                        )}
+                        })
+                    ).split(/<b>|<\/b>/).map((part, i) =>
+                      i % 2 === 1 ? (
+                        <span key={i} className="font-semibold text-gray-700 dark:text-gray-200">{part}</span>
+                      ) : (
+                        <span key={i}>{part}</span>
+                      )
+                    )}
                   </p>
                 </div>
               )}
