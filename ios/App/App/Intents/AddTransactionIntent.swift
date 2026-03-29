@@ -27,9 +27,11 @@ struct AddTransactionIntent: AppIntent {
         if let url = components.url {
             // Store the deep link URL for the app to pick up when it becomes active
             UserDefaults.standard.set(url.absoluteString, forKey: "pendingShortcutDeepLink")
-            // Notify AppDelegate to deliver the deep link NOW.
-            // applicationDidBecomeActive fires BEFORE perform(), so it misses the URL.
-            NotificationCenter.default.post(name: Notification.Name("ShortcutDeepLinkReady"), object: nil)
+            // Signal the app process via Darwin notification (cross-process).
+            // NotificationCenter is local to each process and won't reach AppDelegate
+            // when the intent runs in the Shortcuts process.
+            let center = CFNotificationCenterGetDarwinNotifyCenter()
+            CFNotificationCenterPostNotification(center, CFNotificationName("com.jhotech.smartspend.shortcutDeepLink" as CFString), nil, nil, true)
         }
 
         return .result()

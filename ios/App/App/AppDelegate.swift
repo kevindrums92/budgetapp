@@ -19,14 +19,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Request notification authorization
         UNUserNotificationCenter.current().delegate = self
 
-        // Listen for deep links from App Intents (Shortcuts).
-        // perform() runs AFTER applicationDidBecomeActive, so the intent
-        // posts this notification once the URL is saved to UserDefaults.
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleShortcutDeepLink),
-            name: Notification.Name("ShortcutDeepLinkReady"),
-            object: nil
+        // Listen for deep links from App Intents (Shortcuts) via Darwin notifications.
+        // Darwin notifications are cross-process: the intent may run in the Shortcuts
+        // process, so regular NotificationCenter (process-local) won't work.
+        let center = CFNotificationCenterGetDarwinNotifyCenter()
+        CFNotificationCenterAddObserver(
+            center,
+            Unmanaged.passUnretained(self).toOpaque(),
+            { _, observer, _, _, _ in
+                guard let observer = observer else { return }
+                let appDelegate = Unmanaged<AppDelegate>.fromOpaque(observer).takeUnretainedValue()
+                DispatchQueue.main.async {
+                    appDelegate.deliverPendingShortcutDeepLink()
+                }
+            },
+            "com.jhotech.smartspend.shortcutDeepLink" as CFString,
+            nil,
+            .deliverImmediately
         )
 
         return true
@@ -47,13 +56,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        // Fallback: check for pending deep link on app activation (covers cold start).
-        // On warm start the intent's NotificationCenter post handles delivery.
+        // Fallback: check for pending deep link on app activation (covers cold start
+        // where the URL was written by a previous intent run).
         deliverPendingShortcutDeepLink()
     }
 
-    /// Called by the intent's NotificationCenter post (warm start) or
-    /// applicationDidBecomeActive (cold start / fallback).
+    /// Called by Darwin notification from the intent process, or
+    /// applicationDidBecomeActive as cold-start fallback.
     @objc func handleShortcutDeepLink() {
         deliverPendingShortcutDeepLink()
     }

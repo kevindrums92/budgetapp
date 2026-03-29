@@ -235,12 +235,15 @@ function QuickAddHandler() {
   // Track whether a quick-add has been processed to avoid duplicates
   const processedRef = useRef(false);
 
-  const handleEvent = useCallback(async (e: Event) => {
+  const handleEvent = useCallback((e: Event) => {
     const detail = (e as CustomEvent).detail;
     if (!detail) return;
 
     // Prevent duplicate processing (event + poll could race)
-    if (processedRef.current) return;
+    if (processedRef.current) {
+      console.log('[QuickAddHandler] Skipped (already processed)');
+      return;
+    }
     processedRef.current = true;
 
     // Clear pending storage immediately to prevent duplicate on next app open
@@ -248,55 +251,54 @@ function QuickAddHandler() {
 
     console.log('[QuickAddHandler] Received quick-add event:', detail);
 
-    // Import merchant matcher lazily to avoid loading on startup
-    const { matchMerchantToCategory } = await import('@/services/merchantMatcher.service');
-    const { useBudgetStore } = await import('@/state/budget.store');
-    const { todayISO } = await import('@/services/dates.service');
-
-    const state = useBudgetStore.getState();
-    const { transactions, categoryDefinitions } = state;
-
-    // Try to match merchant name to a category
     const type = detail.type === 'income' ? 'income' : 'expense';
-    let categoryId: string | null = null;
-
-    if (detail.name) {
-      const match = matchMerchantToCategory(
-        detail.name,
-        transactions,
-        categoryDefinitions,
-        type
-      );
-      if (match) {
-        console.log(`[QuickAddHandler] Category matched: ${match.categoryId} (via ${match.source})`);
-        categoryId = match.categoryId;
-      }
-    }
-
-    // Also try matching by category param (could be a group ID like "food_drink")
-    if (!categoryId && detail.category) {
-      const categoriesOfType = categoryDefinitions.filter((c) => c.type === type);
-      const exactMatch = categoriesOfType.find((c) => c.id === detail.category);
-      if (exactMatch) {
-        categoryId = exactMatch.id;
-      } else {
-        const groupMatch = categoriesOfType.find((c) => c.groupId === detail.category);
-        if (groupMatch) {
-          categoryId = groupMatch.id;
-        }
-      }
-    }
-
     const amount = Number(String(detail.amount || '0').replace(/[^0-9]/g, '')) || 0;
 
-    setModalData({
+    // Show modal IMMEDIATELY with basic data (no async delays)
+    const basicData = {
       name: detail.name || '',
       amount,
-      type,
-      date: detail.date || todayISO(),
-      categoryId,
+      type: type as "income" | "expense",
+      date: detail.date || new Date().toISOString().split('T')[0],
+      categoryId: null as string | null,
       notes: detail.notes || '',
-    });
+    };
+
+    // Try category matching synchronously from the already-loaded store
+    try {
+      const state = useBudgetStore.getState();
+      const { transactions, categoryDefinitions } = state;
+
+      if (detail.name && categoryDefinitions.length > 0) {
+        // Lazy import for merchant matcher, but don't block modal
+        import('@/services/merchantMatcher.service').then(({ matchMerchantToCategory }) => {
+          const match = matchMerchantToCategory(detail.name, transactions, categoryDefinitions, type);
+          if (match) {
+            console.log(`[QuickAddHandler] Category matched: ${match.categoryId} (via ${match.source})`);
+            setModalData(prev => prev ? { ...prev, categoryId: match.categoryId } : prev);
+          }
+        });
+      }
+
+      // Also try matching by category param
+      if (detail.category) {
+        const categoriesOfType = categoryDefinitions.filter((c) => c.type === type);
+        const exactMatch = categoriesOfType.find((c) => c.id === detail.category);
+        if (exactMatch) {
+          basicData.categoryId = exactMatch.id;
+        } else {
+          const groupMatch = categoriesOfType.find((c) => c.groupId === detail.category);
+          if (groupMatch) {
+            basicData.categoryId = groupMatch.id;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('[QuickAddHandler] Category matching failed, showing without category:', err);
+    }
+
+    console.log('[QuickAddHandler] Setting modal data:', basicData);
+    setModalData(basicData);
   }, []);
 
   useEffect(() => {
@@ -355,7 +357,11 @@ function QuickAddHandler() {
     <QuickAddModal
       open={modalData !== null}
       data={modalData}
-      onClose={() => setModalData(null)}
+      onClose={() => {
+        setModalData(null);
+        // Allow future deep links in the same session
+        processedRef.current = false;
+      }}
     />
   );
 }
